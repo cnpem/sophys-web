@@ -6,10 +6,12 @@
     "lint": "turbo lint",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "ui-add": "turbo run ui-add"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.11.24",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
     "prettier-plugin-tailwindcss": "^0.5.11",
