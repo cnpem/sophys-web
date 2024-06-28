@@ -15,6 +15,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
+    "clean": "rm -rf dist .turbo node_modules",
     "lint": "eslint src/",
     "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
     "type-check": "tsc --noEmit",
