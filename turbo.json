@@ -19,5 +19,7 @@
       "cache": false,
       "interactive": true
     }
-  }
+  },
+  "globalEnv": ["AUTH_SECRET"],
+  "globalPassThroughEnv": ["NODE_ENV", "SKIP_ENV_VALIDATION"]
 }
