@@ -13,11 +13,15 @@ declare module "next-auth" {
 }
 
 export const isSecureContext = env.NODE_ENV !== "development";
+export const BLUESKY_COOKIE_PREFIX = "bluesky-http_";
 
 export const authConfig: NextAuthConfig = {
   secret: env.AUTH_SECRET,
   session: {
     strategy: "jwt",
+  },
+  theme: {
+    colorScheme: "light",
   },
   providers: [
     Credentials({
@@ -41,18 +45,48 @@ export const authConfig: NextAuthConfig = {
 
           const name = parsed.data?.email.split("@")[0];
 
+          const formData = new FormData();
+          formData.append("username", name);
+          formData.append("password", parsed.data?.password);
+
+          const res = await fetch(
+            `${env.BLUESKY_HTTPSERVER_URL}/api/auth/provider/ldap/token`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          if (!res.ok) {
+            return null;
+          }
+
+          const data = await res.json();
+          const cookieStore = cookies();
+          cookieStore.set(
+            `${BLUESKY_COOKIE_PREFIX}access_token`,
+            data.access_token,
+            {
+              secure: isSecureContext,
+              httpOnly: true,
+            }
+          );
+          cookieStore.set(
+            `${BLUESKY_COOKIE_PREFIX}refresh_token`,
+            data.refresh_token,
+            {
+              secure: isSecureContext,
+              httpOnly: true,
+            }
+          );
+
           const user = {
             id: name,
             name,
             email: parsed.data?.email,
+            blueskyAccessToken: data.access_token as string,
+            blueskyRefreshToken: data.refresh_token as string,
           };
-
-          if (user.name === "test") {
-            cookies().set("test", "test", {
-              secure: isSecureContext,
-              httpOnly: true,
-            });
-          }
           return user;
         } catch (error) {
           return null;
