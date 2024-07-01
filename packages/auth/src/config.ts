@@ -38,7 +38,6 @@ const blueskyTokenSchema = z.object({
 });
 
 export const isSecureContext = env.NODE_ENV !== "development";
-export const BLUESKY_COOKIE_PREFIX = "bluesky-http_";
 
 async function refreshBlueskyToken(refreshToken: string) {
   const res = await fetch(

@@ -14,4 +14,4 @@ const auth = cache(defaultAuth);
 
 export { handlers, auth, signIn, signOut };
 
-export { isSecureContext, BLUESKY_COOKIE_PREFIX } from "./config";
+export { isSecureContext } from "./config";
