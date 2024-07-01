@@ -13,4 +13,5 @@ const { handlers, auth: defaultAuth, signIn, signOut } = NextAuth(authConfig);
 const auth = cache(defaultAuth);
 
 export { handlers, auth, signIn, signOut };
+
 export { isSecureContext, BLUESKY_COOKIE_PREFIX } from "./config";

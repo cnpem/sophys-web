@@ -112,6 +112,9 @@ importers:
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
+      '@types/react':
+        specifier: ^18.2.61
+        version: 18.2.61
 
   packages/config-eslint:
     devDependencies:
