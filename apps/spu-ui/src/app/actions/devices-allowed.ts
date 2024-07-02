@@ -1,6 +1,5 @@
 "use server";
-import { cookies } from "next/headers";
-import { BLUESKY_COOKIE_PREFIX } from "@repo/auth";
+import { auth } from "@repo/auth";
 import { z } from "zod";
 import { env } from "../../env";
 
@@ -30,8 +29,11 @@ const ApiResponseSchema = z.object({
 });
 
 export async function get() {
-  const cookieStore = cookies();
-  const blueskyToken = cookieStore.get(`${BLUESKY_COOKIE_PREFIX}access_token`);
+  const session = await auth();
+  if (!session) {
+    throw new Error("User not authenticated");
+  }
+  const blueskyToken = session.user.blueskyAccessToken;
   if (!blueskyToken) {
     throw new Error("No bluesky token found");
   }
@@ -39,7 +41,7 @@ export async function get() {
     `${env.BLUESKY_HTTPSERVER_URL}/api/devices/allowed`,
     {
       headers: {
-        Authorization: `Bearer ${blueskyToken.value}`,
+        Authorization: `Bearer ${blueskyToken}`,
       },
     }
   );
