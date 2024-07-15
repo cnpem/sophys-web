@@ -20,6 +20,6 @@
       "interactive": true
     }
   },
-  "globalEnv": ["AUTH_SECRET"],
+  "globalEnv": ["AUTH_SECRET", "PORT"],
   "globalPassThroughEnv": ["NODE_ENV", "SKIP_ENV_VALIDATION"]
 }

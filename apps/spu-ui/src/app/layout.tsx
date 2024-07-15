@@ -3,6 +3,7 @@ import "@repo/ui/styles.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "@repo/ui/sonner";
+import { TRPCReactProvider } from "../trpc/react";
 import Navbar from "./_components/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,7 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Navbar />
         <Toaster />
-        {children}
+        <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
   );
