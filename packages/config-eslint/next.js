@@ -45,6 +45,7 @@ module.exports = {
     "camelcase": "off",
     "react/hook-use-state": "off",
     "import/no-default-export": "off",
+    "import/no-unresolved": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-misused-promises": "off",
   },
