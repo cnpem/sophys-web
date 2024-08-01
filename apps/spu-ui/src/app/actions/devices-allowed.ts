@@ -43,7 +43,7 @@ export async function get() {
       headers: {
         Authorization: `Bearer ${blueskyToken}`,
       },
-    }
+    },
   );
   if (!response.ok) {
     throw new Error("Failed to fetch allowed devices");
@@ -58,7 +58,7 @@ export async function get() {
 export async function getLongNames() {
   const parsed = await get();
   const devicesLongNameList = Object.entries(parsed).map(
-    ([_, value]) => value.long_name
+    ([_, value]) => value.long_name,
   );
   return devicesLongNameList;
 }

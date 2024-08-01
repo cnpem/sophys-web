@@ -50,7 +50,7 @@ async function refreshBlueskyToken(refreshToken: string) {
       body: JSON.stringify({
         refresh_token: refreshToken,
       }),
-    }
+    },
   );
   if (!res.ok) {
     throw new Error("Failed to refresh Bluesky token");
@@ -100,7 +100,7 @@ export const authConfig: NextAuthConfig = {
             {
               method: "POST",
               body: formData,
-            }
+            },
           );
 
           if (!res.ok) {
@@ -156,7 +156,7 @@ export const authConfig: NextAuthConfig = {
           throw new Error("No refresh token available");
         try {
           const refreshed = await refreshBlueskyToken(
-            token.bluesky_refresh_token
+            token.bluesky_refresh_token,
           );
           return {
             ...token,

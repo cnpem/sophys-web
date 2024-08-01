@@ -35,7 +35,7 @@ export const createTRPCContext = async (opts: {
   console.log(">>> tRPC Request from", source, "by", session?.user);
 
   return {
-    session
+    session,
   };
 };
 

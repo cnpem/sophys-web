@@ -17,4 +17,3 @@ A collection of web applications and its resources for the Sirius Ophyd and blue
   - [ ] Plot viewer.
   - [ ] Auth.
     - [ ] User roles.
-

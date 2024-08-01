@@ -56,7 +56,7 @@ export async function get() {
       headers: {
         Authorization: `Bearer ${blueskyToken}`,
       },
-    }
+    },
   );
   if (!response.ok) {
     throw new Error("Failed to fetch allowed plans");
