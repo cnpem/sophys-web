@@ -1,0 +1,34 @@
+name: CI
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["*"]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Run ESLint
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Lint
+        run: SKIP_ENV_VALIDATION=1 pnpm lint
+  format:
+    runs-on: ubuntu-latest
+    name: Run Prettier
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Format Check
+        run: pnpm format:check
+  typecheck:
+    runs-on: ubuntu-latest
+    name: Run TypeScript
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Typecheck
+        run: pnpm type-check
