@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "@repo/ui";
+import { cn } from "@sophys-web/ui";
 
 export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 

@@ -1,4 +1,4 @@
-# @repo/ui
+# @sophys-web/ui
 
 ## 0.1.0
 

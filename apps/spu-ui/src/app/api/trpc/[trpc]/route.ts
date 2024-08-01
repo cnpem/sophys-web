@@ -1,6 +1,6 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import { appRouter, createTRPCContext } from "@repo/api";
-import { auth } from "@repo/auth";
+import { appRouter, createTRPCContext } from "@sophys-web/api";
+import { auth } from "@sophys-web/auth";
 
 /**
  * Configure basic CORS headers

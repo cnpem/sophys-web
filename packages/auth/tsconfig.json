@@ -1,5 +1,5 @@
 {
-    "extends": "@repo/typescript-config/base.json",
+    "extends": "@sophys-web/typescript-config/base.json",
     "compilerOptions": {
       "declaration": false,
       "declarationMap": false,

@@ -1,4 +1,4 @@
-# @repo/spu-ui
+# @sophys-web/spu-ui
 
 ## 0.1.0
 
@@ -9,6 +9,6 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @repo/auth@0.1.0
-  - @repo/api@0.1.0
-  - @repo/ui@0.1.0
+  - @sophys-web/auth@0.1.0
+  - @sophys-web/api@0.1.0
+  - @sophys-web/ui@0.1.0

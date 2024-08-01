@@ -1,6 +1,6 @@
 "use client";
-import { toast } from "@repo/ui/sonner";
-import { Button } from "@repo/ui/button";
+import { toast } from "@sophys-web/ui/sonner";
+import { Button } from "@sophys-web/ui/button";
 
 export default function ClickMe(): JSX.Element {
   return (

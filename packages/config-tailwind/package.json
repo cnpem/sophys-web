@@ -1,5 +1,5 @@
 {
-  "name": "@repo/tailwind-config",
+  "name": "@sophys-web/tailwind-config",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -9,7 +9,7 @@
     "clean": "rm -rf .turbo node_modules"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@sophys-web/typescript-config": "workspace:*",
     "tailwindcss": "^3.4.1"
   }
 }

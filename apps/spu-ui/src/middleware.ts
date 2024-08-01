@@ -1,4 +1,4 @@
-import { auth as middleware } from "@repo/auth";
+import { auth as middleware } from "@sophys-web/auth";
 
 // Or like this if you need to do something here.
 // export default auth((req) => {

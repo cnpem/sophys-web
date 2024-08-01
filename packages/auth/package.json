@@ -1,5 +1,5 @@
 {
-  "name": "@repo/auth",
+  "name": "@sophys-web/auth",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,8 +14,8 @@
     "clean": "rm -rf .turbo node_modules"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
+    "@sophys-web/eslint-config": "workspace:*",
+    "@sophys-web/typescript-config": "workspace:*",
     "@types/react": "^18.2.61"
   },
   "dependencies": {

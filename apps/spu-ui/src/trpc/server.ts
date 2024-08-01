@@ -2,9 +2,9 @@ import "server-only";
 
 import { headers } from "next/headers";
 import { createHydrationHelpers } from "@trpc/react-query/rsc";
-import type { AppRouter } from "@repo/api";
-import { createCaller, createTRPCContext } from "@repo/api";
-import { auth } from "@repo/auth";
+import type { AppRouter } from "@sophys-web/api";
+import { createCaller, createTRPCContext } from "@sophys-web/api";
+import { auth } from "@sophys-web/auth";
 import { createQueryClient } from "./query-client";
 
 /**

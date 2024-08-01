@@ -1,5 +1,5 @@
 "use server";
-import { auth } from "@repo/auth";
+import { auth } from "@sophys-web/auth";
 import { z } from "zod";
 import { env } from "../../env";
 
