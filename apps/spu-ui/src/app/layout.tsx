@@ -1,8 +1,8 @@
 import "./globals.css";
-import "@repo/ui/styles.css";
+import "@sophys-web/ui/styles.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Toaster } from "@repo/ui/sonner";
+import { Toaster } from "@sophys-web/ui/sonner";
 import { TRPCReactProvider } from "../trpc/react";
 import Navbar from "./_components/navbar";
 

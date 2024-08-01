@@ -1,4 +1,4 @@
-# @repo/api
+# @sophys-web/api
 
 ## 0.1.0
 
@@ -9,4 +9,4 @@
 ### Patch Changes
 
 - Updated dependencies
-  - @repo/auth@0.1.0
+  - @sophys-web/auth@0.1.0

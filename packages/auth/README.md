@@ -1,1 +1,1 @@
-# `@repo/auth`
+# `@sophys-web/auth`

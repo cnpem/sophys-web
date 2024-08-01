@@ -11,7 +11,7 @@
     "ui-add": "turbo run ui-add"
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
+    "@sophys-web/typescript-config": "workspace:*",
     "@types/node": "^20.11.24",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",

@@ -1,4 +1,4 @@
-# @repo/auth
+# @sophys-web/auth
 
 ## 0.1.0
 

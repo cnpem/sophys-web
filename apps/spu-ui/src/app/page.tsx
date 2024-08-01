@@ -1,7 +1,7 @@
-import { Input } from "@repo/ui/input";
+import { Input } from "@sophys-web/ui/input";
 import Link from "next/link";
-import { buttonVariants, Button } from "@repo/ui/button";
-import { auth, signOut } from "@repo/auth";
+import { buttonVariants, Button } from "@sophys-web/ui/button";
+import { auth, signOut } from "@sophys-web/auth";
 import ClickMe from "./_components/click-me";
 
 export default async function Page() {

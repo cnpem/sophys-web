@@ -1,3 +1,3 @@
 module.exports = {
-  extends: ["@repo/eslint-config/library.js"],
+  extends: ["@sophys-web/eslint-config/library.js"],
 };

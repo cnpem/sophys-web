@@ -12,7 +12,7 @@ importers:
         specifier: ^2.27.7
         version: 2.27.7
     devDependencies:
-      '@repo/typescript-config':
+      '@sophys-web/typescript-config':
         specifier: workspace:*
         version: link:packages/config-typescript
       '@types/node':
@@ -33,13 +33,13 @@ importers:
 
   apps/spu-ui:
     dependencies:
-      '@repo/api':
+      '@sophys-web/api':
         specifier: workspace:*
         version: link:../../packages/api
-      '@repo/auth':
+      '@sophys-web/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@repo/ui':
+      '@sophys-web/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@t3-oss/env-nextjs':
@@ -79,13 +79,13 @@ importers:
       '@next/eslint-plugin-next':
         specifier: ^14.2.3
         version: 14.2.3
-      '@repo/eslint-config':
+      '@sophys-web/eslint-config':
         specifier: workspace:*
         version: link:../../packages/config-eslint
-      '@repo/tailwind-config':
+      '@sophys-web/tailwind-config':
         specifier: workspace:*
         version: link:../../packages/config-tailwind
-      '@repo/typescript-config':
+      '@sophys-web/typescript-config':
         specifier: workspace:*
         version: link:../../packages/config-typescript
       '@types/node':
@@ -112,7 +112,7 @@ importers:
 
   packages/api:
     dependencies:
-      '@repo/auth':
+      '@sophys-web/auth':
         specifier: workspace:*
         version: link:../auth
       '@trpc/server':
@@ -125,10 +125,10 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
-      '@repo/eslint-config':
+      '@sophys-web/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
-      '@repo/typescript-config':
+      '@sophys-web/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
       typescript:
@@ -156,10 +156,10 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
-      '@repo/eslint-config':
+      '@sophys-web/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
-      '@repo/typescript-config':
+      '@sophys-web/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
       '@types/react':
@@ -177,7 +177,7 @@ importers:
 
   packages/config-tailwind:
     devDependencies:
-      '@repo/typescript-config':
+      '@sophys-web/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
       tailwindcss:
@@ -216,13 +216,13 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.1)
     devDependencies:
-      '@repo/eslint-config':
+      '@sophys-web/eslint-config':
         specifier: workspace:*
         version: link:../config-eslint
-      '@repo/tailwind-config':
+      '@sophys-web/tailwind-config':
         specifier: workspace:*
         version: link:../config-tailwind
-      '@repo/typescript-config':
+      '@sophys-web/typescript-config':
         specifier: workspace:*
         version: link:../config-typescript
       '@types/react':
@@ -1582,7 +1582,6 @@ packages:
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
-    deprecated: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
 
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
@@ -2394,7 +2393,6 @@ packages:
 
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
-    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
 
   run-applescript@5.0.0:
