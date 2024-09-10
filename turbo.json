@@ -14,10 +14,6 @@
     },
     "clean": {
       "cache": false
-    },
-    "ui-add": {
-      "cache": false,
-      "interactive": true
     }
   },
   "globalEnv": ["AUTH_SECRET", "PORT"],
