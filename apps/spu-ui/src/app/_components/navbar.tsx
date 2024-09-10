@@ -8,6 +8,7 @@ const links = [
   { href: "/queues", label: "Queues" },
   { href: "/tray", label: "Tray" },
   { href: "/data", label: "Data" },
+  { href: "/plans", label: "Plans" }
 ];
 
 export default function Navbar() {
