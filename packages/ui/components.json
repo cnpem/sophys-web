@@ -11,8 +11,10 @@
     "prefix": ""
   },
   "aliases": {
-    "components": "src/",
-    "utils": "@sophys-web/ui",
-    "ui": "src/"
+    "components": "@/src/",
+    "utils": "@/src/lib/utils",
+    "ui": "@/src/",
+    "hooks": "@/src/hooks",
+    "lib": "@/src/lib"
   }
 }
