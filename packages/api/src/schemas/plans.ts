@@ -48,5 +48,6 @@ const existing = z.object({
 export default {
   allowed,
   existing,
+  plan,
 };
 
