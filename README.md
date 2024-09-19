@@ -1,4 +1,4 @@
-# WEB SOPHYS
+# Sophys Web
 
 A collection of web applications and its resources for the Sirius Ophyd and blueskY utilitieS (SOphYS) project.
 
@@ -6,14 +6,32 @@ A collection of web applications and its resources for the Sirius Ophyd and blue
 
 - [x] Start monorepo.
 - [x] Start of a UI package for the webapp using `shadcn-ui`
-- [ ] SPU beamline demo.
+- [ ] CI/CD pipeline.
+  - [x] Linting.
+  - [x] Format check.
+  - [ ] Testing.
+  - [x] Build.
+  - [ ] Deploy.
+- [ ] Test client demo.
+  - [ ] Form auto generation from *ANY* plan schema.
+- [ ] SPU beamline client demo.
   - [ ] Nav bar.
   - [ ] Experiment queue interface.
-    - [ ] Queue server commands.
-    - [ ] Load list of experiment params from file.
-  - [ ] Remote processing commands.
+    - [ ] v0 UI.
+      - [ ] Tray
+      - [ ] Queue
+      - [ ] History
+    - [ ] Bluesky http-server commands.
+    - [ ] Load list of experiment params from file (csv?).
   - [ ] Image viewer.
-  - [ ] PV queries.
   - [ ] Plot viewer.
-  - [ ] Auth.
-    - [ ] User roles.
+- [ ] Common api package
+  - [ ] PVs.
+  - [ ] Queue server w/ bluesky http-server.
+  - [ ] Remote processing.
+  - [ ] SSE real-time queue server updates.
+- [ ] Auth package.
+  - [x] LDAP auth.
+  - [x] Session token rotation.
+  - [ ] Apply user roles for apps permissions.
+- [ ] Documentation.
