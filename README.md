@@ -13,7 +13,7 @@ A collection of web applications and its resources for the Sirius Ophyd and blue
   - [x] Build.
   - [ ] Deploy.
 - [ ] Test client demo.
-  - [ ] Form auto generation from *ANY* plan schema.
+  - [ ] Form auto generation from _ANY_ plan schema.
 - [ ] SPU beamline client demo.
   - [ ] Nav bar.
   - [ ] Experiment queue interface.
