@@ -1,11 +1,15 @@
 {
   "extends": "@sophys-web/typescript-config/react-library.json",
-  "include": ["."],
+  "include": ["src"],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
+    "rootDir": ".",
+    "paths":{
+      "@sophys-web/ui": ["./src"]
     }
+    // "baseUrl": ".",
+    // "paths": {
+    //   "@/*": ["./*"]
+    // }
   }
 }
