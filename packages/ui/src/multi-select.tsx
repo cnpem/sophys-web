@@ -77,7 +77,7 @@ export function MultiSelectDialog({
   const renderTrigger = useCallback(() => {
     if (!Array.isArray(selectedOptions) || selectedOptions.length === 0)
       return placeholder;
-    if (selectedOptions.length <= 3) return `[${selectedOptions.join(", ")}]`;
+    if (selectedOptions.length <= 2) return `[${selectedOptions.join(", ")}]`;
     return `[${selectedOptions.slice(0, 2).join(", ")}, ...]`;
   }, [selectedOptions, placeholder]);
 
