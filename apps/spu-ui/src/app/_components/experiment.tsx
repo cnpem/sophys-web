@@ -2,43 +2,50 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@sophys-web/ui/button";
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import type {
+  DragEndEvent,
+  DragStartEvent,
+  UniqueIdentifier,
+} from "@dnd-kit/core";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Play, Pause, Trash2, SquareIcon } from "lucide-react";
-import { SampleItem, type Sample } from "./sample";
+import { SampleItem } from "./sample";
+import type { Sample } from "./sample";
 import type { Job } from "./queue";
 import { Tray } from "./tray";
 import { Queue } from "./queue";
 
 export default function Experiment() {
+  const rows = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+  const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
   const [tray1] = useState<Sample[]>(
-    Array(25)
-      .fill(null)
-      .map((_, index) => ({
-        id: index + 1,
-        type: ["A", "B", "C", "D", null][
-          Math.floor(Math.random() * 5)
+    columns.flatMap((column) =>
+      rows.map((row) => ({
+        id: `${column}${row}`,
+        type: ["A", "B", null][
+          Math.floor(Math.random() * 3)
         ] as Sample["type"],
       }))
+    )
   );
   const [tray2] = useState<Sample[]>(
-    Array(25)
-      .fill(null)
-      .map((_, index) => ({
-        id: index + 26,
+    columns.flatMap((column) =>
+      rows.map((row) => ({
+        id: `${row}${column}`,
         type: ["A", "B", "C", "D", null][
           Math.floor(Math.random() * 5)
         ] as Sample["type"],
       }))
+    )
   );
   const [samples] = useState<Sample[]>([...tray1, ...tray2]);
   const [queue, setQueue] = useState<Job[]>([]);
   const [nextJobId, setNextJobId] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
   const addToQueue = useCallback(
-    (sampleIds: number[]) => {
+    (sampleIds: UniqueIdentifier[]) => {
       setQueue((prevQueue) => {
         const newJobs = sampleIds
           .map((sampleId, index) => {
@@ -62,11 +69,11 @@ export default function Experiment() {
     },
     [samples, nextJobId]
   );
-  const removeFromQueue = (jobId: number) => {
+  const removeFromQueue = (jobId: UniqueIdentifier) => {
     setQueue((prevQueue) => prevQueue.filter((job) => job.id !== jobId));
   };
 
-  const cancelJob = (jobId: number) => {
+  const cancelJob = (jobId: UniqueIdentifier) => {
     setQueue((prevQueue) =>
       prevQueue.map((job) =>
         job.id === jobId ? { ...job, status: "cancelled" } : job
@@ -90,7 +97,7 @@ export default function Experiment() {
   };
 
   useEffect(() => {
-    let timer : ReturnType<typeof setInterval>;
+    let timer: ReturnType<typeof setInterval>;
     if (isProcessing) {
       timer = setInterval(() => {
         setQueue((prevQueue) => {
@@ -138,7 +145,7 @@ export default function Experiment() {
   }, [isProcessing]);
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    setActiveId(active.id as number);
+    setActiveId(active.id);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -154,8 +161,14 @@ export default function Experiment() {
     <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
       <div className="mx-auto flex items-center justify-center gap-4">
         <div className="flex flex-col gap-2">
-          <Tray activeId={activeId} addToQueue={addToQueue} samples={tray1} />
-          <Tray activeId={activeId} addToQueue={addToQueue} samples={tray2} />
+          <Tray
+            activeId={activeId}
+            addToQueue={addToQueue}
+            columns={columns}
+            rows={rows}
+            samples={tray1}
+          />
+          {/* <Tray activeId={activeId} addToQueue={addToQueue} columns={columns} rows={rows} samples={tray2} /> */}
         </div>
         <div className="flex h-screen w-2/3 flex-col space-y-4 p-4">
           <div className="flex flex-col gap-2">
@@ -203,7 +216,12 @@ export default function Experiment() {
         {activeId ? (
           <SampleItem
             isDragging
-            sample={samples.find((s) => s.id === activeId) ?? { id: activeId, type: null }}
+            sample={
+              samples.find((s) => s.id === activeId) ?? {
+                id: activeId,
+                type: null,
+              }
+            }
           />
         ) : null}
       </DragOverlay>

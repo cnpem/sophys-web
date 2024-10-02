@@ -1,10 +1,10 @@
 "use client";
 
-import { useDraggable } from "@dnd-kit/core";
+import { useDraggable, type UniqueIdentifier } from "@dnd-kit/core";
 import { cn } from "@sophys-web/ui";
 
 export interface Sample {
-  id: number;
+  id: UniqueIdentifier;
   type: "A" | "B" | "C" | "D" | null;
 }
 
@@ -50,9 +50,9 @@ export function SampleItem({
           sample.type === null && "opacity-50 cursor-not-allowed"
         )}
       >
-        {sample.type}
+        {sample.id}
         <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs text-black">
-          {sample.id}
+          {sample.type ?? "N/A"}
         </span>
       </div>
     </div>

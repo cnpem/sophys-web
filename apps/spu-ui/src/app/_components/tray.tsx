@@ -1,15 +1,18 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { UploadIcon, ChevronsRightIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import { toast } from "@sophys-web/ui/sonner";
+import type { UniqueIdentifier } from "@dnd-kit/core";
 import { SampleItem, type Sample } from "./sample";
 
 interface TrayProps {
+  rows: string[];
+  columns: string[];
   samples: Sample[];
-  activeId: number | null;
-  addToQueue: (sampleId: number[]) => void;
+  activeId: UniqueIdentifier | null;
+  addToQueue: (sampleId: UniqueIdentifier[]) => void;
 }
 
 export function Tray(props: TrayProps) {
@@ -40,17 +43,44 @@ export function Tray(props: TrayProps) {
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-5 gap-3">
-        {tray.map((sample) => (
-          <SampleItem
-            isDragging={props.activeId === sample.id}
-            key={sample.id}
-            sample={sample}
-          />
+      <div
+        className="grid gap-1"
+        style={{
+          gridTemplateColumns: `repeat(${props.columns.length + 1}, 1fr)`,
+          gridTemplateRows: `repeat(${props.rows.length + 1}, 1fr)`,
+        }}
+      >
+        <div className="" /> {/* Empty cell for top-left corner */}
+        {props.columns.map((col) => (
+          <div
+            className="flex items-center justify-center font-bold text-purple-600"
+            key={col}
+          >
+            {col}
+          </div>
+        ))}
+        {props.rows.map((row) => (
+          <React.Fragment key={row}>
+            <div className="flex items-center justify-center font-bold text-emerald-600">
+              {row}
+            </div>
+            {props.columns.map((col) => {
+              const sample = props.samples.find((s) => s.id === `${col}${row}`);
+              return sample ? (
+                <SampleItem
+                  isDragging={props.activeId === sample.id}
+                  key={sample.id}
+                  sample={sample}
+                />
+              ) : (
+                <div className="w-12 h-12" key={`${col}${row}`} />
+              );
+            })}
+          </React.Fragment>
         ))}
       </div>
       <div className="mt-6 space-y-2">
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-stone-600 text-center">
           Drag a sample to add it to the queue.
         </p>
       </div>

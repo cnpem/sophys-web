@@ -1,6 +1,6 @@
 "use client";
 
-import type { DragEndEvent } from "@dnd-kit/core";
+import type { DragEndEvent, UniqueIdentifier } from "@dnd-kit/core";
 import { DndContext } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import { SortableContext, useSortable, arrayMove } from "@dnd-kit/sortable";
@@ -14,8 +14,8 @@ import { getSampleColor, type Sample } from "./sample";
 import { Dropzone } from "./dropzone";
 
 export interface Job {
-  id: number;
-  sampleId: number;
+  id: UniqueIdentifier;
+  sampleId: UniqueIdentifier;
   status: "enqueued" | "running" | "done" | "cancelled";
   progress: number;
 }
@@ -102,8 +102,8 @@ function QueueItem({
 export function Queue(props: {
   updateQueue: (value: React.SetStateAction<Job[]>) => void;
   toggleProcessing: (isProcessing: boolean) => void;
-  removeFromQueue: (jobId: number) => void;
-  cancelJob: (jobId: number) => void;
+  removeFromQueue: (jobId: UniqueIdentifier) => void;
+  cancelJob: (jobId: UniqueIdentifier) => void;
   queue: Job[];
   isProcessing: boolean;
   samples: Sample[];
