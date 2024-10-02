@@ -51,7 +51,7 @@ export function SampleItem({
           getSampleColor(sample.type),
           isDragging && "cursor-grabbing rounded-sm opacity-90",
           (sample.type === null || sample.isUsed) &&
-            "opacity-50 cursor-not-allowed"
+            "opacity-50 cursor-not-allowed",
         )}
       >
         {children}

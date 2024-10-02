@@ -59,21 +59,21 @@ export function Tray(props: TrayProps) {
             {col}
           </div>
         ))}
-        {props.rows.map((row) => (
+        {props.rows.map((row, idx) => (
           <React.Fragment key={row}>
             <div className="flex items-center justify-center font-bold text-emerald-600">
               {row}
             </div>
-            {props.columns.map((col) => {
-              const sample = props.samples.find((s) => s.id === `${col}${row}`);
-              return sample ? (
+            {props.columns.map((col, idy) => {
+              const sample = tray[idx * props.columns.length + idy];
+              return (
                 <SampleItem
                   isDragging={props.activeId === sample.id}
                   key={sample.id}
                   sample={sample}
-                />
-              ) : (
-                <div className="w-12 h-12" key={`${col}${row}`} />
+                >
+                  {`${col}${row}`}
+                </SampleItem>
               );
             })}
           </React.Fragment>
