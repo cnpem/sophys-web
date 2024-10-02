@@ -20,7 +20,7 @@ export function Tray(props: TrayProps) {
   const { addToQueue } = props;
   const enqueueAll = useCallback(() => {
     addToQueue(
-      tray.filter((sample) => sample.type !== null).map((sample) => sample.id)
+      tray.filter((sample) => sample.type !== null).map((sample) => sample.id),
     );
   }, [tray, addToQueue]);
 

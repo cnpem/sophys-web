@@ -47,7 +47,7 @@ export function SampleItem({
           "relative flex h-12 w-12 cursor-grab items-center justify-center rounded-full font-bold text-white hover:ring hover:ring-primary hover:scale-110",
           getSampleColor(sample.type),
           isDragging && "cursor-grabbing rounded-sm opacity-90",
-          sample.type === null && "opacity-50 cursor-not-allowed"
+          sample.type === null && "opacity-50 cursor-not-allowed",
         )}
       >
         {sample.id}

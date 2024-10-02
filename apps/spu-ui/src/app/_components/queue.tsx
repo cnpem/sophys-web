@@ -49,7 +49,7 @@ function QueueItem({
     <li
       className={cn(
         "flex select-none items-center justify-between rounded-md bg-gray-50 p-3 shadow-sm space-x-2",
-        isDragging && "border-2 border-primary bg-primary/10"
+        isDragging && "border-2 border-primary bg-primary/10",
       )}
       ref={setNodeRef}
       style={style}
@@ -57,7 +57,7 @@ function QueueItem({
       <div className="flex flex-grow items-center space-x-3">
         <div
           className={`h-8 w-8 rounded-full ${getSampleColor(
-            sample.type
+            sample.type,
           )} relative flex items-center justify-center font-bold text-white`}
         >
           {sample.type}

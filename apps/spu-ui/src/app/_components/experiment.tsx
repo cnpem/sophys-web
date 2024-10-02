@@ -22,11 +22,9 @@ export default function Experiment() {
     columns.flatMap((column) =>
       rows.map((row) => ({
         id: `${column}${row}`,
-        type: ["A", "B", null][
-          Math.floor(Math.random() * 3)
-        ] as Sample["type"],
-      }))
-    )
+        type: ["A", "B", null][Math.floor(Math.random() * 3)] as Sample["type"],
+      })),
+    ),
   );
   const [tray2] = useState<Sample[]>(
     columns.flatMap((column) =>
@@ -35,8 +33,8 @@ export default function Experiment() {
         type: ["A", "B", "C", "D", null][
           Math.floor(Math.random() * 5)
         ] as Sample["type"],
-      }))
-    )
+      })),
+    ),
   );
   const [samples] = useState<Sample[]>([...tray1, ...tray2]);
   const [queue, setQueue] = useState<Job[]>([]);
@@ -67,7 +65,7 @@ export default function Experiment() {
         return [...prevQueue, ...newJobs];
       });
     },
-    [samples, nextJobId]
+    [samples, nextJobId],
   );
   const removeFromQueue = (jobId: UniqueIdentifier) => {
     setQueue((prevQueue) => prevQueue.filter((job) => job.id !== jobId));
@@ -76,8 +74,8 @@ export default function Experiment() {
   const cancelJob = (jobId: UniqueIdentifier) => {
     setQueue((prevQueue) =>
       prevQueue.map((job) =>
-        job.id === jobId ? { ...job, status: "cancelled" } : job
-      )
+        job.id === jobId ? { ...job, status: "cancelled" } : job,
+      ),
     );
   };
 
@@ -87,8 +85,8 @@ export default function Experiment() {
       prevQueue.map((job) =>
         job.status === "enqueued" || job.status === "running"
           ? { ...job, status: "cancelled" }
-          : job
-      )
+          : job,
+      ),
     );
   };
 
@@ -103,7 +101,7 @@ export default function Experiment() {
         setQueue((prevQueue) => {
           const updatedQueue = [...prevQueue];
           const runningJobIndex = updatedQueue.findIndex(
-            (job) => job.status === "running"
+            (job) => job.status === "running",
           );
 
           if (runningJobIndex !== -1) {
@@ -114,7 +112,7 @@ export default function Experiment() {
                 runningJob.status = "done";
                 runningJob.progress = 100;
                 const nextJob = updatedQueue.find(
-                  (job) => job.status === "enqueued"
+                  (job) => job.status === "enqueued",
                 );
                 if (nextJob) {
                   nextJob.status = "running";
@@ -124,7 +122,7 @@ export default function Experiment() {
             }
           } else {
             const nextJob = updatedQueue.find(
-              (job) => job.status === "enqueued"
+              (job) => job.status === "enqueued",
             );
             if (nextJob) {
               nextJob.status = "running";
