@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@sophys-web/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@sophys-web/ui/tabs";
 import type {
   DragEndEvent,
   DragStartEvent,
@@ -158,16 +159,30 @@ export default function Experiment() {
   return (
     <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
       <div className="mx-auto flex items-center justify-center gap-4">
-        <div className="flex flex-col gap-2">
-          <Tray
-            activeId={activeId}
-            addToQueue={addToQueue}
-            columns={columns}
-            rows={rows}
-            samples={tray1}
-          />
-          {/* <Tray activeId={activeId} addToQueue={addToQueue} columns={columns} rows={rows} samples={tray2} /> */}
-        </div>
+        <Tabs defaultValue="tray1">
+          <TabsList>
+            <TabsTrigger value="tray1">Tray 1</TabsTrigger>
+            <TabsTrigger value="tray2">Tray 2</TabsTrigger>
+          </TabsList>
+          <TabsContent value="tray1">
+            <Tray
+              activeId={activeId}
+              addToQueue={addToQueue}
+              columns={columns}
+              rows={rows}
+              samples={tray1}
+            />
+          </TabsContent>
+          <TabsContent value="tray2">
+            <Tray
+              activeId={activeId}
+              addToQueue={addToQueue}
+              columns={columns}
+              rows={rows}
+              samples={tray2}
+            />
+          </TabsContent>
+        </Tabs>
         <div className="flex h-screen w-2/3 flex-col space-y-4 p-4">
           <div className="flex flex-col gap-2">
             <h1 className="text-2xl font-bold">Experiment Queue</h1>
