@@ -60,9 +60,9 @@ function QueueItem({
             sample.type,
           )} relative flex items-center justify-center font-bold text-white`}
         >
-          {sample.type}
+          {sample.id}
           <span className="absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-full bg-white text-xs text-black">
-            {sample.id}
+            {sample.type ?? "N/A"}
           </span>
         </div>
         <span className="font-medium">Sample {job.sampleId}</span>
