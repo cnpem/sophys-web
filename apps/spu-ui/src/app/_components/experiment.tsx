@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@sophys-web/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@sophys-web/ui/tabs";
 import type {
@@ -19,25 +19,31 @@ import { Queue } from "./queue";
 export default function Experiment() {
   const rows = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
-  const [tray1] = useState<Sample[]>(
-    columns.flatMap((column) =>
-      rows.map((row) => ({
-        id: `${column}${row}`,
+  const tray1 = useRef(() =>
+    rows.flatMap((row) =>
+      columns.map((column) => ({
+        id: `${column}${row}-1`,
+        pos: `${column}${row}`,
         type: ["A", "B", null][Math.floor(Math.random() * 3)] as Sample["type"],
       })),
     ),
   );
-  const [tray2] = useState<Sample[]>(
-    columns.flatMap((column) =>
-      rows.map((row) => ({
-        id: `${row}${column}`,
+
+  const tray2 = useRef(() =>
+    rows.flatMap((row) =>
+      columns.map((column) => ({
+        id: `${column}${row}-2`,
+        pos: `${column}${row}`,
         type: ["A", "B", "C", "D", null][
           Math.floor(Math.random() * 5)
         ] as Sample["type"],
       })),
     ),
   );
-  const [samples] = useState<Sample[]>([...tray1, ...tray2]);
+  const [samples, setSamples] = useState<Sample[]>([
+    ...tray1.current(),
+    ...tray2.current(),
+  ]);
   const [queue, setQueue] = useState<Job[]>([]);
   const [nextJobId, setNextJobId] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -50,6 +56,11 @@ export default function Experiment() {
           .map((sampleId, index) => {
             const sample = samples.find((s) => s.id === sampleId);
             if (sample) {
+              setSamples((prevSamples) =>
+                prevSamples.map((s) =>
+                  s.id === sampleId ? { ...s, isUsed: true } : s,
+                ),
+              );
               return {
                 id: nextJobId + index,
                 sampleId,
@@ -70,6 +81,13 @@ export default function Experiment() {
   );
   const removeFromQueue = (jobId: UniqueIdentifier) => {
     setQueue((prevQueue) => prevQueue.filter((job) => job.id !== jobId));
+    setSamples((prevSamples) =>
+      prevSamples.map((s) =>
+        s.id === queue.find((job) => job.id === jobId)?.sampleId
+          ? { ...s, isUsed: false }
+          : s,
+      ),
+    );
   };
 
   const cancelJob = (jobId: UniqueIdentifier) => {
@@ -93,6 +111,9 @@ export default function Experiment() {
 
   const clearQueue = () => {
     setQueue([]);
+    setSamples((prevSamples) =>
+      prevSamples.map((s) => (s.isUsed ? { ...s, isUsed: false } : s)),
+    );
   };
 
   useEffect(() => {
@@ -170,7 +191,9 @@ export default function Experiment() {
               addToQueue={addToQueue}
               columns={columns}
               rows={rows}
-              samples={tray1}
+              samples={samples.filter((sample) =>
+                tray1.current().some((s) => s.id === sample.id),
+              )}
             />
           </TabsContent>
           <TabsContent value="tray2">
@@ -179,7 +202,9 @@ export default function Experiment() {
               addToQueue={addToQueue}
               columns={columns}
               rows={rows}
-              samples={tray2}
+              samples={samples.filter((sample) =>
+                tray2.current().some((s) => s.id === sample.id),
+              )}
             />
           </TabsContent>
         </Tabs>
@@ -232,6 +257,7 @@ export default function Experiment() {
             sample={
               samples.find((s) => s.id === activeId) ?? {
                 id: activeId,
+                pos: "",
                 type: null,
               }
             }
