@@ -22,7 +22,7 @@ export function Dropzone(props: DropzoneProps) {
       ref={setNodeRef}
     >
       {props.children}
-      <p className="absolute -bottom-8 text-center text-gray-500 text-sm mt-2">
+      <p className="absolute -bottom-8 mt-2 text-center text-sm text-gray-500">
         {isOver ? "Drop here" : "Drag and drop here"}
       </p>
     </div>

@@ -1,5 +1,4 @@
 import "server-only";
-
 import { headers } from "next/headers";
 import { createHydrationHelpers } from "@trpc/react-query/rsc";
 import type { AppRouter } from "@sophys-web/api";

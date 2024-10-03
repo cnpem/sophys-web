@@ -1,20 +1,20 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { Button } from "@sophys-web/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@sophys-web/ui/tabs";
 import type {
   DragEndEvent,
   DragStartEvent,
   UniqueIdentifier,
 } from "@dnd-kit/core";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-import { Play, Pause, Trash2, SquareIcon } from "lucide-react";
-import { SampleItem } from "./sample";
-import type { Sample } from "./sample";
+import { Pause, Play, SquareIcon, Trash2 } from "lucide-react";
+import { Button } from "@sophys-web/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import type { Job } from "./queue";
-import { Tray } from "./tray";
+import type { Sample } from "./sample";
 import { Queue } from "./queue";
+import { SampleItem } from "./sample";
+import { Tray } from "./tray";
 
 export default function Experiment() {
   const rows = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];

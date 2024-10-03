@@ -1,17 +1,18 @@
 "use client";
 
 import type { DragEndEvent, UniqueIdentifier } from "@dnd-kit/core";
+import { useMemo } from "react";
 import { DndContext } from "@dnd-kit/core";
+import { arrayMove, SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { SortableContext, useSortable, arrayMove } from "@dnd-kit/sortable";
-import { ScrollArea } from "@sophys-web/ui/scroll-area";
+import { GripVerticalIcon, XCircleIcon } from "lucide-react";
+import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
-import { GripVerticalIcon, XCircleIcon } from "lucide-react";
-import { useMemo } from "react";
-import { cn } from "@sophys-web/ui";
-import { getSampleColor, type Sample } from "./sample";
+import { ScrollArea } from "@sophys-web/ui/scroll-area";
+import type { Sample } from "./sample";
 import { Dropzone } from "./dropzone";
+import { getSampleColor } from "./sample";
 
 export interface Job {
   id: UniqueIdentifier;
@@ -48,8 +49,8 @@ function QueueItem({
   return (
     <li
       className={cn(
-        "flex select-none items-center justify-between rounded-md bg-gray-50 p-3 shadow-sm space-x-2",
-        isDragging && "border-2 border-primary bg-primary/10",
+        "flex select-none items-center justify-between space-x-2 rounded-md bg-gray-50 p-3 shadow-sm",
+        isDragging && "border-primary bg-primary/10 border-2",
       )}
       ref={setNodeRef}
       style={style}
@@ -70,7 +71,7 @@ function QueueItem({
         {job.status === "running" && (
           <div className="h-2.5 w-24 rounded-full bg-gray-200 dark:bg-gray-700">
             <div
-              className="h-2.5 rounded-full bg-primary"
+              className="bg-primary h-2.5 rounded-full"
               style={{ width: `${job.progress}%` }}
             />
           </div>
@@ -124,7 +125,7 @@ export function Queue(props: {
     <Dropzone id="queue-dropzone">
       <ScrollArea className="h-[calc(100vh-240px)] flex-grow">
         {queue.length === 0 ? (
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             Queue is empty. Drag samples here to add them to the queue.
           </p>
         ) : (

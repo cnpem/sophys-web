@@ -1,11 +1,12 @@
 "use client";
 
+import type { UniqueIdentifier } from "@dnd-kit/core";
 import React, { useCallback } from "react";
-import { UploadIcon, ChevronsRightIcon } from "lucide-react";
+import { ChevronsRightIcon, UploadIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import { toast } from "@sophys-web/ui/sonner";
-import type { UniqueIdentifier } from "@dnd-kit/core";
-import { SampleItem, type Sample } from "./sample";
+import type { Sample } from "./sample";
+import { SampleItem } from "./sample";
 
 interface TrayProps {
   rows: string[];
@@ -79,7 +80,7 @@ export function Tray(props: TrayProps) {
         })}
       </div>
       <div className="mt-6 space-y-2">
-        <p className="text-sm text-stone-600 text-center">
+        <p className="text-center text-sm text-stone-600">
           Drag a sample to add it to the queue.
         </p>
       </div>

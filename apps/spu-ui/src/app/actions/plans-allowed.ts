@@ -1,6 +1,7 @@
 "use server";
-import { auth } from "@sophys-web/auth";
+
 import { z } from "zod";
+import { auth } from "@sophys-web/auth";
 import { env } from "../../env";
 
 const KindSchema = z.object({

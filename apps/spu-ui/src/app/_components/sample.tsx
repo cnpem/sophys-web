@@ -1,6 +1,7 @@
 "use client";
 
-import { useDraggable, type UniqueIdentifier } from "@dnd-kit/core";
+import type { UniqueIdentifier } from "@dnd-kit/core";
+import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@sophys-web/ui";
 
 export interface Sample {
@@ -46,11 +47,11 @@ export function SampleItem({
     >
       <div
         className={cn(
-          "relative flex h-12 w-12 cursor-grab items-center justify-center rounded-full font-bold text-white hover:ring hover:ring-primary hover:scale-110",
+          "hover:ring-primary relative flex h-12 w-12 cursor-grab items-center justify-center rounded-full font-bold text-white hover:scale-110 hover:ring",
           getSampleColor(sample.type),
           isDragging && "cursor-grabbing rounded-sm opacity-90",
           (sample.type === null || sample.isUsed) &&
-            "opacity-50 cursor-not-allowed",
+            "cursor-not-allowed opacity-50",
         )}
       >
         {sample.pos}
