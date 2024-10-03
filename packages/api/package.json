@@ -23,5 +23,6 @@
     "@sophys-web/eslint-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
     "typescript": "^5.3.3"
-  }
+  },
+  "prettier": "@sophys-web/prettier-config"
 }

@@ -44,5 +44,6 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7"
-  }
+  },
+  "prettier": "@sophys-web/prettier-config"
 }

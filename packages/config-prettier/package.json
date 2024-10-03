@@ -1,0 +1,23 @@
+{
+  "name": "@sophys-web/prettier-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@sophys-web/typescript-config": "workspace:*"
+  },
+  "dependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11"
+  },
+  "prettier": "@sophys-web/prettier-config"
+}
