@@ -60,12 +60,12 @@ function QueueItem({
             sample.type,
           )} relative flex items-center justify-center font-bold text-white`}
         >
-          {sample.id}
+          {sample.pos}
           <span className="absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-full bg-white text-xs text-black">
             {sample.type ?? "N/A"}
           </span>
         </div>
-        <span className="font-medium">Sample {job.sampleId}</span>
+        <span className="font-medium">{`Sample ${sample.pos}`}</span>
         <Badge variant="outline">{job.status}</Badge>
         {job.status === "running" && (
           <div className="h-2.5 w-24 rounded-full bg-gray-200 dark:bg-gray-700">

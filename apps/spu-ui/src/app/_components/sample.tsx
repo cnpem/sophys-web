@@ -5,6 +5,7 @@ import { cn } from "@sophys-web/ui";
 
 export interface Sample {
   id: UniqueIdentifier;
+  pos: string;
   type: "A" | "B" | "C" | "D" | null;
   isUsed?: boolean;
 }
@@ -27,11 +28,9 @@ export function getSampleColor(type: Sample["type"]) {
 export function SampleItem({
   sample,
   isDragging,
-  children,
 }: {
   sample: Sample;
   isDragging: boolean;
-  children?: React.ReactNode;
 }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: sample.id,
@@ -54,7 +53,7 @@ export function SampleItem({
             "opacity-50 cursor-not-allowed",
         )}
       >
-        {children}
+        {sample.pos}
         <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs text-black">
           {sample.type ?? "N/A"}
         </span>
