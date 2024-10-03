@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { UploadIcon, ChevronsRightIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import { toast } from "@sophys-web/ui/sonner";
@@ -16,11 +16,13 @@ interface TrayProps {
 }
 
 export function Tray(props: TrayProps) {
-  const [tray] = useState(props.samples);
+  const tray = props.samples;
   const { addToQueue } = props;
   const enqueueAll = useCallback(() => {
     addToQueue(
-      tray.filter((sample) => sample.type !== null).map((sample) => sample.id),
+      tray
+        .filter((sample) => sample.type !== null && sample.isUsed !== true)
+        .map((sample) => sample.id),
     );
   }, [tray, addToQueue]);
 
@@ -59,25 +61,22 @@ export function Tray(props: TrayProps) {
             {col}
           </div>
         ))}
-        {props.rows.map((row, idx) => (
-          <React.Fragment key={row}>
-            <div className="flex items-center justify-center font-bold text-emerald-600">
-              {row}
-            </div>
-            {props.columns.map((col, idy) => {
-              const sample = tray[idx * props.columns.length + idy];
-              return (
-                <SampleItem
-                  isDragging={props.activeId === sample.id}
-                  key={sample.id}
-                  sample={sample}
-                >
-                  {`${col}${row}`}
-                </SampleItem>
-              );
-            })}
-          </React.Fragment>
-        ))}
+        {tray.map((sample, index) => {
+          return (
+            <React.Fragment key={sample.id}>
+              {index % props.columns.length === 0 && (
+                <div className="flex items-center justify-center font-bold text-emerald-600">
+                  {props.rows[index / props.columns.length]}
+                </div>
+              )}
+              <SampleItem
+                isDragging={props.activeId === sample.id}
+                key={sample.id}
+                sample={sample}
+              />
+            </React.Fragment>
+          );
+        })}
       </div>
       <div className="mt-6 space-y-2">
         <p className="text-sm text-stone-600 text-center">
