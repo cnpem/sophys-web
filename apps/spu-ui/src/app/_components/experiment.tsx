@@ -70,7 +70,7 @@ export default function Experiment() {
             }
             return null;
           })
-          .filter((job) => job !== null);
+          .filter((job) => job !== null) as Job[];
 
         setNextJobId((prevId) => prevId + newJobs.length);
 
