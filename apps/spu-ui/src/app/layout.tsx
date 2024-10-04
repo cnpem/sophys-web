@@ -1,12 +1,13 @@
-import "./globals.css";
 import "@sophys-web/ui/styles.css";
+import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Roboto_Mono } from "next/font/google";
 import { Toaster } from "@sophys-web/ui/sonner";
 import { TRPCReactProvider } from "../trpc/react";
 import Navbar from "./_components/navbar";
+import UserAvatar from "./_components/user-avatar";
 
-const inter = Inter({ subsets: ["latin"] });
+const roboto = Roboto_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Sapucaia UI",
@@ -20,8 +21,8 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Navbar />
+      <body className={roboto.className}>
+        <Navbar avatar={<UserAvatar />} />
         <Toaster />
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
