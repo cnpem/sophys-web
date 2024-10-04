@@ -17,7 +17,7 @@ export function Dropzone(props: DropzoneProps) {
     <div
       className={cn(
         "relative flex h-fit w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-4 font-medium",
-        isOver && "border-purple-600 bg-purple-600/10",
+        isOver && "border-rose-600 bg-rose-600/10",
       )}
       ref={setNodeRef}
     >
