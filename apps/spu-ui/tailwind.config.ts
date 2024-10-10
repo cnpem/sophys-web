@@ -1,11 +1,9 @@
-// tailwind config is required for editor support
-
 import type { Config } from "tailwindcss";
-import sharedConfig from "@sophys-web/tailwind-config";
+import baseConfig from "@sophys-web/tailwind-config";
 
-const config: Pick<Config, "content" | "presets"> = {
-  content: ["./src/app/**/*.tsx"],
-  presets: [sharedConfig],
-};
-
-export default config;
+export default {
+  // We need to append the path to the UI package to the content array so that
+  // those classes are included correctly.
+  content: [...baseConfig.content, "../../packages/ui/src/*.{ts,tsx}"],
+  presets: [baseConfig],
+} satisfies Config;
