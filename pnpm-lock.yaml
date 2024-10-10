@@ -207,6 +207,10 @@ importers:
         version: link:../config-typescript
 
   packages/config-tailwind:
+    dependencies:
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.1)
     devDependencies:
       '@sophys-web/typescript-config':
         specifier: workspace:*

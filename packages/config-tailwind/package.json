@@ -12,5 +12,8 @@
     "@sophys-web/typescript-config": "workspace:*",
     "tailwindcss": "^3.4.1"
   },
-  "prettier": "@sophys-web/prettier-config"
+  "prettier": "@sophys-web/prettier-config",
+  "dependencies": {
+    "tailwindcss-animate": "^1.0.7"
+  }
 }
