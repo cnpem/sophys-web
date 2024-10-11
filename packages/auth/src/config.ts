@@ -1,5 +1,5 @@
-import type { DefaultSession, NextAuthConfig } from "next-auth";
 import type { DefaultJWT } from "next-auth/jwt";
+import { DefaultSession, NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { env } from "../env";
@@ -77,51 +77,48 @@ export const authConfig: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        try {
-          const parsed = await z
-            .object({
-              email: z.string().email(),
-              password: z.string(),
-            })
-            .safeParseAsync(credentials);
+        const parsed = await z
+          .object({
+            email: z.string().email(),
+            password: z.string(),
+          })
+          .safeParseAsync(credentials);
 
-          if (!parsed.success) {
-            return null;
-          }
+        if (!parsed.success) {
+          throw parsed.error;
+        }
 
-          const name = parsed.data?.email.split("@")[0];
+        const name = parsed.data?.email.split("@")[0];
 
-          const formData = new FormData();
-          formData.append("username", name);
-          formData.append("password", parsed.data?.password);
+        const formData = new FormData();
+        formData.append("username", name);
+        formData.append("password", parsed.data?.password);
 
-          const res = await fetch(
-            `${env.BLUESKY_HTTPSERVER_URL}/api/auth/provider/ldap/token`,
-            {
-              method: "POST",
-              body: formData,
-            },
-          );
+        const res = await fetch(
+          `${env.BLUESKY_HTTPSERVER_URL}/api/auth/provider/ldap/token`,
+          {
+            method: "POST",
+            body: formData,
+          },
+        );
 
-          if (!res.ok) {
-            return null;
-          }
-
-          const data = await res.json();
-          const parsedToken = await blueskyTokenSchema.parseAsync(data);
-
-          const user = {
-            id: name,
-            name,
-            email: parsed.data?.email,
-            blueskyAccessToken: parsedToken.access_token,
-            blueskyRefreshToken: parsedToken.refresh_token,
-            expires_in: parsedToken.expires_in,
-          };
-          return user;
-        } catch (error) {
+        if (!res.ok) {
           return null;
         }
+
+        const data = await res.json();
+        const parsedToken = await blueskyTokenSchema.parseAsync(data);
+
+        const user = {
+          id: name,
+          name,
+          email: parsed.data?.email,
+          blueskyAccessToken: parsedToken.access_token,
+          blueskyRefreshToken: parsedToken.refresh_token,
+          expires_in: parsedToken.expires_in,
+        };
+
+        return user;
       },
     }),
   ],
@@ -139,7 +136,6 @@ export const authConfig: NextAuthConfig = {
       if (user) {
         token.bluesky_access_token = user.blueskyAccessToken;
         token.bluesky_refresh_token = user.blueskyRefreshToken;
-
         const jwt = {
           id: token.sub,
           name: user.name,
@@ -173,5 +169,8 @@ export const authConfig: NextAuthConfig = {
         }
       }
     },
+  },
+  pages: {
+    signIn: "/auth/signin",
   },
 } satisfies NextAuthConfig;
