@@ -26,7 +26,7 @@ export default async function UserAvatar() {
         }}
       >
         <Button size="icon" type="submit" variant="ghost">
-          <LogOutIcon className="text-primary h-4 w-4" />
+          <LogOutIcon className="h-4 w-4 text-primary" />
         </Button>
       </form>
     </div>

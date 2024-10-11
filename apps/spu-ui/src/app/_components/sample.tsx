@@ -47,7 +47,7 @@ export function SampleItem({
     >
       <div
         className={cn(
-          "hover:ring-primary relative flex h-12 w-12 cursor-grab items-center justify-center rounded-full font-bold text-white hover:scale-110 hover:ring",
+          "relative flex h-12 w-12 cursor-grab items-center justify-center rounded-full font-bold text-white hover:scale-110 hover:ring hover:ring-primary",
           getSampleColor(sample.type),
           isDragging && "cursor-grabbing rounded-sm opacity-90",
           (sample.type === null || sample.isUsed) &&

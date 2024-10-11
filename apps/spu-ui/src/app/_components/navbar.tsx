@@ -23,7 +23,7 @@ export default function Navbar(props: NavbarProps) {
         <Link
           className={cn(
             "text-lg hover:text-rose-800",
-            pathname === href && "text-primary font-semibold",
+            pathname === href && "font-semibold text-primary",
           )}
           href={href}
           key={href}

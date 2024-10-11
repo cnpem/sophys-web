@@ -56,7 +56,7 @@ export function Tray(props: TrayProps) {
         <div className="" /> {/* Empty cell for top-left corner */}
         {props.columns.map((col) => (
           <div
-            className="text-primary flex items-center justify-center font-bold"
+            className="flex items-center justify-center font-bold text-primary"
             key={col}
           >
             {col}

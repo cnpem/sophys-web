@@ -6,7 +6,7 @@ export default async function Page() {
   const session = await auth();
   return (
     <main className="flex flex-col items-center gap-4 p-24">
-      <h1 className="text-primary text-4xl font-bold">Sophys Sapucaia UI</h1>
+      <h1 className="text-4xl font-bold text-primary">Sophys Sapucaia UI</h1>
       <p className="text-lg">
         This is the UI for experiments conducted at the Sapucaia beamline.
       </p>

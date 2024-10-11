@@ -50,7 +50,7 @@ function QueueItem({
     <li
       className={cn(
         "flex select-none items-center justify-between space-x-2 rounded-md bg-gray-50 p-3 shadow-sm",
-        isDragging && "border-primary bg-primary/10 border-2",
+        isDragging && "border-2 border-primary bg-primary/10",
       )}
       ref={setNodeRef}
       style={style}
@@ -71,7 +71,7 @@ function QueueItem({
         {job.status === "running" && (
           <div className="h-2.5 w-24 rounded-full bg-gray-200 dark:bg-gray-700">
             <div
-              className="bg-primary h-2.5 rounded-full"
+              className="h-2.5 rounded-full bg-primary"
               style={{ width: `${job.progress}%` }}
             />
           </div>
@@ -125,7 +125,7 @@ export function Queue(props: {
     <Dropzone id="queue-dropzone">
       <ScrollArea className="h-[calc(100vh-240px)] flex-grow">
         {queue.length === 0 ? (
-          <p className="text-muted-foreground text-center">
+          <p className="text-center text-muted-foreground">
             Queue is empty. Drag samples here to add them to the queue.
           </p>
         ) : (
