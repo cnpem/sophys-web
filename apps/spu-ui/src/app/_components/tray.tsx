@@ -2,9 +2,8 @@
 
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import React, { useCallback } from "react";
-import { ChevronsRightIcon, UploadIcon } from "lucide-react";
+import { ChevronsRightIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
-import { toast } from "@sophys-web/ui/sonner";
 import type { Sample } from "./sample";
 import { SampleItem } from "./sample";
 
@@ -31,20 +30,14 @@ export function Tray(props: TrayProps) {
     <div className="h-fit space-y-4 rounded-lg bg-gray-50 p-4 shadow-md">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-medium">Tray</h2>
-        <div className="flex items-center space-x-2">
-          <Button
-            onClick={() => {
-              toast("Upload functionality not implemented yet.");
-            }}
-            size="icon"
-            variant="outline"
-          >
-            <UploadIcon className="h-4 w-4" />
-          </Button>
-          <Button onClick={enqueueAll} size="icon" variant="outline">
-            <ChevronsRightIcon className="h-4 w-4" />
-          </Button>
-        </div>
+        <Button
+          onClick={enqueueAll}
+          size="icon"
+          title="enqueue all"
+          variant="outline"
+        >
+          <ChevronsRightIcon className="h-4 w-4" />
+        </Button>
       </div>
       <div
         className="grid gap-1"
@@ -53,7 +46,7 @@ export function Tray(props: TrayProps) {
           gridTemplateRows: `repeat(${props.rows.length + 1}, 1fr)`,
         }}
       >
-        <div className="" /> {/* Empty cell for top-left corner */}
+        <div /> {/* Empty cell for top-left corner */}
         {props.columns.map((col) => (
           <div
             className="flex items-center justify-center font-bold text-primary"

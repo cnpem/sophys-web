@@ -7,7 +7,7 @@ import type {
 } from "@dnd-kit/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-import { Pause, Play, SquareIcon, Trash2 } from "lucide-react";
+import { Pause, Play, SquareIcon, Trash2, UploadIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import type { Job } from "./queue";
@@ -17,7 +17,7 @@ import { SampleItem } from "./sample";
 import { Tray } from "./tray";
 
 export default function Experiment() {
-  const rows = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+  const rows = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"];
   const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
   const tray1 = useRef(() =>
     rows.flatMap((row) =>
@@ -181,10 +181,16 @@ export default function Experiment() {
     <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
       <div className="mx-auto flex items-center justify-center gap-4">
         <Tabs defaultValue="tray1">
-          <TabsList>
-            <TabsTrigger value="tray1">Tray 1</TabsTrigger>
-            <TabsTrigger value="tray2">Tray 2</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center gap-2">
+            <TabsList>
+              <TabsTrigger value="tray1">Tray 1</TabsTrigger>
+              <TabsTrigger value="tray2">Tray 2</TabsTrigger>
+            </TabsList>
+            <Button variant="outline">
+              <UploadIcon className="mr-2 h-4 w-4" />
+              Upload Samples
+            </Button>
+          </div>
           <TabsContent value="tray1">
             <Tray
               activeId={activeId}
