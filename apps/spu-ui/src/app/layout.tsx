@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={roboto.className}>
         <Navbar avatar={<UserAvatar />} />
-        <Toaster />
+        <Toaster richColors theme="light" />
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
     </html>
