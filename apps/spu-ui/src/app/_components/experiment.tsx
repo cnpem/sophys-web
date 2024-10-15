@@ -21,7 +21,7 @@ import { UploadButton } from "./upload-button";
 export default function Experiment() {
   const rows = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"];
   const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
-  const tray1 = useRef(() =>
+  const emptyTray1 = useRef(() =>
     rows.flatMap((row) =>
       columns.map((column) => ({
         id: `T1-${column}${row}`,
@@ -32,7 +32,7 @@ export default function Experiment() {
     ),
   );
 
-  const tray2 = useRef(() =>
+  const emptyTray2 = useRef(() =>
     rows.flatMap((row) =>
       columns.map((column) => ({
         id: `T2-${column}${row}`,
@@ -43,8 +43,8 @@ export default function Experiment() {
     ),
   );
   const [samples, setSamples] = useState<Sample[]>([
-    ...tray1.current(),
-    ...tray2.current(),
+    ...emptyTray1.current(),
+    ...emptyTray2.current(),
   ]);
   const [queue, setQueue] = useState<Job[]>([]);
   const [nextJobId, setNextJobId] = useState(1);
@@ -116,6 +116,10 @@ export default function Experiment() {
     setSamples((prevSamples) =>
       prevSamples.map((s) => (s.isUsed ? { ...s, isUsed: false } : s)),
     );
+  };
+
+  const clearSamples = () => {
+    setSamples([...emptyTray1.current(), ...emptyTray2.current()]);
   };
 
   const uploadSamples = (data: SampleParams[]) => {
@@ -213,6 +217,10 @@ export default function Experiment() {
               <UploadIcon className="mr-2 h-4 w-4" />
               Upload Samples
             </UploadButton>
+            <Button onClick={clearSamples} variant="link">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Clear Samples
+            </Button>
           </div>
           <TabsContent value="tray1">
             <Tray
