@@ -49,7 +49,7 @@ function QueueItem({
   return (
     <li
       className={cn(
-        "flex select-none items-center justify-between space-x-2 rounded-md bg-gray-50 p-3 shadow-sm",
+        "flex select-none items-center justify-between space-x-2 rounded-md bg-gray-50 p-3 shadow-md",
         isDragging && "border-2 border-primary bg-primary/10",
       )}
       ref={setNodeRef}
@@ -57,19 +57,22 @@ function QueueItem({
     >
       <div className="flex flex-grow items-center space-x-3">
         <div
-          className={`h-8 w-8 rounded-full ${getSampleColor(
+          className={`h-10 w-10 rounded-full ${getSampleColor(
             sample.type,
           )} relative flex items-center justify-center font-bold text-white`}
         >
-          {sample.pos}
+          {sample.relative_position}
           <span className="absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-full bg-white text-xs text-black">
             {sample.type ?? "N/A"}
           </span>
         </div>
-        <span className="font-medium">{`Sample ${sample.pos}`}</span>
+        <div className="flex items-center space-x-2">
+          <p className="font-bold">{sample.name}</p>
+          <p className="text-sm text-muted-foreground">{sample.position}</p>
+        </div>
         <Badge variant="outline">{job.status}</Badge>
         {job.status === "running" && (
-          <div className="h-2.5 w-24 rounded-full bg-gray-200 dark:bg-gray-700">
+          <div className="h-2.5 w-24 rounded-full bg-gray-200">
             <div
               className="h-2.5 rounded-full bg-primary"
               style={{ width: `${job.progress}%` }}

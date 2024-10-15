@@ -3,24 +3,21 @@
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import { useDraggable } from "@dnd-kit/core";
 import { cn } from "@sophys-web/ui";
+import type { SampleParams } from "../../lib/schemas/sample";
 
-export interface Sample {
+export type Sample = {
   id: UniqueIdentifier;
-  pos: string;
-  type: "A" | "B" | "C" | "D" | null;
+  relative_position: string;
+  type: "S" | "B" | null;
   isUsed?: boolean;
-}
+} & Partial<SampleParams>;
 
 export function getSampleColor(type: Sample["type"]) {
   switch (type) {
-    case "A":
-      return "bg-red-500";
     case "B":
-      return "bg-blue-500";
-    case "C":
-      return "bg-green-500";
-    case "D":
-      return "bg-yellow-500";
+      return "bg-sky-500";
+    case "S":
+      return "bg-emerald-500";
     default:
       return "bg-gray-500";
   }
@@ -54,7 +51,7 @@ export function SampleItem({
             "cursor-not-allowed opacity-50",
         )}
       >
-        {sample.pos}
+        {sample.relative_position}
         <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs text-black">
           {sample.type ?? "N/A"}
         </span>

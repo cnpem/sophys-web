@@ -10,11 +10,13 @@ import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Pause, Play, SquareIcon, Trash2, UploadIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
+import type { SampleParams } from "../../lib/schemas/sample";
 import type { Job } from "./queue";
 import type { Sample } from "./sample";
 import { Queue } from "./queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
+import { UploadButton } from "./upload-button";
 
 export default function Experiment() {
   const rows = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"];
@@ -22,9 +24,10 @@ export default function Experiment() {
   const tray1 = useRef(() =>
     rows.flatMap((row) =>
       columns.map((column) => ({
-        id: `${column}${row}-1`,
-        pos: `${column}${row}`,
-        type: ["A", "B", null][Math.floor(Math.random() * 3)] as Sample["type"],
+        id: `T1-${column}${row}`,
+        position: `T1-${column}${row}`,
+        relative_position: `${column}${row}`,
+        type: null,
       })),
     ),
   );
@@ -32,11 +35,10 @@ export default function Experiment() {
   const tray2 = useRef(() =>
     rows.flatMap((row) =>
       columns.map((column) => ({
-        id: `${column}${row}-2`,
-        pos: `${column}${row}`,
-        type: ["A", "B", "C", "D", null][
-          Math.floor(Math.random() * 5)
-        ] as Sample["type"],
+        id: `T2-${column}${row}`,
+        position: `T2-${column}${row}`,
+        relative_position: `${column}${row}`,
+        type: null,
       })),
     ),
   );
@@ -116,6 +118,27 @@ export default function Experiment() {
     );
   };
 
+  const uploadSamples = (data: SampleParams[]) => {
+    const prevSamples = samples;
+    const newSamples = data.map(
+      (sample) =>
+        ({
+          id: `${sample.position}`,
+          relative_position: sample.position.split("-")[1],
+          type: sample.buffer === "empty" ? "S" : "B",
+          ...sample,
+        }) as Sample,
+    );
+    // replace existing samples with new samples if they exist
+    const updatedSamples = prevSamples.map((prevSample) => {
+      const newSample = newSamples.find(
+        (sample) => sample.id === prevSample.id,
+      );
+      return newSample ?? prevSample;
+    });
+    setSamples(updatedSamples);
+  };
+
   useEffect(() => {
     let timer: ReturnType<typeof setInterval>;
     if (isProcessing) {
@@ -186,10 +209,10 @@ export default function Experiment() {
               <TabsTrigger value="tray1">Tray 1</TabsTrigger>
               <TabsTrigger value="tray2">Tray 2</TabsTrigger>
             </TabsList>
-            <Button variant="outline">
+            <UploadButton handleUpload={uploadSamples}>
               <UploadIcon className="mr-2 h-4 w-4" />
               Upload Samples
-            </Button>
+            </UploadButton>
           </div>
           <TabsContent value="tray1">
             <Tray
@@ -197,8 +220,8 @@ export default function Experiment() {
               addToQueue={addToQueue}
               columns={columns}
               rows={rows}
-              samples={samples.filter((sample) =>
-                tray1.current().some((s) => s.id === sample.id),
+              samples={samples.filter(
+                (sample) => sample.position?.split("-")[0] === "T1",
               )}
             />
           </TabsContent>
@@ -208,8 +231,8 @@ export default function Experiment() {
               addToQueue={addToQueue}
               columns={columns}
               rows={rows}
-              samples={samples.filter((sample) =>
-                tray2.current().some((s) => s.id === sample.id),
+              samples={samples.filter(
+                (sample) => sample.position?.split("-")[0] === "T2",
               )}
             />
           </TabsContent>
@@ -263,7 +286,7 @@ export default function Experiment() {
             sample={
               samples.find((s) => s.id === activeId) ?? {
                 id: activeId,
-                pos: "",
+                relative_position: "",
                 type: null,
               }
             }
