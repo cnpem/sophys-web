@@ -42,11 +42,12 @@ module.exports = {
   ignorePatterns: ["node_modules/", "dist/"],
   // add rules configurations here
   rules: {
-    "camelcase": "off",
+    camelcase: "off",
     "react/hook-use-state": "off",
     "import/no-default-export": "off",
     "import/no-unresolved": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-misused-promises": "off",
+    "import/order": "off",
   },
 };
