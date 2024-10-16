@@ -38,6 +38,7 @@ module.exports = {
   rules: {
     "import/no-default-export": "off",
     "import/order": "off",
+    "no-console": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
   },
   overrides: [
