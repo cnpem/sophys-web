@@ -63,6 +63,7 @@ async function refreshBlueskyToken(refreshToken: string) {
 
 export const authConfig: NextAuthConfig = {
   secret: env.AUTH_SECRET,
+  trustHost: !isSecureContext || env.AUTH_TRUST_HOST,
   session: {
     strategy: "jwt",
   },
