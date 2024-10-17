@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import { auth } from "@sophys-web/auth";
+import { getSamples } from "../actions/samples";
 
 const Experiment = dynamic(() => import("../_components/experiment"), {
   ssr: false,
@@ -12,6 +13,7 @@ export default async function QueuePage() {
   if (!session || session.error) {
     return redirect("/auth/signin?callbackUrl=/queues");
   }
+  const samples = await getSamples();
 
-  return <Experiment />;
+  return <Experiment initialSamples={samples} />;
 }

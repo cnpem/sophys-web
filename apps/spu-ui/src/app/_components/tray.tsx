@@ -5,11 +5,10 @@ import React, { useCallback } from "react";
 import { ChevronsRightIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import type { Sample } from "./sample";
+import { trayColumns, trayRows } from "../../lib/constants";
 import { SampleItem } from "./sample";
 
 interface TrayProps {
-  rows: string[];
-  columns: string[];
   samples: Sample[];
   activeId: UniqueIdentifier | null;
   addToQueue: (sampleId: UniqueIdentifier[]) => void;
@@ -42,12 +41,12 @@ export function Tray(props: TrayProps) {
       <div
         className="grid gap-1"
         style={{
-          gridTemplateColumns: `repeat(${props.columns.length + 1}, 1fr)`,
-          gridTemplateRows: `repeat(${props.rows.length + 1}, 1fr)`,
+          gridTemplateColumns: `repeat(${trayColumns.length + 1}, 1fr)`,
+          gridTemplateRows: `repeat(${trayRows.length + 1}, 1fr)`,
         }}
       >
         <div /> {/* Empty cell for top-left corner */}
-        {props.columns.map((col) => (
+        {trayColumns.map((col) => (
           <div
             className="flex items-center justify-center font-bold text-primary"
             key={col}
@@ -58,9 +57,9 @@ export function Tray(props: TrayProps) {
         {tray.map((sample, index) => {
           return (
             <React.Fragment key={sample.id}>
-              {index % props.columns.length === 0 && (
+              {index % trayColumns.length === 0 && (
                 <div className="flex items-center justify-center font-bold text-emerald-600">
-                  {props.rows[index / props.columns.length]}
+                  {trayRows[index / trayColumns.length]}
                 </div>
               )}
               <SampleItem

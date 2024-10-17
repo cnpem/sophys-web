@@ -5,7 +5,7 @@ import type {
   DragStartEvent,
   UniqueIdentifier,
 } from "@dnd-kit/core";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Pause, Play, SquareIcon, Trash2, UploadIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
@@ -13,56 +13,40 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import type { SampleParams } from "../../lib/schemas/sample";
 import type { Job } from "./queue";
 import type { Sample } from "./sample";
+import { useSSEData } from "../_hooks/use-sse-data";
+import {
+  clearSamples as clearServerSamples,
+  setSamples as setServerSamples,
+} from "../actions/samples";
 import { Queue } from "./queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
 import { UploadButton } from "./upload-button";
 
-export default function Experiment() {
-  const rows = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"];
-  const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
-  const emptyTray1 = useRef(() =>
-    rows.flatMap((row) =>
-      columns.map((column) => ({
-        id: `T1-${column}${row}`,
-        position: `T1-${column}${row}`,
-        relative_position: `${column}${row}`,
-        type: null,
-      })),
-    ),
-  );
-
-  const emptyTray2 = useRef(() =>
-    rows.flatMap((row) =>
-      columns.map((column) => ({
-        id: `T2-${column}${row}`,
-        position: `T2-${column}${row}`,
-        relative_position: `${column}${row}`,
-        type: null,
-      })),
-    ),
-  );
-  const [samples, setSamples] = useState<Sample[]>([
-    ...emptyTray1.current(),
-    ...emptyTray2.current(),
-  ]);
+export default function Experiment({
+  initialSamples,
+}: {
+  initialSamples: Sample[];
+}) {
+  const [samples] = useSSEData("/api/samples", {
+    initialData: initialSamples,
+  });
   const [queue, setQueue] = useState<Job[]>([]);
   const [nextJobId, setNextJobId] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
   const addToQueue = useCallback(
-    (sampleIds: UniqueIdentifier[]) => {
+    async (sampleIds: UniqueIdentifier[]) => {
+      const updatedSamples = samples.map((s) =>
+        sampleIds.includes(s.id) ? { ...s, isUsed: true } : s,
+      );
+      await setServerSamples(updatedSamples);
       setQueue((prevQueue) => {
         const newJobs = sampleIds
           .map((sampleId, index) => {
             const sample = samples.find((s) => s.id === sampleId);
             if (sample) {
-              setSamples((prevSamples) =>
-                prevSamples.map((s) =>
-                  s.id === sampleId ? { ...s, isUsed: true } : s,
-                ),
-              );
               return {
                 id: nextJobId + index,
                 sampleId,
@@ -81,15 +65,14 @@ export default function Experiment() {
     },
     [samples, nextJobId],
   );
-  const removeFromQueue = (jobId: UniqueIdentifier) => {
+  const removeFromQueue = async (jobId: UniqueIdentifier) => {
     setQueue((prevQueue) => prevQueue.filter((job) => job.id !== jobId));
-    setSamples((prevSamples) =>
-      prevSamples.map((s) =>
-        s.id === queue.find((job) => job.id === jobId)?.sampleId
-          ? { ...s, isUsed: false }
-          : s,
-      ),
+    const updatedSamples = samples.map((s) =>
+      s.id === queue.find((job) => job.id === jobId)?.sampleId
+        ? { ...s, isUsed: false }
+        : s,
     );
+    await setServerSamples(updatedSamples);
   };
 
   const cancelJob = (jobId: UniqueIdentifier) => {
@@ -111,18 +94,17 @@ export default function Experiment() {
     );
   };
 
-  const clearQueue = () => {
+  const clearQueue = async () => {
     setQueue([]);
-    setSamples((prevSamples) =>
-      prevSamples.map((s) => (s.isUsed ? { ...s, isUsed: false } : s)),
-    );
+    const updatedSamples = samples.map((s) => ({ ...s, isUsed: false }));
+    await setServerSamples(updatedSamples);
   };
 
-  const clearSamples = () => {
-    setSamples([...emptyTray1.current(), ...emptyTray2.current()]);
+  const clearSamples = async () => {
+    return clearServerSamples();
   };
 
-  const uploadSamples = (data: SampleParams[]) => {
+  const uploadSamples = async (data: SampleParams[]) => {
     const prevSamples = samples;
     const newSamples = data.map(
       (sample) =>
@@ -140,7 +122,7 @@ export default function Experiment() {
       );
       return newSample ?? prevSample;
     });
-    setSamples(updatedSamples);
+    await setServerSamples(updatedSamples);
   };
 
   useEffect(() => {
@@ -195,11 +177,11 @@ export default function Experiment() {
     setActiveId(active.id);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { over } = event;
 
     if (over && over.id === "queue-dropzone") {
-      addToQueue([activeId ?? 0]);
+      await addToQueue([activeId ?? 0]);
     }
 
     setActiveId(null);
@@ -226,8 +208,6 @@ export default function Experiment() {
             <Tray
               activeId={activeId}
               addToQueue={addToQueue}
-              columns={columns}
-              rows={rows}
               samples={samples.filter(
                 (sample) => sample.position?.split("-")[0] === "T1",
               )}
@@ -237,8 +217,6 @@ export default function Experiment() {
             <Tray
               activeId={activeId}
               addToQueue={addToQueue}
-              columns={columns}
-              rows={rows}
               samples={samples.filter(
                 (sample) => sample.position?.split("-")[0] === "T2",
               )}
