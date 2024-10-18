@@ -12,7 +12,6 @@ import { Button } from "@sophys-web/ui/button";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import type { Sample } from "./sample";
 import { Dropzone } from "./dropzone";
-import { getSampleColor } from "./sample";
 
 export interface Job {
   id: UniqueIdentifier;
@@ -50,16 +49,21 @@ function QueueItem({
     <li
       className={cn(
         "flex select-none items-center justify-between space-x-2 rounded-md bg-gray-50 p-3 shadow-md",
-        isDragging && "border-2 border-primary bg-primary/10",
+        { "border-2 border-primary bg-primary/10": isDragging },
       )}
       ref={setNodeRef}
       style={style}
     >
       <div className="flex flex-grow items-center space-x-3">
         <div
-          className={`h-10 w-10 rounded-full ${getSampleColor(
-            sample.type,
-          )} relative flex items-center justify-center font-bold text-white`}
+          className={cn(
+            "relative flex h-10 w-10 items-center justify-center rounded-full font-bold text-white",
+            {
+              "bg-gray-500": !sample.type,
+              "bg-emerald-500": sample.type === "S",
+              "bg-sky-500": sample.type === "B",
+            },
+          )}
         >
           {sample.relative_position}
           <span className="absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-full bg-white text-xs text-black">

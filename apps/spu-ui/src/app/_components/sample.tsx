@@ -12,17 +12,6 @@ export type Sample = {
   isUsed?: boolean;
 } & Partial<SampleParams>;
 
-export function getSampleColor(type: Sample["type"]) {
-  switch (type) {
-    case "B":
-      return "bg-sky-500";
-    case "S":
-      return "bg-emerald-500";
-    default:
-      return "bg-gray-500";
-  }
-}
-
 export function SampleItem({
   sample,
   isDragging,
@@ -30,10 +19,23 @@ export function SampleItem({
   sample: Sample;
   isDragging: boolean;
 }) {
+  const disabled = sample.type === null || sample.isUsed;
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: sample.id,
-    disabled: sample.type === null || sample.isUsed,
+    disabled,
   });
+
+  const classNames = cn(
+    "relative flex h-12 w-12 cursor-grab items-center justify-center rounded-full font-bold text-white",
+    { "hover:scale-110 hover:ring hover:ring-primary": !disabled },
+    { "cursor-grabbing rounded-sm opacity-90": isDragging },
+    { "cursor-not-allowed opacity-50": disabled },
+    {
+      "bg-gray-500": !sample.type,
+      "bg-emerald-500": sample.type === "S",
+      "bg-sky-500": sample.type === "B",
+    },
+  );
 
   return (
     <div
@@ -42,15 +44,7 @@ export function SampleItem({
       {...attributes}
       className="select-none"
     >
-      <div
-        className={cn(
-          "relative flex h-12 w-12 cursor-grab items-center justify-center rounded-full font-bold text-white hover:scale-110 hover:ring hover:ring-primary",
-          getSampleColor(sample.type),
-          isDragging && "cursor-grabbing rounded-sm opacity-90",
-          (sample.type === null || sample.isUsed) &&
-            "cursor-not-allowed opacity-50",
-        )}
-      >
+      <div className={classNames}>
         {sample.relative_position}
         <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs text-black">
           {sample.type ?? "N/A"}
