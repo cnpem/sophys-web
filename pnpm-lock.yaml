@@ -145,6 +145,9 @@ importers:
       '@sophys-web/auth':
         specifier: workspace:*
         version: link:../auth
+      '@t3-oss/env-nextjs':
+        specifier: ^0.10.1
+        version: 0.10.1(typescript@5.4.5)(zod@3.23.8)
       '@trpc/server':
         specifier: 11.0.0-rc.441
         version: 11.0.0-rc.441
@@ -154,6 +157,9 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.23.8
+      zod-fetch:
+        specifier: ^0.1.1
+        version: 0.1.1
     devDependencies:
       '@sophys-web/eslint-config':
         specifier: workspace:*

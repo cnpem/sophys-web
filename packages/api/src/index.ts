@@ -3,6 +3,12 @@ import type { AppRouter } from "./root";
 import { appRouter } from "./root";
 import { createCallerFactory, createTRPCContext } from "./trpc";
 
+import plans from "./schemas/plans";
+
+const schemas = {
+  plans,
+};
+
 /**
  * Create a server-side caller for the tRPC API
  * @example
@@ -28,5 +34,6 @@ type RouterInputs = inferRouterInputs<AppRouter>;
  **/
 type RouterOutputs = inferRouterOutputs<AppRouter>;
 
+export { schemas };
 export { createTRPCContext, appRouter, createCaller };
 export type { AppRouter, RouterInputs, RouterOutputs };
