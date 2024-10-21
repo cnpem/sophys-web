@@ -9,6 +9,7 @@ const links = [
   { href: "/queues", label: "queue" },
   { href: "/tray", label: "tray" },
   { href: "/data", label: "data" },
+  { href: "/plans", label: "plans" },
 ];
 
 interface NavbarProps {

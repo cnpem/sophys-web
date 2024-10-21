@@ -26,8 +26,7 @@ const apiResponseSchema = z.object({
 });
 
 export default {
-    device: deviceSchema,
-    devicesAllowed: z.record(deviceSchema),
-    devicesAllowedResponse: apiResponseSchema,
+  device: deviceSchema,
+  devicesAllowed: z.record(deviceSchema),
+  devicesAllowedResponse: apiResponseSchema,
 };
-

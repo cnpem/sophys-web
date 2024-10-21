@@ -1,8 +1,8 @@
+import { z } from "zod";
 import { createZodFetcher } from "zod-fetch";
-import { protectedProcedure } from "../trpc";
 import { env } from "../../env";
 import schemas from "../schemas/devices";
-import { z } from "zod";
+import { protectedProcedure } from "../trpc";
 
 function namedDevices(devices_allowed: z.infer<typeof schemas.devicesAllowed>) {
   const flyables = Object.entries(devices_allowed)
@@ -57,7 +57,7 @@ export const devicesRouter = {
             Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
           },
           body: undefined,
-        }
+        },
       );
       return namedDevices(devices.devices_allowed);
     } catch (e) {

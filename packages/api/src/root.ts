@@ -1,6 +1,6 @@
-import { postRouter } from "./router/post";
-import { plansRouter } from "./router/plans";
 import { devicesRouter } from "./router/devices";
+import { plansRouter } from "./router/plans";
+import { postRouter } from "./router/post";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
