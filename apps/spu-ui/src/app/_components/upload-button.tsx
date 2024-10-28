@@ -43,14 +43,19 @@ export function UploadButton(props: ButtonProps) {
             complete: async (results) => {
               const { data: csvData, errors } = results;
               if (errors.length > 0) {
-                toast.error("Error parsing CSV file", {
+                console.error("Error reading CSV file", errors);
+                toast.error("Error reading CSV file", {
                   description: errors.map((error) => error.message).join("\n"),
                 });
                 return;
               }
               const parsedData = await samplesSchema.safeParseAsync(csvData);
               if (!parsedData.success) {
-                toast.error("Error parsing CSV file", {
+                console.error(
+                  "Error parsing expected file variables",
+                  parsedData.error.errors,
+                );
+                toast.error("Error parsing expected file variables", {
                   description: parsedData.error.errors
                     .map((err) => err.message)
                     .join("\n"),
