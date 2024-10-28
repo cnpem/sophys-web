@@ -1,29 +1,30 @@
 "use server";
 
 import type { Sample } from "../_components/sample";
-import { trayColumns, trayRows } from "../../lib/constants";
+import { trayColumns, trayOptions, trayRows } from "../../lib/constants";
 
-const emptyTray1 = () =>
-  trayRows.flatMap((row) =>
+function createEmptySamples() {
+  const [TRAY1, TRAY2] = trayOptions;
+  const emptyTray1 = trayRows.flatMap((row) =>
     trayColumns.map((column) => ({
-      id: `T1-${column}${row}`,
-      position: `T1-${column}${row}`,
-      relative_position: `${column}${row}`,
+      id: `${TRAY1}-${column}${row}`,
+      tray: TRAY1,
+      relativePosition: `${column}${row}`,
       type: null,
     })),
   );
-
-const emptyTray2 = () =>
-  trayRows.flatMap((row) =>
+  const emptyTray2 = trayRows.flatMap((row) =>
     trayColumns.map((column) => ({
-      id: `T2-${column}${row}`,
-      position: `T2-${column}${row}`,
-      relative_position: `${column}${row}`,
+      id: `${TRAY2}-${column}${row}`,
+      tray: TRAY2,
+      relativePosition: `${column}${row}`,
       type: null,
     })),
   );
+  return [...emptyTray1, ...emptyTray2] as Sample[];
+}
 
-let samples: Sample[] = [...emptyTray1(), ...emptyTray2()];
+let samples: Sample[] = createEmptySamples();
 const clients = new Set<ReadableStreamDefaultController>();
 
 export async function getClients() {
@@ -39,7 +40,7 @@ export async function getSamples() {
 }
 
 export async function clearSamples() {
-  samples = [...emptyTray1(), ...emptyTray2()];
+  samples = createEmptySamples();
   await notifyClients();
   return new Promise<Sample[]>((resolve) => {
     resolve(samples);

@@ -65,14 +65,20 @@ function QueueItem({
             },
           )}
         >
-          {sample.relative_position}
+          {sample.relativePosition}
           <span className="absolute bottom-0 right-0 flex h-3 w-3 items-center justify-center rounded-full bg-white text-xs text-black">
             {sample.type ?? "N/A"}
           </span>
         </div>
         <div className="flex items-center space-x-2">
-          <p className="font-bold">{sample.name}</p>
-          <p className="text-sm text-muted-foreground">{sample.position}</p>
+          <p className="font-bold">{sample.sampleTag}</p>
+          <p className="text-sm text-muted-foreground">
+            {`${sample.tray} |`}
+            {sample.sampleType !== "buffer" && ` buffer: ${sample.bufferTag} |`}
+            {` volume (μL): ${sample.volume} |`}
+            {` acquire time (ms): ${sample.acquireTime} |`}
+            {` exposures: ${sample.numExposures} `}
+          </p>
         </div>
         <Badge variant="outline">{job.status}</Badge>
         {job.status === "running" && (
