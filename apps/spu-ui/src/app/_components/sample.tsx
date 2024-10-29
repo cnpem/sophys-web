@@ -7,7 +7,7 @@ import type { SampleParams } from "../../lib/schemas/sample";
 
 export type Sample = {
   id: UniqueIdentifier;
-  relative_position: string;
+  relativePosition: string;
   type: "S" | "B" | null;
   isUsed?: boolean;
 } & Partial<SampleParams>;
@@ -45,7 +45,7 @@ export function SampleItem({
       className="select-none"
     >
       <div className={classNames}>
-        {sample.relative_position}
+        {sample.relativePosition}
         <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs text-black">
           {sample.type ?? "N/A"}
         </span>

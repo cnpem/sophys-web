@@ -14,6 +14,7 @@ import type { SampleParams } from "../../lib/schemas/sample";
 import type { Job } from "./queue";
 import type { Sample } from "./sample";
 import { useSSEData } from "../_hooks/use-sse-data";
+import { trayOptions } from "../../lib/constants";
 import {
   clearSamples as clearServerSamples,
   setSamples as setServerSamples,
@@ -22,6 +23,17 @@ import { Queue } from "./queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
 import { UploadButton } from "./upload-button";
+
+const [TRAY1, TRAY2] = trayOptions;
+
+export function samplePosition(row: string, col: number, tray: string) {
+  const colRepr = col.toString().padStart(2, "0");
+  const relative = `${colRepr}${row}`;
+  return {
+    complete: `${tray}-${relative}`,
+    relative,
+  };
+}
 
 export default function Experiment({
   initialSamples,
@@ -106,16 +118,20 @@ export default function Experiment({
 
   const uploadSamples = async (data: SampleParams[]) => {
     const prevSamples = samples;
-    const newSamples = data.map(
-      (sample) =>
-        ({
-          id: `${sample.position}`,
-          relative_position: sample.position.split("-")[1],
-          type: sample.buffer === "empty" ? "S" : "B",
-          ...sample,
-        }) as Sample,
-    );
-    // replace existing samples with new samples if they exist
+    const newSamples = data.map((sample) => {
+      const { complete, relative } = samplePosition(
+        sample.row,
+        sample.col,
+        sample.tray,
+      );
+      return {
+        id: complete,
+        relativePosition: relative,
+        // type: sample.buffer === "empty" ? "S" : "B",
+        type: sample.sampleType === "buffer" ? "B" : "S",
+        ...sample,
+      } as Sample;
+    });
     const updatedSamples = prevSamples.map((prevSample) => {
       const newSample = newSamples.find(
         (sample) => sample.id === prevSample.id,
@@ -208,18 +224,14 @@ export default function Experiment({
             <Tray
               activeId={activeId}
               addToQueue={addToQueue}
-              samples={samples.filter(
-                (sample) => sample.position?.split("-")[0] === "T1",
-              )}
+              samples={samples.filter((sample) => sample.tray === TRAY1)}
             />
           </TabsContent>
           <TabsContent value="tray2">
             <Tray
               activeId={activeId}
               addToQueue={addToQueue}
-              samples={samples.filter(
-                (sample) => sample.position?.split("-")[0] === "T2",
-              )}
+              samples={samples.filter((sample) => sample.tray === TRAY2)}
             />
           </TabsContent>
         </Tabs>
@@ -272,7 +284,7 @@ export default function Experiment({
             sample={
               samples.find((s) => s.id === activeId) ?? {
                 id: activeId,
-                relative_position: "",
+                relativePosition: "",
                 type: null,
               }
             }
