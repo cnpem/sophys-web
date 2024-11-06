@@ -16,7 +16,7 @@ export default async function Page() {
           <p className="text-lg">Please, sign in to continue.</p>
           <Link
             className={buttonVariants({ variant: "link" })}
-            href="/api/auth/signin"
+            href="/auth/signin"
           >
             Sign in
           </Link>
