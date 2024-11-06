@@ -20,6 +20,12 @@
       "cache": false
     }
   },
-  "globalEnv": ["AUTH_SECRET", "PORT"],
-  "globalPassThroughEnv": ["NODE_ENV", "SKIP_ENV_VALIDATION"]
+  "globalEnv": [
+    "AUTH_SECRET",
+    "AUTH_TRUST_HOST",
+    "AUTH_URL",
+    "BLUESKY_HTTPSERVER_URL",
+    "PORT"
+  ],
+  "globalPassThroughEnv": ["NODE_ENV", "CI", "npm_lifecycle_event"]
 }

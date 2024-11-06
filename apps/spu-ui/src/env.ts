@@ -31,5 +31,6 @@ export const env = createEnv({
 
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
-  skipValidation: Boolean(process.env.SKIP_ENV_VALIDATION),
+  skipValidation:
+    Boolean(process.env.CI) || process.env.npm_lifecycle_event === "lint",
 });
