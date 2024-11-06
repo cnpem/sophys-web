@@ -61,8 +61,6 @@ async function refreshBlueskyToken(refreshToken: string) {
   return parsed;
 }
 
-console.log(env);
-
 export const authConfig: NextAuthConfig = {
   secret: env.AUTH_SECRET,
   trustHost: env.AUTH_TRUST_HOST,
