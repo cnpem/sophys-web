@@ -7,7 +7,11 @@ export const env = createEnv({
       process.env.NODE_ENV === "production"
         ? z.string().min(1)
         : z.string().min(1).optional(),
-    AUTH_TRUST_HOST: z.boolean().optional(),
+    AUTH_TRUST_HOST: z
+      .string()
+      // transform to boolean using preferred coercion logic
+      .transform((s) => s !== "false" && s !== "0")
+      .optional(),
     NODE_ENV: z.enum(["development", "production"]).optional(),
     BLUESKY_HTTPSERVER_URL: z.string().url(),
   },
