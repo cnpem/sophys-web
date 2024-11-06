@@ -17,5 +17,5 @@ module.exports = {
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   /** base path setup for reverse proxy */
-  basePath: "/spu-ui",
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
 };
