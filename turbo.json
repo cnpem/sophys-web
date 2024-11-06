@@ -25,7 +25,8 @@
     "AUTH_TRUST_HOST",
     "AUTH_URL",
     "BLUESKY_HTTPSERVER_URL",
-    "PORT"
+    "PORT",
+    "NEXT_PUBLIC_BASE_PATH"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",
