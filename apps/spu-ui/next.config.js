@@ -1,13 +1,12 @@
-import { fileURLToPath } from "node:url";
-import { createJiti } from "jiti";
+const createJiti = require("jiti");
 
-const jiti = createJiti(fileURLToPath(import.meta.url));
+const jiti = createJiti(__filename);
 
 // Import env here to validate during build. Using jiti we can import .ts files :)
-await jiti.import("./app/env");
+jiti("./src/env");
 
 /** @type {import('next').NextConfig} */
-module.exports = {
+const config = {
   reactStrictMode: true,
   /** enable standalone output for docker self-hosting */
   // output: "standalone",
@@ -19,3 +18,5 @@ module.exports = {
   /** base path setup for reverse proxy */
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
 };
+
+module.exports = config;
