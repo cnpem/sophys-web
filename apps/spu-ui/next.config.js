@@ -1,3 +1,11 @@
+import { fileURLToPath } from "node:url";
+import { createJiti } from "jiti";
+
+const jiti = createJiti(fileURLToPath(import.meta.url));
+
+// Import env here to validate during build. Using jiti we can import .ts files :)
+await jiti.import("./app/env");
+
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
