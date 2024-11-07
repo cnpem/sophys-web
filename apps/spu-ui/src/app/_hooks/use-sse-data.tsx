@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { env } from "../../env";
 
 export const useSSEData = <T,>(
   url: string,
@@ -11,7 +12,7 @@ export const useSSEData = <T,>(
   const [data, setData] = useState(opts.initialData);
 
   const connect = useCallback(() => {
-    const eventSource = new EventSource(url);
+    const eventSource = new EventSource(`${env.NEXT_PUBLIC_BASE_PATH}${url}`);
 
     eventSource.onmessage = (event: MessageEvent<string>) => {
       const newData = JSON.parse(event.data) as T;
