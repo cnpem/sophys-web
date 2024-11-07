@@ -1,9 +1,11 @@
+/** @type {import('jiti').createJiti} */
 const createJiti = require("jiti");
 
+/** @type {import('jiti').Jiti} */
 const jiti = createJiti(__filename);
 
 // Import env here to validate during build. Using jiti we can import .ts files :)
-jiti("./src/env");
+jiti.import("./src/env");
 
 /** @type {import('next').NextConfig} */
 const config = {
