@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { auth, signOut } from "@sophys-web/auth";
 import { Button, buttonVariants } from "@sophys-web/ui/button";
@@ -7,10 +8,7 @@ export default async function UserAvatar() {
   const session = await auth();
   if (!session) {
     return (
-      <Link
-        className={buttonVariants({ variant: "link" })}
-        href="/api/auth/signin"
-      >
+      <Link className={buttonVariants({ variant: "link" })} href="/auth/signin">
         Sign in
       </Link>
     );
@@ -22,7 +20,10 @@ export default async function UserAvatar() {
       <form
         action={async () => {
           "use server";
-          await signOut();
+          await signOut({
+            redirect: false,
+          });
+          redirect("/");
         }}
       >
         <Button size="icon" type="submit" variant="ghost">

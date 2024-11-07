@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import { signIn as naSignIn } from "@sophys-web/auth";
@@ -23,8 +24,9 @@ export async function signIn(
     await naSignIn("credentials", {
       email: parsed.data.email,
       password: parsed.data.password,
-      redirectTo: callbackUrl || "/",
+      redirect: false,
     });
+    redirect(callbackUrl || "/");
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
