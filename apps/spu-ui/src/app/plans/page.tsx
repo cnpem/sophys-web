@@ -5,8 +5,8 @@ import { SelectPlan } from "../_components/select-plan";
 export default async function Page() {
   const session = await auth();
 
-  if (!session) {
-    redirect("/auth/signin");
+  if (!session || session.error) {
+    return redirect("/auth/signin?callbackUrl=/plans");
   }
 
   return (
