@@ -42,13 +42,13 @@ export function SignInForm() {
       params.get("callbackUrl") || "/",
     );
 
-    if (res?.error) {
+    if (res.error) {
       const error = res.error;
       toast.error(error);
       form.reset();
     }
 
-    if (!res?.error) {
+    if (!res.error) {
       toast.success("Signed in successfully");
     }
   };
