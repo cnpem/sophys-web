@@ -6,7 +6,7 @@ import { z } from "zod";
 import { signIn as naSignIn } from "@sophys-web/auth";
 
 const SigninSchema = z.object({
-  email: z.string().email().min(2),
+  username: z.string().min(2),
   password: z.string().min(2),
 });
 
@@ -22,7 +22,7 @@ export async function signIn(
 
   try {
     await naSignIn("credentials", {
-      email: parsed.data.email,
+      username: parsed.data.username,
       password: parsed.data.password,
       redirect: false,
     });

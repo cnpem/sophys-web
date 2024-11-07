@@ -18,10 +18,7 @@ import { toast } from "@sophys-web/ui/sonner";
 import { signIn } from "../../actions/auth";
 
 const FormSchema = z.object({
-  email: z
-    .string()
-    .min(2, { message: "Email is required" })
-    .email({ message: "Input must be a valid e-mail" }),
+  username: z.string().min(2, { message: "Username is required" }),
   password: z.string().min(2, { message: "Password is required" }),
 });
 
@@ -30,7 +27,7 @@ export function SignInForm() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      email: "",
+      username: "",
       password: "",
     },
   });
@@ -39,7 +36,7 @@ export function SignInForm() {
     toast.info("Signing in...");
     const res = await signIn(
       {
-        email: data.email,
+        username: data.username,
         password: data.password,
       },
       params.get("callbackUrl") || "/",
@@ -64,13 +61,13 @@ export function SignInForm() {
       >
         <FormField
           control={form.control}
-          name="email"
+          name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="user@example.com"
+                  placeholder="user.name"
                   {...field}
                   disabled={form.formState.isSubmitting}
                 />

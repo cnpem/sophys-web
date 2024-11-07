@@ -74,14 +74,14 @@ export const authConfig: NextAuthConfig = {
     Credentials({
       name: "LDAP",
       credentials: {
-        email: { label: "Email", type: "text" },
+        username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         const parsed = await z
           .object({
-            email: z.string().email(),
-            password: z.string(),
+            username: z.string().min(2),
+            password: z.string().min(2),
           })
           .safeParseAsync(credentials);
 
@@ -89,10 +89,8 @@ export const authConfig: NextAuthConfig = {
           throw parsed.error;
         }
 
-        const name = parsed.data?.email.split("@")[0];
-
         const formData = new FormData();
-        formData.append("username", name);
+        formData.append("username", parsed.data?.username);
         formData.append("password", parsed.data?.password);
 
         const res = await fetch(
@@ -111,9 +109,8 @@ export const authConfig: NextAuthConfig = {
         const parsedToken = await blueskyTokenSchema.parseAsync(data);
 
         const user = {
-          id: name,
-          name,
-          email: parsed.data?.email,
+          id: parsed.data?.username,
+          name: parsed.data?.username,
           blueskyAccessToken: parsedToken.access_token,
           blueskyRefreshToken: parsedToken.refresh_token,
           expires_in: parsedToken.expires_in,
