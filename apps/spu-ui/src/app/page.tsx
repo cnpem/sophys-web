@@ -1,6 +1,6 @@
 import UserAvatar from "./_components/user-avatar";
 
-export default async function Page() {
+export default function Page() {
   return (
     <main className="flex flex-col items-center gap-4 p-24">
       <h1 className="text-4xl font-bold text-primary">Sophys Sapucaia UI</h1>
