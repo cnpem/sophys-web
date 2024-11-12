@@ -1,11 +1,19 @@
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import type { AppRouter } from "./root";
 import { appRouter } from "./root";
+import common from "./schemas/common";
+import devices from "./schemas/devices";
+import instructions from "./schemas/instructions";
 import plans from "./schemas/plans";
+import queue from "./schemas/queue";
 import { createCallerFactory, createTRPCContext } from "./trpc";
 
 const schemas = {
+  common,
+  devices,
+  instructions,
   plans,
+  queue,
 };
 
 /**

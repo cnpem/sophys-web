@@ -19,6 +19,7 @@ import {
   clearSamples as clearServerSamples,
   setSamples as setServerSamples,
 } from "../actions/samples";
+import { EnvMenu } from "./env-menu";
 import { Queue } from "./queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
@@ -237,8 +238,9 @@ export default function Experiment({
         </Tabs>
         <div className="flex w-2/3 flex-col space-y-4 p-4">
           <div className="flex flex-col gap-2">
-            <h1 className="text-2xl font-bold">Experiment Queue</h1>
-            <div className="flex items-center justify-center space-x-2">
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="mr-auto text-lg font-medium">Experiment Queue</h1>
+              <EnvMenu />
               <Button
                 onClick={() => {
                   setIsProcessing(!isProcessing);

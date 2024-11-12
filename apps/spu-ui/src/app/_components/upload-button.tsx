@@ -1,22 +1,23 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { parse } from "papaparse";
 import { cn } from "@sophys-web/ui";
 import { buttonVariants } from "@sophys-web/ui/button";
 import { Input } from "@sophys-web/ui/input";
 import { Label } from "@sophys-web/ui/label";
 import { toast } from "@sophys-web/ui/sonner";
-import type { SampleParams } from "../../lib/schemas/sample";
-import { samplesSchema } from "../../lib/schemas/sample";
+import type { TableItem } from "../../lib/schemas/table-item";
+import { tableItemSchema } from "../../lib/schemas/table-item";
 
 interface ButtonProps {
   children: React.ReactNode;
-  handleUpload: (data: SampleParams[]) => void;
+  handleUpload: (data: TableItem[]) => void;
 }
 
 export function UploadButton(props: ButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   return (
     <div className="flex flex-col items-center gap-8">
       <Label
@@ -40,7 +41,7 @@ export function UploadButton(props: ButtonProps) {
           parse(file, {
             header: true,
             skipEmptyLines: true,
-            complete: async (results) => {
+            complete: (results) => {
               const { data: csvData, errors } = results;
               if (errors.length > 0) {
                 console.error("Error reading CSV file", errors);
@@ -49,21 +50,43 @@ export function UploadButton(props: ButtonProps) {
                 });
                 return;
               }
-              const parsedData = await samplesSchema.safeParseAsync(csvData);
-              if (!parsedData.success) {
-                console.error(
-                  "Error parsing expected file variables",
-                  parsedData.error.errors,
-                );
-                toast.error("Error parsing expected file variables", {
-                  description: parsedData.error.errors
-                    .map((err) => err.message)
-                    .join("\n"),
-                });
+              const parsedData = csvData
+                .map((data, index) => {
+                  const result = tableItemSchema.safeParse(data);
+                  if (!result.success) {
+                    console.error(
+                      `Error parsing table item on line ${index + 1}`,
+                      result.error.message,
+                    );
+                    const messages = result.error.errors.map(
+                      (error) => error.message,
+                    );
+                    if (messages.length > 0) {
+                      toast.error(
+                        `Error parsing table item on line ${index + 1}`,
+                        {
+                          description: messages.join("; "),
+                        },
+                      );
+                      setErrorMessages(messages);
+                    }
+                    return null;
+                  }
+                  return result.data;
+                })
+                .filter((item): item is TableItem => item !== null);
+              if (parsedData.length === 0) {
+                console.error("Error parsing table items. No data returned");
+                toast.error("Error parsing table items. No data returned");
                 return;
               }
-              toast.success("CSV file parsed successfully");
-              props.handleUpload(parsedData.data);
+              // toast.success("CSV file parse complete");
+              if (errorMessages.length > 0) {
+                toast.info("CSV file parsed with errors");
+              } else {
+                toast.success("CSV file parsed successfully");
+              }
+              props.handleUpload(parsedData);
             },
           });
           if (inputRef.current) {
