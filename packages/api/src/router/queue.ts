@@ -35,6 +35,30 @@ const itemRouter = {
         throw new Error("Unknown error");
       }
     }),
+  remove: protectedProcedure
+    .input(item.removeSubmit)
+    .mutation(async ({ ctx, input }) => {
+      const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/item/remove`;
+      const fetchWithZod = createZodFetcher();
+      const body = JSON.stringify(input);
+      try {
+        const res = await fetchWithZod(commonSchemas.response, fetchURL, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
+          },
+          body,
+        });
+        return res;
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new Error(e.message);
+        }
+        throw new Error("Unknown error");
+      }
+    }),
 } as const;
 
 export const queueRouter = {

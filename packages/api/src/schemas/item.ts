@@ -47,7 +47,12 @@ const addResponse = z.discriminatedUnion("success", [
   }),
 ]);
 
+const removeSubmit = z.object({
+  uid: z.string(),
+});
+
 export default {
   addSubmit,
   addResponse,
+  removeSubmit,
 };
