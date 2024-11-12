@@ -16,7 +16,7 @@ export const plansRouter = {
         },
         body: undefined,
       });
-      return plans.plans_allowed;
+      return plans.plansAllowed;
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message);
@@ -36,7 +36,7 @@ export const plansRouter = {
         },
         body: undefined,
       });
-      return plans.plans_existing;
+      return plans.plansExisting;
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message);
