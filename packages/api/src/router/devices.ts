@@ -1,41 +1,22 @@
-import { z } from "zod";
 import { createZodFetcher } from "zod-fetch";
 import { env } from "../../env";
-import schemas from "../schemas/devices";
+import devicesSchema from "../schemas/devices";
 import { protectedProcedure } from "../trpc";
-
-function namedDevices(devices_allowed: z.infer<typeof schemas.devicesAllowed>) {
-  const flyables = Object.entries(devices_allowed)
-    .map(([_, value]) => (value.is_flyable ? value.long_name : null))
-    .filter((x) => x !== null);
-  const movables = Object.entries(devices_allowed)
-    .map(([_, value]) => (value.is_movable ? value.long_name : null))
-    .filter((x) => x !== null);
-  const readables = Object.entries(devices_allowed)
-    .map(([_, value]) => (value.is_readable ? value.long_name : null))
-    .filter((x) => x !== null);
-
-  return {
-    flyables,
-    movables,
-    readables,
-  };
-}
 
 export const devicesRouter = {
   allowed: protectedProcedure.query(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/devices/allowed`;
     const fetchWithZod = createZodFetcher();
     try {
-      const devices = await fetchWithZod(schemas.devicesAllowed, fetchURL, {
+      const devices = await fetchWithZod(devicesSchema, fetchURL, {
         method: "GET",
         headers: {
-          contentType: "application/json",
+          "Content-Type": "application/json",
           Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         },
         body: undefined,
       });
-      return devices.devices_allowed;
+      return devices.devicesAllowed;
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message);
@@ -43,23 +24,28 @@ export const devicesRouter = {
       throw new Error("Unknown error");
     }
   }),
-  allowedNamed: protectedProcedure.query(async ({ ctx }) => {
+  allowedNames: protectedProcedure.query(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/devices/allowed`;
     const fetchWithZod = createZodFetcher();
     try {
-      const devices = await fetchWithZod(
-        schemas.devicesAllowedResponse,
-        fetchURL,
-        {
-          method: "GET",
-          headers: {
-            contentType: "application/json",
-            Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-          },
-          body: undefined,
+      const devices = await fetchWithZod(devicesSchema, fetchURL, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         },
-      );
-      return namedDevices(devices.devices_allowed);
+        body: undefined,
+      });
+      const flyables = Object.values(devices.devicesAllowed)
+        .filter((d) => d.isFlyable)
+        .map((d) => d.longName);
+      const movables = Object.values(devices.devicesAllowed)
+        .filter((d) => d.isMovable)
+        .map((d) => d.longName);
+      const readables = Object.values(devices.devicesAllowed)
+        .filter((d) => d.isReadable)
+        .map((d) => d.longName);
+      return { flyables, movables, readables };
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message);
