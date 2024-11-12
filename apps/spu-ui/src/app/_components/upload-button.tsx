@@ -41,7 +41,7 @@ export function UploadButton(props: ButtonProps) {
           parse(file, {
             header: true,
             skipEmptyLines: true,
-            complete: async (results) => {
+            complete: (results) => {
               const { data: csvData, errors } = results;
               if (errors.length > 0) {
                 console.error("Error reading CSV file", errors);
