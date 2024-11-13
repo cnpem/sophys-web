@@ -5,16 +5,20 @@ import type {
   DragStartEvent,
   UniqueIdentifier,
 } from "@dnd-kit/core";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-import { Pause, Play, SquareIcon, Trash2, UploadIcon } from "lucide-react";
+import { Play, SquareIcon, Trash2, UploadIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
+import { toast } from "@sophys-web/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import type { SampleParams } from "../../lib/schemas/sample";
-import type { Job } from "./queue";
 import type { Sample } from "./sample";
+import { useQueue } from "../_hooks/use-queue";
 import { useSSEData } from "../_hooks/use-sse-data";
+import { useStatus } from "../_hooks/use-status";
 import { trayOptions } from "../../lib/constants";
+import { kwargsSubmitSchema, planName } from "../../lib/schemas/acquisition";
+import { api } from "../../trpc/react";
 import {
   clearSamples as clearServerSamples,
   setSamples as setServerSamples,
@@ -41,77 +45,87 @@ export default function Experiment({
 }: {
   initialSamples: Sample[];
 }) {
+  const utils = api.useUtils();
+  const { add, clear } = useQueue();
+  const { status } = useStatus();
+  const start = api.queue.start.useMutation();
+  const stop = api.queue.stop.useMutation();
   const [samples] = useSSEData("/api/samples", {
     initialData: initialSamples,
   });
-  const [queue, setQueue] = useState<Job[]>([]);
-  const [nextJobId, setNextJobId] = useState(1);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
   const addToQueue = useCallback(
     async (sampleIds: UniqueIdentifier[]) => {
+      sampleIds.forEach(async (id) => {
+        const sample = samples.find((s) => s.id === id);
+        if (!sample) {
+          return;
+        }
+        const { data: planKwargs, success } = kwargsSubmitSchema.safeParse({
+          ...sample,
+          proposal: "p0000001",
+        });
+        if (!success) {
+          return;
+        }
+        await add.mutateAsync(
+          {
+            item: {
+              itemType: "plan",
+              name: planName,
+              kwargs: planKwargs,
+              args: [],
+            },
+          },
+          {
+            onSuccess: () => {
+              toast.success(`Sample ${sample.id} added to the queue`);
+            },
+            onError: () => {
+              toast.error(`Failed to add sample ${sample.id} to the queue`);
+            },
+          },
+        );
+      });
       const updatedSamples = samples.map((s) =>
-        sampleIds.includes(s.id) ? { ...s, isUsed: true } : s,
+        sampleIds.includes(s.id) ? { ...s } : s,
       );
       await setServerSamples(updatedSamples);
-      setQueue((prevQueue) => {
-        const newJobs = sampleIds
-          .map((sampleId, index) => {
-            const sample = samples.find((s) => s.id === sampleId);
-            if (sample) {
-              return {
-                id: nextJobId + index,
-                sampleId,
-                status: "enqueued" as const,
-                progress: 0,
-              };
-            }
-            return null;
-          })
-          .filter((job) => job !== null) as Job[];
-
-        setNextJobId((prevId) => prevId + newJobs.length);
-
-        return [...prevQueue, ...newJobs];
-      });
     },
-    [samples, nextJobId],
+    [samples, add],
   );
-  const removeFromQueue = async (jobId: UniqueIdentifier) => {
-    setQueue((prevQueue) => prevQueue.filter((job) => job.id !== jobId));
-    const updatedSamples = samples.map((s) =>
-      s.id === queue.find((job) => job.id === jobId)?.sampleId
-        ? { ...s, isUsed: false }
-        : s,
-    );
-    await setServerSamples(updatedSamples);
-  };
 
-  const cancelJob = (jobId: UniqueIdentifier) => {
-    setQueue((prevQueue) =>
-      prevQueue.map((job) =>
-        job.id === jobId ? { ...job, status: "cancelled" } : job,
-      ),
-    );
-  };
+  const startQueue = useCallback(() => {
+    start.mutate(undefined, {
+      onSuccess: async () => {
+        await utils.queue.get.invalidate();
+        toast.success("Queue started");
+      },
+      onError: async () => {
+        await utils.queue.get.invalidate();
+        toast.error("Failed to start queue");
+      },
+    });
+  }, [start, utils.queue.get]);
 
-  const stopQueue = () => {
-    setIsProcessing(false);
-    setQueue((prevQueue) =>
-      prevQueue.map((job) =>
-        job.status === "enqueued" || job.status === "running"
-          ? { ...job, status: "cancelled" }
-          : job,
-      ),
-    );
-  };
+  const stopQueue = useCallback(() => {
+    stop.mutate(undefined, {
+      onSuccess: async () => {
+        await utils.queue.get.invalidate();
+        toast.success("Queue stopped");
+      },
+      onError: async () => {
+        await utils.queue.get.invalidate();
+        toast.error("Failed to stop queue");
+      },
+    });
+  }, [stop, utils.queue.get]);
 
-  const clearQueue = async () => {
-    setQueue([]);
-    const updatedSamples = samples.map((s) => ({ ...s, isUsed: false }));
-    await setServerSamples(updatedSamples);
-  };
+  const clearQueue = useCallback(async () => {
+    await clear.mutateAsync();
+    toast.info("Queue cleared");
+  }, [clear]);
 
   const clearSamples = async () => {
     return clearServerSamples();
@@ -128,7 +142,6 @@ export default function Experiment({
       return {
         id: complete,
         relativePosition: relative,
-        // type: sample.buffer === "empty" ? "S" : "B",
         type: sample.sampleType === "buffer" ? "B" : "S",
         ...sample,
       } as Sample;
@@ -142,53 +155,6 @@ export default function Experiment({
     await setServerSamples(updatedSamples);
   };
 
-  useEffect(() => {
-    let timer: ReturnType<typeof setInterval>;
-    if (isProcessing) {
-      timer = setInterval(() => {
-        setQueue((prevQueue) => {
-          const updatedQueue = [...prevQueue];
-          const runningJobIndex = updatedQueue.findIndex(
-            (job) => job.status === "running",
-          );
-
-          if (runningJobIndex !== -1) {
-            const runningJob = updatedQueue[runningJobIndex];
-            if (runningJob.progress < 100) {
-              runningJob.progress += 10;
-              if (runningJob.progress >= 100) {
-                runningJob.status = "done";
-                runningJob.progress = 100;
-                const nextJob = updatedQueue.find(
-                  (job) => job.status === "enqueued",
-                );
-                if (nextJob) {
-                  nextJob.status = "running";
-                  nextJob.progress = 0;
-                }
-              }
-            }
-          } else {
-            const nextJob = updatedQueue.find(
-              (job) => job.status === "enqueued",
-            );
-            if (nextJob) {
-              nextJob.status = "running";
-              nextJob.progress = 0;
-            } else {
-              setIsProcessing(false);
-            }
-          }
-
-          return updatedQueue;
-        });
-      }, 1000);
-    }
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [isProcessing]);
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     setActiveId(active.id);
@@ -203,6 +169,7 @@ export default function Experiment({
 
     setActiveId(null);
   };
+
   return (
     <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
       <div className="mx-auto flex items-center justify-center gap-4">
@@ -242,40 +209,38 @@ export default function Experiment({
               <h1 className="mr-auto text-lg font-medium">Experiment Queue</h1>
               <EnvMenu />
               <Button
+                disabled={
+                  !status.data?.reState || status.data.itemsInQueue === 0
+                }
                 onClick={() => {
-                  setIsProcessing(!isProcessing);
+                  status.data?.reState === "running"
+                    ? stopQueue()
+                    : startQueue();
                 }}
-                variant={isProcessing ? "destructive" : "default"}
+                variant="default"
               >
-                {isProcessing ? (
-                  <Pause className="mr-2 h-4 w-4" />
+                {status.data?.reState !== "running" ? (
+                  <>
+                    <Play className="mr-2 h-4 w-4" />
+                    Start Queue
+                  </>
                 ) : (
-                  <Play className="mr-2 h-4 w-4" />
+                  <>
+                    <SquareIcon className="mr-2 h-4 w-4" />
+                    Stop Queue
+                  </>
                 )}
-                {isProcessing ? "Pause Queue" : "Start Queue"}
               </Button>
               <Button
-                disabled={!(queue.length > 0 && isProcessing)}
-                onClick={stopQueue}
-                variant="destructive"
+                disabled={status.data?.itemsInQueue === 0}
+                onClick={clearQueue}
+                variant="outline"
               >
-                <SquareIcon className="mr-2 h-4 w-4" />
-                Stop Queue
-              </Button>
-              <Button onClick={clearQueue} variant="outline">
                 <Trash2 className="mr-2 h-4 w-4" />
                 Clear Queue
               </Button>
             </div>
-            <Queue
-              cancelJob={cancelJob}
-              isProcessing={isProcessing}
-              queue={queue}
-              removeFromQueue={removeFromQueue}
-              samples={samples}
-              toggleProcessing={setIsProcessing}
-              updateQueue={setQueue}
-            />
+            <Queue />
           </div>
         </div>
       </div>
