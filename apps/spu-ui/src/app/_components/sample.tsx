@@ -47,7 +47,7 @@ export function SampleItem({
       <div className={classNames}>
         {sample.relativePosition}
         <span className="absolute bottom-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs text-black">
-          {sample.type ?? "N/A"}
+          {sample.type ?? "-"}
         </span>
       </div>
     </div>

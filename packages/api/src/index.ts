@@ -4,6 +4,7 @@ import { appRouter } from "./root";
 import common from "./schemas/common";
 import devices from "./schemas/devices";
 import instructions from "./schemas/instructions";
+import item from "./schemas/item";
 import plans from "./schemas/plans";
 import queue from "./schemas/queue";
 import { createCallerFactory, createTRPCContext } from "./trpc";
@@ -14,6 +15,7 @@ const schemas = {
   instructions,
   plans,
   queue,
+  item,
 };
 
 /**

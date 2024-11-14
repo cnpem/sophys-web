@@ -1,34 +1,65 @@
 "use client";
 
+import type { QueueItemProps } from "../../lib/types";
 import { api } from "../../trpc/react";
 
 export const useQueue = () => {
-  const apiUtils = api.useUtils();
+  const utils = api.useUtils();
 
-  const get = api.queue.get.useQuery(undefined, {
+  const queue = api.queue.get.useQuery(undefined, {
     refetchInterval: 4000,
   });
 
   const add = api.queue.item.add.useMutation({
-    onSuccess: async () => {
-      await apiUtils.queue.get.invalidate();
+    onMutate: async (plan) => {
+      // cancel any outgoing fetches
+      await utils.queue.get.cancel();
+      // snapshot the current value
+      const previousValue = utils.queue.get.getData();
+      // simulate item response object based on the item passed in
+      const newItemResponse: QueueItemProps = {
+        ...plan.item,
+        user: "",
+        userGroup: "",
+        itemUid: "",
+        result: null,
+      };
+      // optimistically update the cache
+      utils.queue.get.setData(
+        undefined,
+        previousValue
+          ? {
+              ...previousValue,
+              items: [...previousValue.items, newItemResponse],
+            }
+          : undefined,
+      );
+      return { previousValue };
+    },
+    onError: (error, variables, context) => {
+      // rollback to the previous value
+      utils.queue.get.setData(undefined, context?.previousValue);
+    },
+    onSettled: async () => {
+      // refetch the queue
+      await utils.queue.get.invalidate();
     },
   });
 
   const remove = api.queue.item.remove.useMutation({
-    onSuccess: async () => {
-      await apiUtils.queue.get.invalidate();
+    onSettled: async () => {
+      await utils.queue.get.invalidate();
     },
   });
 
   const clear = api.queue.clear.useMutation({
-    onSuccess: async () => {
-      await apiUtils.queue.get.invalidate();
+    onSettled: async () => {
+      await utils.queue.get.invalidate();
     },
   });
 
   return {
-    get,
+    queue,
     add,
     remove,
     clear,

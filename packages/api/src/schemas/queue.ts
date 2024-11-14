@@ -7,8 +7,8 @@ const getResponseSchema = z
     items: z.array(
       z.object({
         name: z.string(),
-        args: z.array(z.any()),
-        kwargs: z.record(z.any()),
+        args: z.array(z.any()).optional().nullable(),
+        kwargs: z.record(z.any()).optional().nullable(),
         item_type: z.string(),
         user: z.string(),
         user_group: z.string(),

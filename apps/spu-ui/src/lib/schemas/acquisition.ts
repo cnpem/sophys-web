@@ -1,24 +1,10 @@
 import { z } from "zod";
-
-export const trayColumns = [
-  "01",
-  "02",
-  "03",
-  "04",
-  "05",
-  "06",
-  "07",
-  "08",
-  "09",
-  "10",
-  "11",
-  "12",
-] as const;
-export const trayRows = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
-export const trayOptions = ["Tray1", "Tray2"] as const;
-export const acquireTimeOptions = [
-  200, 100, 50, 25, 12.5, 6.25, 3.125, 1.5625, 0.5,
-] as const;
+import {
+  acquireTimeOptions,
+  trayColumns,
+  trayOptions,
+  trayRows,
+} from "../constants";
 
 // export const planName = "setup1_load_and_acquire";
 export const planName = "load_and_acquire_sim";
@@ -109,7 +95,7 @@ export const appSchema = z.object({
   proposal: z.string().min(1, "Proposal is required"),
 });
 
-export const apiResponseSchema = z
+export const kwargsResponseSchema = z
   .object({
     sample_tag: z.string(),
     sample_type: z.string(),
@@ -147,7 +133,7 @@ export const apiResponseSchema = z
     };
   });
 
-export const apiSubmitSchema = z
+export const kwargsSubmitSchema = z
   .object({
     sampleTag: z.string(),
     sampleType: z.string(),
