@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import { signIn as naSignIn } from "@sophys-web/auth";
@@ -10,10 +9,7 @@ const SigninSchema = z.object({
   password: z.string().min(2),
 });
 
-export async function signIn(
-  data: z.infer<typeof SigninSchema>,
-  callbackUrl?: string,
-) {
+export async function signIn(data: z.infer<typeof SigninSchema>) {
   const parsed = await SigninSchema.safeParseAsync(data);
 
   if (!parsed.success) {
@@ -26,7 +22,6 @@ export async function signIn(
       password: parsed.data.password,
       redirect: false,
     });
-    redirect(callbackUrl || "/");
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

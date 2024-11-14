@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,6 +24,7 @@ const FormSchema = z.object({
 
 export function SignInForm() {
   const params = useSearchParams();
+  const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -34,22 +35,21 @@ export function SignInForm() {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     toast.info("Signing in...");
-    const res = await signIn(
-      {
-        username: data.username,
-        password: data.password,
-      },
-      params.get("callbackUrl") || "/",
-    );
+    const callbackUrl = params.get("callbackUrl") || "/";
+    const res = await signIn({
+      username: data.username,
+      password: data.password,
+    });
 
-    if (res.error) {
+    if (res?.error) {
       const error = res.error;
       toast.error(error);
       form.reset();
     }
 
-    if (!res.error) {
+    if (!res?.error) {
       toast.success("Signed in successfully");
+      router.push(callbackUrl);
     }
   };
 
