@@ -7,7 +7,7 @@ import type {
 } from "@dnd-kit/core";
 import { useCallback, useState } from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-import { Play, SquareIcon, Trash2, UploadIcon } from "lucide-react";
+import { PlayIcon, SquareIcon, Trash2Icon, UploadIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import { toast } from "@sophys-web/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
@@ -184,7 +184,7 @@ export default function Experiment({
               Upload Samples
             </UploadButton>
             <Button onClick={clearSamples} variant="link">
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2Icon className="mr-2 h-4 w-4" />
               Clear Samples
             </Button>
           </div>
@@ -221,7 +221,7 @@ export default function Experiment({
               >
                 {status.data?.reState !== "running" ? (
                   <>
-                    <Play className="mr-2 h-4 w-4" />
+                    <PlayIcon className="mr-2 h-4 w-4" />
                     Start Queue
                   </>
                 ) : (
@@ -236,7 +236,7 @@ export default function Experiment({
                 onClick={clearQueue}
                 variant="outline"
               >
-                <Trash2 className="mr-2 h-4 w-4" />
+                <Trash2Icon className="mr-2 h-4 w-4" />
                 Clear Queue
               </Button>
             </div>
