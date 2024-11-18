@@ -21,5 +21,11 @@ export const useStatus = () => {
     },
   });
 
-  return { status, envUpdate, envOpen };
+  const envClose = api.environment.close.useMutation({
+    onSuccess: async () => {
+      await utils.status.get.invalidate();
+    },
+  });
+
+  return { status, envUpdate, envOpen, envClose };
 };

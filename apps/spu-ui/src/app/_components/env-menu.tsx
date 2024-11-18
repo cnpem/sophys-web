@@ -12,7 +12,7 @@ import {
 import { useStatus } from "../_hooks/use-status";
 
 export function EnvMenu() {
-  const { status, envUpdate, envOpen } = useStatus();
+  const { status, envUpdate, envOpen, envClose } = useStatus();
 
   const statusMessage = () => {
     if (status.isLoading) {
@@ -35,19 +35,28 @@ export function EnvMenu() {
       <DropdownMenuContent>
         <DropdownMenuLabel>Env controls</DropdownMenuLabel>
         <DropdownMenuItem
+          className="cursor-pointer"
           onClick={() => {
             envUpdate.mutate();
           }}
         >
           Update
         </DropdownMenuItem>
-
         <DropdownMenuItem
+          className="cursor-pointer"
           onClick={() => {
             envOpen.mutate();
           }}
         >
           Open
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer text-muted-foreground hover:font-semibold hover:!text-red-500"
+          onClick={() => {
+            envClose.mutate();
+          }}
+        >
+          Close
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Full status</DropdownMenuLabel>
