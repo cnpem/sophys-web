@@ -6,8 +6,7 @@ import {
   trayRows,
 } from "../constants";
 
-// export const planName = "setup1_load_and_acquire";
-export const planName = "load_and_acquire_sim";
+export const planName = "setup1_load_and_acquire";
 
 export const info = {
   sampleType: "Type of the sample to be measured (buffer or sample)",
