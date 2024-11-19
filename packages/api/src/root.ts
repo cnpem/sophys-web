@@ -1,3 +1,4 @@
+import { consoleOutputRouter } from "./router/console-output";
 import { devicesRouter } from "./router/devices";
 import { environmentRouter } from "./router/environment";
 import { plansRouter } from "./router/plans";
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   queue: queueRouter,
   environment: environmentRouter,
   status: statusRouter,
+  consoleOutput: consoleOutputRouter,
 });
 
 // export type definition of API
