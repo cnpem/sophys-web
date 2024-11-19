@@ -5,15 +5,25 @@ import { useCallback } from "react";
 import { DndContext } from "@dnd-kit/core";
 // import { arrayMove, SortableContext, useSortable } from "@dnd-kit/sortable";
 // import { CSS } from "@dnd-kit/utilities";
-import { GripVerticalIcon, XCircleIcon } from "lucide-react";
+import {
+  GripVerticalIcon,
+  PlayIcon,
+  SquareIcon,
+  Trash2Icon,
+  XCircleIcon,
+} from "lucide-react";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
+import { toast } from "@sophys-web/ui/sonner";
 import type { QueueItemProps } from "../../lib/types";
 import { useQueue } from "../_hooks/use-queue";
+import { useStatus } from "../_hooks/use-status";
 import { kwargsResponseSchema } from "../../lib/schemas/acquisition";
+import { api } from "../../trpc/react";
 import { Dropzone } from "./dropzone";
+import { EnvMenu } from "./env-menu";
 
 function QueueItem({
   isRunning,
@@ -62,7 +72,7 @@ function QueueItem({
   return (
     <li
       className={cn(
-        "flex select-none items-center justify-between space-x-2 rounded-md bg-gray-50 p-3 shadow-md",
+        "w-fill flex select-none items-center justify-between space-x-2 rounded-md bg-gray-50 p-3 shadow-md",
         // { "border-2 border-primary bg-primary/10": isDragging },
       )}
       // ref={setNodeRef}
@@ -134,7 +144,12 @@ function QueueItem({
 }
 
 export function Queue() {
+  const utils = api.useUtils();
   const { queue } = useQueue();
+  const { clear } = useQueue();
+  const { status } = useStatus();
+  const start = api.queue.start.useMutation();
+  const stop = api.queue.stop.useMutation();
 
   // const handleDragEnd = ({ active, over }: DragEndEvent) => {
   //   if (over && active.id !== over.id) {
@@ -144,6 +159,38 @@ export function Queue() {
   //     updateQueue(arrayMove(queue, activeIndex, overIndex));
   //   }
   // };
+
+  const startQueue = useCallback(() => {
+    start.mutate(undefined, {
+      onSuccess: async () => {
+        await utils.queue.get.invalidate();
+        toast.success("Queue started");
+      },
+      onError: async () => {
+        await utils.queue.get.invalidate();
+        toast.error("Failed to start queue");
+      },
+    });
+  }, [start, utils.queue.get]);
+
+  const stopQueue = useCallback(() => {
+    stop.mutate(undefined, {
+      onSuccess: async () => {
+        await utils.queue.get.invalidate();
+        toast.success("Queue stopped");
+      },
+      onError: async () => {
+        await utils.queue.get.invalidate();
+        toast.error("Failed to stop queue");
+      },
+    });
+  }, [stop, utils.queue.get]);
+
+  const clearQueue = useCallback(async () => {
+    await clear.mutateAsync();
+    toast.info("Queue cleared");
+  }, [clear]);
+
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (over && active.id !== over.id) {
       console.log(`will move ${active.id} to ${over.id}`);
@@ -151,29 +198,62 @@ export function Queue() {
   };
 
   return (
-    <Dropzone id="queue-dropzone">
-      <ScrollArea className="h-[calc(100vh-240px)] flex-grow">
-        {queue.data?.items.length === 0 ? (
-          <p className="text-center text-muted-foreground">
-            Queue is empty. Drag samples here to add them to the queue.
-          </p>
-        ) : (
-          <DndContext onDragEnd={handleDragEnd}>
-            <ul className="space-y-2">
-              {queue.data?.runningItem?.itemUid ? (
-                <QueueItem
-                  isRunning
-                  key={queue.data.runningItem.itemUid}
-                  props={queue.data.runningItem}
-                />
-              ) : null}
-              {queue.data?.items.map((item) => (
-                <QueueItem key={item.itemUid} props={item} />
-              ))}
-            </ul>
-          </DndContext>
-        )}
-      </ScrollArea>
-    </Dropzone>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-center gap-2">
+        <h1 className="mr-auto text-lg font-medium">Experiment Queue</h1>
+        <EnvMenu />
+        <Button
+          disabled={!status.data?.reState || status.data.itemsInQueue === 0}
+          onClick={() => {
+            status.data?.reState === "running" ? stopQueue() : startQueue();
+          }}
+          variant="default"
+        >
+          {status.data?.reState !== "running" ? (
+            <>
+              <PlayIcon className="mr-2 h-4 w-4" />
+              Start Queue
+            </>
+          ) : (
+            <>
+              <SquareIcon className="mr-2 h-4 w-4" />
+              Stop Queue
+            </>
+          )}
+        </Button>
+        <Button
+          disabled={status.data?.itemsInQueue === 0}
+          onClick={clearQueue}
+          variant="outline"
+        >
+          <Trash2Icon className="mr-2 h-4 w-4" />
+          Clear Queue
+        </Button>
+      </div>
+      <Dropzone id="queue-dropzone">
+        <ScrollArea className="flex h-[calc(100vh-480px)] w-full flex-col">
+          {queue.data?.items.length === 0 ? (
+            <p className="text-center text-muted-foreground">
+              Queue is empty. Drag samples here to add them to the queue.
+            </p>
+          ) : (
+            <DndContext onDragEnd={handleDragEnd}>
+              <ul className="space-y-2">
+                {queue.data?.runningItem?.itemUid ? (
+                  <QueueItem
+                    isRunning
+                    key={queue.data.runningItem.itemUid}
+                    props={queue.data.runningItem}
+                  />
+                ) : null}
+                {queue.data?.items.map((item) => (
+                  <QueueItem key={item.itemUid} props={item} />
+                ))}
+              </ul>
+            </DndContext>
+          )}
+        </ScrollArea>
+      </Dropzone>
+    </div>
   );
 }
