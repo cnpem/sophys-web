@@ -7,7 +7,7 @@ import type {
 } from "@dnd-kit/core";
 import { useCallback, useState } from "react";
 import { DndContext, DragOverlay } from "@dnd-kit/core";
-import { PlayIcon, SquareIcon, Trash2Icon, UploadIcon } from "lucide-react";
+import { Trash2Icon, UploadIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import { toast } from "@sophys-web/ui/sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
@@ -15,16 +15,13 @@ import type { SampleParams } from "../../lib/schemas/sample";
 import type { Sample } from "./sample";
 import { useQueue } from "../_hooks/use-queue";
 import { useSSEData } from "../_hooks/use-sse-data";
-import { useStatus } from "../_hooks/use-status";
 import { trayOptions } from "../../lib/constants";
 import { kwargsSubmitSchema, planName } from "../../lib/schemas/acquisition";
-import { api } from "../../trpc/react";
 import {
   clearSamples as clearServerSamples,
   setSamples as setServerSamples,
 } from "../actions/samples";
 import { Console } from "./console";
-import { EnvMenu } from "./env-menu";
 import { Queue } from "./queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
@@ -46,11 +43,7 @@ export default function Experiment({
 }: {
   initialSamples: Sample[];
 }) {
-  const utils = api.useUtils();
-  const { add, clear } = useQueue();
-  const { status } = useStatus();
-  const start = api.queue.start.useMutation();
-  const stop = api.queue.stop.useMutation();
+  const { add } = useQueue();
   const [samples] = useSSEData("/api/samples", {
     initialData: initialSamples,
   });
@@ -96,37 +89,6 @@ export default function Experiment({
     },
     [samples, add],
   );
-
-  const startQueue = useCallback(() => {
-    start.mutate(undefined, {
-      onSuccess: async () => {
-        await utils.queue.get.invalidate();
-        toast.success("Queue started");
-      },
-      onError: async () => {
-        await utils.queue.get.invalidate();
-        toast.error("Failed to start queue");
-      },
-    });
-  }, [start, utils.queue.get]);
-
-  const stopQueue = useCallback(() => {
-    stop.mutate(undefined, {
-      onSuccess: async () => {
-        await utils.queue.get.invalidate();
-        toast.success("Queue stopped");
-      },
-      onError: async () => {
-        await utils.queue.get.invalidate();
-        toast.error("Failed to stop queue");
-      },
-    });
-  }, [stop, utils.queue.get]);
-
-  const clearQueue = useCallback(async () => {
-    await clear.mutateAsync();
-    toast.info("Queue cleared");
-  }, [clear]);
 
   const clearSamples = async () => {
     return clearServerSamples();
@@ -204,48 +166,8 @@ export default function Experiment({
             />
           </TabsContent>
         </Tabs>
-        <div
-          className="flex w-2/3 flex-col space-y-4"
-          id="queue-console-column"
-        >
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-center gap-2">
-              <h1 className="mr-auto text-lg font-medium">Experiment Queue</h1>
-              <EnvMenu />
-              <Button
-                disabled={
-                  !status.data?.reState || status.data.itemsInQueue === 0
-                }
-                onClick={() => {
-                  status.data?.reState === "running"
-                    ? stopQueue()
-                    : startQueue();
-                }}
-                variant="default"
-              >
-                {status.data?.reState !== "running" ? (
-                  <>
-                    <PlayIcon className="mr-2 h-4 w-4" />
-                    Start Queue
-                  </>
-                ) : (
-                  <>
-                    <SquareIcon className="mr-2 h-4 w-4" />
-                    Stop Queue
-                  </>
-                )}
-              </Button>
-              <Button
-                disabled={status.data?.itemsInQueue === 0}
-                onClick={clearQueue}
-                variant="outline"
-              >
-                <Trash2Icon className="mr-2 h-4 w-4" />
-                Clear Queue
-              </Button>
-            </div>
-            <Queue />
-          </div>
+        <div className="flex w-2/3 flex-col gap-4">
+          <Queue />
           <Console />
         </div>
       </div>
