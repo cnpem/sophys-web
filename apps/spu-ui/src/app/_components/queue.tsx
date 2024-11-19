@@ -152,7 +152,7 @@ export function Queue() {
 
   return (
     <Dropzone id="queue-dropzone">
-      <ScrollArea className="h-[calc(100vh-240px)] flex-grow">
+      <ScrollArea className="min-h-[300px] flex-grow">
         {queue.data?.items.length === 0 ? (
           <p className="text-center text-muted-foreground">
             Queue is empty. Drag samples here to add them to the queue.

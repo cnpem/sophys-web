@@ -23,6 +23,7 @@ import {
   clearSamples as clearServerSamples,
   setSamples as setServerSamples,
 } from "../actions/samples";
+import { Console } from "./console";
 import { EnvMenu } from "./env-menu";
 import { Queue } from "./queue";
 import { SampleItem } from "./sample";
@@ -172,7 +173,7 @@ export default function Experiment({
 
   return (
     <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
-      <div className="mx-auto flex items-center justify-center gap-4">
+      <div className="flex h-[calc(100vh-64px)] items-start justify-center gap-4 px-4 pt-4">
         <Tabs defaultValue="tray1">
           <div className="flex items-center gap-2">
             <TabsList>
@@ -203,7 +204,10 @@ export default function Experiment({
             />
           </TabsContent>
         </Tabs>
-        <div className="flex w-2/3 flex-col space-y-4 p-4">
+        <div
+          className="flex w-2/3 flex-col space-y-4"
+          id="queue-console-column"
+        >
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-center gap-2">
               <h1 className="mr-auto text-lg font-medium">Experiment Queue</h1>
@@ -242,6 +246,7 @@ export default function Experiment({
             </div>
             <Queue />
           </div>
+          <Console />
         </div>
       </div>
       <DragOverlay>
