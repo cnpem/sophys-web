@@ -22,6 +22,7 @@ import {
   setSamples as setServerSamples,
 } from "../actions/samples";
 import { Console } from "./console";
+import { History } from "./history";
 import { Queue } from "./queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
@@ -136,7 +137,19 @@ export default function Experiment({
   return (
     <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
       <div className="flex h-[calc(100vh-64px)] items-start justify-center gap-4 px-4 pt-4">
-        <Tabs defaultValue="tray1">
+        <Tabs className="space-y-2" defaultValue="tray1">
+          <TabsContent value="tray1">
+            <Tray
+              activeId={activeId}
+              samples={samples.filter((sample) => sample.tray === TRAY1)}
+            />
+          </TabsContent>
+          <TabsContent value="tray2">
+            <Tray
+              activeId={activeId}
+              samples={samples.filter((sample) => sample.tray === TRAY2)}
+            />
+          </TabsContent>
           <div className="flex items-center gap-2">
             <TabsList>
               <TabsTrigger value="tray1">Tray 1</TabsTrigger>
@@ -151,21 +164,20 @@ export default function Experiment({
               Clear Samples
             </Button>
           </div>
-          <TabsContent value="tray1">
-            <Tray
-              activeId={activeId}
-              samples={samples.filter((sample) => sample.tray === TRAY1)}
-            />
-          </TabsContent>
-          <TabsContent value="tray2">
-            <Tray
-              activeId={activeId}
-              samples={samples.filter((sample) => sample.tray === TRAY2)}
-            />
-          </TabsContent>
         </Tabs>
         <div className="flex w-2/3 flex-col gap-4">
-          <Queue />
+          <Tabs className="space-y-2" defaultValue="queue">
+            <TabsContent value="queue">
+              <Queue />
+            </TabsContent>
+            <TabsContent value="history">
+              <History />
+            </TabsContent>
+            <TabsList>
+              <TabsTrigger value="queue">Queue</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </TabsList>
+          </Tabs>
           <Console />
         </div>
       </div>
