@@ -3,6 +3,7 @@ import type { AppRouter } from "./root";
 import { appRouter } from "./root";
 import common from "./schemas/common";
 import devices from "./schemas/devices";
+import history from "./schemas/history";
 import instructions from "./schemas/instructions";
 import item from "./schemas/item";
 import plans from "./schemas/plans";
@@ -16,6 +17,7 @@ const schemas = {
   plans,
   queue,
   item,
+  history,
 };
 
 /**
