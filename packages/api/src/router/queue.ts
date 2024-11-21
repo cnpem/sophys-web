@@ -59,6 +59,38 @@ const itemRouter = {
         throw new Error("Unknown error");
       }
     }),
+  addBatch: protectedProcedure
+    .input(item.addBatchSubmit)
+    .mutation(async ({ ctx, input }) => {
+      const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/item/add/batch`;
+      const fetchWithZod = createZodFetcher();
+      const body = JSON.stringify(input);
+      try {
+        const res = await fetchWithZod(item.addBatchResponse, fetchURL, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
+          },
+          body,
+        });
+        const resultErrors = res.results.filter((result) => !result.success);
+        if (resultErrors.length > 0) {
+          const errorMessages = resultErrors.map((result) => result.msg);
+          console.error("httpserver error: ", errorMessages);
+          throw new Error(errorMessages.join(", "));
+        }
+        return res;
+      } catch (e) {
+        if (e instanceof Error) {
+          console.error(e.message);
+          throw new Error(e.message);
+        }
+        console.error("Unknown error", e);
+        throw new Error("Unknown error");
+      }
+    }),
 } as const;
 
 export const queueRouter = {

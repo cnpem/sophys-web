@@ -154,14 +154,12 @@ export default function Experiment({
           <TabsContent value="tray1">
             <Tray
               activeId={activeId}
-              addToQueue={addToQueue}
               samples={samples.filter((sample) => sample.tray === TRAY1)}
             />
           </TabsContent>
           <TabsContent value="tray2">
             <Tray
               activeId={activeId}
-              addToQueue={addToQueue}
               samples={samples.filter((sample) => sample.tray === TRAY2)}
             />
           </TabsContent>
