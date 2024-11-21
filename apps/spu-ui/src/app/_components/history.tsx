@@ -69,7 +69,9 @@ function HistoryItem({ props }: { props: HistoryItemProps }) {
 
 export function History() {
   const utils = api.useUtils();
-  const { data } = api.history.get.useQuery(undefined, {});
+  const { data } = api.history.get.useQuery(undefined, {
+    refetchOnMount: "always",
+  });
   const { mutate } = api.history.clear.useMutation({
     onSuccess: async () => {
       toast.success("Queue cleared.");
@@ -83,6 +85,7 @@ export function History() {
         <h1 className="mr-auto text-lg font-medium">Experiment History</h1>
 
         <Button
+          disabled={data?.items.length === 0}
           onClick={() => {
             mutate();
           }}
