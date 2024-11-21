@@ -64,11 +64,25 @@ export const useQueue = () => {
     },
   });
 
+  const start = api.queue.start.useMutation({
+    onSettled: async () => {
+      await utils.queue.get.invalidate();
+    },
+  });
+
+  const stop = api.queue.stop.useMutation({
+    onSettled: async () => {
+      await utils.queue.get.invalidate();
+    },
+  });
+
   return {
     queue,
     add,
     addBatch,
     remove,
     clear,
+    start,
+    stop,
   };
 };

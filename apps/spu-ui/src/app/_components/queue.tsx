@@ -21,7 +21,6 @@ import type { QueueItemProps } from "../../lib/types";
 import { useQueue } from "../_hooks/use-queue";
 import { useStatus } from "../_hooks/use-status";
 import { kwargsResponseSchema } from "../../lib/schemas/acquisition";
-import { api } from "../../trpc/react";
 import { Dropzone } from "./dropzone";
 import { EnvMenu } from "./env-menu";
 
@@ -144,12 +143,8 @@ function QueueItem({
 }
 
 export function Queue() {
-  const utils = api.useUtils();
-  const { queue } = useQueue();
-  const { clear } = useQueue();
+  const { queue, clear, start, stop } = useQueue();
   const { status } = useStatus();
-  const start = api.queue.start.useMutation();
-  const stop = api.queue.stop.useMutation();
 
   // const handleDragEnd = ({ active, over }: DragEndEvent) => {
   //   if (over && active.id !== over.id) {
@@ -162,33 +157,35 @@ export function Queue() {
 
   const startQueue = useCallback(() => {
     start.mutate(undefined, {
-      onSuccess: async () => {
-        await utils.queue.get.invalidate();
+      onSuccess: () => {
         toast.success("Queue started");
       },
-      onError: async () => {
-        await utils.queue.get.invalidate();
+      onError: () => {
         toast.error("Failed to start queue");
       },
     });
-  }, [start, utils.queue.get]);
+  }, [start]);
 
   const stopQueue = useCallback(() => {
     stop.mutate(undefined, {
-      onSuccess: async () => {
-        await utils.queue.get.invalidate();
+      onSuccess: () => {
         toast.success("Queue stopped");
       },
-      onError: async () => {
-        await utils.queue.get.invalidate();
+      onError: () => {
         toast.error("Failed to stop queue");
       },
     });
-  }, [stop, utils.queue.get]);
+  }, [stop]);
 
-  const clearQueue = useCallback(async () => {
-    await clear.mutateAsync();
-    toast.info("Queue cleared");
+  const clearQueue = useCallback(() => {
+    clear.mutate(undefined, {
+      onSuccess: () => {
+        toast.success("Queue cleared");
+      },
+      onError: () => {
+        toast.error("Failed to clear queue");
+      },
+    });
   }, [clear]);
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -232,7 +229,8 @@ export function Queue() {
       </div>
       <Dropzone id="queue-dropzone">
         <ScrollArea className="flex h-[calc(100vh-480px)] w-full flex-col">
-          {queue.data?.items.length === 0 ? (
+          {queue.data?.items.length === 0 &&
+          !queue.data.runningItem?.itemUid ? (
             <p className="text-center text-muted-foreground">
               Queue is empty. Drag samples here to add them to the queue.
             </p>
