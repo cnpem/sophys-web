@@ -17,21 +17,19 @@ export const consoleOutputRouter = {
       throw new Error("Failed to get reader");
     }
     let done = false;
-    let value = "";
     while (!done) {
-      const { value: chunk, done: d } = await reader.read();
+      const { value: chunk, done: readerDone } = await reader.read();
       if (chunk) {
-        value += new TextDecoder().decode(chunk);
-      }
-      const messages = parseMessagesFromText(value);
-      console.log(value.length, messages.length);
-      for await (const message of messages) {
-        const innerMessage = parseInnerMessage(message.msg);
-        if (innerMessage) {
-          yield innerMessage;
+        const decoded = new TextDecoder().decode(chunk);
+        const messages = parseMessagesFromText(decoded);
+        for await (const message of messages) {
+          const innerMessage = parseInnerMessage(message.msg);
+          if (innerMessage) {
+            yield innerMessage;
+          }
         }
       }
-      done = d;
+      done = readerDone;
     }
   }),
 } as const;

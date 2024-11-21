@@ -23,7 +23,10 @@ export function Console() {
         <div>Waiting for new messages...</div>
       )}
       {messages?.map((message) => (
-        <ConsoleMessage key={message.timestamp} message={message} />
+        <ConsoleMessage
+          key={`${message.service}-${message.timestamp}`}
+          message={message}
+        />
       ))}
     </div>
   );
