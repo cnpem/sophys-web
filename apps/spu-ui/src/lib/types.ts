@@ -9,3 +9,6 @@ type QueueResponse = z.infer<typeof queueResponseSchema>;
 export type QueueItemProps =
   | QueueResponse["items"][number]
   | QueueResponse["runningItem"];
+
+type HistoryResponse = z.infer<typeof schemas.history.getResponseSchema>;
+export type HistoryItemProps = HistoryResponse["items"][number];
