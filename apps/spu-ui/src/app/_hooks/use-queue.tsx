@@ -46,6 +46,12 @@ export const useQueue = () => {
     },
   });
 
+  const addBatch = api.queue.item.addBatch.useMutation({
+    onSettled: async () => {
+      await utils.queue.get.invalidate();
+    },
+  });
+
   const remove = api.queue.item.remove.useMutation({
     onSettled: async () => {
       await utils.queue.get.invalidate();
@@ -61,6 +67,7 @@ export const useQueue = () => {
   return {
     queue,
     add,
+    addBatch,
     remove,
     clear,
   };
