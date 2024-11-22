@@ -57,9 +57,9 @@ function QueueItem({
       return "enqueued";
     }
     if (props.result.traceback) {
-      return "failed";
+      return props.result.exitStatus ?? "failed";
     }
-    return "completed";
+    return props.result.exitStatus ?? "finished";
   };
 
   const handleRemove = useCallback(() => {
