@@ -68,6 +68,9 @@ export const runEngineRouter = {
         },
         body: undefined,
       });
+      if (!res.success) {
+        throw new Error(res.msg);
+      }
       return res;
     } catch (e) {
       if (e instanceof Error) {
@@ -89,6 +92,9 @@ export const runEngineRouter = {
         },
         body: undefined,
       });
+      if (!res.success) {
+        throw new Error(res.msg);
+      }
       return res;
     } catch (e) {
       if (e instanceof Error) {
@@ -110,6 +116,9 @@ export const runEngineRouter = {
         },
         body: undefined,
       });
+      if (!res.success) {
+        throw new Error(res.msg);
+      }
       return res;
     } catch (e) {
       if (e instanceof Error) {
