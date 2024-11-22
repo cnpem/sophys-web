@@ -58,13 +58,15 @@ function ActionButton({
 
 function MoreActionsDropdown({
   handleEngineAction,
+  disabled,
 }: {
   handleEngineAction: (action: EngineAction) => Promise<void>;
+  disabled: boolean;
 }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">
+        <Button disabled={disabled} variant="outline">
           More
           <ChevronDownIcon className="ml-2 h-4 w-4" />
         </Button>
@@ -148,7 +150,10 @@ export function RunEngineControls() {
   return (
     <div className="flex items-center space-x-2">
       <ActionButton handleEngineAction={handleEngineAction} status={status} />
-      <MoreActionsDropdown handleEngineAction={handleEngineAction} />
+      <MoreActionsDropdown
+        disabled={status !== "paused"}
+        handleEngineAction={handleEngineAction}
+      />
     </div>
   );
 }
