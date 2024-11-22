@@ -24,7 +24,7 @@ export function Console() {
       )}
       {messages?.map((message) => (
         <ConsoleMessage
-          key={`${message.service}-${message.timestamp}`}
+          key={`${message.service}-${message.timestamp}-${message.textMessage}`}
           message={message}
         />
       ))}
