@@ -1,7 +1,7 @@
 "use client";
 
 import type { QueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { lazy, useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { loggerLink, unstable_httpBatchStreamLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
@@ -9,6 +9,15 @@ import superJSON from "superjson";
 import type { AppRouter } from "@sophys-web/api";
 import { env } from "../env";
 import { createQueryClient } from "./query-client";
+
+const ReactQueryDevtools =
+  env.NODE_ENV === "production"
+    ? () => null
+    : lazy(() =>
+        import("@tanstack/react-query-devtools").then((mod) => ({
+          default: mod.ReactQueryDevtools,
+        })),
+      );
 
 let clientQueryClientSingleton: QueryClient | undefined;
 const getQueryClient = () => {
@@ -48,6 +57,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
       <api.Provider client={trpcClient} queryClient={queryClient}>
         {props.children}
       </api.Provider>
