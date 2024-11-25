@@ -15,12 +15,12 @@ function HistoryItem({ props }: { props: HistoryItemProps }) {
   const status = function () {
     // how can I get the running item?
     if (!props.result) {
-      return "oops";
+      return "unknown";
     }
     if (props.result.traceback) {
-      return "failed";
+      return props.result.exitStatus ?? "failed";
     }
-    return "completed";
+    return props.result.exitStatus ?? "finished";
   };
 
   return (

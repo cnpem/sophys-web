@@ -23,6 +23,7 @@ import { useStatus } from "../_hooks/use-status";
 import { kwargsResponseSchema } from "../../lib/schemas/acquisition";
 import { Dropzone } from "./dropzone";
 import { EnvMenu } from "./env-menu";
+import { RunEngineControls } from "./run-engine-controls";
 
 function QueueItem({
   isRunning,
@@ -57,9 +58,9 @@ function QueueItem({
       return "enqueued";
     }
     if (props.result.traceback) {
-      return "failed";
+      return props.result.exitStatus ?? "failed";
     }
-    return "completed";
+    return props.result.exitStatus ?? "finished";
   };
 
   const handleRemove = useCallback(() => {
@@ -218,6 +219,7 @@ export function Queue() {
             </>
           )}
         </Button>
+        <RunEngineControls />
         <Button
           disabled={status.data?.itemsInQueue === 0}
           onClick={clearQueue}
