@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { z } from "zod";
 import { env } from "../../env";
 import { protectedProcedure } from "../trpc";
@@ -25,7 +26,11 @@ export const consoleOutputRouter = {
         for await (const message of messages) {
           const innerMessage = parseInnerMessage(message.msg);
           if (innerMessage) {
-            yield innerMessage;
+            const id = nanoid();
+            yield {
+              id,
+              ...innerMessage,
+            };
           }
         }
       }
