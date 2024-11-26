@@ -9,6 +9,7 @@ import { useQueue } from "../_hooks/use-queue";
 import { useStatus } from "../_hooks/use-status";
 import { EnvMenu } from "./env-menu";
 import { QueueItem } from "./queue-item";
+import { RunEngineControls } from "./run-engine-controls";
 
 export function Queue() {
   const { queue, clear, start, stop } = useQueue();
@@ -71,6 +72,7 @@ export function Queue() {
             </>
           )}
         </Button>
+        <RunEngineControls />
         <Button
           disabled={status.data?.itemsInQueue === 0}
           onClick={clearQueue}
