@@ -16,7 +16,7 @@ export function Console() {
 
   return (
     <div
-      className="max-h-60 min-h-40 min-w-96 overflow-y-auto rounded-lg bg-gray-900 p-4 pr-8 font-mono text-sm text-gray-300"
+      className="h-52 overflow-y-auto rounded-lg bg-slate-900 p-4 pr-8 font-mono text-sm text-slate-300"
       ref={ref}
     >
       {(!messages || messages.length === 0) && (
