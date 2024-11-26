@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@sophys-web/ui";
 import { buttonVariants } from "@sophys-web/ui/button";
 import {
   DropdownMenu,
@@ -13,7 +14,6 @@ import { useStatus } from "../_hooks/use-status";
 
 export function EnvMenu() {
   const { status, envUpdate, envOpen, envClose } = useStatus();
-
   const statusMessage = () => {
     if (status.isLoading) {
       return "Loading...";
@@ -30,7 +30,15 @@ export function EnvMenu() {
         className={buttonVariants({ variant: "secondary" })}
         disabled={status.isLoading || status.isError}
       >
-        Status: {statusMessage()}
+        <span
+          className={cn("mr-2 inline-block h-2 w-2 rounded-full bg-slate-400", {
+            "bg-green-400": status.data?.reState === "idle",
+            "bg-blue-500": status.data?.reState === "running",
+            "bg-yellow-500": status.data?.reState === "paused",
+            "bg-red-500": status.data?.reState === "error",
+          })}
+        />
+        <span className="capitalize">{statusMessage()}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>Env controls</DropdownMenuLabel>
