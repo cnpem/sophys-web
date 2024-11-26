@@ -2,7 +2,6 @@
 
 import { Fragment, useCallback } from "react";
 import { ChevronRightIcon, GripVerticalIcon, XCircleIcon } from "lucide-react";
-// import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@sophys-web/ui/card";
@@ -83,7 +82,11 @@ export function QueueItem({
                   {Object.entries(props.kwargs).map(([key, value]) => (
                     <Fragment key={key}>
                       <dt className="break-words font-medium">{key}:</dt>
-                      <dd className="break-words">{String(value)}</dd>
+                      <dd className="break-words">
+                        {typeof value === "object"
+                          ? JSON.stringify(value)
+                          : String(value)}
+                      </dd>
                     </Fragment>
                   ))}
                 </dl>

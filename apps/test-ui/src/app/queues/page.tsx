@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import { Console } from "../_components/console";
 import { History } from "../_components/history";
 import { Queue } from "../_components/queue";
+import { SelectPlan } from "../_components/select-plan";
 
 export default async function Page() {
   const session = await auth();
@@ -13,8 +14,8 @@ export default async function Page() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="my-auto flex flex-col items-center justify-center gap-2">
+    <main className="mx-24 flex min-h-screen items-center justify-between gap-4">
+      <div className="flex w-1/2 flex-col gap-2">
         <Tabs className="w-full space-y-2" defaultValue="queue">
           <TabsContent value="queue">
             <Queue />
@@ -28,6 +29,9 @@ export default async function Page() {
           </TabsList>
         </Tabs>
         <Console />
+      </div>
+      <div className="w-1/2">
+        <SelectPlan />
       </div>
     </main>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -9,9 +10,11 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { api } from "../../trpc/react";
+import PlanForm from "./form/plan-form";
 
 export function SelectPlan() {
   const { data } = api.plans.allowed.useQuery(undefined);
+  const { data: namedDevices } = api.devices.allowedNames.useQuery(undefined);
   const [selectedPlan, setSelectedPlan] = useState<string | undefined>(
     undefined,
   );
@@ -30,8 +33,16 @@ export function SelectPlan() {
     return undefined;
   })();
 
+  if (!data) {
+    return <p>Loading plans...</p>;
+  }
+
+  if (!namedDevices) {
+    return <p>Loading devices...</p>;
+  }
+
   return (
-    <div className="my-auto flex flex-col items-center gap-2">
+    <ScrollArea className="mt-4 h-[100vh]">
       <Select
         onValueChange={(value) => {
           setSelectedPlan(value);
@@ -50,15 +61,25 @@ export function SelectPlan() {
         </SelectContent>
       </Select>
       {!planDetails ? (
-        <p>Select a plan to view details</p>
+        <p>Select a plan to see details</p>
       ) : (
-        <Details
-          description={planDetails.description}
-          name={planDetails.name}
-          parameters={JSON.stringify(planDetails.parameters)}
-        />
+        <>
+          <PlanForm
+            devices={namedDevices}
+            planData={{
+              name: planDetails.name,
+              description: planDetails.description,
+              parameters: planDetails.parameters,
+            }}
+          />
+          <Details
+            description={planDetails.description}
+            name={planDetails.name}
+            parameters={JSON.stringify(planDetails.parameters)}
+          />
+        </>
       )}
-    </div>
+    </ScrollArea>
   );
 }
 
