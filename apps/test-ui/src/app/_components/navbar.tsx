@@ -7,7 +7,6 @@ import { cn } from "@sophys-web/ui";
 const links = [
   { href: "/", label: "~/" },
   { href: "/queues", label: "queue" },
-  { href: "/plans", label: "plans" },
 ];
 
 interface NavbarProps {
