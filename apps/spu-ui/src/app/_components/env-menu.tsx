@@ -27,7 +27,7 @@ export function EnvMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className={buttonVariants({ variant: "secondary" })}
+        className={buttonVariants({ variant: "secondary", size: "sm" })}
         disabled={status.isLoading || status.isError}
       >
         <span

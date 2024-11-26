@@ -44,6 +44,7 @@ function ActionButton({
         const action = status === "paused" ? "resume" : "pause";
         await handleEngineAction(action);
       }}
+      size="sm"
       variant="outline"
     >
       {status === "paused" ? (
@@ -66,7 +67,7 @@ function MoreActionsDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button disabled={disabled} variant="outline">
+        <Button disabled={disabled} size="sm" variant="outline">
           More
           <ChevronDownIcon className="ml-2 h-4 w-4" />
         </Button>
