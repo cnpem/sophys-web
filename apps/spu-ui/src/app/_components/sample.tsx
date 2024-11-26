@@ -26,8 +26,8 @@ export function SampleItem({
   });
 
   const classNames = cn(
-    "relative flex h-12 w-12 cursor-grab items-center justify-center rounded-full font-bold text-white",
-    { "hover:scale-110 hover:ring hover:ring-primary": !disabled },
+    "relative flex h-11 w-11 cursor-grab items-center justify-center rounded-full font-bold text-white",
+    { "hover:scale-105 hover:ring hover:ring-primary": !disabled },
     { "cursor-grabbing rounded-sm opacity-90": isDragging },
     { "cursor-not-allowed opacity-50": disabled },
     {
