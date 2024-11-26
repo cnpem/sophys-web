@@ -165,8 +165,8 @@ export default function Experiment({
             </Button>
           </div>
         </Tabs>
-        <div className="flex w-2/3 flex-col gap-4">
-          <Tabs className="space-y-2" defaultValue="queue">
+        <div className="flex flex-col gap-4">
+          <Tabs className="max-w-screen-sm space-y-2" defaultValue="queue">
             <TabsContent value="queue">
               <Queue />
             </TabsContent>
@@ -177,8 +177,8 @@ export default function Experiment({
               <TabsTrigger value="queue">Queue</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
             </TabsList>
+            <Console />
           </Tabs>
-          <Console />
         </div>
       </div>
       <DragOverlay>
