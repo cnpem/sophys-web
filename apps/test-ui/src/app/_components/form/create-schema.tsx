@@ -45,6 +45,11 @@ export const createSchema = (parameters: Parameter[]) => {
           ? z.coerce.number().optional()
           : z.coerce.number();
         break;
+      case "typing.Union[float, typing.Sequence[float], None]":
+        schemaFields[name] = z
+          .union([z.number(), z.array(z.number())])
+          .optional();
+        break;
       case "str":
         schemaFields[name] = z.string().min(1);
         break;
@@ -101,6 +106,26 @@ export const createSchema = (parameters: Parameter[]) => {
             }
             return val.split(", ").map((v) => parseInt(v));
           });
+        break;
+      // annotations from *args defined by the annotation of the first element of the tuple
+      case "__MOVABLE__,typing.Any":
+      case "__MOVABLE__,typing.Any,typing.Any":
+        // __MOVABLE__ and typing.Any are treated as strings,
+        // so we can expect arrays like [movable1, string1, movable2, string2, ..., movableN, stringN]
+        schemaFields[name] = z.array(z.string()).nonempty();
+        break;
+      case "__MOVABLE__,typing.List[typing.Any]":
+        // i.e.: [movable1, [string1, string2, ..., stringN], movable2, [string1, string2, ..., stringN], ..., movableN, [string1, string2, ..., stringN]]
+        schemaFields[name] = z
+          .array(z.union([z.string(), z.array(z.string())]))
+          .nonempty();
+      case "typing.Union[bool, typing.Sequence[__MOVABLE__]]":
+        // this is a special case where the value can be a boolean or a list of strings
+        // the "true" option represents the selection of all the items of the list
+        // the "false" option represents the selection of none of the items of the list
+        // in the ui, we will represent this only as a list of strings and add an element to facilitate the selection of all the items
+        // if the list is empty, it means that the user selected none of the items
+        schemaFields[name] = z.array(z.string()).optional();
         break;
       case "typing.Sequence[__CALLABLE__]":
       case "__CALLABLE__":
