@@ -28,6 +28,7 @@ interface MultiSelectDialogProps {
   defaultOptions?: string[];
   options: string[];
   placeholder?: string;
+  selectAll?: boolean;
   onChange: (selectedOptions: string[]) => void;
 }
 
@@ -35,6 +36,7 @@ export function MultiSelectDialog({
   options,
   defaultOptions,
   placeholder = "Select options",
+  selectAll = false,
   onChange,
 }: MultiSelectDialogProps) {
   const [selectedOptions, setSelectedOptions] = useState<string[]>(
@@ -100,6 +102,22 @@ export function MultiSelectDialog({
       <DropdownMenuContent
         className={cn(gridVariants({ size: optionsSize(options) }))}
       >
+        {selectAll ? (
+          <DropdownMenuCheckboxItem
+            checked={selectedOptions.length === options.length}
+            onSelect={(event) => {
+              if (selectedOptions.length === options.length) {
+                setSelectedOptions([]);
+              } else {
+                setSelectedOptions(options);
+              }
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+          >
+            Select All
+          </DropdownMenuCheckboxItem>
+        ) : null}
         {options.map((option) => (
           <DropdownMenuCheckboxItem
             checked={selectedOptions.includes(option)}
