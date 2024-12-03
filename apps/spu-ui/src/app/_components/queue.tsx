@@ -15,6 +15,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@sophys-web/ui/card";
@@ -26,7 +27,9 @@ import { useStatus } from "../_hooks/use-status";
 import { kwargsResponseSchema } from "../../lib/schemas/acquisition";
 import { Dropzone } from "./dropzone";
 import { EnvMenu } from "./env-menu";
+import { History } from "./history";
 import { RunEngineControls } from "./run-engine-controls";
+import { Spinner } from "./spinner";
 
 function RemoveButton({ uid }: { uid?: string }) {
   const { remove } = useQueue();
@@ -49,8 +52,9 @@ function RemoveButton({ uid }: { uid?: string }) {
 
 function EditButton() {
   return (
-    <Button className="h-6 w-6" disabled size="icon" variant="ghost">
-      <PencilIcon className="h-4 w-4" />
+    <Button className="w-full" disabled size="sm" variant="outline">
+      <PencilIcon className="mr-2 h-4 w-4" />
+      Edit item
     </Button>
   );
 }
@@ -82,7 +86,7 @@ function UnknownItem({
               </Badge>
             </CardTitle>
             <CardDescription>
-              Submitted by {props?.user}
+              @{props?.user}
               <div className="absolute right-2 top-2 flex gap-2">
                 <RemoveButton uid={props?.itemUid} />
               </div>
@@ -120,6 +124,30 @@ function SkeletonItem() {
   );
 }
 
+function PlaceholderItem() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-4">
+          <span className="h-6 w-24 rounded bg-muted" />
+          <Badge className="border-none bg-muted" variant="outline" />
+        </CardTitle>
+        <CardDescription className="space-y-2">
+          <div className="flex gap-2">
+            <span className="h-5 w-44 rounded bg-muted" />
+            <span className="h-5 w-28 rounded bg-muted" />
+          </div>
+          <div className="flex gap-2">
+            <Badge className="border-none bg-muted" variant="outline" />
+            <Badge className="border-none bg-muted" variant="outline" />
+            <Badge className="border-none bg-muted" variant="outline" />
+          </div>
+        </CardDescription>
+      </CardHeader>
+    </Card>
+  );
+}
+
 function RunningItem({ props }: { props: QueueItemProps }) {
   const { data: planParams } = kwargsResponseSchema.safeParse(props?.kwargs);
   if (!planParams) {
@@ -138,7 +166,7 @@ function RunningItem({ props }: { props: QueueItemProps }) {
           </Badge>
         </CardTitle>
         <CardDescription>
-          Submitted by {props?.user} - {planParams.proposal}
+          @{props?.user} - {planParams.proposal}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -157,9 +185,9 @@ function RunningItem({ props }: { props: QueueItemProps }) {
           </Badge>
           <Badge variant="default">{planParams.sampleTag}</Badge>
         </div>
-        <div className="absolute right-1 top-1 flex gap-2">
+        {/* <div className="absolute right-1 top-1 flex gap-2">
           <RemoveButton uid={props?.itemUid} />
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );
@@ -201,15 +229,18 @@ function QueueItem({
         })}
       >
         <CardHeader>
-          <CardTitle className="flex items-center gap-4">
+          <CardTitle className="flex items-center justify-between gap-4">
             <span>{props?.name}</span>
-            <EditButton />
             <Badge
               className={cn("border-none bg-slate-200 text-slate-800", {
                 "bg-red-200 text-red-800": status() === "failed",
                 "bg-slate-200 text-slate-800": status() === "enqueued",
                 "bg-blue-200 text-blue-800": status() === "running",
-                "bg-yellow-200 text-yellow-800": !props?.itemUid,
+                "bg-rose-200 text-rose-800": !props?.itemUid,
+                "bg-yellow-200 text-yellow-800":
+                  status() === "aborted" ||
+                  status() === "halted" ||
+                  status() === "stopped",
               })}
               variant="outline"
             >
@@ -217,7 +248,7 @@ function QueueItem({
             </Badge>
           </CardTitle>
           <CardDescription>
-            Submitted by {props?.user} - {planParams.proposal}
+            @{props?.user} - {planParams.proposal}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -240,6 +271,9 @@ function QueueItem({
             <RemoveButton uid={props?.itemUid} />
           </div>
         </CardContent>
+        <CardFooter>
+          <EditButton />
+        </CardFooter>
       </Card>
     </li>
   );
@@ -265,7 +299,7 @@ function QueueCounter() {
   const { queue } = useQueue();
   return (
     <div className="flex items-center rounded-md border border-sky-500 bg-sky-200 p-1 text-sky-700">
-      <span className="mr-2 font-medium">On Queue</span>
+      <span className="mr-2 font-medium uppercase">On Queue</span>
       <span className="rounded-md border border-sky-500 bg-sky-100 px-1 font-bold">
         {queue.data?.items.length}
       </span>
@@ -275,6 +309,7 @@ function QueueCounter() {
 
 export function Queue() {
   const { queue } = useQueue();
+  const { status } = useStatus();
   const isEmpty =
     queue.data?.items.length === 0 && !queue.data.runningItem?.itemUid;
 
@@ -283,30 +318,46 @@ export function Queue() {
   }
 
   return (
-    <Dropzone id="queue-dropzone">
-      <div className="flex flex-col gap-2">
-        <QueueControls />
+    <div className="flex">
+      <Dropzone id="queue-dropzone">
+        <div className="flex flex-col gap-2">
+          <QueueControls />
+          <ScrollArea className="relative flex h-[calc(100vh-350px)] flex-col">
+            {isEmpty ? (
+              <p className="text-center text-muted-foreground">
+                Queue is empty. Drag samples here to add them to the queue.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {queue.data?.items.map((item) => (
+                  <QueueItem key={item.itemUid} props={item} />
+                ))}
+              </ul>
+            )}
+          </ScrollArea>
+        </div>
+      </Dropzone>
+      <div className="flex h-fit flex-col gap-1 px-4">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex w-full items-center justify-center rounded-lg border border-sky-500 bg-sky-200 p-1 text-sky-700">
+            <span className="mr-2 font-medium uppercase">
+              {status.data?.reState}
+            </span>
+            <Spinner />
+          </div>
+          <RunEngineControls />
+        </div>
         {queue.data?.runningItem?.itemUid ? (
           <RunningItem
             key={queue.data.runningItem.itemUid}
             props={queue.data.runningItem}
           />
-        ) : null}
-        <ScrollArea className="relative flex h-[calc(100vh-560px)] flex-col">
-          {isEmpty ? (
-            <p className="text-center text-muted-foreground">
-              Queue is empty. Drag samples here to add them to the queue.
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {queue.data?.items.map((item) => (
-                <QueueItem key={item.itemUid} props={item} />
-              ))}
-            </ul>
-          )}
-        </ScrollArea>
+        ) : (
+          <PlaceholderItem />
+        )}
+        <History />
       </div>
-    </Dropzone>
+    </div>
   );
 }
 
@@ -371,7 +422,7 @@ export function QueueControls() {
           </>
         )}
       </Button>
-      <RunEngineControls />
+      {/* <RunEngineControls /> */}
       <Button
         disabled={status.data?.itemsInQueue === 0}
         onClick={clearQueue}
