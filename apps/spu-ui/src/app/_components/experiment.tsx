@@ -22,7 +22,6 @@ import {
   setSamples as setServerSamples,
 } from "../actions/samples";
 import { Console } from "./console";
-import { History } from "./history";
 import { Queue } from "./queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
@@ -166,19 +165,8 @@ export default function Experiment({
           </div>
         </Tabs>
         <div className="flex flex-col gap-4">
-          <Tabs className="max-w-screen-sm space-y-2" defaultValue="queue">
-            <TabsContent value="queue">
-              <Queue />
-            </TabsContent>
-            <TabsContent value="history">
-              <History />
-            </TabsContent>
-            <TabsList>
-              <TabsTrigger value="queue">Queue</TabsTrigger>
-              <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
-            <Console />
-          </Tabs>
+          <Queue />
+          <Console />
         </div>
       </div>
       <DragOverlay>
