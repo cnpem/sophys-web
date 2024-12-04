@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { Roboto_Mono } from "next/font/google";
 import { Toaster } from "@sophys-web/ui/sonner";
 import { TRPCReactProvider } from "../trpc/react";
-import Navbar from "./_components/navbar";
 import UserAvatar from "./_components/user-avatar";
 
 const roboto = Roboto_Mono({ subsets: ["latin"] });
@@ -22,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <Navbar avatar={<UserAvatar />} />
+        <div className="absolute right-1 top-1 rounded-md border p-1">
+          <UserAvatar />
+        </div>
         <Toaster richColors theme="light" />
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>
