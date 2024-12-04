@@ -47,6 +47,29 @@ function RedoButton(props: HistoryItemProps) {
   );
 }
 
+function ClearHistoryButton() {
+  const utils = api.useUtils();
+  const { mutate } = api.history.clear.useMutation({
+    onSuccess: async () => {
+      toast.success("History cleared.");
+      await utils.history.invalidate();
+    },
+  });
+  return (
+    <Button
+      className="w-full"
+      onClick={() => {
+        mutate();
+      }}
+      size="sm"
+      variant="outline"
+    >
+      <Trash2Icon className="mr-2 h-4 w-4" />
+      Clear history
+    </Button>
+  );
+}
+
 function UnknownItem({
   props,
   status,
@@ -158,22 +181,18 @@ export function History() {
 
   return (
     <div className="flex flex-col gap-2">
-      <HistoryControls />
-      <div className="relative flex items-center justify-center rounded-lg border-2 border-muted p-4 font-medium">
-        <ScrollArea className="flex h-[calc(100vh-560px)] flex-col">
-          {data?.items.length === 0 ? (
-            <p className="text-center text-muted-foreground">
-              History is empty.
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {data?.items.map((item) => (
-                <HistoryItem key={item.itemUid} props={item} />
-              ))}
-            </ul>
-          )}
-        </ScrollArea>
-      </div>
+      <HistoryCounter />
+      <ScrollArea className="flex h-[calc(100vh-200px)] flex-col">
+        {data?.items.length === 0 ? (
+          <p className="text-center text-muted-foreground">History is empty.</p>
+        ) : (
+          <ul className="space-y-2">
+            {data?.items.map((item) => (
+              <HistoryItem key={item.itemUid} props={item} />
+            ))}
+          </ul>
+        )}
+      </ScrollArea>
     </div>
   );
 }
@@ -185,35 +204,11 @@ function HistoryCounter() {
   });
 
   return (
-    <div className="flex w-full items-center justify-center rounded-md border border-slate-500 bg-slate-200 p-1 text-slate-700">
-      <span className="mr-2 font-medium uppercase">On History</span>
-      <span className="rounded-md border border-slate-500 bg-slate-100 px-1 font-bold">
+    <div className="flex items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center text-muted-foreground">
+      <span className="mr-2 font-medium">History</span>
+      <span className="rounded-md border-none bg-slate-200 px-2 font-bold">
         {data?.items.length}
       </span>
-    </div>
-  );
-}
-
-function HistoryControls() {
-  const utils = api.useUtils();
-  const { mutate } = api.history.clear.useMutation({
-    onSuccess: async () => {
-      toast.success("Queue cleared.");
-      await utils.history.invalidate();
-    },
-  });
-  return (
-    <div className="flex items-center justify-start gap-2">
-      <HistoryCounter />
-      <Button
-        onClick={() => {
-          mutate();
-        }}
-        variant="outline"
-      >
-        <Trash2Icon className="mr-2 h-4 w-4" />
-        Clear
-      </Button>
     </div>
   );
 }
