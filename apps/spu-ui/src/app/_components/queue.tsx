@@ -154,7 +154,7 @@ function RunningItem({ props }: { props: QueueItemProps }) {
     return <UnknownItem props={props} status="running" />;
   }
   return (
-    <Card className="relative border border-sky-500 bg-sky-50">
+    <Card className="relative">
       <CardHeader>
         <CardTitle className="flex items-center gap-4">
           <span>{props?.name}</span>
@@ -185,9 +185,6 @@ function RunningItem({ props }: { props: QueueItemProps }) {
           </Badge>
           <Badge variant="default">{planParams.sampleTag}</Badge>
         </div>
-        {/* <div className="absolute right-1 top-1 flex gap-2">
-          <RemoveButton uid={props?.itemUid} />
-        </div> */}
       </CardContent>
     </Card>
   );
@@ -298,9 +295,9 @@ function QueueSkeleton() {
 function QueueCounter() {
   const { queue } = useQueue();
   return (
-    <div className="flex items-center rounded-md border border-sky-500 bg-sky-200 p-1 text-sky-700">
-      <span className="mr-2 font-medium uppercase">On Queue</span>
-      <span className="rounded-md border border-sky-500 bg-sky-100 px-1 font-bold">
+    <div className="flex items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center text-muted-foreground">
+      <span className="mr-2 font-medium">Queue</span>
+      <span className="rounded-md border-none bg-slate-200 px-2 font-bold">
         {queue.data?.items.length}
       </span>
     </div>
@@ -318,45 +315,37 @@ export function Queue() {
   }
 
   return (
-    <div className="flex">
-      <Dropzone id="queue-dropzone">
-        <div className="flex flex-col gap-2">
-          <QueueControls />
-          <ScrollArea className="relative flex h-[calc(100vh-350px)] flex-col">
-            {isEmpty ? (
-              <p className="text-center text-muted-foreground">
-                Queue is empty. Drag samples here to add them to the queue.
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {queue.data?.items.map((item) => (
-                  <QueueItem key={item.itemUid} props={item} />
-                ))}
-              </ul>
-            )}
-          </ScrollArea>
-        </div>
-      </Dropzone>
-      <div className="flex h-fit flex-col gap-1 px-4">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex w-full items-center justify-center rounded-lg border border-sky-500 bg-sky-200 p-1 text-sky-700">
-            <span className="mr-2 font-medium uppercase">
-              {status.data?.reState}
-            </span>
-            <Spinner />
-          </div>
-          <RunEngineControls />
-        </div>
+    <div className="grid max-w-screen-xl grid-cols-3 gap-2">
+      <div className="flex flex-col gap-2">
+        <QueueCounter />
+        <ScrollArea className="relative flex h-[calc(100vh-200px)] flex-col">
+          {isEmpty ? (
+            <p className="text-center text-muted-foreground">Queue is empty.</p>
+          ) : (
+            <ul className="space-y-2">
+              {queue.data?.items.map((item) => (
+                <QueueItem key={item.itemUid} props={item} />
+              ))}
+            </ul>
+          )}
+        </ScrollArea>
+      </div>
+      <div className="flex h-fit flex-col gap-2">
+        <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
+          {status.data?.reState}
+        </span>
         {queue.data?.runningItem?.itemUid ? (
           <RunningItem
             key={queue.data.runningItem.itemUid}
             props={queue.data.runningItem}
           />
         ) : (
-          <PlaceholderItem />
+          <span className="text-center text-muted-foreground">
+            No running item.
+          </span>
         )}
-        <History />
       </div>
+      <History />
     </div>
   );
 }
@@ -400,7 +389,6 @@ export function QueueControls() {
 
   return (
     <div className="flex items-center justify-start gap-2">
-      <QueueCounter />
       <EnvMenu />
       <Button
         disabled={!status.data?.reState || status.data.itemsInQueue === 0}
@@ -422,7 +410,6 @@ export function QueueControls() {
           </>
         )}
       </Button>
-      {/* <RunEngineControls /> */}
       <Button
         disabled={status.data?.itemsInQueue === 0}
         onClick={clearQueue}

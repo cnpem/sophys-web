@@ -1,12 +1,6 @@
 "use client";
 
-import type {
-  DragEndEvent,
-  DragStartEvent,
-  UniqueIdentifier,
-} from "@dnd-kit/core";
 import { useCallback, useState } from "react";
-import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Trash2Icon, UploadIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import { toast } from "@sophys-web/ui/sonner";
@@ -22,6 +16,7 @@ import {
   setSamples as setServerSamples,
 } from "../actions/samples";
 import { Console } from "./console";
+import { ControlPlane } from "./control-plane";
 import { Queue } from "./queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
@@ -47,10 +42,9 @@ export default function Experiment({
   const [samples] = useSSEData("/api/samples", {
     initialData: initialSamples,
   });
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
   const addToQueue = useCallback(
-    async (sampleIds: UniqueIdentifier[]) => {
+    async (sampleIds: (string | number)[]) => {
       sampleIds.forEach(async (id) => {
         const sample = samples.find((s) => s.id === id);
         if (!sample) {
@@ -118,25 +112,11 @@ export default function Experiment({
     await setServerSamples(updatedSamples);
   };
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    setActiveId(active.id);
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { over } = event;
-
-    if (over && over.id === "queue-dropzone") {
-      await addToQueue([activeId ?? 0]);
-    }
-
-    setActiveId(null);
-  };
-
   return (
-    <DndContext onDragEnd={handleDragEnd} onDragStart={handleDragStart}>
+    <div className="flex h-screen flex-col items-center gap-4 pt-4">
+      <ControlPlane />
       <div className="flex h-[calc(100vh-64px)] items-start justify-center gap-4 px-4 pt-4">
-        <Tabs className="space-y-2" defaultValue="tray1">
+        {/* <Tabs className="space-y-2" defaultValue="tray1">
           <TabsContent value="tray1">
             <Tray
               activeId={activeId}
@@ -163,26 +143,9 @@ export default function Experiment({
               Clear Samples
             </Button>
           </div>
-        </Tabs>
-        <div className="flex flex-col gap-4">
-          <Queue />
-          <Console />
-        </div>
+        </Tabs> */}
+        <Queue />
       </div>
-      <DragOverlay>
-        {activeId ? (
-          <SampleItem
-            isDragging
-            sample={
-              samples.find((s) => s.id === activeId) ?? {
-                id: activeId,
-                relativePosition: "",
-                type: null,
-              }
-            }
-          />
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+    </div>
   );
 }
