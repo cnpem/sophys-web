@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.className}>
-        <div className="absolute right-1 top-1 rounded-md border p-1">
+        <div className="absolute right-1 top-1 rounded-md p-1 text-muted-foreground">
           <UserAvatar />
         </div>
         <Toaster richColors theme="light" />
