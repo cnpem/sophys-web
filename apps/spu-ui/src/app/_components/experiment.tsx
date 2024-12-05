@@ -17,7 +17,7 @@ import {
 } from "../actions/samples";
 import { Console } from "./console";
 import { ControlPlane } from "./control-plane";
-import { Queue } from "./queue";
+import { Queue } from "./queue/queue";
 import { SampleItem } from "./sample";
 import { Tray } from "./tray";
 import { UploadButton } from "./upload-button";

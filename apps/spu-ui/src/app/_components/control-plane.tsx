@@ -1,6 +1,6 @@
 "use client";
 
-import { QueueControls } from "./queue";
+import { QueueControls } from "./queue/queue";
 import { RunEngineControls } from "./run-engine-controls";
 
 export function ControlPlane() {
