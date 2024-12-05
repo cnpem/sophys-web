@@ -16,7 +16,7 @@ export function Console() {
 
   return (
     <div
-      className="h-52 overflow-y-auto rounded-lg bg-slate-900 p-4 pr-8 font-mono text-sm text-slate-300"
+      className="h-full overflow-y-auto bg-slate-900 p-4 font-mono text-sm text-slate-300"
       ref={ref}
     >
       {(!messages || messages.length === 0) && (
@@ -47,7 +47,7 @@ function ConsoleMessage({ message }: { message: ParsedLogMessage }) {
   };
 
   return (
-    <div className="mb-2">
+    <div className="my-1">
       <span className="mr-2 text-gray-500">
         [{message.logLevel.toUpperCase()}] {message.date} {message.timestamp}
       </span>
