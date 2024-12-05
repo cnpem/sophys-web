@@ -21,7 +21,7 @@ import { api } from "../../trpc/react";
 type EngineStatus = "idle" | "running" | "paused" | "unknown";
 type EngineAction = "pause" | "resume" | "stop" | "halt" | "abort";
 
-const getEngineStatus = (
+export const getEngineStatus = (
   reStateStr: string | null | undefined,
 ): EngineStatus => {
   if (["idle", "running", "paused"].includes(reStateStr || "")) {
