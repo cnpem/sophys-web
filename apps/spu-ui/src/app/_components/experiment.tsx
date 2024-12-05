@@ -22,9 +22,10 @@ import type { Sample } from "./sample";
 import { Console } from "./console";
 import { ControlPlane } from "./control-plane";
 import { Queue } from "./queue/queue";
-import { SampleItem } from "./sample";
-import { Tray } from "./tray";
-import { UploadButton } from "./upload-button";
+
+// import { SampleItem } from "./sample";
+// import { Tray } from "./tray";
+// import { UploadButton } from "./upload-button";
 
 // // import { SampleItem } from "./sample";
 // import { Tray } from "./tray";
@@ -44,8 +45,9 @@ export function samplePosition(row: string, col: number, tray: string) {
 export default function Experiment({
   initialSamples,
 }: {
-  initialSamples: Sample[];
+  initialSamples?: Sample[];
 }) {
+  console.log(initialSamples);
   // const { add } = useQueue();
   // const [samples] = useSSEData("/api/samples", {
   //   initialData: initialSamples,

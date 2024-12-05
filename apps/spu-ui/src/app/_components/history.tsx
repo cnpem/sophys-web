@@ -13,7 +13,6 @@ import {
   CardTitle,
 } from "@sophys-web/ui/card";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
-import { toast } from "@sophys-web/ui/sonner";
 import type { HistoryItemProps } from "../../lib/types";
 import { useQueue } from "../_hooks/use-queue";
 import { kwargsResponseSchema } from "../../lib/schemas/acquisition";
