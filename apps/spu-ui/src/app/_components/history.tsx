@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcwIcon, Trash2Icon } from "lucide-react";
+import { RotateCcwIcon } from "lucide-react";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
@@ -43,29 +43,6 @@ function RedoButton(props: HistoryItemProps) {
     >
       <RotateCcwIcon className="mr-2 h-4 w-4" />
       Copy to queue
-    </Button>
-  );
-}
-
-function ClearHistoryButton() {
-  const utils = api.useUtils();
-  const { mutate } = api.history.clear.useMutation({
-    onSuccess: async () => {
-      toast.success("History cleared.");
-      await utils.history.invalidate();
-    },
-  });
-  return (
-    <Button
-      className="w-full"
-      onClick={() => {
-        mutate();
-      }}
-      size="sm"
-      variant="outline"
-    >
-      <Trash2Icon className="mr-2 h-4 w-4" />
-      Clear history
     </Button>
   );
 }
