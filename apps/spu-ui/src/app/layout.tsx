@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Roboto_Mono } from "next/font/google";
 import Image from "next/image";
 import { Toaster } from "@sophys-web/ui/sonner";
+import { env } from "../env";
 import { TRPCReactProvider } from "../trpc/react";
 import UserAvatar from "./_components/user-avatar";
 
@@ -31,7 +32,7 @@ export default function RootLayout({
           alt="Sapucaia seed"
           className="absolute bottom-0 right-0"
           height={100}
-          src="/sapucaia/sementinha.png"
+          src={`${env.NEXT_PUBLIC_BASE_PATH}/sapucaia/sementinha.png`}
           width={100}
         />
       </body>
