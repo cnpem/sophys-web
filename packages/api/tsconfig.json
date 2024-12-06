@@ -1,8 +1,5 @@
 {
-  "extends": "@sophys-web/typescript-config/base.json",
-  "compilerOptions": {
-    "outDir": "dist"
-  },
+  "extends": "@sophys-web/typescript-config/internal-package.json",
   "include": ["src"],
   "exclude": ["node_modules"]
 }

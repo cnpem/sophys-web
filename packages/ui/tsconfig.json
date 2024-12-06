@@ -1,10 +1,12 @@
 {
-  "extends": "@sophys-web/typescript-config/react-library.json",
+  "extends": "@sophys-web/typescript-config/internal-package.json",
   "include": ["src"],
   "exclude": ["dist", "build", "node_modules"],
   "compilerOptions": {
     "rootDir": ".",
-    "paths":{
+    "jsx": "preserve",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "paths": {
       "@sophys-web/ui": ["./src"]
     }
     // "baseUrl": ".",

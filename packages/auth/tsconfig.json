@@ -1,9 +1,5 @@
 {
-    "extends": "@sophys-web/typescript-config/base.json",
-    "compilerOptions": {
-      "declaration": false,
-      "declarationMap": false,
-    },
-    "include": ["src", "*.ts"],
-    "exclude": ["node_modules"]
-  }
+  "extends": "@sophys-web/typescript-config/base.json",
+  "include": ["src", "*.ts"],
+  "exclude": ["node_modules"]
+}
