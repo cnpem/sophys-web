@@ -2,12 +2,27 @@
   "name": "@sophys-web/eslint-config",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
+  "exports": {
+    "./library": "./library.js",
+    "./nextjs": "./next.js",
+    "./react": "./react.js"
+  },
   "scripts": {
     "clean": "rm -rf .turbo node_modules"
   },
   "devDependencies": {
-    "@vercel/style-guide": "^5.2.0",
     "eslint-config-turbo": "^2.0.0"
   },
-  "prettier": "@sophys-web/prettier-config"
+  "prettier": "@sophys-web/prettier-config",
+  "dependencies": {
+    "@eslint/compat": "^1.2.4",
+    "@next/eslint-plugin-next": "^14.2.3",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-turbo": "^2.3.3",
+    "typescript-eslint": "^8.17.0"
+  }
 }

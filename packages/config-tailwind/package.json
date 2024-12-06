@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@sophys-web/typescript-config": "workspace:*",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "catalog:"
   },
   "prettier": "@sophys-web/prettier-config",
   "dependencies": {
