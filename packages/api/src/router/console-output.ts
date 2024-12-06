@@ -71,7 +71,7 @@ interface ParsedLogMessage {
 }
 
 function parseInnerMessage(message: string): ParsedLogMessage | null {
-  const innerMessageRegex = /^\[(.*?)\]\s*(.*)$/s;
+  const innerMessageRegex = /^\[(.*?)\]\s*([\s\S]*)$/;
   const match = innerMessageRegex.exec(message);
 
   if (!match) {

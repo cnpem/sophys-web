@@ -8,7 +8,7 @@ import { Controller, FormProvider, useFormContext } from "react-hook-form";
 import { cn } from "@sophys-web/ui";
 import { Label } from "@sophys-web/ui/label";
 
-const Form = FormProvider;
+const Form: typeof FormProvider = FormProvider;
 
 interface FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
