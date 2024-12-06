@@ -183,7 +183,11 @@ export function QueueControls() {
       <Button
         disabled={!status.data?.reState || status.data.itemsInQueue === 0}
         onClick={() => {
-          status.data?.reState === "running" ? stopQueue() : startQueue();
+          if (status.data?.reState === "running") {
+            stopQueue();
+          } else {
+            startQueue();
+          }
         }}
         size="sm"
         variant="default"

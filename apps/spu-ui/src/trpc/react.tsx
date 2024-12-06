@@ -62,5 +62,5 @@ const getBaseUrl = () => {
   if (typeof window !== "undefined")
     return `${window.location.origin}${env.NEXT_PUBLIC_BASE_PATH}`;
 
-  return `http://localhost${env.NEXT_PUBLIC_BASE_PATH}:${process.env.PORT ?? 3000}`;
+  return `http://localhost${env.NEXT_PUBLIC_BASE_PATH}:${env.PORT ?? 3000}`;
 };

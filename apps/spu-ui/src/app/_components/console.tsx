@@ -41,7 +41,7 @@ function ConsoleMessage({ message }: { message: ParsedLogMessage }) {
   const formattedServiceName = (service: string) => {
     if (service.includes("bluesky_queueserver.manager")) {
       const splitNames = service.split(".");
-      return splitNames[splitNames.length - 1].toUpperCase();
+      return splitNames[splitNames.length - 1]?.toUpperCase() ?? "";
     }
     return service.toUpperCase();
   };

@@ -21,7 +21,7 @@ export function EnvMenu() {
     if (status.isError) {
       return "Error";
     }
-    return status.data?.reState || "Unknown";
+    return status.data?.reState ?? "Unknown";
   };
 
   return (

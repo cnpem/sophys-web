@@ -1,11 +1,9 @@
 import type { z } from "zod";
-import { schemas } from "@sophys-web/api";
+import type { schemas } from "@sophys-web/api";
 
-const itemSubmitSchema = schemas.item.addSubmit;
-export type ItemSubmit = z.infer<typeof itemSubmitSchema>;
+export type ItemSubmit = z.infer<typeof schemas.item.addSubmit>;
 
-const queueResponseSchema = schemas.queue.getResponseSchema;
-type QueueResponse = z.infer<typeof queueResponseSchema>;
+type QueueResponse = z.infer<typeof schemas.queue.getResponseSchema>;
 export type QueueItemProps =
   | QueueResponse["items"][number]
   | QueueResponse["runningItem"];

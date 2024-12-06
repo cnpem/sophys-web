@@ -38,6 +38,10 @@ export function UploadButton(props: ButtonProps) {
           const files = e.target.files;
           if (!files) return;
           const file = files[0];
+          if (!file) {
+            toast.error("No file selected");
+            return;
+          }
           parse(file, {
             header: true,
             skipEmptyLines: true,

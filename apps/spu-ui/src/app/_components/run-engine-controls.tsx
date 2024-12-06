@@ -24,7 +24,7 @@ type EngineAction = "pause" | "resume" | "stop" | "halt" | "abort";
 export const getEngineStatus = (
   reStateStr: string | null | undefined,
 ): EngineStatus => {
-  if (["idle", "running", "paused"].includes(reStateStr || "")) {
+  if (["idle", "running", "paused"].includes(reStateStr ?? "")) {
     return reStateStr as EngineStatus;
   }
   return "unknown";
@@ -129,9 +129,9 @@ export function RunEngineControls() {
     async (action: EngineAction) => {
       const actionDetails = actionMap[action];
       actionDetails.mutation.mutate(undefined, {
-        onSuccess: async () => {
+        onSuccess: () => {
           toast.info(actionDetails.successMessage);
-          await utils.status.get.invalidate();
+          void utils.status.get.invalidate();
         },
         onError: (error) => {
           toast.error(`Failed to ${action}: ${error.message}`);

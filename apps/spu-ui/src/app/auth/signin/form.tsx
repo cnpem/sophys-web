@@ -35,7 +35,7 @@ export function SignInForm() {
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     toast.info("Signing in...");
-    const callbackUrl = params.get("callbackUrl") || "/";
+    const callbackUrl = params.get("callbackUrl") ?? "/";
     const res = await signIn({
       username: data.username,
       password: data.password,

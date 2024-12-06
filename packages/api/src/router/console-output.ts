@@ -23,7 +23,7 @@ export const consoleOutputRouter = {
       if (chunk) {
         const decoded = new TextDecoder().decode(chunk);
         const messages = parseMessagesFromText(decoded);
-        for await (const message of messages) {
+        for (const message of messages) {
           const innerMessage = parseInnerMessage(message.msg);
           if (innerMessage) {
             const id = nanoid();
@@ -49,11 +49,11 @@ type Message = z.infer<typeof MessageSchema>;
 function parseMessagesFromText(input: string): Message[] {
   const messageRegex = /(\{.*?\})(?=\{|\s*$)/g;
 
-  const matches = input.match(messageRegex) || [];
+  const matches = input.match(messageRegex) ?? [];
 
   const parsedMessages = matches
     .map((jsonStr) => {
-      const parsed = JSON.parse(jsonStr);
+      const parsed = JSON.parse(jsonStr) as unknown;
       const result = MessageSchema.safeParse(parsed);
       return result.success ? result.data : null;
     })
@@ -62,17 +62,17 @@ function parseMessagesFromText(input: string): Message[] {
   return parsedMessages;
 }
 
-type ParsedLogMessage = {
+interface ParsedLogMessage {
   logLevel: string;
   date: string;
   timestamp: string;
   service: string;
   textMessage: string;
-};
+}
 
 function parseInnerMessage(message: string): ParsedLogMessage | null {
   const innerMessageRegex = /^\[(.*?)\]\s*(.*)$/s;
-  const match = message.match(innerMessageRegex);
+  const match = innerMessageRegex.exec(message);
 
   if (!match) {
     console.error("Failed to parse inner message:", message);
@@ -80,8 +80,17 @@ function parseInnerMessage(message: string): ParsedLogMessage | null {
   }
 
   const [, bracketContent, textMessage] = match;
+  if (!bracketContent) {
+    console.error("Failed to parse bracket content:", message);
+    return null;
+  }
 
   const [logLevel, date, timestamp, service] = bracketContent.split(/\s+/);
+
+  if (!logLevel || !date || !timestamp || !service || !textMessage) {
+    console.error("Failed to parse bracket content:", message);
+    return null;
+  }
 
   return {
     logLevel,

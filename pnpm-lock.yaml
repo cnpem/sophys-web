@@ -124,9 +124,6 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
-      '@next/eslint-plugin-next':
-        specifier: ^14.2.3
-        version: 14.2.3
       '@sophys-web/eslint-config':
         specifier: workspace:*
         version: link:../../packages/config-eslint
