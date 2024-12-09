@@ -1,6 +1,5 @@
 "use client";
 
-import type { UniqueIdentifier } from "@dnd-kit/core";
 import React, { useCallback } from "react";
 import { ChevronsRightIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
@@ -23,7 +22,6 @@ import { SampleItem } from "./sample";
 
 interface TrayProps {
   samples: Sample[];
-  activeId: UniqueIdentifier | null;
 }
 
 export function Tray(props: TrayProps) {
@@ -85,44 +83,39 @@ export function Tray(props: TrayProps) {
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div
-          className="grid gap-1"
-          style={{
-            gridTemplateColumns: `repeat(${trayColumns.length + 1}, 1fr)`,
-            gridTemplateRows: `repeat(${trayRows.length + 1}, 1fr)`,
-          }}
-        >
-          <div />
-          {trayColumns.map((col) => (
-            <div
-              className="flex items-center justify-center font-bold text-primary"
-              key={col}
-            >
-              {col}
-            </div>
-          ))}
-          {tray.map((sample, index) => {
-            return (
-              <React.Fragment key={sample.id}>
-                {index % trayColumns.length === 0 && (
-                  <div className="flex items-center justify-center font-bold text-emerald-600">
-                    {trayRows[index / trayColumns.length]}
-                  </div>
-                )}
-                <SampleItem
-                  isDragging={props.activeId === sample.id}
-                  key={sample.id}
-                  sample={sample}
-                />
-              </React.Fragment>
-            );
-          })}
-        </div>
+      <CardContent
+        style={{
+          display: "grid",
+          gap: "0.25rem",
+          gridTemplateColumns: `repeat(${trayColumns.length + 1}, 1fr)`,
+          gridTemplateRows: `repeat(${trayRows.length + 1}, 1fr)`,
+        }}
+      >
+        <div />
+        {trayColumns.map((col) => (
+          <div
+            className="flex items-center justify-center text-sm font-semibold"
+            key={col}
+          >
+            {col}
+          </div>
+        ))}
+        {tray.map((sample, index) => {
+          return (
+            <React.Fragment key={sample.id}>
+              {index % trayColumns.length === 0 && (
+                <div className="flex items-center justify-center text-sm font-semibold">
+                  {trayRows[index / trayColumns.length]}
+                </div>
+              )}
+              <SampleItem key={sample.id} sample={sample} />
+            </React.Fragment>
+          );
+        })}
       </CardContent>
       <CardFooter className="justify-center">
-        <p className="text-center text-sm text-stone-600">
-          Drag a sample to add it to the queue.
+        <p className="text-center text-sm text-muted-foreground">
+          Click on a sample to add it to the queue.
         </p>
       </CardFooter>
     </Card>
