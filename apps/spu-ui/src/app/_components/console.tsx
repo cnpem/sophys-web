@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { cn } from "@sophys-web/ui";
 import { api } from "../../trpc/react";
 
-export function Console() {
+export function Console({ className }: { className?: string }) {
   const { data: messages } = api.consoleOutput.stream.useQuery();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -16,7 +16,10 @@ export function Console() {
 
   return (
     <div
-      className="h-full overflow-y-auto bg-slate-900 p-4 font-mono text-sm text-slate-300"
+      className={cn(
+        "h-full overflow-y-auto bg-slate-900 p-4 font-mono text-sm text-slate-300",
+        className,
+      )}
       ref={ref}
     >
       {(!messages || messages.length === 0) && (

@@ -7,17 +7,47 @@ import { buttonVariants } from "@sophys-web/ui/button";
 import { Input } from "@sophys-web/ui/input";
 import { Label } from "@sophys-web/ui/label";
 import { toast } from "@sophys-web/ui/sonner";
-import type { TableItem } from "../../lib/schemas/table-item";
-import { tableItemSchema } from "../../lib/schemas/table-item";
+import type { SampleParams } from "../../lib/schemas/sample";
+import type { TableItem } from "../../lib/schemas/table";
+import type { Sample } from "./sample";
+import { useSSEData } from "../_hooks/use-sse-data";
+import { tableItemSchema } from "../../lib/schemas/table";
+import { setSamples as setServerSamples } from "../actions/samples";
+import { samplePosition } from "./experiment";
 
 interface ButtonProps {
   children: React.ReactNode;
-  handleUpload: (data: TableItem[]) => void;
 }
 
 export function UploadButton(props: ButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
+  const [samples] = useSSEData("/api/samples", { initialData: [] as Sample[] });
+
+  const uploadSamples = async (data: SampleParams[]) => {
+    const prevSamples = samples;
+    const newSamples = data.map((sample) => {
+      const { complete, relative } = samplePosition(
+        sample.row,
+        sample.col,
+        sample.tray,
+      );
+      return {
+        id: complete,
+        relativePosition: relative,
+        type: sample.sampleType === "buffer" ? "B" : "S",
+        ...sample,
+      } as Sample;
+    });
+    const updatedSamples = prevSamples.map((prevSample) => {
+      const newSample = newSamples.find(
+        (sample) => sample.id === prevSample.id,
+      );
+      return newSample ?? prevSample;
+    });
+    await setServerSamples(updatedSamples);
+  };
+
   return (
     <div className="flex flex-col items-center gap-8">
       <Label
@@ -90,7 +120,7 @@ export function UploadButton(props: ButtonProps) {
               } else {
                 toast.success("CSV file parsed successfully");
               }
-              props.handleUpload(parsedData);
+              void uploadSamples(parsedData);
             },
           });
           if (inputRef.current) {

@@ -6,8 +6,6 @@ import {
   trayRows,
 } from "../constants";
 
-export const planName = "setup1_load_and_acquire";
-
 export const info = {
   sampleType: "Type of the sample to be measured (buffer or sample)",
   sampleTag: "Tag (Identifier) of the sample to be measured.",
@@ -22,6 +20,7 @@ export const info = {
   expUvTime: "Exposure time of the UV-Vis spectrum.",
   measureUvNumber: "Number of measurements in the UV-Vis spectrum.",
   proposal: "Proposal associated with the experiment being executed.",
+  standardOption: "Standard pre determined cleaning agent types and durations.",
 };
 
 function checkSampleType(sampleType: string): boolean {
@@ -49,7 +48,7 @@ function checkAcquireTime(acquireTime: number): boolean {
   );
 }
 
-export const appSchema = z.object({
+export const tableSchema = z.object({
   sampleType: z
     .string()
     .min(1, "Sample type is required")
@@ -91,92 +90,25 @@ export const appSchema = z.object({
   measureUvNumber: z.coerce.number({
     message: "Measure UV number must be a number",
   }),
-  proposal: z.string().min(1, "Proposal is required"),
 });
 
-export const kwargsResponseSchema = z
-  .object({
-    sample_tag: z.string(),
-    sample_type: z.string(),
-    buffer_tag: z.string(),
-    tray: z.string(),
-    row: z.string(),
-    col: z.number(),
-    volume: z.number(),
-    acquire_time: z.number(),
-    num_exposures: z.number(),
-    exp_uv_time: z.number(),
-    measure_uv_number: z.number(),
-    proposal: z.string(),
+// the sampleTableItemSchema is the schema expected for all lines of the CSV file
+// so it extends the sampleSubmitSchema and adds the order field used for
+// submitting the full list of samples
+export const tableItemSchema = tableSchema
+  .extend({
+    order: z.coerce.number(),
+    cleaningProcedure: z.string().optional(),
   })
-  .transform((data) => {
-    const {
-      sample_tag: sampleTag,
-      sample_type: sampleType,
-      buffer_tag: bufferTag,
-      acquire_time: acquireTime,
-      num_exposures: numExposures,
-      exp_uv_time: expUvTime,
-      measure_uv_number: measureUvNumber,
-      ...rest
-    } = data;
-    return {
-      sampleTag,
-      sampleType,
-      bufferTag,
-      acquireTime,
-      numExposures,
-      expUvTime,
-      measureUvNumber,
-      ...rest,
-    };
+  .superRefine((data, ctx) => {
+    if (data.sampleType !== "buffer") {
+      if (!data.bufferTag) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Buffer tag is required for non-buffer samples.`,
+        });
+      }
+    }
   });
 
-export const kwargsSubmitSchema = z
-  .object({
-    sampleTag: z.string(),
-    sampleType: z.string(),
-    bufferTag: z.string(),
-    tray: z.string(),
-    row: z.string(),
-    col: z.number(),
-    volume: z.number(),
-    acquireTime: z.number(),
-    numExposures: z.number(),
-    expUvTime: z.number(),
-    measureUvNumber: z.number(),
-    proposal: z.string(),
-  })
-  .transform((data) => {
-    const {
-      sampleType,
-      sampleTag,
-      bufferTag,
-      tray,
-      row,
-      col,
-      volume,
-      acquireTime,
-      numExposures,
-      expUvTime,
-      measureUvNumber,
-      proposal,
-    } = data;
-    return {
-      sample_tag: sampleTag,
-      sample_type: sampleType,
-      buffer_tag: bufferTag,
-      tray,
-      row,
-      col,
-      volume,
-      acquire_time: acquireTime,
-      num_exposures: numExposures,
-      exp_uv_time: expUvTime,
-      measure_uv_number: measureUvNumber,
-      proposal,
-    };
-  });
-
-// for the submit plan endpoint we need to add the user proposal field
-export type PlanKwargs = z.infer<typeof appSchema>;
+export type TableItem = z.infer<typeof tableItemSchema>;

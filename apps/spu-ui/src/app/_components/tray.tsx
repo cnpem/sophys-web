@@ -15,7 +15,10 @@ import { toast } from "@sophys-web/ui/sonner";
 import type { Sample } from "./sample";
 import { useQueue } from "../_hooks/use-queue";
 import { trayColumns, trayRows } from "../../lib/constants";
-import { kwargsSubmitSchema, planName } from "../../lib/schemas/acquisition";
+import {
+  kwargsSubmitSchema,
+  planName,
+} from "../../lib/schemas/plans/complete-acquisition";
 import { SampleItem } from "./sample";
 
 interface TrayProps {
@@ -30,7 +33,7 @@ export function Tray(props: TrayProps) {
   const enqueueAll = useCallback(async () => {
     const loadedSamples = tray.filter((sample) => sample.type !== null);
     const parsedKwargsList = loadedSamples.map((sample) => {
-      const { data, success } = kwargsSubmitSchema.safeParse({
+      const { data, success, error } = kwargsSubmitSchema.safeParse({
         ...sample,
         proposal: "pTEST",
       });
@@ -44,6 +47,7 @@ export function Tray(props: TrayProps) {
           itemType: "plan",
         };
       }
+      toast.error(`Failed to submit sample: ${error.message}`);
       return null;
     });
     const items = parsedKwargsList.filter(
@@ -67,7 +71,7 @@ export function Tray(props: TrayProps) {
   }, [tray, addBatch]);
 
   return (
-    <Card>
+    <Card className="rounded-md">
       <CardHeader>
         <CardTitle className="flex flex-row items-center justify-between text-lg font-medium">
           Tray

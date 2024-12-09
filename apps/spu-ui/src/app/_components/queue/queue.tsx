@@ -84,7 +84,7 @@ export function Queue() {
   }
 
   return (
-    <div className="grid max-w-screen-xl grid-cols-3 gap-2">
+    <div className="grid w-full grid-cols-3 gap-2">
       <div className="flex flex-col gap-2">
         <QueueCounter />
         <ScrollArea className="relative flex h-[calc(100vh-200px)] flex-col">

@@ -15,7 +15,7 @@ import {
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import type { HistoryItemProps } from "../../lib/types";
 import { useQueue } from "../_hooks/use-queue";
-import { kwargsResponseSchema } from "../../lib/schemas/acquisition";
+import { kwargsResponseSchema } from "../../lib/schemas/plans/complete-acquisition";
 import { api } from "../../trpc/react";
 
 function RedoButton(props: HistoryItemProps) {

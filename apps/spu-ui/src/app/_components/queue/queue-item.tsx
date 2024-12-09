@@ -13,7 +13,7 @@ import {
 } from "@sophys-web/ui/card";
 import type { QueueItemProps } from "../../../lib/types";
 import { useQueue } from "../../_hooks/use-queue";
-import { kwargsResponseSchema } from "../../../lib/schemas/acquisition";
+import { kwargsResponseSchema } from "../../../lib/schemas/plans/complete-acquisition";
 
 function UnknownItem({
   props,
