@@ -1,14 +1,12 @@
 import "@sophys-web/ui/styles.css";
 import "./globals.css";
 import type { Metadata } from "next";
-import { Roboto_Mono } from "next/font/google";
 import Image from "next/image";
+import { GeistMono } from "geist/font/mono";
 import { Toaster } from "@sophys-web/ui/sonner";
 import { env } from "../env";
 import { TRPCReactProvider } from "../trpc/react";
 import UserAvatar from "./_components/user-avatar";
-
-const roboto = Roboto_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Sapucaia UI",
@@ -22,7 +20,7 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en">
-      <body className={roboto.className}>
+      <body className={GeistMono.className}>
         <div className="absolute right-1 top-1 rounded-md p-1 text-muted-foreground">
           <UserAvatar />
         </div>
