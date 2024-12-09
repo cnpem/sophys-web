@@ -30,18 +30,16 @@ export default function Experiment({
   });
 
   return (
-    <div className="flex h-screen w-screen flex-row items-start justify-center gap-4 p-8">
-      <div className="flex flex-col gap-4">
+    <div className="flex h-screen items-start justify-center gap-4 p-6">
+      <div className="flex max-w-md flex-col gap-4">
         <Tabs className="space-y-2" defaultValue="tray1">
           <TabsContent value="tray1" className="mt-0">
             <Tray
-              activeId={null}
               samples={samples?.filter((sample) => sample.tray === TRAY1) ?? []}
             />
           </TabsContent>
           <TabsContent value="tray2" className="mt-0">
             <Tray
-              activeId={null}
               samples={samples?.filter((sample) => sample.tray === TRAY2) ?? []}
             />
           </TabsContent>
@@ -50,9 +48,9 @@ export default function Experiment({
             <TabsTrigger value="tray2">Tray 2</TabsTrigger>
           </TabsList>
         </Tabs>
-        <Console className="min-h-72 w-full rounded-md" />
+        <Console className="h-72 w-full rounded-md" />
       </div>
-      <div className="flex w-2/3 flex-col items-start justify-center gap-4">
+      <div className="flex flex-col items-start justify-center gap-4">
         <ControlPlane />
         <Queue />
       </div>
