@@ -29,11 +29,11 @@ export function Tray(props: TrayProps) {
   const { addBatch } = useQueue();
 
   const enqueueAll = useCallback(async () => {
-    const loadedSamples = tray.filter((sample) => sample.type !== null);
+    const loadedSamples = tray.filter((sample) => sample.type !== undefined);
     const parsedKwargsList = loadedSamples.map((sample) => {
       const { data, success, error } = kwargsSubmitSchema.safeParse({
         ...sample,
-        proposal: "pTEST",
+        proposal: "pBATCH",
       });
       if (success) {
         return {
@@ -118,6 +118,51 @@ export function Tray(props: TrayProps) {
           Click on a sample to add it to the queue.
         </p>
       </CardFooter>
+    </Card>
+  );
+}
+
+export function LoadingTray() {
+  return (
+    <Card className="rounded-md">
+      <CardHeader>
+        <CardTitle className="text-lg font-medium">Tray</CardTitle>
+      </CardHeader>
+      <CardContent
+        style={{
+          display: "grid",
+          gap: "0.25rem",
+          gridTemplateColumns: `repeat(${trayColumns.length + 1}, 1fr)`,
+          gridTemplateRows: `repeat(${trayRows.length + 1}, 1fr)`,
+        }}
+      >
+        <div />
+        {trayColumns.map((col) => (
+          <div
+            className="flex items-center justify-center text-sm font-semibold"
+            key={col}
+          >
+            {col}
+          </div>
+        ))}
+        {trayRows.map((row) => (
+          <React.Fragment key={row}>
+            <div className="flex items-center justify-center text-sm font-semibold">
+              {row}
+            </div>
+            {trayColumns.map((col) => (
+              <div
+                className="flex items-center justify-center text-sm font-semibold"
+                key={col}
+              >
+                <span className="h-7 w-7 animate-pulse rounded-full bg-muted text-white">
+                  ...
+                </span>
+              </div>
+            ))}
+          </React.Fragment>
+        ))}
+      </CardContent>
     </Card>
   );
 }

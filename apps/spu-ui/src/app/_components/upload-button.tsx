@@ -22,7 +22,7 @@ interface ButtonProps {
 export function UploadButton(props: ButtonProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [errorMessages, setErrorMessages] = useState<string[]>([]);
-  const [samples] = useSSEData("/api/samples", { initialData: [] as Sample[] });
+  const { data: samples } = useSSEData<Sample[]>("/api/samples");
 
   const uploadSamples = async (data: SampleParams[]) => {
     const prevSamples = samples;
@@ -35,10 +35,14 @@ export function UploadButton(props: ButtonProps) {
       return {
         id: complete,
         relativePosition: relative,
-        type: sample.sampleType === "buffer" ? "B" : "S",
+        type: sample.sampleType,
         ...sample,
       } as Sample;
     });
+    if (!prevSamples) {
+      await setServerSamples(newSamples);
+      return;
+    }
     const updatedSamples = prevSamples.map((prevSample) => {
       const newSample = newSamples.find(
         (sample) => sample.id === prevSample.id,
