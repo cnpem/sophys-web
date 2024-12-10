@@ -16,8 +16,10 @@
   "dependencies": {
     "@sophys-web/auth": "workspace:*",
     "@t3-oss/env-nextjs": "^0.10.1",
-    "nanoid": "^5.0.8",
     "@trpc/server": "11.0.0-rc.645",
+    "camelcase-keys": "^9.1.3",
+    "decamelize-keys": "^2.0.1",
+    "nanoid": "^5.0.8",
     "superjson": "2.2.1",
     "zod": "^3.23.8",
     "zod-fetch": "^0.1.1"
