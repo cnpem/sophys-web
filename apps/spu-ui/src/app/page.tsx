@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { auth } from "@sophys-web/auth";
 import Experiment from "./_components/experiment";
 import UserAvatar from "./_components/user-avatar";
@@ -7,7 +8,7 @@ export default async function Page() {
   const session = await auth();
   const samples = await getSamples();
 
-  if (!session || session.error) {
+  if (!session) {
     return (
       <main className="flex flex-col items-center gap-4 p-24">
         <h1 className="text-4xl font-bold text-primary">Sophys Sapucaia UI</h1>
@@ -19,5 +20,9 @@ export default async function Page() {
     );
   }
 
-  return <Experiment initialSamples={samples} />;
+  if (session.error) {
+    redirect("/auth/signin");
+  }
+
+  return <Experiment initialData={samples} />;
 }
