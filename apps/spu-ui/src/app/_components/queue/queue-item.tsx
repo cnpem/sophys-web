@@ -23,34 +23,30 @@ function UnknownItem({
   status: string;
 }) {
   return (
-    <li>
-      <li>
-        <Card className="relative border-none bg-muted">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-4">
-              <span>{props?.name}</span>
-              <Badge
-                className={cn("border-none bg-slate-200 text-slate-800", {
-                  "bg-red-200 text-red-800": status === "failed",
-                  "bg-slate-200 text-slate-800": status === "enqueued",
-                  "bg-blue-200 text-blue-800": status === "running",
-                  "bg-yellow-200 text-yellow-800": !props?.itemUid,
-                })}
-                variant="outline"
-              >
-                {status}
-              </Badge>
-            </CardTitle>
-            <CardDescription>
-              @{props?.user}
-              <div className="absolute right-2 top-2 flex gap-2">
-                <RemoveButton uid={props?.itemUid} />
-              </div>
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      </li>
-    </li>
+    <Card className="relative border-none bg-muted">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-end gap-2">
+          <span className="break-all">{props?.name}</span>
+          <Badge
+            className={cn("border-none bg-slate-200 text-slate-800", {
+              "bg-red-200 text-red-800": status === "failed",
+              "bg-slate-200 text-slate-800": status === "enqueued",
+              "bg-blue-200 text-blue-800": status === "running",
+              "bg-yellow-200 text-yellow-800": !props?.itemUid,
+            })}
+            variant="outline"
+          >
+            {status}
+          </Badge>
+        </CardTitle>
+        <CardDescription>
+          <span>@{props?.user}</span>
+          <div className="absolute right-2 top-2 flex gap-2">
+            <RemoveButton uid={props?.itemUid} />
+          </div>
+        </CardDescription>
+      </CardHeader>
+    </Card>
   );
 }
 
@@ -89,7 +85,7 @@ export function RunningItem({ props }: { props: QueueItemProps }) {
     <Card className="relative">
       <CardHeader>
         <CardTitle className="flex items-center gap-4">
-          <span>{props?.name}</span>
+          <span className="break-all">{props?.name}</span>
           <Badge
             className="border-none bg-sky-200 text-sky-800"
             variant="outline"
@@ -159,7 +155,7 @@ export function QueueItem({
       >
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-4">
-            <span>{props?.name}</span>
+            <span className="break-all">{props?.name}</span>
             <Badge
               className={cn("border-none bg-slate-200 text-slate-800", {
                 "bg-red-200 text-red-800": status() === "failed",
