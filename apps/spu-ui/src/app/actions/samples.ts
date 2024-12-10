@@ -6,20 +6,30 @@ import { trayColumns, trayOptions, trayRows } from "../../lib/constants";
 function createEmptySamples() {
   const [TRAY1, TRAY2] = trayOptions;
   const emptyTray1 = trayRows.flatMap((row) =>
-    trayColumns.map((column) => ({
-      id: `${TRAY1}-${column}${row}`,
-      tray: TRAY1,
-      relativePosition: `${column}${row}`,
-      type: null,
-    })),
+    trayColumns.map(
+      (column) =>
+        ({
+          id: `${TRAY1}-${column}${row}`,
+          tray: TRAY1,
+          relativePosition: `${column}${row}`,
+          type: undefined,
+          row: row,
+          col: parseInt(column),
+        }) satisfies Sample,
+    ),
   );
   const emptyTray2 = trayRows.flatMap((row) =>
-    trayColumns.map((column) => ({
-      id: `${TRAY2}-${column}${row}`,
-      tray: TRAY2,
-      relativePosition: `${column}${row}`,
-      type: null,
-    })),
+    trayColumns.map(
+      (column) =>
+        ({
+          id: `${TRAY2}-${column}${row}`,
+          tray: TRAY2,
+          relativePosition: `${column}${row}`,
+          type: undefined,
+          row: row,
+          col: parseInt(column),
+        }) satisfies Sample,
+    ),
   );
   return [...emptyTray1, ...emptyTray2] as Sample[];
 }
