@@ -1,6 +1,7 @@
 "use server";
 
 import type { Sample } from "../_components/sample";
+import { env } from "~/env";
 import { trayColumns, trayOptions, trayRows } from "../../lib/constants";
 
 function createEmptySamples() {
@@ -34,45 +35,72 @@ function createEmptySamples() {
   return [...emptyTray1, ...emptyTray2] as Sample[];
 }
 
-let samples: Sample[] = createEmptySamples();
-const clients = new Set<ReadableStreamDefaultController>();
+declare const globalThis: {
+  sampleStore: SampleStore | undefined;
+} & typeof global;
+
+const store =
+  globalThis.sampleStore ??
+  ({
+    samples: createEmptySamples(),
+    clients: new Set<ReadableStreamDefaultController>(),
+  } as SampleStore);
+
+interface SampleStore {
+  samples: Sample[];
+  clients: Set<ReadableStreamDefaultController>;
+}
+if (env.NODE_ENV !== "production") {
+  globalThis.sampleStore = store;
+}
 
 export async function getClients() {
   return new Promise<Set<ReadableStreamDefaultController>>((resolve) => {
-    resolve(clients);
+    resolve(store.clients);
   });
 }
 
 export async function getSamples() {
   return new Promise<Sample[]>((resolve) => {
-    resolve(samples);
+    resolve(store.samples);
   });
 }
 
 export async function clearSamples() {
-  samples = createEmptySamples();
+  store.samples = createEmptySamples();
+  await notifyClients();
+  return store.samples;
+}
+
+export async function clearTray(tray: string) {
+  store.samples = store.samples.map((sample) => {
+    if (sample.tray === tray) {
+      return { ...sample, type: undefined } as Sample;
+    }
+    return sample;
+  });
   await notifyClients();
   return new Promise<Sample[]>((resolve) => {
-    resolve(samples);
+    resolve(store.samples);
   });
 }
 
 export async function setSamples(newSamples: Sample[]) {
-  samples = newSamples;
+  store.samples = newSamples;
   await notifyClients();
   return new Promise<Sample[]>((resolve) => {
-    resolve(samples);
+    resolve(store.samples);
   });
 }
 
 const notifyClients = async () => {
   const data = await getSamples();
-  clients.forEach((client) => {
+  store.clients.forEach((client) => {
     try {
       client.enqueue(`data: ${JSON.stringify(data)}\n\n`);
     } catch (e) {
       if (e instanceof TypeError) {
-        clients.delete(client);
+        store.clients.delete(client);
         return;
       }
       throw e;
