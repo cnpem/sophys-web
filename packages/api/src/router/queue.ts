@@ -1,28 +1,24 @@
-import { createZodFetcher } from "zod-fetch";
 import { env } from "../../env";
 import commonSchemas from "../schemas/common";
 import item from "../schemas/item";
 import queue from "../schemas/queue";
 import { protectedProcedure } from "../trpc";
+import { zodSnakeFetcher } from "../utils";
 
 const itemRouter = {
   add: protectedProcedure
     .input(item.addSubmit)
     .mutation(async ({ ctx, input }) => {
       const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/item/add`;
-      const fetchWithZod = createZodFetcher();
-      const body = JSON.stringify(input);
+      const body = input;
       try {
-        const res = await fetchWithZod(item.addResponse, fetchURL, {
+        const res = await zodSnakeFetcher(item.addResponse, {
+          url: fetchURL,
           method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-          },
           body,
+          authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         });
-        if (res.success === false) {
+        if (!res.success) {
           throw new Error(res.msg);
         }
         return res;
@@ -39,17 +35,12 @@ const itemRouter = {
     .input(item.removeSubmit)
     .mutation(async ({ ctx, input }) => {
       const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/item/remove`;
-      const fetchWithZod = createZodFetcher();
-      const body = JSON.stringify(input);
       try {
-        const res = await fetchWithZod(commonSchemas.response, fetchURL, {
+        const res = await zodSnakeFetcher(commonSchemas.response, {
+          url: fetchURL,
           method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-          },
-          body,
+          body: input,
+          authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         });
         return res;
       } catch (e) {
@@ -63,24 +54,13 @@ const itemRouter = {
     .input(item.addBatchSubmit)
     .mutation(async ({ ctx, input }) => {
       const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/item/add/batch`;
-      const fetchWithZod = createZodFetcher();
-      const body = JSON.stringify(input);
       try {
-        const res = await fetchWithZod(item.addBatchResponse, fetchURL, {
+        const res = await zodSnakeFetcher(item.addBatchResponse, {
+          url: fetchURL,
           method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-          },
-          body,
+          body: input,
+          authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         });
-        const resultErrors = res.results.filter((result) => !result.success);
-        if (resultErrors.length > 0) {
-          const errorMessages = resultErrors.map((result) => result.msg);
-          console.error("httpserver error: ", errorMessages);
-          throw new Error(errorMessages.join(", "));
-        }
         return res;
       } catch (e) {
         if (e instanceof Error) {
@@ -97,14 +77,11 @@ export const queueRouter = {
   item: itemRouter,
   get: protectedProcedure.query(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/get`;
-    const fetchWithZod = createZodFetcher();
     try {
-      const res = await fetchWithZod(queue.getResponseSchema, fetchURL, {
+      const res = await zodSnakeFetcher(queue.getResponseSchema, {
+        url: fetchURL,
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-        },
+        authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
       return res;
@@ -117,14 +94,11 @@ export const queueRouter = {
   }),
   start: protectedProcedure.mutation(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/start`;
-    const fetchWithZod = createZodFetcher();
     try {
-      const res = await fetchWithZod(commonSchemas.response, fetchURL, {
+      const res = await zodSnakeFetcher(commonSchemas.response, {
+        url: fetchURL,
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-        },
+        authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
       return res;
@@ -137,14 +111,11 @@ export const queueRouter = {
   }),
   stop: protectedProcedure.mutation(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/stop`;
-    const fetchWithZod = createZodFetcher();
     try {
-      const res = await fetchWithZod(commonSchemas.response, fetchURL, {
+      const res = await zodSnakeFetcher(commonSchemas.response, {
+        url: fetchURL,
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-        },
+        authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
       return res;
@@ -157,15 +128,11 @@ export const queueRouter = {
   }),
   clear: protectedProcedure.mutation(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/clear`;
-    const fetchWithZod = createZodFetcher();
     try {
-      const res = await fetchWithZod(commonSchemas.response, fetchURL, {
+      const res = await zodSnakeFetcher(commonSchemas.response, {
+        url: fetchURL,
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-        },
+        authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
       return res;
