@@ -1,5 +1,6 @@
 "use client";
 
+import { nanoid } from "nanoid";
 import type { QueueItemProps } from "../../lib/types";
 import { api } from "../../trpc/react";
 
@@ -19,9 +20,9 @@ export const useQueue = () => {
       // simulate item response object based on the item passed in
       const newItemResponse: QueueItemProps = {
         ...plan.item,
-        user: "",
+        user: "you",
         userGroup: "",
-        itemUid: "",
+        itemUid: `optimistic-${nanoid()}`,
         result: null,
       };
       // optimistically update the cache
