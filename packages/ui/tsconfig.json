@@ -6,12 +6,9 @@
     "rootDir": ".",
     "jsx": "preserve",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "baseUrl": ".",
     "paths": {
-      "@sophys-web/ui": ["./src"]
+      "@sophys-web/ui": ["src/index.ts"]
     }
-    // "baseUrl": ".",
-    // "paths": {
-    //   "@/*": ["./*"]
-    // }
   }
 }
