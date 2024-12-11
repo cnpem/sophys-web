@@ -8,7 +8,7 @@
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
     "paths": {
-      "@sophys-web/ui": ["src/index.ts"]
+      "@sophys-web/ui/*": ["./src/*"]
     }
   }
 }
