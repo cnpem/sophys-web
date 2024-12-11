@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UploadIcon } from "lucide-react";
+import { MoveRightIcon, UploadIcon } from "lucide-react";
 import { parse } from "papaparse";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,7 +35,6 @@ import {
 } from "@sophys-web/ui/select";
 import { toast } from "@sophys-web/ui/sonner";
 import type { schema as cleaningKwargsSchema } from "../../../lib/schemas/plans/cleaning";
-import type { schema as cleanCapillaryKwargsSchema } from "../../../lib/schemas/plans/clear-acquisition";
 import type { SampleParams } from "../../../lib/schemas/sample";
 import type { TableItem } from "../../../lib/schemas/table";
 import type { Sample } from "../sample";
@@ -47,6 +46,7 @@ import {
 } from "../../../lib/schemas/plans/cleaning";
 import {
   defaults as cleanCapillaryDefaults,
+  schema as cleanCapillaryKwargsSchema,
   name as cleanCapillaryPlanName,
 } from "../../../lib/schemas/plans/clear-acquisition";
 import {
@@ -429,15 +429,448 @@ export function UploadQueue() {
           <UploadIcon className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-screen-sm">
         <DialogHeader>
           <DialogTitle>Load Experiment Queue</DialogTitle>
           <DialogDescription>
             Load a new experiment queue from a CSV file.
           </DialogDescription>
         </DialogHeader>
-        <UploadQueueForm onSubmitSuccess={() => setOpen(false)} />
+        <StepByStepForm onSubmitSuccess={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
+  );
+}
+
+type Steps = "proposal" | "capillary" | "cleaning" | "acquisition";
+
+function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
+  const [step, setStep] = useState<Steps>("proposal");
+  const [cleaningParams, setCleaningParams] =
+    useState<z.infer<typeof cleaningKwargsSchema>>();
+  const [acquisitionParams, setAcquisitionParams] =
+    useState<z.infer<typeof acquisitionKwargsSchema>[]>();
+  const [capillaryParams, setCapillaryParams] =
+    useState<z.infer<typeof cleanCapillaryKwargsSchema>>();
+  const [proposal, setProposal] = useState<string>("");
+  const [useCapillary, setUseCapillary] = useState(false);
+
+  const { addBatch } = useQueue();
+
+  function onSubmitProposal(data: z.infer<typeof proposalSchema>) {
+    setProposal(data.proposal);
+    setUseCapillary(data.useCapillary);
+    if (data.useCapillary) {
+      setStep("capillary");
+    } else {
+      setStep("cleaning");
+    }
+  }
+
+  function onSubmitCapillary(data: z.infer<typeof cleanCapillaryKwargsSchema>) {
+    setCapillaryParams(data);
+    setStep("cleaning");
+  }
+
+  function onSubmitCleaning(data: z.infer<typeof cleaningKwargsSchema>) {
+    setCleaningParams(data);
+    setStep("acquisition");
+  }
+
+  function onSubmitAcquisition(
+    data: z.infer<typeof acquisitionKwargsSchema>[],
+  ) {
+    setAcquisitionParams(data);
+    // submit the batch
+    const items = acquisitionParams?.map((params) => ({
+      name: acquisitionPlanName,
+      args: [],
+      kwargs: {
+        ...params,
+        proposal,
+      },
+      itemType: "plan",
+    }));
+    if (items === undefined) {
+      return;
+    }
+    const batch = [
+      ...(useCapillary
+        ? [
+            {
+              name: cleanCapillaryPlanName,
+              args: [],
+              kwargs: {
+                ...capillaryParams,
+                proposal,
+              },
+              itemType: "plan",
+            },
+          ]
+        : []),
+      ...items,
+    ];
+    // add a "normal" cleaning plan for each sample
+    const cleaningPlan = {
+      name: cleaningPlanName,
+      args: [],
+      kwargs: cleaningParams,
+      itemType: "plan",
+    };
+    const itemsWithCleaning = batch.flatMap((plan) => [plan, cleaningPlan]) as {
+      name: string;
+      args: never[];
+      kwargs: Record<string, unknown>;
+      itemType: "plan";
+    }[];
+    // submit the batch
+    toast.info("Submitting batch to the queue");
+
+    addBatch.mutate(
+      {
+        items: itemsWithCleaning,
+      },
+      {
+        onSuccess: () => {
+          onSubmitSuccess?.();
+          toast.success("Batch submitted");
+        },
+        onError: (error) => {
+          toast.error(`Failed to submit batch: ${error.message}`);
+        },
+      },
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between gap-4">
+        {Object.entries({
+          proposal: "Proposal",
+          capillary: "Capillary",
+          cleaning: "Cleaning",
+          acquisition: "Acquisition",
+        }).map(([key, label], index) => (
+          <div key={key} className="flex flex-col items-center">
+            <Button
+              className="rounded-full"
+              size="icon"
+              disabled={(key === "capillary" && !useCapillary) || !proposal}
+              variant={step === (key as Steps) ? "default" : "outline"}
+              onClick={() => setStep(key as Steps)}
+            >
+              {index + 1}
+            </Button>
+            <div className="text-sm">{label}</div>
+          </div>
+        ))}
+      </div>
+      <>
+        {step === "proposal" && (
+          <ProposalForm
+            onSubmit={onSubmitProposal}
+            initialValues={{
+              proposal,
+              useCapillary,
+            }}
+          />
+        )}
+        {step === "capillary" && (
+          <CleanAndAcquireForm
+            onSubmit={onSubmitCapillary}
+            initialValues={{
+              proposal,
+              ...capillaryParams,
+              isRef: true,
+            }}
+          />
+        )}
+        {step === "cleaning" && (
+          <CleanAndAcquireForm
+            onSubmit={onSubmitCleaning}
+            initialValues={{
+              proposal,
+              ...cleaningParams,
+              isRef: false,
+            }}
+          />
+        )}
+        {step === "acquisition" && (
+          // <AcquisitionForm onSubmitSuccess={onSubmitAcquisition} />
+          <span>acquisition step</span>
+        )}
+      </>
+    </div>
+  );
+}
+
+const proposalSchema = z.object({
+  proposal: z.string().length(9, "Proposal ID must be 9 characters"),
+  useCapillary: z.boolean(),
+});
+
+function ProposalForm({
+  initialValues,
+  onSubmit,
+}: {
+  initialValues: z.infer<typeof proposalSchema>;
+  onSubmit: (data: z.infer<typeof proposalSchema>) => void;
+}) {
+  const form = useForm<z.infer<typeof proposalSchema>>({
+    resolver: zodResolver(proposalSchema),
+    defaultValues: initialValues,
+  });
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col items-end space-y-8"
+      >
+        <FormField
+          control={form.control}
+          name="proposal"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel>Proposal</FormLabel>
+              <FormControl>
+                <Input maxLength={9} placeholder="p00000000" {...field} />
+              </FormControl>
+              <FormDescription>
+                This is your proposal ID, e.g. p00000000.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="useCapillary"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Make empty capillary acquisition</FormLabel>
+                <FormDescription>
+                  This will add an empty capillary acquisition plan in the
+                  queue, which can be used as a reference measure.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit">
+          Next
+          <MoveRightIcon className="ml-2 h-4 w-4" />
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+function CleanAndAcquireForm({
+  onSubmit,
+  initialValues,
+}: {
+  onSubmit: (data: z.infer<typeof cleanCapillaryKwargsSchema>) => void;
+  initialValues?: Partial<z.infer<typeof cleanCapillaryKwargsSchema>>;
+}) {
+  const form = useForm<z.infer<typeof cleanCapillaryKwargsSchema>>({
+    resolver: zodResolver(cleanCapillaryKwargsSchema),
+    defaultValues: initialValues,
+  });
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col items-end space-y-8"
+      >
+        <div className="grid grid-cols-3 gap-8">
+          <FormField
+            control={form.control}
+            name="proposal"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Proposal</FormLabel>
+                <FormControl>
+                  <Input disabled {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="acquireTime"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Acquire Time</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="numExposures"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Number of Exposures</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="volume"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Volume</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="sampleTag"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sample Tag</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="bufferTag"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Buffer Tag</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="standardOption"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cleaning Method</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value ?? undefined}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {cleaningSelectOptions.map((option) => {
+                      return (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="agentsList"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Agents</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={form.watch("standardOption") !== "custom"}
+                    placeholder="e.g. agent1, agent2, agent3"
+                    value={field.value ? field.value.join(",") : ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(value ? value.split(",") : undefined);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="agentsDuration"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Agents Duration</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={form.watch("standardOption") !== "custom"}
+                    placeholder="e.g. 10, 20, 30"
+                    value={field.value ? field.value.join(",") : ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.onChange(
+                        value ? value.split(",").map(Number) : undefined,
+                      );
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isRef"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormControl>
+                  <Checkbox
+                    disabled
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Is Reference?</FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
+        <Button type="submit">
+          Next
+          <MoveRightIcon className="ml-2 h-4 w-4" />
+        </Button>
+      </form>
+    </Form>
   );
 }
