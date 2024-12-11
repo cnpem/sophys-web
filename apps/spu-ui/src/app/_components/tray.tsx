@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback } from "react";
-import { ChevronsRightIcon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import {
   Card,
@@ -12,12 +12,8 @@ import {
 } from "@sophys-web/ui/card";
 import { toast } from "@sophys-web/ui/sonner";
 import type { Sample } from "./sample";
-import { useQueue } from "../_hooks/use-queue";
 import { trayColumns, trayRows } from "../../lib/constants";
-import {
-  kwargsSubmitSchema,
-  planName,
-} from "../../lib/schemas/plans/complete-acquisition";
+import { clearTray } from "../actions/samples";
 import { SampleItem } from "./sample";
 
 interface TrayProps {
@@ -26,47 +22,16 @@ interface TrayProps {
 
 export function Tray(props: TrayProps) {
   const tray = props.samples;
-  const { addBatch } = useQueue();
 
-  const enqueueAll = useCallback(async () => {
-    const loadedSamples = tray.filter((sample) => sample.type !== undefined);
-    const parsedKwargsList = loadedSamples.map((sample) => {
-      const { data, success, error } = kwargsSubmitSchema.safeParse({
-        ...sample,
-        proposal: "pBATCH",
-      });
-      if (success) {
-        return {
-          name: planName,
-          args: [],
-          kwargs: {
-            ...data,
-          },
-          itemType: "plan",
-        };
-      }
-      toast.error(`Failed to submit sample: ${error.message}`);
-      return null;
-    });
-    const items = parsedKwargsList.filter(
-      (item): item is NonNullable<typeof item> => item !== null,
-    );
-    if (items.length === 0) {
+  const clearServerSamples = useCallback(async () => {
+    const trayId = tray[0]?.tray;
+    if (!trayId) {
+      toast.error("Unable to load tray info.");
       return;
     }
-    toast.info("Submitting batch to the queue");
-    await addBatch.mutateAsync(
-      { items },
-      {
-        onSuccess: () => {
-          toast.success("Batch submitted");
-        },
-        onError: (error) => {
-          toast.error(`Failed to submit batch: ${error.message}`);
-        },
-      },
-    );
-  }, [tray, addBatch]);
+    toast.info("Clearing tray");
+    await clearTray(trayId);
+  }, [tray]);
 
   return (
     <Card className="rounded-md">
@@ -74,12 +39,13 @@ export function Tray(props: TrayProps) {
         <CardTitle className="flex flex-row items-center justify-between text-lg font-medium">
           Tray
           <Button
-            onClick={enqueueAll}
+            disabled={tray.every((sample) => sample.type === undefined)}
+            onClick={clearServerSamples}
             size="icon"
             title="enqueue all"
             variant="outline"
           >
-            <ChevronsRightIcon className="h-4 w-4" />
+            <Trash2Icon className="h-4 w-4" />
           </Button>
         </CardTitle>
       </CardHeader>

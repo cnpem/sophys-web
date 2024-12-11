@@ -76,8 +76,7 @@ function QueueCounter() {
 
 export function Queue() {
   const { queue } = useQueue();
-  const isEmpty =
-    queue.data?.items.length === 0 && !queue.data.runningItem?.itemUid;
+  const isEmpty = queue.data?.items.length === 0;
 
   if (queue.isLoading) {
     return <QueueSkeleton />;
@@ -100,7 +99,6 @@ export function Queue() {
         </ScrollArea>
       </div>
       <RunningSection />
-
       <History />
     </div>
   );
@@ -114,7 +112,7 @@ function RunningSection() {
       <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
         {getEngineStatus(status.data?.reState)}
       </span>
-      {queue.data?.runningItem?.itemUid ? (
+      {queue.data?.runningItem.itemUid ? (
         <RunningItem
           key={queue.data.runningItem.itemUid}
           props={queue.data.runningItem}

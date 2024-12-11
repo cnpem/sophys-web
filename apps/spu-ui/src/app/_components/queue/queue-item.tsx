@@ -13,7 +13,7 @@ import {
 } from "@sophys-web/ui/card";
 import type { QueueItemProps } from "../../../lib/types";
 import { useQueue } from "../../_hooks/use-queue";
-import { kwargsResponseSchema } from "../../../lib/schemas/plans/complete-acquisition";
+import { schema } from "../../../lib/schemas/plans/complete-acquisition";
 
 function UnknownItem({
   props,
@@ -26,13 +26,12 @@ function UnknownItem({
     <Card className="relative border-none bg-muted">
       <CardHeader>
         <CardTitle className="flex items-center justify-end gap-2">
-          <span className="break-all">{props?.name}</span>
+          <span className="break-all">{props.name}</span>
           <Badge
             className={cn("border-none bg-slate-200 text-slate-800", {
               "bg-red-200 text-red-800": status === "failed",
               "bg-slate-200 text-slate-800": status === "enqueued",
               "bg-blue-200 text-blue-800": status === "running",
-              "bg-yellow-200 text-yellow-800": !props?.itemUid,
             })}
             variant="outline"
           >
@@ -40,9 +39,9 @@ function UnknownItem({
           </Badge>
         </CardTitle>
         <CardDescription>
-          <span>@{props?.user}</span>
+          <span>@{props.user}</span>
           <div className="absolute right-2 top-2 flex gap-2">
-            <RemoveButton uid={props?.itemUid} />
+            <RemoveButton uid={props.itemUid} />
           </div>
         </CardDescription>
       </CardHeader>
@@ -77,7 +76,7 @@ export function SkeletonItem() {
 }
 
 export function RunningItem({ props }: { props: QueueItemProps }) {
-  const { data: planParams } = kwargsResponseSchema.safeParse(props?.kwargs);
+  const { data: planParams } = schema.safeParse(props.kwargs);
   if (!planParams) {
     return <UnknownItem props={props} status="running" />;
   }
@@ -85,7 +84,7 @@ export function RunningItem({ props }: { props: QueueItemProps }) {
     <Card className="relative">
       <CardHeader>
         <CardTitle className="flex items-center gap-4">
-          <span className="break-all">{props?.name}</span>
+          <span className="break-all">{props.name}</span>
           <Badge
             className="border-none bg-sky-200 text-sky-800"
             variant="outline"
@@ -94,7 +93,7 @@ export function RunningItem({ props }: { props: QueueItemProps }) {
           </Badge>
         </CardTitle>
         <CardDescription>
-          @{props?.user} - {planParams.proposal}
+          @{props.user} - {planParams.proposal}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -125,15 +124,15 @@ export function QueueItem({
   isRunning?: boolean;
   props: QueueItemProps;
 }) {
-  const { data: planParams } = kwargsResponseSchema.safeParse(props?.kwargs);
-  const status = function () {
+  const { data: planParams } = schema.safeParse(props.kwargs);
+  const status = () => {
     if (isRunning) {
       return "running";
     }
-    if (!props?.itemUid) {
+    if (props.itemUid.includes("optimistic")) {
       return "enqueing";
     }
-    if (!planParams || !props.result) {
+    if (!props.result) {
       return "enqueued";
     }
     if (props.result.traceback) {
@@ -142,7 +141,7 @@ export function QueueItem({
     return props.result.exitStatus ?? "finished";
   };
 
-  if (!planParams) {
+  if (planParams === undefined) {
     return <UnknownItem props={props} status={status()} />;
   }
 
@@ -150,18 +149,17 @@ export function QueueItem({
     <li>
       <Card
         className={cn("relative", {
-          "animate-pulse border-none bg-slate-100": !props?.itemUid,
+          "animate-pulse border-none bg-slate-100": !props.itemUid,
         })}
       >
         <CardHeader>
           <CardTitle className="flex items-center justify-between gap-4">
-            <span className="break-all">{props?.name}</span>
+            <span className="break-all">{props.name}</span>
             <Badge
               className={cn("border-none bg-slate-200 text-slate-800", {
                 "bg-red-200 text-red-800": status() === "failed",
                 "bg-slate-200 text-slate-800": status() === "enqueued",
                 "bg-blue-200 text-blue-800": status() === "running",
-                "bg-rose-200 text-rose-800": !props?.itemUid,
                 "bg-yellow-200 text-yellow-800":
                   status() === "aborted" ||
                   status() === "halted" ||
@@ -173,7 +171,7 @@ export function QueueItem({
             </Badge>
           </CardTitle>
           <CardDescription>
-            @{props?.user} - {planParams.proposal}
+            @{props.user} - {planParams.proposal}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -193,7 +191,7 @@ export function QueueItem({
             <Badge variant="default">{planParams.sampleTag}</Badge>
           </div>
           <div className="absolute right-1 top-1 flex gap-2">
-            <RemoveButton uid={props?.itemUid} />
+            <RemoveButton uid={props.itemUid} />
           </div>
         </CardContent>
         <CardFooter>

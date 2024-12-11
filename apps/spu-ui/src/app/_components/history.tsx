@@ -15,7 +15,7 @@ import {
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import type { HistoryItemProps } from "../../lib/types";
 import { useQueue } from "../_hooks/use-queue";
-import { kwargsResponseSchema } from "../../lib/schemas/plans/complete-acquisition";
+import { schema } from "../../lib/schemas/plans/complete-acquisition";
 import { api } from "../../trpc/react";
 
 function RedoButton(props: HistoryItemProps) {
@@ -79,7 +79,7 @@ function UnknownItem({
 }
 
 function HistoryItem({ props }: { props: HistoryItemProps }) {
-  const { data: planParams } = kwargsResponseSchema.safeParse(props.kwargs);
+  const { data: planParams } = schema.safeParse(props.kwargs);
   const status = function () {
     if (!props.result) {
       return "unknown";

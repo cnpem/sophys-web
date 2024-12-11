@@ -39,10 +39,7 @@ import {
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
 import type { SampleParams } from "../../lib/schemas/sample";
-import {
-  kwargsSubmitSchema,
-  planName,
-} from "~/lib/schemas/plans/complete-acquisition";
+import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 import { useQueue } from "../_hooks/use-queue";
 import { sampleSubmitSchema } from "../../lib/schemas/sample";
 import { getSamples, setSamples } from "../actions/samples";
@@ -205,14 +202,14 @@ function SampleForm({
 
   function onSubmit(data: z.infer<typeof sampleSubmitSchema>) {
     toast.info("Submitting sample...");
-    const kwargs = kwargsSubmitSchema.parse({
+    const kwargs = schema.parse({
       ...data,
       proposal: "p12341234",
     });
     add.mutate(
       {
         item: {
-          name: planName,
+          name: name,
           kwargs,
           args: [],
           itemType: "plan",
