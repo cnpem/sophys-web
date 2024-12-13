@@ -1,5 +1,5 @@
+import type { DefaultSession, NextAuthConfig } from "next-auth";
 import type { DefaultJWT } from "next-auth/jwt";
-import { DefaultSession, NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import { env } from "../env";
@@ -8,7 +8,6 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      blueskyAccessToken: string;
     } & DefaultSession["user"];
     error?: "RefreshAccessTokenError";
   }
@@ -17,6 +16,8 @@ declare module "next-auth" {
     blueskyAccessToken: string;
     blueskyRefreshToken: string;
     expires_in: number;
+    scopes?: string[];
+    roles?: string[];
   }
 }
 
@@ -25,6 +26,8 @@ declare module "next-auth/jwt" {
     bluesky_access_token: string;
     bluesky_expires_at: number;
     bluesky_refresh_token: string;
+    roles?: string[];
+    scopes?: string[];
     error?: "RefreshAccessTokenError";
   }
 }
@@ -38,6 +41,29 @@ const blueskyTokenSchema = z.object({
 });
 
 export const isSecureContext = env.NODE_ENV !== "development";
+
+async function getBlueskyRolesAndScopes(accessToken: string) {
+  const res = await fetch(`${env.BLUESKY_HTTPSERVER_URL}/api/auth/scopes`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get Bluesky roles and scopes");
+  }
+
+  const data: unknown = await res.json();
+  const parsed = await z
+    .object({
+      roles: z.array(z.string()),
+      scopes: z.array(z.string()),
+    })
+    .safeParseAsync(data);
+  if (!parsed.success) {
+    throw new Error("Failed to parse Bluesky roles and scopes", parsed.error);
+  }
+  return parsed.data;
+}
 
 async function refreshBlueskyToken(refreshToken: string) {
   const res = await fetch(
@@ -56,7 +82,7 @@ async function refreshBlueskyToken(refreshToken: string) {
     throw new Error("Failed to refresh Bluesky token");
   }
 
-  const data = await res.json();
+  const data: unknown = await res.json();
   const parsed = await blueskyTokenSchema.parseAsync(data);
   return parsed;
 }
@@ -90,8 +116,8 @@ export const authConfig: NextAuthConfig = {
         }
 
         const formData = new FormData();
-        formData.append("username", parsed.data?.username);
-        formData.append("password", parsed.data?.password);
+        formData.append("username", parsed.data.username);
+        formData.append("password", parsed.data.password);
 
         const res = await fetch(
           `${env.BLUESKY_HTTPSERVER_URL}/api/auth/provider/ldap/token`,
@@ -105,15 +131,21 @@ export const authConfig: NextAuthConfig = {
           return null;
         }
 
-        const data = await res.json();
+        const data: unknown = await res.json();
         const parsedToken = await blueskyTokenSchema.parseAsync(data);
 
+        const rolesAndScopes = await getBlueskyRolesAndScopes(
+          parsedToken.access_token,
+        );
+
         const user = {
-          id: parsed.data?.username,
-          name: parsed.data?.username,
+          id: parsed.data.username,
+          name: parsed.data.username,
           blueskyAccessToken: parsedToken.access_token,
           blueskyRefreshToken: parsedToken.refresh_token,
           expires_in: parsedToken.expires_in,
+          roles: rolesAndScopes.roles,
+          scopes: rolesAndScopes.scopes,
         };
 
         return user;
@@ -125,15 +157,15 @@ export const authConfig: NextAuthConfig = {
       ...session,
       user: {
         ...session.user,
-        id: token.sub,
+        roles: token.roles,
+        scopes: token.scopes,
         blueskyAccessToken: token.bluesky_access_token,
+        id: token.sub,
       },
       error: token.error,
     }),
-    jwt: async ({ token, user }) => {
-      if (user) {
-        token.bluesky_access_token = user.blueskyAccessToken;
-        token.bluesky_refresh_token = user.blueskyRefreshToken;
+    jwt: async ({ token, user, trigger }) => {
+      if (trigger === "signIn") {
         const jwt = {
           id: token.sub,
           name: user.name,
@@ -141,6 +173,8 @@ export const authConfig: NextAuthConfig = {
           bluesky_access_token: user.blueskyAccessToken,
           bluesky_refresh_token: user.blueskyRefreshToken,
           bluesky_expires_at: Math.floor(Date.now() / 1000) + user.expires_in,
+          roles: user.roles,
+          scopes: user.scopes,
         };
         return jwt;
       } else if (Date.now() < token.bluesky_expires_at * 1000) {
@@ -160,6 +194,7 @@ export const authConfig: NextAuthConfig = {
               Math.floor(Date.now() / 1000) + refreshed.expires_in,
           };
         } catch (error) {
+          console.error("Failed to refresh Bluesky token", error);
           return {
             ...token,
             error: "RefreshAccessTokenError" as const,
