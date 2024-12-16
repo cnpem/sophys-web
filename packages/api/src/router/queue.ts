@@ -42,6 +42,9 @@ const itemRouter = {
           body: input,
           authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         });
+        if (!res.success) {
+          throw new Error(res.msg);
+        }
         return res;
       } catch (e) {
         if (e instanceof Error) {
@@ -61,10 +64,13 @@ const itemRouter = {
           body: input,
           authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         });
+        if (!res.success) {
+          console.error(`Httpserver error: ${res.msg}`);
+          throw new Error(JSON.stringify(res.results));
+        }
         return res;
       } catch (e) {
         if (e instanceof Error) {
-          console.error(e.message);
           throw new Error(e.message);
         }
         console.error("Unknown error", e);
@@ -84,6 +90,9 @@ export const queueRouter = {
         authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
+      if (!res.success) {
+        throw new Error(res.msg);
+      }
       return res;
     } catch (e) {
       if (e instanceof Error) {
@@ -101,6 +110,9 @@ export const queueRouter = {
         authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
+      if (!res.success) {
+        throw new Error(res.msg);
+      }
       return res;
     } catch (e) {
       if (e instanceof Error) {
@@ -118,6 +130,9 @@ export const queueRouter = {
         authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
+      if (!res.success) {
+        throw new Error(res.msg);
+      }
       return res;
     } catch (e) {
       if (e instanceof Error) {
@@ -135,6 +150,9 @@ export const queueRouter = {
         authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
+      if (!res.success) {
+        throw new Error(res.msg);
+      }
       return res;
     } catch (e) {
       if (e instanceof Error) {
