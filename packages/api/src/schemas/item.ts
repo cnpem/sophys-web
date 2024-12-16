@@ -13,7 +13,7 @@ const addSubmit = z.object({
 const addResponse = z.object({
   success: z.boolean(),
   msg: z.string(),
-  qsize: z.number(),
+  qsize: z.number().nullable(),
   item: z.object({
     name: z.string(),
     args: z.array(z.any()),
@@ -36,21 +36,21 @@ const addBatchSubmit = z.object({
 const addBatchResponse = z.object({
   success: z.boolean(),
   msg: z.string(),
-  qsize: z.number(),
+  qsize: z.number().nullable(),
   items: z.array(
     z.object({
       name: z.string(),
       args: z.array(z.any()),
       kwargs: z.record(z.any()),
       itemType: z.string(),
-      user: z.string(),
-      userGroup: z.string(),
-      itemUid: z.string(),
+      user: z.string().optional(),
+      userGroup: z.string().optional(),
+      itemUid: z.string().optional(),
     }),
   ),
   results: z.array(
     z.object({
-      success: z.literal(true),
+      success: z.boolean(),
       msg: z.string(),
     }),
   ),
