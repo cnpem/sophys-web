@@ -38,17 +38,26 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
-import type { SampleParams } from "../../lib/schemas/sample";
-import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
+import type {
+  sampleTypeOptions,
+  trayColumns,
+  trayOptions,
+  trayRows,
+} from "~/lib/constants";
+import { name, schema } from "~/lib/schemas/plans/load";
 import { useQueue } from "../_hooks/use-queue";
-import { sampleSubmitSchema } from "../../lib/schemas/sample";
 import { getSamples, setSamples } from "../actions/samples";
 
-export type Sample = {
+export interface Sample {
   id: string | number;
   relativePosition: string;
-  type: "buffer" | "sample" | undefined;
-} & Partial<SampleParams>;
+  sampleTag: string | undefined;
+  bufferTag: string | undefined;
+  type: (typeof sampleTypeOptions)[number] | undefined;
+  row: (typeof trayRows)[number];
+  col: (typeof trayColumns)[number];
+  tray: (typeof trayOptions)[number];
+}
 
 const sampleSchema = z.object({
   sampleType: z.literal("sample"),
@@ -188,23 +197,19 @@ function SampleForm({
 }) {
   const [open, setOpen] = useState(false);
   const { add } = useQueue();
-  const form = useForm<z.infer<typeof sampleSubmitSchema>>({
-    resolver: zodResolver(sampleSubmitSchema),
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
-      sampleTag: sample.sampleTag,
-      bufferTag: sample.bufferTag,
       tray: sample.tray,
       row: sample.row,
       col: sample.col,
-      sampleType: sample.type,
     },
   });
 
-  function onSubmit(data: z.infer<typeof sampleSubmitSchema>) {
+  function onSubmit(data: z.infer<typeof schema>) {
     toast.info("Submitting sample...");
     const kwargs = schema.parse({
       ...data,
-      proposal: "p12341234",
     });
     add.mutate(
       {
@@ -223,6 +228,7 @@ function SampleForm({
         onError: (error) => {
           toast.error("Failed to submit sample", {
             description: error.message,
+            closeButton: true,
           });
         },
       },
@@ -255,10 +261,9 @@ function SampleForm({
 
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Submit new complete acquisition</DialogTitle>
+              <DialogTitle>Load sample</DialogTitle>
               <DialogDescription>
-                Please fill in the details below to submit a new complete
-                acquisition.
+                Please fill in the details below to submit the plan.
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -273,73 +278,9 @@ function SampleForm({
                     <FormItem>
                       <FormLabel>Volume</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="Volume" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="acquireTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Acquire Time</FormLabel>
-                      <FormControl>
                         <Input
-                          type="number"
-                          placeholder="Acquire time"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="numExposures"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Number of Exposures</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Number of exposures"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="expUvTime"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Exposure UV Time</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Exposure UV time"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="measureUvNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Measure UV Number</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Measure UV number"
+                          // itemType="number"
+                          placeholder="Volume"
                           {...field}
                         />
                       </FormControl>

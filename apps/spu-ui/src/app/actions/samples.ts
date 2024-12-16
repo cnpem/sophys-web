@@ -15,7 +15,9 @@ function createEmptySamples() {
           relativePosition: `${column}${row}`,
           type: undefined,
           row: row,
-          col: parseInt(column),
+          col: column,
+          sampleTag: undefined,
+          bufferTag: undefined,
         }) satisfies Sample,
     ),
   );
@@ -28,7 +30,9 @@ function createEmptySamples() {
           relativePosition: `${column}${row}`,
           type: undefined,
           row: row,
-          col: parseInt(column),
+          col: column,
+          sampleTag: undefined,
+          bufferTag: undefined,
         }) satisfies Sample,
     ),
   );

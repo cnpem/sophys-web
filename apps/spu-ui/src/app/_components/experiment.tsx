@@ -11,12 +11,10 @@ import { LoadingTray, Tray } from "./tray";
 
 const [TRAY1, TRAY2] = trayOptions;
 
-export function samplePosition(row: string, col: number, tray: string) {
-  const colRepr = col.toString().padStart(2, "0");
-  const relative = `${colRepr}${row}`;
+export function samplePosition(row: string, col: string, tray: string) {
   return {
-    complete: `${tray}-${relative}`,
-    relative,
+    complete: `${tray}-${col}${row}`,
+    relative: `${col}${row}`,
   };
 }
 

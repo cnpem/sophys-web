@@ -1,7 +1,6 @@
 import { z } from "zod";
+import { cleaningAgents } from "../../constants";
 
-const cleaningDefaults = ["light", "normal", "heavy"] as const;
-const cleaningAgents = ["air", "water", "agent1", "agent2"] as const; // TODO: this shouldn't be hardcoded
 const name = "setup1_cleaning_procedure";
 const schema = z
   .object({
@@ -9,17 +8,29 @@ const schema = z
     agentsList: z
       .array(z.string())
       .optional()
-      .refine((agents) => {
-        if (agents) {
+      .nullable()
+      .refine(
+        (agents) => {
+          if (!agents || agents.length === 0) {
+            return true;
+          }
           return agents.every((agent) =>
             cleaningAgents.includes(agent as (typeof cleaningAgents)[number]),
           );
-        }
-      }),
-    agentsDuration: z.array(z.number()).optional(),
+        },
+        {
+          message: `Agents must be one of ${cleaningAgents.join(", ")}`,
+        },
+      ),
+    agentsDuration: z
+      .array(z.number(), {
+        message: "Duration must be a number",
+      })
+      .optional()
+      .nullable(),
   })
   .superRefine((data, ctx) => {
-    if (!data.standardOption) {
+    if (!data.standardOption || data.standardOption === "custom") {
       if (!data.agentsList || !data.agentsDuration) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -42,4 +53,4 @@ const schema = z
     }
   });
 
-export { name, schema, cleaningDefaults, cleaningAgents };
+export { name, schema };
