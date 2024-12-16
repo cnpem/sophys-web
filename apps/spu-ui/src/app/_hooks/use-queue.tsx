@@ -40,6 +40,7 @@ export const useQueue = () => {
     onError: (error, variables, context) => {
       // rollback to the previous value
       utils.queue.get.setData(undefined, context?.previousValue);
+      throw new Error(error.message.trim().replace(/\n/g, " "));
     },
     onSettled: async () => {
       // refetch the queue
