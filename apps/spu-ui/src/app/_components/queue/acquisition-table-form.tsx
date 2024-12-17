@@ -17,6 +17,7 @@ import { Input } from "@sophys-web/ui/input";
 import { toast } from "@sophys-web/ui/sonner";
 import { tableSchema as acquisitionTableSchema } from "../../../lib/schemas/plans/complete-acquisition";
 
+const TABLE_DATA_SKIP_INDEX = 2;
 const acquisitionTableFormSchema = z.object({
   file: z.instanceof(File),
 });
@@ -51,15 +52,27 @@ export function AcquisitionTableForm({
                 const result = acquisitionTableSchema.safeParse(data);
                 if (!result.success) {
                   console.error(
-                    `Error parsing table item on line ${index + 1}`,
-                    result.error.message,
+                    `Error parsing table item on line ${index + TABLE_DATA_SKIP_INDEX}`,
+                    result.error,
                   );
-                  toast.error(`Error parsing table item on line ${index + 1}`, {
-                    description: result.error.issues
-                      .map((issue) => issue.message)
-                      .join(", "),
-                    closeButton: true,
-                  });
+                  toast.error(
+                    `Error parsing table item on line ${index + TABLE_DATA_SKIP_INDEX}`,
+                    {
+                      description: (
+                        <div>
+                          <ul>
+                            {result.error.issues.map((issue, i) => (
+                              <li key={i} className="ml-4 list-disc">
+                                <span className="font-bold">{`${issue.path.toString()}: `}</span>
+                                {issue.message}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ),
+                      closeButton: true,
+                    },
+                  );
                   return null;
                 }
                 return result.data;
