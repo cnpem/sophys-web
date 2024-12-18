@@ -156,9 +156,9 @@ export function History() {
           <p className="text-center text-muted-foreground">History is empty.</p>
         ) : (
           <ul className="space-y-2">
-            {data?.items.map((item) => (
-              <HistoryItem key={item.itemUid} props={item} />
-            ))}
+            {data?.items
+              .sort((a, b) => b.result.timeStop - a.result.timeStop)
+              .map((item) => <HistoryItem key={item.itemUid} props={item} />)}
           </ul>
         )}
       </ScrollArea>
