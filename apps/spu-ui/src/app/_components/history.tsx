@@ -81,13 +81,10 @@ function UnknownItem({
 function HistoryItem({ props }: { props: HistoryItemProps }) {
   const { data: planParams } = schema.safeParse(props.kwargs);
   const status = function () {
-    if (!props.result) {
-      return "unknown";
-    }
     if (props.result.traceback) {
       return props.result.exitStatus ?? "failed";
     }
-    return props.result.exitStatus ?? "finished";
+    return props.result.exitStatus ?? "unknown";
   };
   if (!planParams) {
     return <UnknownItem props={props} status={status()} />;

@@ -12,18 +12,15 @@ const getResponseSchema = z.object({
       user: z.string(),
       userGroup: z.string(),
       itemUid: z.string().uuid(),
-      result: z
-        .object({
-          exitStatus: z.string().optional(),
-          runUids: z.array(z.string()),
-          scanIds: z.array(z.string()),
-          timeStart: z.number(),
-          timeStop: z.number(),
-          msg: z.string().optional(),
-          traceback: z.string().optional(),
-        })
-        .optional()
-        .nullable(),
+      result: z.object({
+        exitStatus: z.string().optional(),
+        runUids: z.array(z.string()),
+        scanIds: z.array(z.string()),
+        timeStart: z.number(),
+        timeStop: z.number(),
+        msg: z.string().optional(),
+        traceback: z.string().optional(),
+      }),
     }),
   ),
   planHistoryUid: z.string().uuid(),
