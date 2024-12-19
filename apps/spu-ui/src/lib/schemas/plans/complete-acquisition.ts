@@ -80,6 +80,7 @@ const tableSchema = z.object({
     )
     .transform((val) => acquireTimeMapping[val]),
   volume: z.coerce.number().min(0, "Volume must be a positive number"),
+  temperature: z.coerce.number().positive(),
   numExposures: z.coerce
     .number()
     .min(1, "Number of exposures must be at least 1"),
