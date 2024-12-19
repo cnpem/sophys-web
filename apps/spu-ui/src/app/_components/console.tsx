@@ -1,33 +1,66 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { cn } from "@sophys-web/ui";
+import { Button } from "@sophys-web/ui/button";
+import { ScrollArea } from "@sophys-web/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@sophys-web/ui/tooltip";
 import { api } from "../../trpc/react";
 
 export function Console({ className }: { className?: string }) {
-  const { data: messages } = api.consoleOutput.stream.useQuery();
+  const { data: messages, refetch } = api.consoleOutput.stream.useQuery();
+  const utils = api.useUtils();
   const ref = useRef<HTMLDivElement>(null);
+  const handleExport = () => {
+    const exportData = JSON.stringify(messages, null, 2);
+    const blob = new Blob([exportData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "console_output.json";
+    a.click();
+  };
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.scrollTop = ref.current.scrollHeight;
+      const scrollContainer = ref.current.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      );
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
     }
   }, [messages]);
 
   return (
     <div
       className={cn(
-        "h-full overflow-y-auto bg-slate-900 p-4 font-mono text-sm text-slate-300",
+        "mx-auto w-full max-w-3xl overflow-hidden rounded-lg border bg-white",
         className,
       )}
-      ref={ref}
     >
-      {(!messages || messages.length === 0) && (
-        <div>Waiting for new messages...</div>
-      )}
-      {messages?.map((message) => (
-        <ConsoleMessage key={message.id} message={message} />
-      ))}
+      <TopBar
+        onRefetch={refetch}
+        onClear={() => utils.consoleOutput.stream.reset()}
+        onExport={handleExport}
+      />
+
+      <ScrollArea className="h-[220px] w-full p-2 font-mono text-sm" ref={ref}>
+        {(!messages || messages.length === 0) && (
+          <span className="text-muted-foreground">
+            Waiting for new messages...
+          </span>
+        )}
+        {messages?.map((message, i) => (
+          <ConsoleMessage key={i} message={message} />
+        ))}
+      </ScrollArea>
     </div>
   );
 }
@@ -51,26 +84,83 @@ function ConsoleMessage({ message }: { message: ParsedLogMessage }) {
 
   return (
     <div className="my-1">
-      <span className="mr-2 text-gray-500">
+      <span className="mr-2 text-slate-400">
         [{message.logLevel.toUpperCase()}] {message.date} {message.timestamp}
       </span>
       <span
-        className={cn("mr-2", "text-gray-300", {
-          "text-purple-400":
+        className={cn("mr-2", "font-semibold text-muted-foreground", {
+          "text-purple-600":
             message.service === "bluesky_queueserver.manager.manager",
-          "text-blue-400":
+          "text-blue-600":
             message.service === "bluesky_queueserver.manager.start_manager",
-          "text-cyan-400":
+          "text-cyan-600":
             message.service === "bluesky_queueserver.manager.profile_ops",
-          "text-green-400":
+          "text-green-600":
             message.service === "bluesky_queueserver.manager.worker",
-          "text-rose-400":
+          "text-rose-600":
             message.service === "bluesky_queueserver.manager.executor",
         })}
       >
         {formattedServiceName(message.service)}
       </span>
-      <span>{message.textMessage}</span>
+      <span className="text-muted-foreground">{message.textMessage}</span>
+    </div>
+  );
+}
+
+interface TopBarProps {
+  onRefetch: () => void;
+  onClear: () => void;
+  onExport: () => void;
+}
+
+export function TopBar(props: TopBarProps) {
+  const { onRefetch, onClear, onExport } = props;
+  return (
+    <div className="flex items-center justify-end border-b border-slate-300 bg-slate-100 p-2">
+      <div className="flex space-x-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onRefetch}
+                className="size-8"
+                variant="outline"
+                size="icon"
+              >
+                <RotateCcwIcon className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="size-8"
+                variant="outline"
+                size="icon"
+                onClick={onExport}
+              >
+                <DownloadIcon className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Download</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={onClear}
+                className="size-8"
+                variant="outline"
+                size="icon"
+              >
+                <Trash2Icon className="size-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Clear</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
   );
 }
