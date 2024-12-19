@@ -83,10 +83,11 @@ export function Queue() {
   }
 
   return (
-    <div className="grid w-full grid-cols-3 gap-2">
+    <div className="grid w-full grid-cols-2 gap-2">
       <div className="flex flex-col gap-2">
+        <RunningSection />
         <QueueCounter />
-        <ScrollArea className="relative flex h-[calc(100vh-200px)] flex-col">
+        <ScrollArea className="relative flex h-[420px] flex-col">
           {isEmpty ? (
             <p className="text-center text-muted-foreground">Queue is empty.</p>
           ) : (
@@ -98,7 +99,6 @@ export function Queue() {
           )}
         </ScrollArea>
       </div>
-      <RunningSection />
       <History />
     </div>
   );
@@ -118,9 +118,11 @@ function RunningSection() {
           props={queue.data.runningItem}
         />
       ) : (
-        <span className="text-center text-muted-foreground">
-          No running item.
-        </span>
+        <div className="flex h-40 items-center justify-center">
+          <span className="text-center text-muted-foreground">
+            No running item.
+          </span>
+        </div>
       )}
     </div>
   );
