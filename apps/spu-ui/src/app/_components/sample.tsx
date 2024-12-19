@@ -210,6 +210,11 @@ function SampleForm({
     toast.info("Submitting sample...");
     const kwargs = schema.parse({
       ...data,
+      metadata: {
+        sampleTag: sample.sampleTag,
+        bufferTag: sample.bufferTag,
+        sampleType: sample.type,
+      },
     });
     add.mutate(
       {
@@ -248,6 +253,10 @@ function SampleForm({
           </DialogTrigger>
           <TooltipContent>
             <div className="space-y-4">
+              <div>
+                <strong>Sample Type:</strong>
+                <span>{sample.type}</span>
+              </div>
               <div>
                 <strong>Sample Tag:</strong>
                 <span>{sample.sampleTag}</span>
