@@ -1,8 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@sophys-web/ui/card";
-import {
-  CapillaryStateBadge,
-  useCapillaryState,
-} from "~/app/_components/capillary-state-badge";
+import { CapillaryStateBadge } from "~/app/_components/capillary-state-badge";
+import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 import { SingleAcquitision } from "./single-acquisition";
 
 export function CustomPlans() {

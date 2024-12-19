@@ -33,7 +33,7 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { toast } from "@sophys-web/ui/sonner";
-import type { LastSampleParams } from "~/app/_components/capillary-state-badge";
+import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import { useQueue } from "~/app/_hooks/use-queue";
 import { acquireTimeOptions, sampleTypeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/single-acquisition";
