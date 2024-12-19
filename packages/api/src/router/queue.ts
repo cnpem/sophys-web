@@ -77,6 +77,28 @@ const itemRouter = {
         throw new Error("Unknown error");
       }
     }),
+  update: protectedProcedure
+    .input(item.updateSubmit)
+    .mutation(async ({ ctx, input }) => {
+      const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/item/update`;
+      try {
+        const res = await zodSnakeFetcher(item.updateResponse, {
+          url: fetchURL,
+          method: "POST",
+          body: input,
+          authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
+        });
+        if (!res.success) {
+          throw new Error(res.msg);
+        }
+        return res;
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new Error(e.message);
+        }
+        throw new Error("Unknown error");
+      }
+    }),
 } as const;
 
 export const queueRouter = {

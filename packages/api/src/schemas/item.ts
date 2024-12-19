@@ -60,10 +60,21 @@ const removeSubmit = z.object({
   uid: z.string(),
 });
 
+const updateSubmit = z.object({
+  item: z.object({
+    itemUid: z.string(),
+    ...addSubmit.shape.item.shape,
+  }),
+});
+
+const updateResponse = addResponse;
+
 export default {
   addSubmit,
   addResponse,
   removeSubmit,
   addBatchSubmit,
   addBatchResponse,
+  updateSubmit,
+  updateResponse,
 };
