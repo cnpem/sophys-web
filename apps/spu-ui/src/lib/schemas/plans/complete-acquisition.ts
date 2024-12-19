@@ -10,6 +10,19 @@ import {
 
 const name = "setup1_complete_standard_acquisition";
 
+const acquireTimeMapping: Record<number, (typeof acquireTimeOptions)[number]> =
+  {
+    200: "200",
+    100: "100",
+    50: "50",
+    25: "25",
+    12.5: "12.5",
+    6.25: "6.25",
+    3.125: "3.125",
+    1.5625: "1.5625",
+    0.5: "0.5",
+  } as const;
+
 const tableSchema = z.object({
   sampleType: z
     .string()
@@ -51,14 +64,21 @@ const tableSchema = z.object({
         message: `Column must be one of the following options ${trayColumns.join(", ")}`,
       }),
     ),
-  acquireTime: z.coerce
+  acquireTime: z
     .string()
-    .transform((val) => val.trimStart().trimEnd().replace(",", "."))
-    .pipe(
-      z.enum(acquireTimeOptions, {
-        message: `Acquire time (ms) must be one of the following options ${acquireTimeOptions.join(", ")}`,
-      }),
-    ),
+    .transform((val) => parseFloat(val.trim().replace(",", ".")))
+    .refine(
+      (val) => {
+        if (isNaN(val)) {
+          return false;
+        }
+        return acquireTimeMapping[val] !== undefined;
+      },
+      {
+        message: `Acquire time must be one of the following options ${Object.values(acquireTimeMapping).join(", ")}`,
+      },
+    )
+    .transform((val) => acquireTimeMapping[val]),
   volume: z.coerce.number().min(0, "Volume must be a positive number"),
   numExposures: z.coerce
     .number()
