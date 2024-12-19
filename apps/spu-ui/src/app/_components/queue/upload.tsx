@@ -190,7 +190,9 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
           toast.success("Batch submitted");
         },
         onError: (error) => {
-          const parsedErrorArray = errorResultsArray.safeParse(error.message);
+          const parsedErrorArray = errorResultsArray.safeParse(
+            JSON.parse(error.message),
+          );
           if (parsedErrorArray.data) {
             parsedErrorArray.data.forEach((result) => {
               toast.error("Add batch item failed", {
@@ -199,8 +201,12 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
               });
             });
           } else {
+            console.error(
+              "Failed to submit batch: Unknown error format.",
+              error.message,
+            );
             toast.error("Failed to submit batch", {
-              description: error.message,
+              description: "An unknown error occurred",
               closeButton: true,
             });
           }

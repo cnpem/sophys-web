@@ -151,14 +151,14 @@ export function History() {
   return (
     <div className="flex flex-col gap-2">
       <HistoryCounter />
-      <ScrollArea className="flex h-[calc(100vh-200px)] flex-col">
+      <ScrollArea className="flex h-[630px] flex-col">
         {data?.items.length === 0 ? (
           <p className="text-center text-muted-foreground">History is empty.</p>
         ) : (
           <ul className="space-y-2">
-            {data?.items.map((item) => (
-              <HistoryItem key={item.itemUid} props={item} />
-            ))}
+            {data?.items
+              .sort((a, b) => b.result.timeStop - a.result.timeStop)
+              .map((item) => <HistoryItem key={item.itemUid} props={item} />)}
           </ul>
         )}
       </ScrollArea>

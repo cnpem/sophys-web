@@ -38,7 +38,7 @@ export function EnvMenu() {
             "bg-red-500": status.data?.reState === "error",
           })}
         />
-        <span className="capitalize">{statusMessage()}</span>
+        <span className="capitalize">Run Engine: {statusMessage()}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>Env controls</DropdownMenuLabel>

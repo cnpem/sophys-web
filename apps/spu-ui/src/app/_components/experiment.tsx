@@ -6,6 +6,7 @@ import { useSSEData } from "../_hooks/use-sse-data";
 import { trayOptions } from "../../lib/constants";
 import { Console } from "./console";
 import { ControlPlane } from "./control-plane";
+import { CustomPlans } from "./custom/custom-plans";
 import { Queue } from "./queue/queue";
 import { LoadingTray, Tray } from "./tray";
 
@@ -25,7 +26,7 @@ export default function Experiment({ initialData }: { initialData: Sample[] }) {
 
   return (
     <div className="flex h-screen items-start justify-center gap-4 p-6">
-      <div className="flex max-w-md flex-col gap-4">
+      <div className="mt-10 flex max-w-md flex-col gap-4">
         {isConnected ? (
           <Tabs className="space-y-2" defaultValue="tray1">
             <TabsContent value="tray1" className="mt-0">
@@ -52,12 +53,14 @@ export default function Experiment({ initialData }: { initialData: Sample[] }) {
         ) : (
           <LoadingTray />
         )}
-        <Console className="h-72 w-full rounded-md" />
+        <CustomPlans />
       </div>
+
       <div className="flex flex-col items-start justify-center gap-4">
         <ControlPlane />
         <Queue />
       </div>
+      <Console className="mt-10 h-4/5 w-1/4 rounded-md" />
     </div>
   );
 }

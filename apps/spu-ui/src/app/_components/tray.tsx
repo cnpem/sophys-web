@@ -81,7 +81,8 @@ export function Tray(props: TrayProps) {
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-center text-sm text-muted-foreground">
-          Click on a sample to add it to the queue.
+          Click on a sample to load it to the queue or on a empty slot to add an
+          new sample.
         </p>
       </CardFooter>
     </Card>
