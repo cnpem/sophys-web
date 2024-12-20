@@ -46,12 +46,13 @@ export function Console({ className }: { className?: string }) {
       )}
     >
       <TopBar
+        topBarTitle="Console"
         onRefetch={refetch}
         onClear={() => utils.consoleOutput.stream.reset()}
         onExport={handleExport}
       />
 
-      <ScrollArea className="h-[220px] w-full p-2 font-mono text-sm" ref={ref}>
+      <ScrollArea className="h-full w-full p-2 font-mono text-sm" ref={ref}>
         {(!messages || messages.length === 0) && (
           <span className="text-muted-foreground">
             Waiting for new messages...
@@ -109,15 +110,19 @@ function ConsoleMessage({ message }: { message: ParsedLogMessage }) {
 }
 
 interface TopBarProps {
+  topBarTitle: string;
   onRefetch: () => void;
   onClear: () => void;
   onExport: () => void;
 }
 
 export function TopBar(props: TopBarProps) {
-  const { onRefetch, onClear, onExport } = props;
+  const { onRefetch, onClear, onExport, topBarTitle } = props;
   return (
-    <div className="flex items-center justify-end border-b border-slate-300 bg-slate-100 p-2">
+    <div className="flex items-center justify-between border-b border-slate-300 bg-slate-100 p-2">
+      <span className="text-lg font-semibold text-slate-800">
+        {topBarTitle}
+      </span>
       <div className="flex space-x-2">
         <TooltipProvider>
           <Tooltip>
