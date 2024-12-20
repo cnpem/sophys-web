@@ -98,7 +98,7 @@ function SingleAcquisitionForm({
   className?: string;
   onSubmitSuccess: () => void;
 }) {
-  const { add } = useQueue();
+  const { execute } = useQueue();
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -120,7 +120,7 @@ function SingleAcquisitionForm({
     const kwargs = schema.parse({
       ...data,
     });
-    add.mutate(
+    execute.mutate(
       {
         item: {
           name: name,

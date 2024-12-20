@@ -196,7 +196,7 @@ function SampleForm({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const { add } = useQueue();
+  const { execute } = useQueue();
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -216,7 +216,7 @@ function SampleForm({
         sampleType: sample.type,
       },
     });
-    add.mutate(
+    execute.mutate(
       {
         item: {
           name: name,
