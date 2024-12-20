@@ -5,17 +5,24 @@ import type {
   trayOptions,
   trayRows,
 } from "../../lib/constants";
-import type { HistoryItemProps } from "../../lib/types";
 import { name as cleanAndCheckPlan } from "../../lib/schemas/plans/clean-and-acquire";
 import { name as completeAcquisitionWithCleaningPlan } from "../../lib/schemas/plans/complete-acquisition";
 import {
   schema as loadSampleKwargs,
   name as loadSamplePlan,
 } from "../../lib/schemas/plans/load";
-import { name as basicCleaningPlan } from "../../lib/schemas/plans/single-cleaning";
 import { api } from "../../trpc/react";
 
 const STALE_TIME_IN_SECONDS = 15 * 60; // 15 minutes
+
+const knownErrorExitStatuses = [
+  "error",
+  "canceled",
+  "aborted",
+  "failed",
+  "exception",
+  "timeout",
+] as const;
 
 const cleanVerifiedPlans = [
   completeAcquisitionWithCleaningPlan,
@@ -33,97 +40,109 @@ export interface LastSampleParams {
 
 type CapillaryState = "sample" | "stale" | "clean" | "error" | "unknown";
 
+function capillaryStateFromTimes({
+  lastSampleTime,
+  lastCleaningTime,
+  lastErrorTime,
+}: {
+  lastSampleTime: number | undefined;
+  lastCleaningTime: number | undefined;
+  lastErrorTime: number | undefined;
+}): CapillaryState {
+  const timesToStates: [number | undefined, CapillaryState][] = [
+    [lastSampleTime, "sample"],
+    [lastCleaningTime, "clean"],
+    [lastErrorTime, "error"],
+  ];
+  // Determine the most recent valid time and its state
+  const mostRecentState = timesToStates
+    .filter(([time]) => time !== undefined)
+    .sort(([timeA], [timeB]) => (timeB ?? 0) - (timeA ?? 0))
+    .map(([, state]) => state)[0];
+  return mostRecentState ?? "stale"; // Default to "stale" if no valid times
+}
+
 export const useCapillaryState = () => {
   const { data } = api.history.get.useQuery(undefined, {
     refetchOnMount: "always",
     refetchOnWindowFocus: "always",
     refetchInterval: 10 * 1000,
   });
-  const [lastItem, setLastItem] = useState<HistoryItemProps | undefined>(
-    undefined,
-  );
   const [loadedSample, setLoadedSample] = useState<
     LastSampleParams | undefined
   >(undefined);
   const [capillaryState, setCapillaryState] =
     useState<CapillaryState>("unknown");
-
+  // search history for last sample and last cleaning time and store them in state
   useEffect(() => {
     if (!data?.items) {
       return;
     }
-    // last item can be found sorting by result.timeStop
-    const lastItem = data.items.sort(
-      (a, b) => b.result.timeStop - a.result.timeStop,
-    )[0];
-    setLastItem(lastItem);
-    if (lastItem?.name === loadSamplePlan) {
-      const { data: kwargs, success } = loadSampleKwargs.safeParse(
-        lastItem.kwargs,
-      );
-      if (!success) {
-        console.error("Failed to parse load sample kwargs", lastItem.kwargs);
-        setLoadedSample(undefined);
-        return;
+    // filter history items that happened before the stale time and sort them from most recent to least recent
+    const nowInSeconds = Date.now() / 1000;
+    const sortedRecentHistoryItems = data.items
+      .filter(
+        (item) => nowInSeconds - item.result.timeStop < STALE_TIME_IN_SECONDS,
+      )
+      .sort((a, b) => b.result.timeStop - a.result.timeStop);
+    const lastErrorTime = sortedRecentHistoryItems.find((item) => {
+      if (item.result.traceback) {
+        return true;
       }
-      if (kwargs.metadata === undefined) {
-        console.error("Failed to parse load sample metadata", lastItem.kwargs);
-        setLoadedSample(undefined);
-        return;
+      if (item.result.exitStatus) {
+        return knownErrorExitStatuses.includes(
+          item.result.exitStatus as (typeof knownErrorExitStatuses)[number],
+        );
+      }
+    })?.result.timeStop;
+    // filter recent history items to only include non-error results
+    const nonErrorRecentItems = sortedRecentHistoryItems.filter((item) => {
+      if (item.result.traceback) {
+        return false;
+      }
+      if (item.result.exitStatus) {
+        return !knownErrorExitStatuses.includes(
+          item.result.exitStatus as (typeof knownErrorExitStatuses)[number],
+        );
+      }
+      return true;
+    });
+    // find the last sample and last cleaning time
+    const lastSample = nonErrorRecentItems.find(
+      (item) => item.name === loadSamplePlan,
+    );
+    const lastSampleTime = lastSample?.result.timeStop;
+    const lastCleaning = nonErrorRecentItems.find((item) =>
+      cleanVerifiedPlans.includes(item.name),
+    );
+    const lastCleaningTime = lastCleaning?.result.timeStop;
+    // set capillary state based on lastSampleTime, lastCleaningTime, and lastErrorTime
+    const capillaryState = capillaryStateFromTimes({
+      lastSampleTime,
+      lastCleaningTime,
+      lastErrorTime,
+    });
+    setCapillaryState(capillaryState);
+    if (capillaryState === "sample") {
+      const parsedKwargs = loadSampleKwargs.safeParse(lastSample?.kwargs);
+      if (!parsedKwargs.success) {
+        throw new Error("Failed to parse load sample kwargs");
+      }
+      if (!parsedKwargs.data.metadata) {
+        throw new Error("Failed to parse metadata from load sample kwargs");
       }
       setLoadedSample({
-        row: kwargs.row,
-        col: kwargs.col,
-        tray: kwargs.tray,
-        sampleType: kwargs.metadata.sampleType,
-        sampleTag: kwargs.metadata.sampleTag,
-        bufferTag: kwargs.metadata.bufferTag,
+        sampleTag: parsedKwargs.data.metadata.sampleTag,
+        bufferTag: parsedKwargs.data.metadata.bufferTag,
+        sampleType: parsedKwargs.data.metadata.sampleType,
+        row: parsedKwargs.data.row,
+        col: parsedKwargs.data.col,
+        tray: parsedKwargs.data.tray,
       });
     } else {
       setLoadedSample(undefined);
     }
   }, [data]);
-
-  useEffect(() => {
-    if (!lastItem) {
-      return;
-    }
-    const nowInSeconds = Date.now() / 1000;
-    const lastItemStopTimeInSeconds = lastItem.result.timeStop;
-    if (nowInSeconds - lastItemStopTimeInSeconds > STALE_TIME_IN_SECONDS) {
-      if (lastItem.result.traceback) {
-        setCapillaryState("error");
-      } else {
-        setCapillaryState("stale");
-      }
-      return;
-    }
-    if (cleanVerifiedPlans.includes(lastItem.name)) {
-      if (lastItem.result.traceback) {
-        setCapillaryState("error");
-      } else {
-        setCapillaryState("clean");
-      }
-      return;
-    }
-    if (lastItem.name === loadSamplePlan) {
-      if (lastItem.result.traceback) {
-        setCapillaryState("error");
-      } else {
-        setCapillaryState("sample");
-      }
-      return;
-    }
-    if (lastItem.name === basicCleaningPlan) {
-      if (lastItem.result.traceback) {
-        setCapillaryState("error");
-      } else {
-        setCapillaryState("clean");
-      }
-      return;
-    }
-    setCapillaryState("unknown");
-  }, [lastItem]);
 
   return {
     capillaryState,
