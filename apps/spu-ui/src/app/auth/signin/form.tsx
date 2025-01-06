@@ -20,6 +20,9 @@ import { signIn } from "../../actions/auth";
 const FormSchema = z.object({
   username: z.string().min(2, { message: "Username is required" }),
   password: z.string().min(2, { message: "Password is required" }),
+  proposal: z.string().length(8, {
+    message: "Proposal must be 8 characters long",
+  }),
 });
 
 export function SignInForm() {
@@ -30,6 +33,7 @@ export function SignInForm() {
     defaultValues: {
       username: "",
       password: "",
+      proposal: "",
     },
   });
 
@@ -39,6 +43,7 @@ export function SignInForm() {
     const res = await signIn({
       username: data.username,
       password: data.password,
+      proposal: data.proposal,
     });
 
     if (res?.error) {
@@ -86,6 +91,24 @@ export function SignInForm() {
                 <Input
                   type="password"
                   {...field}
+                  disabled={form.formState.isSubmitting}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="proposal"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Proposal</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="20250001"
+                  {...field}
+                  maxLength={8}
                   disabled={form.formState.isSubmitting}
                 />
               </FormControl>

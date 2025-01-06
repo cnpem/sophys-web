@@ -16,6 +16,7 @@ declare module "next-auth" {
     blueskyAccessToken: string;
     blueskyRefreshToken: string;
     expires_in: number;
+    proposal: string;
     scopes?: string[];
     roles?: string[];
   }
@@ -28,6 +29,7 @@ declare module "next-auth/jwt" {
     bluesky_refresh_token: string;
     roles?: string[];
     scopes?: string[];
+    proposal: string;
     error?: "RefreshAccessTokenError";
   }
 }
@@ -102,12 +104,14 @@ export const authConfig: NextAuthConfig = {
       credentials: {
         username: { label: "Username", type: "text" },
         password: { label: "Password", type: "password" },
+        proposal: { label: "Proposal", type: "text" },
       },
       async authorize(credentials) {
         const parsed = await z
           .object({
             username: z.string().min(2),
             password: z.string().min(2),
+            proposal: z.string().length(8),
           })
           .safeParseAsync(credentials);
 
@@ -141,6 +145,7 @@ export const authConfig: NextAuthConfig = {
         const user = {
           id: parsed.data.username,
           name: parsed.data.username,
+          proposal: parsed.data.proposal,
           blueskyAccessToken: parsedToken.access_token,
           blueskyRefreshToken: parsedToken.refresh_token,
           expires_in: parsedToken.expires_in,
@@ -157,6 +162,7 @@ export const authConfig: NextAuthConfig = {
       ...session,
       user: {
         ...session.user,
+        proposal: token.proposal,
         roles: token.roles,
         scopes: token.scopes,
         blueskyAccessToken: token.bluesky_access_token,
@@ -170,6 +176,7 @@ export const authConfig: NextAuthConfig = {
           id: token.sub,
           name: user.name,
           email: user.email,
+          proposal: user.proposal,
           bluesky_access_token: user.blueskyAccessToken,
           bluesky_refresh_token: user.blueskyRefreshToken,
           bluesky_expires_at: Math.floor(Date.now() / 1000) + user.expires_in,

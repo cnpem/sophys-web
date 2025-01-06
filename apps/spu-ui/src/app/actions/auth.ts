@@ -7,6 +7,7 @@ import { signIn as naSignIn } from "@sophys-web/auth";
 const SigninSchema = z.object({
   username: z.string().min(2),
   password: z.string().min(2),
+  proposal: z.string().length(8),
 });
 
 export async function signIn(data: z.infer<typeof SigninSchema>) {
@@ -20,6 +21,7 @@ export async function signIn(data: z.infer<typeof SigninSchema>) {
     await naSignIn("credentials", {
       username: parsed.data.username,
       password: parsed.data.password,
+      proposal: parsed.data.proposal,
       redirect: false,
     });
   } catch (error) {
