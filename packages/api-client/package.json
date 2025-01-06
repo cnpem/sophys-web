@@ -1,0 +1,50 @@
+{
+  "name": "@sophys-web/api-client",
+  "type": "module",
+  "version": "0.1.0",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./query-client": "./src/query-client.ts",
+    "./react": "./src/react.tsx",
+    "./server": "./src/server.ts",
+    "./env": "./src/env.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist .turbo node_modules",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "catalog:react18"
+  },
+  "devDependencies": {
+    "@sophys-web/eslint-config": "workspace:*",
+    "@sophys-web/tailwind-config": "workspace:*",
+    "@sophys-web/typescript-config": "workspace:*",
+    "@types/react": "catalog:react18",
+    "@types/react-dom": "catalog:react18",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@sophys-web/api": "workspace:*",
+    "@sophys-web/auth": "workspace:*",
+    "@t3-oss/env-nextjs": "^0.10.1",
+    "next": "^14.2.3",
+    "@trpc/next": "11.0.0-rc.645",
+    "@tanstack/react-query-devtools": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@trpc/client": "catalog:",
+    "@trpc/react-query": "catalog:",
+    "@trpc/server": "catalog:",
+    "react": "catalog:react18",
+    "react-dom": "catalog:react18",
+    "server-only": "^0.0.1",
+    "superjson": "2.2.1",
+    "zod": "catalog:"
+  },
+  "prettier": "@sophys-web/prettier-config"
+}
