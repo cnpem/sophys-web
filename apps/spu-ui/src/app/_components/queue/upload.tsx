@@ -33,6 +33,7 @@ import type {
   cleaningSchema as cleaningKwargsSchema,
 } from "../../../lib/schemas/plans/complete-acquisition";
 import type { Sample } from "../sample";
+import { api } from "~/trpc/react";
 import { useQueue } from "../../_hooks/use-queue";
 import { name as cleanCapillaryPlanName } from "../../../lib/schemas/plans/clean-and-acquire";
 import { name as acquisitionPlanName } from "../../../lib/schemas/plans/complete-acquisition";
@@ -94,10 +95,6 @@ async function uploadSamples(
   });
   await setServerSamples(updatedSamples);
 }
-// type ErrorArray = {
-//   success: boolean;
-//   msg: string;
-// }[];
 
 const errorResultsArray = z.array(
   z.object({
@@ -109,6 +106,8 @@ const errorResultsArray = z.array(
 type Steps = "proposal" | "capillary" | "cleaning" | "acquisition" | "check";
 
 function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
+  const { data: session, isLoading } = api.auth.getSession.useQuery();
+
   const [step, setStep] = useState<Steps>("proposal");
   const [cleaningParams, setCleaningParams] =
     useState<z.infer<typeof cleaningKwargsSchema>>();
@@ -120,6 +119,13 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
   const [useCapillary, setUseCapillary] = useState(false);
 
   const { addBatch } = useQueue();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (!session) {
+    return <div>Not authenticated</div>;
+  }
 
   function onSubmitProposal(data: z.infer<typeof proposalSchema>) {
     setProposal(data.proposal);
@@ -244,7 +250,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
           <ProposalForm
             onSubmit={onSubmitProposal}
             initialValues={{
-              proposal,
+              proposal: proposal ? proposal : session.user.proposal,
               useCapillary,
             }}
           />
@@ -345,7 +351,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
 }
 
 const proposalSchema = z.object({
-  proposal: z.string().length(9, "Proposal ID must be 9 characters"),
+  proposal: z.string().length(8, "Proposal ID must be 8 characters"),
   useCapillary: z.boolean(),
 });
 
@@ -374,10 +380,10 @@ function ProposalForm({
             <FormItem className="w-full">
               <FormLabel>Proposal</FormLabel>
               <FormControl>
-                <Input maxLength={9} placeholder="p00000000" {...field} />
+                <Input maxLength={8} placeholder="20250001" {...field} />
               </FormControl>
               <FormDescription>
-                This is your proposal ID, e.g. p00000000.
+                This is your proposal ID, e.g. 20250001.
               </FormDescription>
               <FormMessage />
             </FormItem>
