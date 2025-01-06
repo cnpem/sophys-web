@@ -16,15 +16,15 @@
   "devDependencies": {
     "@sophys-web/eslint-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
-    "@types/react": "^18.2.61"
+    "@types/react": "catalog:react18"
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.10.1",
     "next": "^14.2.3",
     "next-auth": "5.0.0-beta.22",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "zod": "^3.23.8"
+    "react": "catalog:react18",
+    "react-dom": "catalog:react18",
+    "zod": "catalog:"
   },
   "prettier": "@sophys-web/prettier-config"
 }

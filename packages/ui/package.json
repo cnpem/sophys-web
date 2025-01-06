@@ -22,13 +22,13 @@
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
-    "react": "^18.3.1"
+    "react": "catalog:react18"
   },
   "devDependencies": {
     "@sophys-web/eslint-config": "workspace:*",
     "@sophys-web/tailwind-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
-    "@types/react": "^18.2.61",
+    "@types/react": "catalog:react18",
     "autoprefixer": "^10.4.18",
     "postcss": "^8.4.35",
     "tailwindcss": "catalog:",
@@ -54,7 +54,7 @@
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.23.8"
+    "zod": "catalog:"
   },
   "prettier": "@sophys-web/prettier-config"
 }
