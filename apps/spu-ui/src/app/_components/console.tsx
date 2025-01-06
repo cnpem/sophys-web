@@ -119,11 +119,11 @@ interface TopBarProps {
 export function TopBar(props: TopBarProps) {
   const { onRefetch, onClear, onExport, topBarTitle } = props;
   return (
-    <div className="flex items-center justify-between border-b border-slate-300 bg-slate-100 p-2">
-      <span className="text-lg font-semibold text-slate-800">
+    <div className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
+      <span className="text-base font-semibold text-slate-700">
         {topBarTitle}
       </span>
-      <div className="flex space-x-2">
+      <div className="absolute end-1 flex space-x-2">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
