@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { api } from "@sophys-web/api-client/react";
 import type {
   sampleTypeOptions,
   trayColumns,
@@ -11,7 +12,6 @@ import {
   schema as loadSampleKwargs,
   name as loadSamplePlan,
 } from "../../lib/schemas/plans/load";
-import { api } from "../../trpc/react";
 
 const STALE_TIME_IN_SECONDS = 15 * 60; // 15 minutes
 

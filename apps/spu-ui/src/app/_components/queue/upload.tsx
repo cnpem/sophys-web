@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MoveRightIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";
 import {
@@ -33,7 +34,6 @@ import type {
   cleaningSchema as cleaningKwargsSchema,
 } from "../../../lib/schemas/plans/complete-acquisition";
 import type { Sample } from "../sample";
-import { api } from "~/trpc/react";
 import { useQueue } from "../../_hooks/use-queue";
 import { name as cleanCapillaryPlanName } from "../../../lib/schemas/plans/clean-and-acquire";
 import { name as acquisitionPlanName } from "../../../lib/schemas/plans/complete-acquisition";

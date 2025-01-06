@@ -3,9 +3,9 @@ import "./globals.css";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { GeistMono } from "geist/font/mono";
+import { TRPCReactProvider } from "@sophys-web/api-client/react";
 import { Toaster } from "@sophys-web/ui/sonner";
 import { env } from "../env";
-import { TRPCReactProvider } from "../trpc/react";
 import UserAvatar from "./_components/user-avatar";
 
 export const metadata: Metadata = {

@@ -1,6 +1,7 @@
 "use client";
 
 import { RotateCcwIcon } from "lucide-react";
+import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
@@ -16,7 +17,6 @@ import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import type { HistoryItemProps } from "../../lib/types";
 import { useQueue } from "../_hooks/use-queue";
 import { schema } from "../../lib/schemas/plans/complete-acquisition";
-import { api } from "../../trpc/react";
 
 function RedoButton(props: HistoryItemProps) {
   const { add } = useQueue();

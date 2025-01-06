@@ -18,6 +18,7 @@
     "@sophys-web/api": "workspace:*",
     "@sophys-web/auth": "workspace:*",
     "@sophys-web/ui": "workspace:*",
+    "@sophys-web/api-client": "workspace:*",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@trpc/next": "11.0.0-rc.645",
     "@tanstack/react-query-devtools": "catalog:",

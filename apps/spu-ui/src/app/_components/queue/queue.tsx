@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { PlayIcon, SquareIcon, Trash2Icon } from "lucide-react";
+import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import {
   DropdownMenu,
@@ -13,7 +14,6 @@ import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { toast } from "@sophys-web/ui/sonner";
 import { useQueue } from "../../_hooks/use-queue";
 import { useStatus } from "../../_hooks/use-status";
-import { api } from "../../../trpc/react";
 import { EnvMenu } from "../env-menu";
 import { History } from "../history";
 import { getEngineStatus } from "../run-engine-controls";

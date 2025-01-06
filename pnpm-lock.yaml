@@ -97,6 +97,9 @@ importers:
       '@sophys-web/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@sophys-web/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
       '@sophys-web/auth':
         specifier: workspace:*
         version: link:../../packages/auth

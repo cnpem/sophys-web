@@ -1,8 +1,8 @@
 "use client";
 
 import { nanoid } from "nanoid";
+import { api } from "@sophys-web/api-client/react";
 import type { QueueItemProps } from "../../lib/types";
-import { api } from "../../trpc/react";
 
 export const useQueue = () => {
   const utils = api.useUtils();

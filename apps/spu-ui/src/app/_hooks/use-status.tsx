@@ -1,6 +1,6 @@
 "use client";
 
-import { api } from "../../trpc/react";
+import { api } from "@sophys-web/api-client/react";
 
 export const useStatus = () => {
   const utils = api.useUtils();

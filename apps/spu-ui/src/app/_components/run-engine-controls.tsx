@@ -7,6 +7,7 @@ import {
   Play,
   Square,
 } from "lucide-react";
+import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import {
   DropdownMenu,
@@ -16,7 +17,6 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 import { toast } from "@sophys-web/ui/sonner";
 import { useStatus } from "../_hooks/use-status";
-import { api } from "../../trpc/react";
 
 type EngineStatus = "idle" | "running" | "paused" | "unknown";
 type EngineAction = "pause" | "resume" | "stop" | "halt" | "abort";

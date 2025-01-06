@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { api } from "@sophys-web/api-client/react";
 import {
   Select,
   SelectContent,
@@ -8,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { api } from "../../trpc/react";
 
 export function SelectPlan() {
   const { data } = api.plans.allowed.useQuery(undefined);

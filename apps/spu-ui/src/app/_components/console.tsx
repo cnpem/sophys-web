@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
+import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
@@ -11,7 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
-import { api } from "../../trpc/react";
 
 export function Console({ className }: { className?: string }) {
   const { data: messages, refetch } = api.consoleOutput.stream.useQuery();
