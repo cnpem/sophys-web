@@ -11,6 +11,12 @@ import {
   CardTitle,
 } from "@sophys-web/ui/card";
 import { toast } from "@sophys-web/ui/sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@sophys-web/ui/tooltip";
 import type { Sample } from "./sample";
 import { trayColumns, trayRows } from "../../lib/constants";
 import { clearTray } from "../actions/samples";
@@ -34,19 +40,26 @@ export function Tray(props: TrayProps) {
   }, [tray]);
 
   return (
-    <Card className="rounded-md">
-      <CardHeader>
-        <CardTitle className="flex flex-row items-center justify-between text-lg font-medium">
+    <Card className="space-y-4 rounded-md shadow-none">
+      <CardHeader className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
+        <CardTitle className="flex items-center text-base font-semibold text-slate-700">
           Tray
-          <Button
-            disabled={tray.every((sample) => sample.type === undefined)}
-            onClick={clearServerSamples}
-            size="icon"
-            title="enqueue all"
-            variant="outline"
-          >
-            <Trash2Icon className="h-4 w-4" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  disabled={tray.every((sample) => sample.type === undefined)}
+                  onClick={clearServerSamples}
+                  size="icon"
+                  variant="outline"
+                  className="absolute end-1 size-8"
+                >
+                  <Trash2Icon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="font-normal">Clear</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </CardTitle>
       </CardHeader>
       <CardContent
