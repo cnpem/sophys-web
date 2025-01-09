@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { PencilIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
@@ -13,7 +13,8 @@ import {
 } from "@sophys-web/ui/card";
 import type { QueueItemProps } from "../../../lib/types";
 import { useQueue } from "../../_hooks/use-queue";
-import { schema } from "../../../lib/schemas/plans/complete-acquisition";
+import { schema as completeAcquisitionSchema } from "../../../lib/schemas/plans/complete-acquisition";
+import { ItemEditDialog } from "./item-edit-dialog";
 
 function UnknownItem({
   props,
@@ -76,7 +77,9 @@ export function SkeletonItem() {
 }
 
 export function RunningItem({ props }: { props: QueueItemProps }) {
-  const { data: planParams } = schema.safeParse(props.kwargs);
+  const { data: planParams } = completeAcquisitionSchema.safeParse(
+    props.kwargs,
+  );
   if (!planParams) {
     return <UnknownItem props={props} status="running" />;
   }
@@ -124,7 +127,9 @@ export function QueueItem({
   isRunning?: boolean;
   props: QueueItemProps;
 }) {
-  const { data: planParams } = schema.safeParse(props.kwargs);
+  const { data: planParams } = completeAcquisitionSchema.safeParse(
+    props.kwargs,
+  );
   const status = () => {
     if (isRunning) {
       return "running";
@@ -195,7 +200,7 @@ export function QueueItem({
           </div>
         </CardContent>
         <CardFooter>
-          <EditButton />
+          <ItemEditDialog {...props} />
         </CardFooter>
       </Card>
     </li>
@@ -217,14 +222,6 @@ function RemoveButton({ uid }: { uid?: string }) {
       variant="ghost"
     >
       <XIcon className="h-4 w-4" />
-    </Button>
-  );
-}
-function EditButton() {
-  return (
-    <Button className="w-full" disabled size="sm" variant="outline">
-      <PencilIcon className="mr-2 h-4 w-4" />
-      Edit item
     </Button>
   );
 }
