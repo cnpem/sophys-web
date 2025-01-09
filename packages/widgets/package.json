@@ -1,0 +1,48 @@
+{
+  "name": "@sophys-web/widgets",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf .next .turbo .cache node_modules",
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit"
+  },
+  "exports": {
+    "./*": {
+      "types": "./dist/src/*.d.ts",
+      "default": "./src/*.tsx"
+    },
+    "./lib/*": {
+      "types": "./dist/src/lib/*.d.ts",
+      "default": "./src/lib/*.ts"
+    }
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "@sophys-web/api": "workspace:*",
+    "@sophys-web/api-client": "workspace:*",
+    "@sophys-web/ui": "workspace:*",
+    "@t3-oss/env-nextjs": "^0.10.1",
+    "camelcase": "^8.0.0",
+    "class-variance-authority": "^0.7.0",
+    "lucide-react": "^0.396.0",
+    "react": "catalog:react18",
+    "react-dom": "catalog:react18",
+    "react-hook-form": "^7.53.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@sophys-web/eslint-config": "workspace:*",
+    "@sophys-web/tailwind-config": "workspace:*",
+    "@sophys-web/typescript-config": "workspace:*",
+    "@types/react": "catalog:react18",
+    "@types/react-dom": "catalog:react18",
+    "eslint": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  },
+  "prettier": "@sophys-web/prettier-config"
+}

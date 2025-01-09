@@ -18,6 +18,7 @@ const config = {
     "@sophys-web/api",
     "@sophys-web/auth",
     "@sophys-web/api-client",
+    "@sophys-web/widgets",
   ],
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: true },
