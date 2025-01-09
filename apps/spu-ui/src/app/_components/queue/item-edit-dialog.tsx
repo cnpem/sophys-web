@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { PencilIcon } from "lucide-react";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
 import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
@@ -22,6 +22,7 @@ export function ItemEditDialog(props: QueueItemProps) {
   const { data: plans } = api.plans.allowed.useQuery(undefined);
   const { data: devices } = api.devices.allowedNames.useQuery(undefined);
   const { update } = useQueue();
+  const [open, setOpen] = useState(false);
 
   const planDetails = (() => {
     if (plans) {
@@ -48,6 +49,7 @@ export function ItemEditDialog(props: QueueItemProps) {
         {
           onSuccess: () => {
             toast.success(`Plan ${props.name} added to the queue`);
+            setOpen(false);
           },
           onError: (error) => {
             const message = error.message.replace("\n", " ");
@@ -62,9 +64,13 @@ export function ItemEditDialog(props: QueueItemProps) {
   );
 
   return (
-    <Dialog>
-      <DialogTrigger>
-        <Button disabled={!planDetails || !devices} variant="outline">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          className="w-full"
+          disabled={!planDetails || !devices}
+          variant="outline"
+        >
           <PencilIcon className="mr-2 h-4 w-4" />
           Edit Item
         </Button>
