@@ -1,22 +1,20 @@
-import { createZodFetcher } from "zod-fetch";
+// import { createZodFetcher } from "zod-fetch";
 import { env } from "../../env";
 import schemas from "../schemas/plans";
 import { protectedProcedure } from "../trpc";
+import { zodSnakeFetcher } from "../utils";
 
 export const plansRouter = {
   allowed: protectedProcedure.query(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/plans/allowed`;
-    const fetchWithZod = createZodFetcher();
     try {
-      const plans = await fetchWithZod(schemas.allowed, fetchURL, {
+      const res = await zodSnakeFetcher(schemas.allowed, {
+        url: fetchURL,
         method: "GET",
-        headers: {
-          contentType: "application/json",
-          Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-        },
+        authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
-      return plans.plansAllowed;
+      return res;
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message);
@@ -26,17 +24,14 @@ export const plansRouter = {
   }),
   existing: protectedProcedure.query(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/plans/existing`;
-    const fetchWithZod = createZodFetcher();
     try {
-      const plans = await fetchWithZod(schemas.existing, fetchURL, {
+      const res = await zodSnakeFetcher(schemas.existing, {
+        url: fetchURL,
         method: "GET",
-        headers: {
-          contentType: "application/json",
-          Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-        },
+        authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
         body: undefined,
       });
-      return plans.plansExisting;
+      return res;
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message);
