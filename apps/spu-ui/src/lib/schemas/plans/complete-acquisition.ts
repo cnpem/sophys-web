@@ -100,12 +100,20 @@ const cleaningSchema = z
         z.enum(cleaningAgents, {
           message: `Agents must be one of ${cleaningAgents.join(", ")}`,
         }),
+        {
+          message: `Agents must be a list of strings`,
+        },
       )
       .optional(),
     agentsDuration: z
-      .array(z.number(), {
-        message: "Duration must be a number",
-      })
+      .array(
+        z.coerce.number({
+          message: "Duration must be a number",
+        }),
+        {
+          message: "Duration must be a list of numbers",
+        },
+      )
       .optional(),
   })
   .superRefine((data, ctx) => {

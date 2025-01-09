@@ -25,6 +25,21 @@ import { cleaningSchema as cleaningKwargsSchema } from "../../../lib/schemas/pla
 
 const cleaningSelectOptions = [...cleaningDefaults, "custom"] as const;
 
+function formatAgentList(input: string) {
+  return input
+    .split(",")
+    .map((item) => item.trimStart().trimEnd())
+    .filter((item) => item.length > 0)
+    .map((item) => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase());
+}
+
+function formatAgentDuration(input: string) {
+  return input
+    .split(",")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
+
 export function AcquisitionCleaningForm({
   onSubmit,
   initialValues,
@@ -110,11 +125,13 @@ export function AcquisitionCleaningForm({
                 <FormControl>
                   <Input
                     disabled={form.watch("standardOption") !== "custom"}
-                    placeholder="e.g. agent1, agent2, agent3"
-                    value={field.value ? field.value.join(",") : ""}
-                    onChange={(e) => {
+                    placeholder="e.g. Water, Agent 1, Air"
+                    {...field}
+                    onBlur={(e) => {
                       const value = e.target.value;
-                      field.onChange(value ? value.split(",") : undefined);
+                      field.onChange(
+                        value ? formatAgentList(value) : undefined,
+                      );
                     }}
                   />
                 </FormControl>
@@ -136,11 +153,12 @@ export function AcquisitionCleaningForm({
                   <Input
                     disabled={form.watch("standardOption") !== "custom"}
                     placeholder="e.g. 10, 20, 30"
-                    value={field.value ? field.value.join(",") : ""}
-                    onChange={(e) => {
+                    {...field}
+                    value={field.value ? field.value.toString() : ""}
+                    onBlur={(e) => {
                       const value = e.target.value;
                       field.onChange(
-                        value ? value.split(",").map(Number) : undefined,
+                        value ? formatAgentDuration(value) : undefined,
                       );
                     }}
                   />
