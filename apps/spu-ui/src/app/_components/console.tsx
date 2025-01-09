@@ -52,15 +52,13 @@ export function Console({ className }: { className?: string }) {
         onExport={handleExport}
       />
 
-      <ScrollArea className="h-full w-full p-2 font-mono text-sm" ref={ref}>
-        {(!messages || messages.length === 0) && (
-          <span className="text-muted-foreground">
-            Waiting for new messages...
-          </span>
-        )}
+      <ScrollArea className="h-[94%] w-full p-2 font-mono text-sm" ref={ref}>
         {messages?.map((message, i) => (
           <ConsoleMessage key={i} message={message} />
         ))}
+        <span className="text-center text-muted-foreground">
+          $<span className="animate-pulse">{" \u2588"}</span>
+        </span>
       </ScrollArea>
     </div>
   );
