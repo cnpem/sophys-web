@@ -273,6 +273,9 @@ importers:
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.0-rc.645(typescript@5.7.2)
+      nanoid:
+        specifier: ^5.0.8
+        version: 5.0.8
       next:
         specifier: ^14.2.3
         version: 14.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

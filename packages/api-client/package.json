@@ -6,14 +6,35 @@
     "**/*.css"
   ],
   "exports": {
-    "./query-client": "./src/query-client.ts",
-    "./react": "./src/react.tsx",
-    "./server": "./src/server.ts",
-    "./env": "./src/env.ts"
+    "./query-client": {
+      "types": "./dist/src/query-client.d.ts",
+      "default": "./src/query-client.ts"
+    },
+    "./react": {
+      "types": "./dist/src/react.d.ts",
+      "default": "./src/react.tsx"
+    },
+    "./server": {
+      "types": "./dist/src/server.d.ts",
+      "default": "./src/server.ts"
+    },
+    "./env": {
+      "types": "./dist/src/env.d.ts",
+      "default": "./src/env.ts"
+    },
+    "./hooks/use-queue": {
+      "types": "./dist/src/hooks/use-queue.d.ts",
+      "default": "./src/hooks/use-queue.tsx"
+    },
+    "./hooks/use-status": {
+      "types": "./dist/src/hooks/use-status.d.ts",
+      "default": "./src/hooks/use-status.tsx"
+    }
   },
   "license": "MIT",
   "scripts": {
     "build": "tsc",
+    "dev": "tsc --watch",
     "clean": "rm -rf dist .turbo .cache node_modules",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit"
@@ -33,13 +54,14 @@
     "@sophys-web/api": "workspace:*",
     "@sophys-web/auth": "workspace:*",
     "@t3-oss/env-nextjs": "^0.10.1",
-    "next": "^14.2.3",
-    "@trpc/next": "11.0.0-rc.645",
-    "@tanstack/react-query-devtools": "catalog:",
     "@tanstack/react-query": "catalog:",
+    "@tanstack/react-query-devtools": "catalog:",
     "@trpc/client": "catalog:",
+    "@trpc/next": "11.0.0-rc.645",
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
+    "nanoid": "^5.0.8",
+    "next": "^14.2.3",
     "react": "catalog:react18",
     "react-dom": "catalog:react18",
     "server-only": "^0.0.1",
