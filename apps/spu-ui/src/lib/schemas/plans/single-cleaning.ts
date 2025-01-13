@@ -4,30 +4,27 @@ import { cleaningAgents } from "../../constants";
 const name = "setup1_cleaning_procedure";
 const schema = z
   .object({
-    standardOption: z.string().nullable(),
+    standardOption: z.string().optional(),
     agentsList: z
-      .array(z.string())
-      .optional()
-      .nullable()
-      .refine(
-        (agents) => {
-          if (!agents || agents.length === 0) {
-            return true;
-          }
-          return agents.every((agent) =>
-            cleaningAgents.includes(agent as (typeof cleaningAgents)[number]),
-          );
-        },
-        {
+      .array(
+        z.enum(cleaningAgents, {
           message: `Agents must be one of ${cleaningAgents.join(", ")}`,
+        }),
+        {
+          message: `Agents must be a list of strings`,
         },
-      ),
+      )
+      .optional(),
     agentsDuration: z
-      .array(z.number(), {
-        message: "Duration must be a number",
-      })
-      .optional()
-      .nullable(),
+      .array(
+        z.coerce.number({
+          message: "Duration must be a number",
+        }),
+        {
+          message: "Duration must be a list of numbers",
+        },
+      )
+      .optional(),
   })
   .superRefine((data, ctx) => {
     if (!data.standardOption || data.standardOption === "custom") {
