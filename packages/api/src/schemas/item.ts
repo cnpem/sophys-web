@@ -1,13 +1,15 @@
 import { z } from "zod";
 
 const addSubmit = z.object({
-  pos: z.number().optional(),
+  pos: z.union([z.number(), z.literal("front"), z.literal("back")]).optional(),
   item: z.object({
     name: z.string(),
     args: z.array(z.any()),
     kwargs: z.record(z.any()),
     itemType: z.string(),
   }),
+  beforeUid: z.string().optional(),
+  afterUid: z.string().optional(),
 });
 
 const addResponse = z.object({
@@ -31,6 +33,9 @@ const addBatchSubmit = z.object({
       itemType: z.string(),
     }),
   ),
+  pos: z.union([z.number(), z.literal("front"), z.literal("back")]).optional(),
+  beforeUid: z.string().optional(),
+  afterUid: z.string().optional(),
 });
 
 const addBatchResponse = z.object({

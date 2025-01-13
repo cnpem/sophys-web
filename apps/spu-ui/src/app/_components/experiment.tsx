@@ -6,7 +6,7 @@ import { useSSEData } from "../_hooks/use-sse-data";
 import { trayOptions } from "../../lib/constants";
 import { Console } from "./console";
 import { ControlPlane } from "./control-plane";
-import { CustomPlans } from "./custom/custom-plans";
+import { OnDemandQueueItems } from "./on-demand/on-demand-queue-items";
 import { Queue } from "./queue/queue";
 import { LoadingTray, Tray } from "./tray";
 
@@ -53,7 +53,7 @@ export default function Experiment({ initialData }: { initialData: Sample[] }) {
         ) : (
           <LoadingTray />
         )}
-        <CustomPlans />
+        <OnDemandQueueItems />
       </div>
 
       <div className="flex flex-col items-start justify-center gap-4">

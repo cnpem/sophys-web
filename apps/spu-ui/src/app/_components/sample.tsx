@@ -196,7 +196,7 @@ function SampleForm({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const { execute } = useQueue();
+  const { addBatch } = useQueue();
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -216,14 +216,23 @@ function SampleForm({
         sampleType: sample.type,
       },
     });
-    execute.mutate(
+    addBatch.mutate(
       {
-        item: {
-          name: name,
-          kwargs,
-          args: [],
-          itemType: "plan",
-        },
+        items: [
+          {
+            name: name,
+            itemType: "plan",
+            args: [],
+            kwargs,
+          },
+          {
+            name: "queue_stop",
+            itemType: "instruction",
+            args: [],
+            kwargs: {},
+          },
+        ],
+        pos: "front",
       },
       {
         onSuccess: () => {

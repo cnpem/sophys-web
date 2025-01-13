@@ -3,7 +3,7 @@
 import type { z } from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusIcon } from "lucide-react";
+import { ScanIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
@@ -55,8 +55,8 @@ export function SingleAcquitision({
           className={className}
           disabled={lastSampleParams === undefined}
         >
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Single acquisition
+          <ScanIcon className="mr-2 h-4 w-4" />
+          Acquire
         </Button>
       </DialogTrigger>
 
@@ -98,7 +98,7 @@ function SingleAcquisitionForm({
   className?: string;
   onSubmitSuccess: () => void;
 }) {
-  const { execute } = useQueue();
+  const { addBatch } = useQueue();
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
@@ -120,14 +120,23 @@ function SingleAcquisitionForm({
     const kwargs = schema.parse({
       ...data,
     });
-    execute.mutate(
+    addBatch.mutate(
       {
-        item: {
-          name: name,
-          kwargs,
-          args: [],
-          itemType: "plan",
-        },
+        items: [
+          {
+            name: name,
+            itemType: "plan",
+            args: [],
+            kwargs,
+          },
+          {
+            name: "queue_stop",
+            itemType: "instruction",
+            args: [],
+            kwargs: {},
+          },
+        ],
+        pos: "front",
       },
       {
         onSuccess: () => {
