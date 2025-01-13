@@ -8,6 +8,8 @@ const addSubmit = z.object({
     kwargs: z.record(z.any()),
     itemType: z.string(),
   }),
+  beforeUid: z.string().optional(),
+  afterUid: z.string().optional(),
 });
 
 const addResponse = z.object({
@@ -31,6 +33,9 @@ const addBatchSubmit = z.object({
       itemType: z.string(),
     }),
   ),
+  pos: z.union([z.number(), z.literal("front"), z.literal("back")]).optional(),
+  beforeUid: z.string().optional(),
+  afterUid: z.string().optional(),
 });
 
 const addBatchResponse = z.object({
