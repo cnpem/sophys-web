@@ -5,18 +5,20 @@ import { CleaningDialog } from "./cleaning";
 import { QueueStop } from "./queue-stop";
 import { SingleAcquitision } from "./single-acquisition";
 
+// className="m-0 rounded-md border bg-white p-2 text-sm font-semibold" />
+
 export function CustomPlans() {
   const { loadedSample } = useCapillaryState();
 
   return (
-    <Card className="rounded-md">
-      <CardHeader>
-        <CardTitle className="flex flex-row items-center justify-between text-lg font-medium">
+    <Card className="space-y-4 rounded-md shadow-none">
+      <CardHeader className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
+        <CardTitle className="flex items-center justify-center text-base font-semibold text-slate-700">
           Custom Plans
-          <CapillaryStateBadge className="rounded-md  bg-secondary p-2 text-sm font-semibold" />
         </CardTitle>
       </CardHeader>
       <CardContent>
+        <CapillaryStateBadge className="mb-2 text-sm font-semibold" />
         {loadedSample && (
           <p className="space-x-2 text-sm text-muted-foreground">
             <span>Loaded Sample:</span>
