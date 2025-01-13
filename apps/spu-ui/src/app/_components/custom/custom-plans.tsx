@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@sophys-web/ui/card";
 import { CapillaryStateBadge } from "~/app/_components/capillary-state-badge";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
+import { CleaningDialog } from "./cleaning";
 import { QueueStop } from "./queue-stop";
 import { SingleAcquitision } from "./single-acquisition";
 
@@ -29,9 +30,13 @@ export function CustomPlans() {
             </span>
           </p>
         )}
-        <div className="mt-4 flex flex-row items-center justify-between gap-4">
-          <SingleAcquitision lastSampleParams={loadedSample} />
-          <QueueStop />
+        <div className="mt-4 flex flex-row items-center justify-between gap-2">
+          <SingleAcquitision
+            lastSampleParams={loadedSample}
+            className="w-full"
+          />
+          <QueueStop className="w-full" />
+          <CleaningDialog className="w-full" />
         </div>
       </CardContent>
     </Card>
