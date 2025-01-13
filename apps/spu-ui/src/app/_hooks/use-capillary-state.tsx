@@ -12,6 +12,7 @@ import {
   schema as loadSampleKwargs,
   name as loadSamplePlan,
 } from "../../lib/schemas/plans/load";
+import { name as singleCleaningPlan } from "../../lib/schemas/plans/single-cleaning";
 
 const STALE_TIME_IN_SECONDS = 15 * 60; // 15 minutes
 
@@ -24,9 +25,10 @@ const knownErrorExitStatuses = [
   "timeout",
 ] as const;
 
-const cleanVerifiedPlans = [
+const cleaningPlans = [
   completeAcquisitionWithCleaningPlan,
   cleanAndCheckPlan,
+  singleCleaningPlan,
 ];
 
 export interface LastSampleParams {
@@ -113,7 +115,7 @@ export const useCapillaryState = () => {
     );
     const lastSampleTime = lastSample?.result.timeStop;
     const lastCleaning = nonErrorRecentItems.find((item) =>
-      cleanVerifiedPlans.includes(item.name),
+      cleaningPlans.includes(item.name),
     );
     const lastCleaningTime = lastCleaning?.result.timeStop;
     // set capillary state based on lastSampleTime, lastCleaningTime, and lastErrorTime
