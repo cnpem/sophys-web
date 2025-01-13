@@ -1,7 +1,7 @@
 import type { z } from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleMinusIcon } from "lucide-react";
+import { DropletIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -253,7 +253,7 @@ export function CleaningDialog({ className }: { className?: string }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className={className}>
-          <CircleMinusIcon className="mr-2 h-4 w-4" />
+          <DropletIcon className="mr-2 h-4 w-4" />
           Clean
         </Button>
       </DialogTrigger>
