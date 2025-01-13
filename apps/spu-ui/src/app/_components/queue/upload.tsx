@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MoveRightIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import type { Session } from "@sophys-web/auth";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";
@@ -103,12 +104,51 @@ const errorResultsArray = z.array(
   }),
 );
 
-type Steps = "proposal" | "capillary" | "cleaning" | "acquisition" | "check";
+function useStepForm(steps: React.ReactElement[]) {
+  const [currentStepIdx, setCurrentStepIdx] = useState(0);
+  function next() {
+    setCurrentStepIdx((prev) => {
+      if (prev < steps.length - 1) {
+        return prev + 1;
+      }
+      return prev;
+    });
+  }
+  function back() {
+    setCurrentStepIdx((prev) => {
+      if (prev > 0) {
+        return prev - 1;
+      }
+      return prev;
+    });
+  }
+  function goTo(step: number) {
+    setCurrentStepIdx(step);
+  }
+
+  return {
+    step: steps[currentStepIdx],
+    steps,
+    currentStepIdx,
+    isFirst: currentStepIdx === 0,
+    isLast: currentStepIdx === steps.length - 1,
+    next,
+    back,
+    goTo,
+  };
+}
+
+const stepsMap = [
+  "proposal",
+  "capillary",
+  "cleaning",
+  "acquisition",
+  "check",
+] as const;
 
 function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
   const { data: session, isLoading } = api.auth.getSession.useQuery();
 
-  const [step, setStep] = useState<Steps>("proposal");
   const [cleaningParams, setCleaningParams] =
     useState<z.infer<typeof cleaningKwargsSchema>>();
   const [acquisitionParams, setAcquisitionParams] =
@@ -119,6 +159,107 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
   const [useCapillary, setUseCapillary] = useState(false);
 
   const { addBatch } = useQueue();
+
+  const getProposal = useCallback(() => {
+    if (!proposal && session) {
+      const user = session.user as Session["user"];
+      return user.proposal;
+    }
+    return proposal;
+  }, [proposal, session]);
+
+  const { step, currentStepIdx, next, goTo } = useStepForm([
+    <ProposalForm
+      key="proposal"
+      initialValues={{
+        proposal: getProposal(),
+        useCapillary,
+      }}
+      onSubmit={onSubmitProposal}
+    />,
+    <CleanCapillaryForm
+      key="capillary"
+      initialValues={{
+        proposal,
+        ...capillaryParams,
+        sampleType: "buffer",
+        bufferTag: "NA",
+        isRef: true,
+      }}
+      onSubmit={onSubmitCapillary}
+    />,
+    <AcquisitionCleaningForm
+      key="cleaning"
+      initialValues={{
+        ...cleaningParams,
+      }}
+      onSubmit={onSubmitCleaning}
+    />,
+    <AcquisitionTableForm key="acquisition" onSubmit={onSubmitAcquisition} />,
+    <div className="text-xs text-muted-foreground">
+      <div className="text-lg font-bold">Step 1: Proposal</div>
+      <p>Proposal: {proposal}</p>
+      <p>Use Capillary: {useCapillary ? "Yes" : "No"}</p>
+      {!!useCapillary && (
+        <>
+          <div className="text-lg font-bold">Step 2: Capillary</div>
+          <p>Acquire Time: {capillaryParams?.acquireTime}</p>
+          <p>Number of Exposures: {capillaryParams?.numExposures}</p>
+          <p>Sample Type: {capillaryParams?.sampleType}</p>
+          <p>Sample Tag: {capillaryParams?.sampleTag}</p>
+          <p>Buffer Tag: {capillaryParams?.bufferTag}</p>
+          <p>Cleaning Method: {capillaryParams?.standardOption}</p>
+          <p>Agents: {capillaryParams?.agentsList?.join(", ")}</p>
+          <p>Agents Duration: {capillaryParams?.agentsDuration?.join(", ")}</p>
+        </>
+      )}
+      <div className="text-lg font-bold">Step 3: Cleaning</div>
+      <p>Cleaning Method: {cleaningParams?.standardOption}</p>
+      <p>Agents: {cleaningParams?.agentsList?.join(", ")}</p>
+      <p>Agents Duration: {cleaningParams?.agentsDuration?.join(", ")}</p>
+      <div className="text-lg font-bold">Step 4: Acquisition Kwargs</div>
+      <details>
+        <ScrollArea className="h-96">
+          {acquisitionParams?.map((params, index) => (
+            <div key={index} className="mt-1 rounded-sm border p-2">
+              <span>
+                Row: {params.row}
+                {", "}
+              </span>
+              <span>
+                Col: {params.col}
+                {", "}
+              </span>
+              <span>
+                Tray: {params.tray}
+                {", "}
+              </span>
+              <span>
+                Acquire Time: {params.acquireTime}
+                {", "}
+              </span>
+              <span>
+                Number of Exposures: {params.numExposures}
+                {", "}
+              </span>
+              <span>
+                Volume: {params.volume}
+                {", "}
+              </span>
+              <span>
+                Sample Tag: {params.sampleTag}
+                {", "}
+              </span>
+              <span>Buffer Tag: {params.bufferTag}</span>
+            </div>
+          ))}
+        </ScrollArea>
+      </details>
+      <Button className="mt-4" onClick={onSubmitToQueue}>
+        Submit to Queue
+      </Button>
+    </div>,
+  ]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -131,25 +272,25 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
     setProposal(data.proposal);
     setUseCapillary(data.useCapillary);
     if (data.useCapillary) {
-      setStep("capillary");
+      next();
     } else {
-      setStep("cleaning");
+      goTo(stepsMap.indexOf("cleaning"));
     }
   }
 
   function onSubmitCapillary(data: z.infer<typeof cleanCapillaryKwargsSchema>) {
     setCapillaryParams(data);
-    setStep("cleaning");
+    next();
   }
 
   function onSubmitCleaning(data: z.infer<typeof cleaningKwargsSchema>) {
     setCleaningParams(data);
-    setStep("acquisition");
+    next();
   }
 
   function onSubmitAcquisition(data: z.infer<typeof acquisitionTableSchema>[]) {
     setAcquisitionParams(data);
-    setStep("check");
+    next();
   }
 
   async function onSubmitToQueue() {
@@ -236,8 +377,8 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
               className="rounded-full"
               size="icon"
               disabled={(key === "capillary" && !useCapillary) || !proposal}
-              variant={step === (key as Steps) ? "default" : "outline"}
-              onClick={() => setStep(key as Steps)}
+              variant={currentStepIdx === index ? "default" : "outline"}
+              onClick={() => goTo(index)}
             >
               {index + 1}
             </Button>
@@ -245,107 +386,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
           </div>
         ))}
       </div>
-      <>
-        {step === "proposal" && (
-          <ProposalForm
-            onSubmit={onSubmitProposal}
-            initialValues={{
-              proposal: proposal ? proposal : session.user.proposal,
-              useCapillary,
-            }}
-          />
-        )}
-        {step === "capillary" && (
-          <CleanCapillaryForm
-            onSubmit={onSubmitCapillary}
-            initialValues={{
-              proposal,
-              ...capillaryParams,
-              sampleType: "buffer",
-              bufferTag: "NA",
-              isRef: true,
-            }}
-          />
-        )}
-        {step === "cleaning" && (
-          <AcquisitionCleaningForm
-            onSubmit={onSubmitCleaning}
-            initialValues={{
-              ...cleaningParams,
-            }}
-          />
-        )}
-        {step === "acquisition" && (
-          <AcquisitionTableForm onSubmit={onSubmitAcquisition} />
-        )}
-        {step === "check" && (
-          <div className="text-xs text-muted-foreground">
-            <div className="text-lg font-bold">Step 1: Proposal</div>
-            <p>Proposal: {proposal}</p>
-            <p>Use Capillary: {useCapillary ? "Yes" : "No"}</p>
-            {!!useCapillary && (
-              <>
-                <div className="text-lg font-bold">Step 2: Capillary</div>
-                <p>Acquire Time: {capillaryParams?.acquireTime}</p>
-                <p>Number of Exposures: {capillaryParams?.numExposures}</p>
-                <p>Sample Type: {capillaryParams?.sampleType}</p>
-                <p>Sample Tag: {capillaryParams?.sampleTag}</p>
-                <p>Buffer Tag: {capillaryParams?.bufferTag}</p>
-                <p>Cleaning Method: {capillaryParams?.standardOption}</p>
-                <p>Agents: {capillaryParams?.agentsList?.join(", ")}</p>
-                <p>
-                  Agents Duration: {capillaryParams?.agentsDuration?.join(", ")}
-                </p>
-              </>
-            )}
-            <div className="text-lg font-bold">Step 3: Cleaning</div>
-            <p>Cleaning Method: {cleaningParams?.standardOption}</p>
-            <p>Agents: {cleaningParams?.agentsList?.join(", ")}</p>
-            <p>Agents Duration: {cleaningParams?.agentsDuration?.join(", ")}</p>
-            <div className="text-lg font-bold">Step 4: Acquisition Kwargs</div>
-            <details>
-              <ScrollArea className="h-96">
-                {acquisitionParams?.map((params, index) => (
-                  <div key={index} className="mt-1 rounded-sm border p-2">
-                    <span>
-                      Row: {params.row}
-                      {", "}
-                    </span>
-                    <span>
-                      Col: {params.col}
-                      {", "}
-                    </span>
-                    <span>
-                      Tray: {params.tray}
-                      {", "}
-                    </span>
-                    <span>
-                      Acquire Time: {params.acquireTime}
-                      {", "}
-                    </span>
-                    <span>
-                      Number of Exposures: {params.numExposures}
-                      {", "}
-                    </span>
-                    <span>
-                      Volume: {params.volume}
-                      {", "}
-                    </span>
-                    <span>
-                      Sample Tag: {params.sampleTag}
-                      {", "}
-                    </span>
-                    <span>Buffer Tag: {params.bufferTag}</span>
-                  </div>
-                ))}
-              </ScrollArea>
-            </details>
-            <Button className="mt-4" onClick={onSubmitToQueue}>
-              Submit to Queue
-            </Button>
-          </div>
-        )}
-      </>
+      <>{step}</>
     </div>
   );
 }
