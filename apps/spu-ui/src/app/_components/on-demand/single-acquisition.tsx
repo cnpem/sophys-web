@@ -3,7 +3,7 @@
 import type { z } from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ScanIcon } from "lucide-react";
+import { CameraIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
@@ -55,7 +55,7 @@ export function SingleAcquitision({
           className={className}
           disabled={lastSampleParams === undefined}
         >
-          <ScanIcon className="mr-2 h-4 w-4" />
+          <CameraIcon className="mr-2 h-4 w-4" />
           Acquire
         </Button>
       </DialogTrigger>
