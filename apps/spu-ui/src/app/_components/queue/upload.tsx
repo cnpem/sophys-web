@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { MoveRightIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import type { Session } from "@sophys-web/auth";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";
@@ -161,7 +162,8 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
 
   const getProposal = useCallback(() => {
     if (!proposal && session) {
-      return session.user.proposal;
+      const user = session.user as unknown as Session["user"];
+      return user.proposal;
     }
     return proposal;
   }, [proposal, session]);
