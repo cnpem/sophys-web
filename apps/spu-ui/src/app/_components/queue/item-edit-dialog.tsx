@@ -67,12 +67,12 @@ export function ItemEditDialog(props: QueueItemProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className="w-full"
+          className="size-8"
+          size="icon"
           disabled={!planDetails || !devices}
           variant="outline"
         >
-          <PencilIcon className="mr-2 h-4 w-4" />
-          Edit Item
+          <PencilIcon className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>

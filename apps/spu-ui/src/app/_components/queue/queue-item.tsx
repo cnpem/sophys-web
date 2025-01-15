@@ -1,5 +1,6 @@
 import { useCallback } from "react";
-import { XIcon } from "lucide-react";
+import { GripVerticalIcon, XIcon } from "lucide-react";
+import { z } from "zod";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
@@ -7,7 +8,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@sophys-web/ui/card";
@@ -16,6 +16,26 @@ import { useQueue } from "../../_hooks/use-queue";
 import { schema as completeAcquisitionSchema } from "../../../lib/schemas/plans/complete-acquisition";
 import { ItemEditDialog } from "./item-edit-dialog";
 
+function formatPlanNames(name: string) {
+  return name.replace(/_/g, " ");
+}
+
+const commonKwargsSchema = z.object({
+  proposal: z.string().optional(),
+  tray: z.string().optional(),
+  col: z.string().optional(),
+  row: z.string().optional(),
+  sampleType: z.string().optional(),
+  sampleTag: z.string().optional(),
+  metadata: z
+    .object({
+      sampleType: z.string(),
+      sampleTag: z.string(),
+      bufferTag: z.string(),
+    })
+    .optional(),
+});
+
 function UnknownItem({
   props,
   status,
@@ -23,29 +43,89 @@ function UnknownItem({
   props: QueueItemProps;
   status: string;
 }) {
+  const common = commonKwargsSchema.safeParse(props.kwargs);
   return (
-    <Card className="relative border-none bg-muted">
+    <Card
+      className={cn("relative rounded-sm border", {
+        "animate-pulse border-none bg-slate-100": !props.itemUid,
+      })}
+    >
       <CardHeader>
-        <CardTitle className="flex items-center justify-end gap-2">
-          <span className="break-all">{props.name}</span>
+        <CardDescription className="flex items-center gap-4">
           <Badge
-            className={cn("border-none bg-slate-200 text-slate-800", {
+            className={cn("mr-2 border-none bg-slate-200 text-slate-800", {
               "bg-red-200 text-red-800": status === "failed",
               "bg-slate-200 text-slate-800": status === "enqueued",
               "bg-blue-200 text-blue-800": status === "running",
+              "bg-yellow-200 text-yellow-800":
+                status === "aborted" ||
+                status === "halted" ||
+                status === "stopped",
             })}
             variant="outline"
           >
             {status}
           </Badge>
-        </CardTitle>
-        <CardDescription>
-          <span>@{props.user}</span>
-          <div className="absolute right-2 top-2 flex gap-2">
-            <RemoveButton uid={props.itemUid} />
-          </div>
+          <span className="break-all">@{props.user}</span>
         </CardDescription>
+        <CardTitle>
+          <span className="break-all">{formatPlanNames(props.name)}</span>
+        </CardTitle>
+        <div className="absolute right-2 top-2 flex gap-1">
+          <Button className="size-8" size="icon" variant="outline" disabled>
+            <GripVerticalIcon className="h-4 w-4" />
+          </Button>
+          <ItemEditDialog {...props} />
+          <RemoveButton uid={props.itemUid} />
+        </div>
       </CardHeader>
+      <CardContent>
+        {common.success && (
+          <div className="flex flex-wrap items-center gap-2">
+            {common.data.proposal && (
+              <Badge variant="outline">proposal: {common.data.proposal}</Badge>
+            )}
+            {common.data.tray && (
+              <Badge variant="outline">{common.data.tray}</Badge>
+            )}
+            {common.data.col && common.data.row && (
+              <Badge variant="outline">{`${common.data.col}${common.data.row}`}</Badge>
+            )}
+            {common.data.sampleType && common.data.sampleTag && (
+              <Badge
+                className={cn("border-none bg-slate-400 text-slate-800", {
+                  "bg-emerald-200 text-emerald-800":
+                    common.data.sampleType === "sample",
+                  "bg-sky-200 text-sky-800":
+                    common.data.sampleType === "buffer",
+                })}
+                variant="outline"
+              >
+                {common.data.sampleType}
+                {common.data.sampleTag && (
+                  <span>: {common.data.sampleTag}</span>
+                )}
+              </Badge>
+            )}
+            {common.data.metadata && (
+              <Badge
+                className={cn("border-none bg-slate-400 text-slate-800", {
+                  "bg-emerald-200 text-emerald-800":
+                    common.data.metadata.sampleType === "sample",
+                  "bg-sky-200 text-sky-800":
+                    common.data.metadata.sampleType === "buffer",
+                })}
+                variant="outline"
+              >
+                {common.data.metadata.sampleType}
+                {common.data.metadata.sampleTag && (
+                  <span>: {common.data.metadata.sampleTag}</span>
+                )}
+              </Badge>
+            )}
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 }
@@ -127,9 +207,6 @@ export function QueueItem({
   isRunning?: boolean;
   props: QueueItemProps;
 }) {
-  const { data: planParams } = completeAcquisitionSchema.safeParse(
-    props.kwargs,
-  );
   const status = () => {
     if (isRunning) {
       return "running";
@@ -146,65 +223,7 @@ export function QueueItem({
     return props.result.exitStatus ?? "finished";
   };
 
-  if (planParams === undefined) {
-    return <UnknownItem props={props} status={status()} />;
-  }
-
-  return (
-    <li>
-      <Card
-        className={cn("relative", {
-          "animate-pulse border-none bg-slate-100": !props.itemUid,
-        })}
-      >
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between gap-4">
-            <span className="break-all">{props.name}</span>
-            <Badge
-              className={cn("border-none bg-slate-200 text-slate-800", {
-                "bg-red-200 text-red-800": status() === "failed",
-                "bg-slate-200 text-slate-800": status() === "enqueued",
-                "bg-blue-200 text-blue-800": status() === "running",
-                "bg-yellow-200 text-yellow-800":
-                  status() === "aborted" ||
-                  status() === "halted" ||
-                  status() === "stopped",
-              })}
-              variant="outline"
-            >
-              {status()}
-            </Badge>
-          </CardTitle>
-          <CardDescription>
-            @{props.user} - {planParams.proposal}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">{planParams.tray}</Badge>
-            <Badge variant="outline">{`${planParams.col}${planParams.row}`}</Badge>
-            <Badge
-              className={cn("border-none bg-slate-400 text-slate-800", {
-                "bg-emerald-200 text-emerald-800":
-                  planParams.sampleType === "sample",
-                "bg-sky-200 text-sky-800": planParams.sampleType === "buffer",
-              })}
-              variant="outline"
-            >
-              {planParams.sampleType}
-            </Badge>
-            <Badge variant="default">{planParams.sampleTag}</Badge>
-          </div>
-          <div className="absolute right-1 top-1 flex gap-2">
-            <RemoveButton uid={props.itemUid} />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <ItemEditDialog {...props} />
-        </CardFooter>
-      </Card>
-    </li>
-  );
+  return <UnknownItem props={props} status={status()} />;
 }
 
 function RemoveButton({ uid }: { uid?: string }) {
@@ -216,10 +235,10 @@ function RemoveButton({ uid }: { uid?: string }) {
   }, [remove, uid]);
   return (
     <Button
-      className="h-6 w-6"
+      className="size-8"
       onClick={handleRemove}
       size="icon"
-      variant="ghost"
+      variant="outline"
     >
       <XIcon className="h-4 w-4" />
     </Button>
