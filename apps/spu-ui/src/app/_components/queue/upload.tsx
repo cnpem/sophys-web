@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MoveRightIcon, UploadIcon } from "lucide-react";
+import { CheckIcon, MoveRightIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import type { Session } from "@sophys-web/auth";
 import { api } from "@sophys-web/api-client/react";
+import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";
 import {
@@ -136,6 +137,86 @@ function useStepForm(steps: React.ReactElement[]) {
     back,
     goTo,
   };
+}
+interface Step {
+  label: string;
+  onClick: () => void;
+  isDisabled?: boolean;
+}
+
+interface StepNavigationProps {
+  steps: Step[];
+  currentStep: number;
+}
+
+export function StepNavigation({ steps, currentStep }: StepNavigationProps) {
+  return (
+    <div className="mx-auto w-full max-w-3xl">
+      <div className="relative flex items-center justify-between">
+        {steps.map((step, index) => (
+          <React.Fragment key={index}>
+            <StepButton
+              label={step.label}
+              number={index + 1}
+              onClick={step.onClick}
+              isActive={currentStep === index}
+              isCompleted={currentStep > index}
+              isDisabled={step.isDisabled}
+            />
+            {index < steps.length - 1 && (
+              <div className="flex flex-1 items-center">
+                <div
+                  className={cn(
+                    "h-[2px] w-full",
+                    currentStep > index ? "bg-primary" : "bg-muted",
+                  )}
+                />
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+interface StepButtonProps {
+  label: string;
+  number: number;
+  onClick: () => void;
+  isActive: boolean;
+  isCompleted: boolean;
+  isDisabled?: boolean;
+}
+
+function StepButton({
+  label,
+  number,
+  onClick,
+  isActive,
+  isCompleted,
+  isDisabled,
+}: StepButtonProps) {
+  return (
+    <div className="relative flex flex-col items-center space-y-2">
+      <Button
+        onClick={onClick}
+        variant={isActive ? "default" : "outline"}
+        size="icon"
+        disabled={isDisabled}
+        className={cn(
+          "h-10 w-10 rounded-full",
+          isCompleted &&
+            "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
+        )}
+      >
+        {isCompleted ? <CheckIcon className="h-4 w-4" /> : number}
+      </Button>
+      <span className="absolute -bottom-6 whitespace-nowrap text-xs font-medium">
+        {label}
+      </span>
+    </div>
+  );
 }
 
 const stepsMap = [
@@ -364,28 +445,35 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between gap-4">
-        {Object.entries({
-          proposal: "Proposal",
-          capillary: "Capillary",
-          cleaning: "Cleaning",
-          acquisition: "Acquisition",
-          check: "Check",
-        }).map(([key, label], index) => (
-          <div key={key} className="flex flex-col items-center">
-            <Button
-              className="rounded-full"
-              size="icon"
-              disabled={(key === "capillary" && !useCapillary) || !proposal}
-              variant={currentStepIdx === index ? "default" : "outline"}
-              onClick={() => goTo(index)}
-            >
-              {index + 1}
-            </Button>
-            <div className="text-sm">{label}</div>
-          </div>
-        ))}
-      </div>
+      <StepNavigation
+        steps={[
+          {
+            label: "Proposal",
+            onClick: () => goTo(0),
+          },
+          {
+            label: "Capillary",
+            onClick: () => goTo(1),
+            isDisabled: !useCapillary || !proposal || currentStepIdx < 1,
+          },
+          {
+            label: "Cleaning",
+            onClick: () => goTo(2),
+            isDisabled: !proposal || currentStepIdx < 2,
+          },
+          {
+            label: "Acquisition",
+            onClick: () => goTo(3),
+            isDisabled: !proposal || currentStepIdx < 3,
+          },
+          {
+            label: "Check",
+            onClick: () => goTo(4),
+            isDisabled: !proposal || !acquisitionParams || currentStepIdx < 4,
+          },
+        ]}
+        currentStep={currentStepIdx}
+      />
       <>{step}</>
     </div>
   );
