@@ -18,7 +18,13 @@ import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
 
-export function ItemEditDialog(props: QueueItemProps) {
+export function ItemEditDialog({
+  props,
+  disabled,
+}: {
+  props: QueueItemProps;
+  disabled?: boolean;
+}) {
   const { data: plans } = api.plans.allowed.useQuery(undefined);
   const { data: devices } = api.devices.allowedNames.useQuery(undefined);
   const { update } = useQueue();
@@ -69,7 +75,7 @@ export function ItemEditDialog(props: QueueItemProps) {
         <Button
           className="size-8"
           size="icon"
-          disabled={!planDetails || !devices}
+          disabled={!planDetails || !devices || disabled}
           variant="outline"
         >
           <PencilIcon className="h-4 w-4" />

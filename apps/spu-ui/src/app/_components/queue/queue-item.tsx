@@ -13,7 +13,6 @@ import {
 } from "@sophys-web/ui/card";
 import type { QueueItemProps } from "../../../lib/types";
 import { useQueue } from "../../_hooks/use-queue";
-import { schema as completeAcquisitionSchema } from "../../../lib/schemas/plans/complete-acquisition";
 import { ItemEditDialog } from "./item-edit-dialog";
 
 function formatPlanNames(name: string) {
@@ -35,100 +34,6 @@ const commonKwargsSchema = z.object({
     })
     .optional(),
 });
-
-function UnknownItem({
-  props,
-  status,
-}: {
-  props: QueueItemProps;
-  status: string;
-}) {
-  const common = commonKwargsSchema.safeParse(props.kwargs);
-  return (
-    <Card
-      className={cn("relative rounded-sm border", {
-        "animate-pulse border-none bg-slate-100": !props.itemUid,
-      })}
-    >
-      <CardHeader>
-        <CardDescription className="flex items-center gap-4">
-          <Badge
-            className={cn("mr-2 border-none bg-slate-200 text-slate-800", {
-              "bg-red-200 text-red-800": status === "failed",
-              "bg-slate-200 text-slate-800": status === "enqueued",
-              "bg-blue-200 text-blue-800": status === "running",
-              "bg-yellow-200 text-yellow-800":
-                status === "aborted" ||
-                status === "halted" ||
-                status === "stopped",
-            })}
-            variant="outline"
-          >
-            {status}
-          </Badge>
-          <span className="break-all">@{props.user}</span>
-        </CardDescription>
-        <CardTitle>
-          <span className="break-all">{formatPlanNames(props.name)}</span>
-        </CardTitle>
-        <div className="absolute right-2 top-2 flex gap-1">
-          <Button className="size-8" size="icon" variant="outline" disabled>
-            <GripVerticalIcon className="h-4 w-4" />
-          </Button>
-          <ItemEditDialog {...props} />
-          <RemoveButton uid={props.itemUid} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        {common.success && (
-          <div className="flex flex-wrap items-center gap-2">
-            {common.data.proposal && (
-              <Badge variant="outline">proposal: {common.data.proposal}</Badge>
-            )}
-            {common.data.tray && (
-              <Badge variant="outline">{common.data.tray}</Badge>
-            )}
-            {common.data.col && common.data.row && (
-              <Badge variant="outline">{`${common.data.col}${common.data.row}`}</Badge>
-            )}
-            {common.data.sampleType && common.data.sampleTag && (
-              <Badge
-                className={cn("border-none bg-slate-400 text-slate-800", {
-                  "bg-emerald-200 text-emerald-800":
-                    common.data.sampleType === "sample",
-                  "bg-sky-200 text-sky-800":
-                    common.data.sampleType === "buffer",
-                })}
-                variant="outline"
-              >
-                {common.data.sampleType}
-                {common.data.sampleTag && (
-                  <span>: {common.data.sampleTag}</span>
-                )}
-              </Badge>
-            )}
-            {common.data.metadata && (
-              <Badge
-                className={cn("border-none bg-slate-400 text-slate-800", {
-                  "bg-emerald-200 text-emerald-800":
-                    common.data.metadata.sampleType === "sample",
-                  "bg-sky-200 text-sky-800":
-                    common.data.metadata.sampleType === "buffer",
-                })}
-                variant="outline"
-              >
-                {common.data.metadata.sampleType}
-                {common.data.metadata.sampleTag && (
-                  <span>: {common.data.metadata.sampleTag}</span>
-                )}
-              </Badge>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
 
 export function SkeletonItem() {
   return (
@@ -157,55 +62,152 @@ export function SkeletonItem() {
 }
 
 export function RunningItem({ props }: { props: QueueItemProps }) {
-  const { data: planParams } = completeAcquisitionSchema.safeParse(
-    props.kwargs,
-  );
-  if (!planParams) {
-    return <UnknownItem props={props} status="running" />;
-  }
   return (
-    <Card className="relative">
+    <Card
+      className={cn("relative rounded-sm border", {
+        "animate-pulse border-none bg-slate-100": !props.itemUid,
+      })}
+    >
       <CardHeader>
-        <CardTitle className="flex items-center gap-4">
-          <span className="break-all">{props.name}</span>
-          <Badge
-            className="border-none bg-sky-200 text-sky-800"
-            variant="outline"
-          >
-            running
-          </Badge>
-        </CardTitle>
-        <CardDescription>
-          @{props.user} - {planParams.proposal}
+        <CardDescription className="flex items-center gap-4">
+          <QueueItemStatusBadge props={props} isRunning={true} />
+          <span className="break-all">@{props.user}</span>
         </CardDescription>
+        <CardTitle>
+          <span className="break-all">{formatPlanNames(props.name)}</span>
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">{planParams.tray}</Badge>
-          <Badge variant="outline">{`${planParams.col}${planParams.row}`}</Badge>
-          <Badge
-            className={cn("border-none bg-slate-400 text-slate-800", {
-              "bg-emerald-200 text-emerald-800":
-                planParams.sampleType === "sample",
-              "bg-sky-200 text-sky-800": planParams.sampleType === "buffer",
-            })}
-            variant="outline"
-          >
-            {planParams.sampleType}
-          </Badge>
-          <Badge variant="default">{planParams.sampleTag}</Badge>
-        </div>
+        <PlanContent props={props} />
       </CardContent>
     </Card>
   );
 }
 
 export function QueueItem({
-  isRunning,
-  props,
+  queueItemProps,
+  disabled,
 }: {
-  isRunning?: boolean;
+  queueItemProps: QueueItemProps;
+  disabled?: boolean;
+}) {
+  return (
+    <Card
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      className={cn("relative rounded-sm border", {
+        "animate-pulse border-none bg-slate-100": !queueItemProps.itemUid,
+        "opacity-60": disabled,
+      })}
+    >
+      <CardHeader>
+        <CardDescription className="flex items-center gap-4">
+          <QueueItemStatusBadge props={queueItemProps} isRunning={false} />
+          <span className="break-all">@{queueItemProps.user}</span>
+        </CardDescription>
+        <CardTitle>
+          <span className="break-all">
+            {formatPlanNames(queueItemProps.name)}
+          </span>
+        </CardTitle>
+        <div className="absolute right-2 top-2 flex gap-1">
+          <Button
+            ref={setActivatorNodeRef}
+            {...listeners}
+            className={cn("size-8 hover:cursor-grab", {
+              "hover:cursor-grabbing": isDragging,
+            })}
+            size="icon"
+            variant="outline"
+            disabled={disabled}
+          >
+            <GripVerticalIcon className="h-4 w-4" />
+          </Button>
+          <ItemEditDialog props={queueItemProps} disabled={disabled} />
+          <RemoveButton uid={queueItemProps.itemUid} disabled={disabled} />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <PlanContent props={queueItemProps} />
+      </CardContent>
+    </Card>
+  );
+}
+
+function RemoveButton({ uid, disabled }: { uid?: string; disabled?: boolean }) {
+  const { remove } = useQueue();
+  const handleRemove = useCallback(() => {
+    if (uid !== undefined) {
+      remove.mutate({ uid });
+    }
+  }, [remove, uid]);
+  return (
+    <Button
+      className="size-8"
+      onClick={handleRemove}
+      size="icon"
+      variant="outline"
+      disabled={disabled}
+    >
+      <XIcon className="h-4 w-4" />
+    </Button>
+  );
+}
+
+function PlanContent({ props }: { props: QueueItemProps }) {
+  const common = commonKwargsSchema.safeParse(props.kwargs);
+  if (!common.success) {
+    return null;
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {common.data.proposal && (
+        <Badge variant="outline">proposal: {common.data.proposal}</Badge>
+      )}
+      {common.data.tray && <Badge variant="outline">{common.data.tray}</Badge>}
+      {common.data.col && common.data.row && (
+        <Badge variant="outline">{`${common.data.col}${common.data.row}`}</Badge>
+      )}
+      {common.data.sampleType && common.data.sampleTag && (
+        <Badge
+          className={cn("border-none bg-slate-400 text-slate-800", {
+            "bg-emerald-200 text-emerald-800":
+              common.data.sampleType === "sample",
+            "bg-sky-200 text-sky-800": common.data.sampleType === "buffer",
+          })}
+          variant="outline"
+        >
+          {common.data.sampleType}
+          {common.data.sampleTag && <span>: {common.data.sampleTag}</span>}
+        </Badge>
+      )}
+      {common.data.metadata && (
+        <Badge
+          className={cn("border-none bg-slate-400 text-slate-800", {
+            "bg-emerald-200 text-emerald-800":
+              common.data.metadata.sampleType === "sample",
+            "bg-sky-200 text-sky-800":
+              common.data.metadata.sampleType === "buffer",
+          })}
+          variant="outline"
+        >
+          {common.data.metadata.sampleType}
+          {common.data.metadata.sampleTag && (
+            <span>: {common.data.metadata.sampleTag}</span>
+          )}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
+function QueueItemStatusBadge({
+  props,
+  isRunning,
+}: {
   props: QueueItemProps;
+  isRunning?: boolean;
 }) {
   const status = () => {
     if (isRunning) {
@@ -222,25 +224,20 @@ export function QueueItem({
     }
     return props.result.exitStatus ?? "finished";
   };
-
-  return <UnknownItem props={props} status={status()} />;
-}
-
-function RemoveButton({ uid }: { uid?: string }) {
-  const { remove } = useQueue();
-  const handleRemove = useCallback(() => {
-    if (uid !== undefined) {
-      remove.mutate({ uid });
-    }
-  }, [remove, uid]);
   return (
-    <Button
-      className="size-8"
-      onClick={handleRemove}
-      size="icon"
+    <Badge
+      className={cn("border-none bg-slate-200 text-slate-800", {
+        "bg-red-200 text-red-800": status() === "failed",
+        "bg-slate-200 text-slate-800": status() === "enqueued",
+        "bg-blue-200 text-blue-800": status() === "running",
+        "bg-yellow-200 text-yellow-800":
+          status() === "aborted" ||
+          status() === "halted" ||
+          status() === "stopped",
+      })}
       variant="outline"
     >
-      <XIcon className="h-4 w-4" />
-    </Button>
+      {status()}
+    </Badge>
   );
 }
