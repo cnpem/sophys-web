@@ -1,4 +1,6 @@
 import { useCallback } from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon, XIcon } from "lucide-react";
 import { z } from "zod";
 import { cn } from "@sophys-web/ui";
@@ -91,6 +93,24 @@ export function QueueItem({
   queueItemProps: QueueItemProps;
   disabled?: boolean;
 }) {
+  const {
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    attributes,
+    transform,
+    isDragging,
+    transition,
+  } = useSortable({
+    id: queueItemProps.itemUid,
+    disabled,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
     <Card
       ref={setNodeRef}

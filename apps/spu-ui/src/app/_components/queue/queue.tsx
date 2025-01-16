@@ -1,7 +1,17 @@
 "use client";
 
-import { useCallback } from "react";
+import type { DragEndEvent, UniqueIdentifier } from "@dnd-kit/core";
+import { useCallback, useState } from "react";
+import { DndContext } from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { PlayIcon, SquareIcon, Trash2Icon } from "lucide-react";
+import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
+import { useStatus } from "@sophys-web/api-client/hooks/use-status";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -12,8 +22,6 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { toast } from "@sophys-web/ui/sonner";
-import { useQueue } from "../../_hooks/use-queue";
-import { useStatus } from "../../_hooks/use-status";
 import { EnvMenu } from "../env-menu";
 import { History } from "../history";
 import { getEngineStatus } from "../run-engine-controls";
@@ -75,8 +83,40 @@ function QueueCounter() {
 }
 
 export function Queue() {
-  const { queue } = useQueue();
+  const { queue, move } = useQueue();
   const isEmpty = queue.data?.items.length === 0;
+  const [optimisticOrder, setOptimisticOrder] = useState<UniqueIdentifier[]>(
+    [],
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (optimisticOrder.length === 0) {
+      return;
+    }
+    if (!over) {
+      return;
+    }
+    if (active.id !== over.id) {
+      const oldIndex = optimisticOrder.indexOf(active.id);
+      const newIndex = optimisticOrder.indexOf(over.id);
+      setOptimisticOrder((prev) => arrayMove(prev, oldIndex, newIndex));
+      move.mutate(
+        {
+          uid: active.id as string,
+          posDest: newIndex,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Item moved");
+          },
+          onError: () => {
+            toast.error("Failed to move item");
+          },
+        },
+      );
+    }
+  }
 
   if (queue.isLoading) {
     return <QueueSkeleton />;
@@ -88,15 +128,52 @@ export function Queue() {
         <RunningSection />
         <QueueCounter />
         <ScrollArea className="relative flex h-[420px] flex-col">
-          {isEmpty ? (
-            <p className="text-center text-muted-foreground">Queue is empty.</p>
-          ) : (
-            <ul className="space-y-2">
-              {queue.data?.items.map((item) => (
-                <QueueItem key={item.itemUid} props={item} />
-              ))}
-            </ul>
-          )}
+          <DndContext
+            onDragEnd={handleDragEnd}
+            modifiers={[restrictToVerticalAxis]}
+          >
+            {isEmpty ? (
+              <p className="text-center text-muted-foreground">
+                Queue is empty.
+              </p>
+            ) : (
+              <>
+                <SortableContext
+                  items={
+                    queue.data?.items.map(
+                      (item) => item.itemUid as UniqueIdentifier,
+                    ) ?? []
+                  }
+                  strategy={verticalListSortingStrategy}
+                >
+                  <ul className="space-y-2">
+                    {!move.isPending &&
+                      queue.data?.items.map((item) => (
+                        <QueueItem key={item.itemUid} queueItemProps={item} />
+                      ))}
+                    {move.isPending &&
+                      queue.data?.items
+                        .sort((a, b) => {
+                          const aIndex = optimisticOrder.indexOf(
+                            a.itemUid as UniqueIdentifier,
+                          );
+                          const bIndex = optimisticOrder.indexOf(
+                            b.itemUid as UniqueIdentifier,
+                          );
+                          return aIndex - bIndex;
+                        })
+                        .map((item) => (
+                          <QueueItem
+                            key={item.itemUid}
+                            queueItemProps={item}
+                            disabled
+                          />
+                        ))}
+                  </ul>
+                </SortableContext>
+              </>
+            )}
+          </DndContext>
         </ScrollArea>
       </div>
       <History />
