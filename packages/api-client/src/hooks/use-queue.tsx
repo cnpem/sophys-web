@@ -96,12 +96,19 @@ export const useQueue = () => {
     },
   });
 
+  const move = api.queue.item.move.useMutation({
+    onSettled: async () => {
+      await utils.queue.get.invalidate();
+    },
+  });
+
   return {
     queue,
     add,
     execute,
     addBatch,
     update,
+    move,
     remove,
     clear,
     start,
