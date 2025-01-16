@@ -91,9 +91,6 @@ export function Queue() {
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (optimisticOrder.length === 0) {
-      return;
-    }
     if (!over) {
       return;
     }
