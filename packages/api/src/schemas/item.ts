@@ -74,6 +74,28 @@ const updateSubmit = z.object({
 
 const updateResponse = addResponse;
 
+const moveSubmit = z.object({
+  pos: z.union([z.number(), z.literal("front"), z.literal("back")]).optional(),
+  uid: z.string().optional(),
+  posDest: z
+    .union([z.number(), z.literal("front"), z.literal("back")])
+    .optional(),
+  beforeUid: z.string().optional(),
+  afterUid: z.string().optional(),
+});
+
+const moveResponse = z.object({
+  success: z.boolean(),
+  msg: z.string(),
+  qsize: z.number().nullable(),
+  item: z.object({
+    name: z.string(),
+    args: z.array(z.any()),
+    kwargs: z.record(z.any()),
+    itemType: z.string(),
+  }),
+});
+
 export default {
   addSubmit,
   addResponse,
@@ -82,4 +104,6 @@ export default {
   addBatchResponse,
   updateSubmit,
   updateResponse,
+  moveSubmit,
+  moveResponse,
 };
