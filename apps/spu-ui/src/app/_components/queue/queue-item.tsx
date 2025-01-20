@@ -17,7 +17,7 @@ import type { QueueItemProps } from "../../../lib/types";
 import { useQueue } from "../../_hooks/use-queue";
 import { ItemEditDialog } from "./item-edit-dialog";
 
-function formatPlanNames(name: string) {
+export function formatPlanNames(name: string) {
   return name.replace(/_/g, " ");
 }
 
@@ -112,46 +112,48 @@ export function QueueItem({
   };
 
   return (
-    <Card
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      className={cn("relative rounded-sm border", {
-        "animate-pulse border-none bg-slate-100": !queueItemProps.itemUid,
-        "opacity-60": disabled,
-      })}
-    >
-      <CardHeader>
-        <CardDescription className="flex items-center gap-4">
-          <QueueItemStatusBadge props={queueItemProps} isRunning={false} />
-          <span className="break-all">@{queueItemProps.user}</span>
-        </CardDescription>
-        <CardTitle>
-          <span className="break-all">
-            {formatPlanNames(queueItemProps.name)}
-          </span>
-        </CardTitle>
-        <div className="absolute right-2 top-2 flex gap-1">
-          <Button
-            ref={setActivatorNodeRef}
-            {...listeners}
-            className={cn("size-8 hover:cursor-grab", {
-              "hover:cursor-grabbing": isDragging,
-            })}
-            size="icon"
-            variant="outline"
-            disabled={disabled}
-          >
-            <GripVerticalIcon className="h-4 w-4" />
-          </Button>
-          <ItemEditDialog props={queueItemProps} disabled={disabled} />
-          <RemoveButton uid={queueItemProps.itemUid} disabled={disabled} />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <PlanContent props={queueItemProps} />
-      </CardContent>
-    </Card>
+    <li>
+      <Card
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        className={cn("relative rounded-sm border", {
+          "animate-pulse border-none bg-slate-100": !queueItemProps.itemUid,
+          "opacity-60": disabled,
+        })}
+      >
+        <CardHeader>
+          <CardDescription className="flex items-center gap-4">
+            <QueueItemStatusBadge props={queueItemProps} isRunning={false} />
+            <span className="break-all">@{queueItemProps.user}</span>
+          </CardDescription>
+          <CardTitle>
+            <span className="break-all">
+              {formatPlanNames(queueItemProps.name)}
+            </span>
+          </CardTitle>
+          <div className="absolute right-2 top-2 flex gap-1">
+            <Button
+              ref={setActivatorNodeRef}
+              {...listeners}
+              className={cn("size-8 hover:cursor-grab", {
+                "hover:cursor-grabbing": isDragging,
+              })}
+              size="icon"
+              variant="outline"
+              disabled={disabled}
+            >
+              <GripVerticalIcon className="h-4 w-4" />
+            </Button>
+            <ItemEditDialog props={queueItemProps} disabled={disabled} />
+            <RemoveButton uid={queueItemProps.itemUid} disabled={disabled} />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <PlanContent props={queueItemProps} />
+        </CardContent>
+      </Card>
+    </li>
   );
 }
 
@@ -175,7 +177,7 @@ function RemoveButton({ uid, disabled }: { uid?: string; disabled?: boolean }) {
   );
 }
 
-function PlanContent({ props }: { props: QueueItemProps }) {
+export function PlanContent({ props }: { props: QueueItemProps }) {
   const common = commonKwargsSchema.safeParse(props.kwargs);
   if (!common.success) {
     return null;
@@ -222,7 +224,7 @@ function PlanContent({ props }: { props: QueueItemProps }) {
   );
 }
 
-function QueueItemStatusBadge({
+export function QueueItemStatusBadge({
   props,
   isRunning,
 }: {
