@@ -29,8 +29,16 @@ import { QueueItem, RunningItem, SkeletonItem } from "./queue-item";
 
 function QueueSkeleton() {
   return (
-    <div className="grid max-w-screen-xl grid-cols-3 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       <div className="flex flex-col gap-2">
+        <div className="flex h-fit flex-col gap-2">
+          <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
+            loading
+          </span>
+          <ul className="space-y-2">
+            <SkeletonItem />
+          </ul>
+        </div>
         <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
           Queue
         </span>
@@ -44,14 +52,6 @@ function QueueSkeleton() {
             <SkeletonItem />
           </ul>
         </div>
-      </div>
-      <div className="flex h-fit flex-col gap-2">
-        <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
-          loading
-        </span>
-        <ul className="space-y-2">
-          <SkeletonItem />
-        </ul>
       </div>
       <div className="flex h-fit flex-col gap-2">
         <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">

@@ -46,9 +46,9 @@ export function SkeletonItem() {
             <span className="h-6 w-24 rounded bg-muted" />
             <Badge className="border-none bg-muted" variant="outline" />
           </CardTitle>
-          <CardDescription className="space-y-2">
+          <CardDescription className="space-y-4">
             <div className="flex gap-2">
-              <span className="h-5 w-44 rounded bg-muted" />
+              <span className="h-5 w-64 rounded bg-muted" />
               <span className="h-5 w-28 rounded bg-muted" />
             </div>
             <div className="flex gap-2">
