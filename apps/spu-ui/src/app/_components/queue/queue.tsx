@@ -1,7 +1,7 @@
 "use client";
 
 import type { DragEndEvent, UniqueIdentifier } from "@dnd-kit/core";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { DndContext } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
@@ -22,6 +22,7 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { toast } from "@sophys-web/ui/sonner";
+import type { QueueItemProps } from "../../../lib/types";
 import { EnvMenu } from "../env-menu";
 import { History } from "../history";
 import { getEngineStatus } from "../run-engine-controls";
@@ -84,24 +85,34 @@ function QueueCounter() {
 
 export function Queue() {
   const { queue, move } = useQueue();
+  const [sortedItems, setSortedItems] = useState<QueueItemProps[]>([]);
+
+  useEffect(() => {
+    setSortedItems(queue.data?.items ?? ([] as QueueItemProps[]));
+  }, [queue.data]);
+
   const isEmpty = queue.data?.items.length === 0;
-  const [optimisticOrder, setOptimisticOrder] = useState<UniqueIdentifier[]>(
-    [],
-  );
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
+    if (isEmpty) {
+      return;
+    }
     if (!over) {
       return;
     }
     if (active.id !== over.id) {
-      const oldIndex = optimisticOrder.indexOf(active.id);
-      const newIndex = optimisticOrder.indexOf(over.id);
-      setOptimisticOrder((prev) => arrayMove(prev, oldIndex, newIndex));
+      const fromIndex = sortedItems.findIndex(
+        (item) => item.itemUid === active.id,
+      );
+      const toIndex = sortedItems.findIndex((item) => item.itemUid === over.id);
+      setSortedItems((sortedItems) =>
+        arrayMove(sortedItems, fromIndex, toIndex),
+      );
       move.mutate(
         {
           uid: active.id as string,
-          posDest: newIndex,
+          posDest: toIndex,
         },
         {
           onSuccess: () => {
@@ -136,36 +147,19 @@ export function Queue() {
             ) : (
               <>
                 <SortableContext
-                  items={
-                    queue.data?.items.map(
-                      (item) => item.itemUid as UniqueIdentifier,
-                    ) ?? []
-                  }
+                  items={sortedItems.map(
+                    (item) => item.itemUid as UniqueIdentifier,
+                  )}
                   strategy={verticalListSortingStrategy}
                 >
                   <ul className="space-y-2">
-                    {!move.isPending &&
-                      queue.data?.items.map((item) => (
-                        <QueueItem key={item.itemUid} queueItemProps={item} />
-                      ))}
-                    {move.isPending &&
-                      queue.data?.items
-                        .sort((a, b) => {
-                          const aIndex = optimisticOrder.indexOf(
-                            a.itemUid as UniqueIdentifier,
-                          );
-                          const bIndex = optimisticOrder.indexOf(
-                            b.itemUid as UniqueIdentifier,
-                          );
-                          return aIndex - bIndex;
-                        })
-                        .map((item) => (
-                          <QueueItem
-                            key={item.itemUid}
-                            queueItemProps={item}
-                            disabled
-                          />
-                        ))}
+                    {sortedItems.map((item) => (
+                      <QueueItem
+                        key={item.itemUid}
+                        disabled={move.isPending}
+                        queueItemProps={item}
+                      />
+                    ))}
                   </ul>
                 </SortableContext>
               </>
