@@ -5,7 +5,7 @@ import { protectedProcedure, publicProcedure } from "../trpc";
 export const postRouter = {
   hello: publicProcedure
     .input(z.object({ message: z.string() }))
-    .query(({ ctx, input }) => {
+    .query(({ input }) => {
       return { greeting: `Hello, ${input.message}` };
     }),
   secret: protectedProcedure.query(({ ctx }) => {

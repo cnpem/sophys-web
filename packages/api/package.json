@@ -12,7 +12,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "clean": "rm -rf .turbo .cache dist node_modules"
+    "clean": "rm -rf .turbo .cache dist node_modules",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@sophys-web/auth": "workspace:*",
