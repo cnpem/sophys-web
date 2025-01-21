@@ -22,15 +22,15 @@
       "types": "./dist/src/env.d.ts",
       "default": "./src/env.ts"
     },
-    "./hooks/*": {
-      "types": "./dist/src/hooks/*.d.ts",
-      "default": "./src/hooks/*.ts"
+    "./hooks": {
+      "types": "./dist/src/hooks/index.d.ts",
+      "default": "./src/hooks/index.ts"
     }
   },
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
+    "dev": "tsc",
     "clean": "rm -rf dist .turbo .cache node_modules",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit --emitDeclarationOnly false"

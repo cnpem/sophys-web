@@ -10,8 +10,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { PlayIcon, SquareIcon, Trash2Icon } from "lucide-react";
-import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
-import { useStatus } from "@sophys-web/api-client/hooks/use-status";
+import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import {

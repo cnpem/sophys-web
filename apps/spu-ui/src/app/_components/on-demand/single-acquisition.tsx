@@ -5,7 +5,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CameraIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
+import { useQueue } from "@sophys-web/api-client/hooks";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";

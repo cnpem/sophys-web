@@ -18,7 +18,7 @@
     "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
     "clean": "rm -rf dist .turbo .cache node_modules",
     "lint": "eslint src/",
-    "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
+    "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {

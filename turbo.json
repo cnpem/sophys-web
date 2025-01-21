@@ -8,13 +8,7 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "!.next/cache/**",
-        ".cache/tsbuildinfo.json",
-        "dist/**"
-      ]
+      "outputs": ["dist/**", ".cache/tsbuildinfo.json", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^topo", "^build"],

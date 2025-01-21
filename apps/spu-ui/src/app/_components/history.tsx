@@ -1,7 +1,7 @@
 "use client";
 
 import { RotateCcwIcon } from "lucide-react";
-import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
+import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";

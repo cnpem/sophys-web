@@ -1,6 +1,6 @@
 "use client";
 
-import { useStatus } from "@sophys-web/api-client/hooks/use-status";
+import { useStatus } from "@sophys-web/api-client/hooks";
 import { cn } from "@sophys-web/ui";
 import { buttonVariants } from "@sophys-web/ui/button";
 import {

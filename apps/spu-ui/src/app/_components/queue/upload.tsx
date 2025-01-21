@@ -6,7 +6,7 @@ import { CheckIcon, MoveRightIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import type { Session } from "@sophys-web/auth";
-import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
+import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";

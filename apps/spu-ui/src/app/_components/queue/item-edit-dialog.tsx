@@ -2,7 +2,7 @@ import type { z } from "zod";
 import { useCallback, useState } from "react";
 import { PencilIcon } from "lucide-react";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
-import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
+import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import {

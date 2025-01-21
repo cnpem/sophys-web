@@ -7,7 +7,7 @@ import {
   Play,
   Square,
 } from "lucide-react";
-import { useStatus } from "@sophys-web/api-client/hooks/use-status";
+import { useStatus } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import {

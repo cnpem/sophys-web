@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf .next .turbo .cache node_modules",
     "build": "tsc",
-    "dev": "tsc --watch",
+    "dev": "tsc",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit"
   },
