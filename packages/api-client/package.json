@@ -33,7 +33,7 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist .turbo .cache node_modules",
     "lint": "eslint src/",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit --emitDeclarationOnly false"
   },
   "peerDependencies": {
     "react": "catalog:react18"

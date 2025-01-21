@@ -11,7 +11,9 @@
     "./env": "./env.ts"
   },
   "scripts": {
-    "clean": "rm -rf .turbo node_modules .cache"
+    "clean": "rm -rf .turbo node_modules .cache",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@sophys-web/eslint-config": "workspace:*",
