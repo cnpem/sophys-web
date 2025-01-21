@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon, XIcon } from "lucide-react";
@@ -14,6 +14,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@sophys-web/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@sophys-web/ui/tooltip";
 import type { QueueItemProps } from "../../../lib/types";
 import { ItemEditDialog } from "./item-edit-dialog";
 
@@ -136,20 +142,40 @@ export function QueueItem({
             </span>
           </CardTitle>
           <div className="absolute right-2 top-2 flex gap-1">
-            <Button
-              ref={setActivatorNodeRef}
-              {...listeners}
-              className={cn("size-8 hover:cursor-grab", {
-                "hover:cursor-grabbing": isDragging,
-              })}
-              size="icon"
-              variant="outline"
-              disabled={disabled}
-            >
-              <GripVerticalIcon className="h-4 w-4" />
-            </Button>
-            <ItemEditDialog props={queueItemProps} disabled={disabled} />
-            <RemoveButton uid={queueItemProps.itemUid} disabled={disabled} />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    ref={setActivatorNodeRef}
+                    {...listeners}
+                    className={cn("size-8 hover:cursor-grab", {
+                      "hover:cursor-grabbing": isDragging,
+                    })}
+                    size="icon"
+                    variant="outline"
+                    disabled={disabled}
+                  >
+                    <GripVerticalIcon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Drag to move item</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <ItemEditDialog props={queueItemProps} disabled={disabled} />
+                </TooltipTrigger>
+                <TooltipContent>Edit item</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <RemoveButton
+                    uid={queueItemProps.itemUid}
+                    disabled={disabled}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>Remove item</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </CardHeader>
         <CardContent>
@@ -160,7 +186,10 @@ export function QueueItem({
   );
 }
 
-function RemoveButton({ uid, disabled }: { uid?: string; disabled?: boolean }) {
+const RemoveButton = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  { uid?: string; disabled?: boolean }
+>(({ uid, disabled, ...buttonProps }, ref) => {
   const { remove } = useQueue();
   const handleRemove = useCallback(() => {
     if (uid !== undefined) {
@@ -169,16 +198,18 @@ function RemoveButton({ uid, disabled }: { uid?: string; disabled?: boolean }) {
   }, [remove, uid]);
   return (
     <Button
+      ref={ref}
       className="size-8"
       onClick={handleRemove}
       size="icon"
       variant="outline"
       disabled={disabled}
+      {...buttonProps}
     >
       <XIcon className="h-4 w-4" />
     </Button>
   );
-}
+});
 
 export function PlanContent({ props }: { props: QueueItemProps }) {
   const common = commonKwargsSchema.safeParse(props.kwargs);

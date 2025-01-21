@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { PencilIcon } from "lucide-react";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
 import { useQueue } from "@sophys-web/api-client/hooks";
@@ -18,13 +18,10 @@ import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
 
-export function ItemEditDialog({
-  props,
-  disabled,
-}: {
-  props: QueueItemProps;
-  disabled?: boolean;
-}) {
+const ItemEditDialog = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  { props: QueueItemProps; disabled?: boolean }
+>(({ props, disabled, ...buttonProps }, ref) => {
   const { data: plans } = api.plans.allowed.useQuery(undefined);
   const { data: devices } = api.devices.allowedNames.useQuery(undefined);
   const { update } = useQueue();
@@ -77,6 +74,8 @@ export function ItemEditDialog({
           size="icon"
           disabled={!planDetails || !devices || disabled}
           variant="outline"
+          ref={ref}
+          {...buttonProps}
         >
           <PencilIcon className="h-4 w-4" />
         </Button>
@@ -104,4 +103,6 @@ export function ItemEditDialog({
       </DialogContent>
     </Dialog>
   );
-}
+});
+ItemEditDialog.displayName = "ItemEditDialog";
+export { ItemEditDialog };
