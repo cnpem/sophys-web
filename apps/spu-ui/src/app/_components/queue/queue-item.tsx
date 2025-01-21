@@ -30,9 +30,12 @@ const commonKwargsSchema = z.object({
   sampleTag: z.string().optional(),
   metadata: z
     .object({
-      sampleType: z.string(),
-      sampleTag: z.string(),
-      bufferTag: z.string(),
+      sampleType: z.string().optional(),
+      sampleTag: z.string().optional(),
+      bufferTag: z.string().optional(),
+      row: z.string().optional(),
+      col: z.string().optional(),
+      tray: z.string().optional(),
     })
     .optional(),
 });
@@ -180,6 +183,8 @@ function RemoveButton({ uid, disabled }: { uid?: string; disabled?: boolean }) {
 export function PlanContent({ props }: { props: QueueItemProps }) {
   const common = commonKwargsSchema.safeParse(props.kwargs);
   if (!common.success) {
+    console.error(common.error);
+    console.error(props.kwargs);
     return null;
   }
   return (
@@ -188,8 +193,14 @@ export function PlanContent({ props }: { props: QueueItemProps }) {
         <Badge variant="outline">proposal: {common.data.proposal}</Badge>
       )}
       {common.data.tray && <Badge variant="outline">{common.data.tray}</Badge>}
+      {common.data.metadata?.tray && (
+        <Badge variant="outline">{common.data.metadata.tray}</Badge>
+      )}
       {common.data.col && common.data.row && (
         <Badge variant="outline">{`${common.data.col}${common.data.row}`}</Badge>
+      )}
+      {common.data.metadata?.col && common.data.metadata.row && (
+        <Badge variant="outline">{`${common.data.metadata.col}${common.data.metadata.row}`}</Badge>
       )}
       {common.data.sampleType && common.data.sampleTag && (
         <Badge
@@ -204,7 +215,7 @@ export function PlanContent({ props }: { props: QueueItemProps }) {
           {common.data.sampleTag && <span>: {common.data.sampleTag}</span>}
         </Badge>
       )}
-      {common.data.metadata && (
+      {common.data.metadata?.sampleType && common.data.metadata?.sampleTag && (
         <Badge
           className={cn("border-none bg-slate-400 text-slate-800", {
             "bg-emerald-200 text-emerald-800":
