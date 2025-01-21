@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { RotateCcwIcon } from "lucide-react";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
@@ -13,6 +14,12 @@ import {
   CardTitle,
 } from "@sophys-web/ui/card";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@sophys-web/ui/tooltip";
 import type { HistoryItemProps } from "../../lib/types";
 import {
   formatPlanNames,
@@ -20,7 +27,10 @@ import {
   QueueItemStatusBadge,
 } from "./queue/queue-item";
 
-function RedoButton(props: HistoryItemProps) {
+const RedoButton = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  { props: HistoryItemProps }
+>(({ props, ...buttonProps }, ref) => {
   const { add } = useQueue();
   if (!props.kwargs) {
     return null;
@@ -35,17 +45,20 @@ function RedoButton(props: HistoryItemProps) {
   };
   return (
     <Button
+      ref={ref}
       className="size-8"
       onClick={() => {
         add.mutate(submitParams);
       }}
       size="icon"
       variant="outline"
+      {...buttonProps}
     >
       <RotateCcwIcon className="h-4 w-4" />
     </Button>
   );
-}
+});
+RedoButton.displayName = "RedoButton";
 
 function HistoryItem({ props }: { props: HistoryItemProps }) {
   return (
@@ -63,7 +76,16 @@ function HistoryItem({ props }: { props: HistoryItemProps }) {
           <span className="break-all">{formatPlanNames(props.name)}</span>
         </CardTitle>
         <div className="absolute right-2 top-2 flex gap-1">
-          <RedoButton {...props} />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <RedoButton props={props} />
+              </TooltipTrigger>
+              <TooltipContent>
+                <Tooltip>Resubmit this item to the queue</Tooltip>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </CardHeader>
       <CardContent>
