@@ -215,7 +215,7 @@ export function PlanContent({ props }: { props: QueueItemProps }) {
           {common.data.sampleTag && <span>: {common.data.sampleTag}</span>}
         </Badge>
       )}
-      {common.data.metadata?.sampleType && common.data.metadata?.sampleTag && (
+      {common.data.metadata?.sampleType && common.data.metadata.sampleTag && (
         <Badge
           className={cn("border-none bg-slate-400 text-slate-800", {
             "bg-emerald-200 text-emerald-800":
