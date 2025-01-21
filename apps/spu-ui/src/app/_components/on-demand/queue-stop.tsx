@@ -1,6 +1,6 @@
 import { SquareIcon } from "lucide-react";
+import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
 import { Button } from "@sophys-web/ui/button";
-import { useQueue } from "~/app/_hooks/use-queue";
 
 export function QueueStop({ className }: { className?: string }) {
   const { add } = useQueue();

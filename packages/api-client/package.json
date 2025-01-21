@@ -22,13 +22,9 @@
       "types": "./dist/src/env.d.ts",
       "default": "./src/env.ts"
     },
-    "./hooks/use-queue": {
-      "types": "./dist/src/hooks/use-queue.d.ts",
-      "default": "./src/hooks/use-queue.tsx"
-    },
-    "./hooks/use-status": {
-      "types": "./dist/src/hooks/use-status.d.ts",
-      "default": "./src/hooks/use-status.tsx"
+    "./hooks/*": {
+      "types": "./dist/src/hooks/*.d.ts",
+      "default": "./src/hooks/*.ts"
     }
   },
   "license": "MIT",
