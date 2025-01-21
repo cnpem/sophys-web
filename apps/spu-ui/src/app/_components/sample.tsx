@@ -4,6 +4,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -45,7 +46,6 @@ import type {
   trayRows,
 } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/load";
-import { useQueue } from "../_hooks/use-queue";
 import { getSamples, setSamples } from "../actions/samples";
 
 export interface Sample {

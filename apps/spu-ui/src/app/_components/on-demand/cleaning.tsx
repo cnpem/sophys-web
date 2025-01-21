@@ -3,6 +3,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DropletIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
 import { Button } from "@sophys-web/ui/button";
 import {
   Dialog,
@@ -30,7 +31,6 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { toast } from "@sophys-web/ui/sonner";
-import { useQueue } from "~/app/_hooks/use-queue";
 import { cleaningAgents, cleaningDefaults } from "../../../lib/constants";
 import {
   schema as cleaningKwargsSchema,

@@ -1,6 +1,7 @@
 "use client";
 
 import { RotateCcwIcon } from "lucide-react";
+import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
@@ -13,7 +14,6 @@ import {
 } from "@sophys-web/ui/card";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import type { HistoryItemProps } from "../../lib/types";
-import { useQueue } from "../_hooks/use-queue";
 import {
   formatPlanNames,
   PlanContent,

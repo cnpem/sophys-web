@@ -1,5 +1,6 @@
 "use client";
 
+import { useStatus } from "@sophys-web/api-client/hooks/use-status";
 import { cn } from "@sophys-web/ui";
 import { buttonVariants } from "@sophys-web/ui/button";
 import {
@@ -10,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
-import { useStatus } from "../_hooks/use-status";
 
 export function EnvMenu() {
   const { status, envUpdate, envOpen, envClose } = useStatus();

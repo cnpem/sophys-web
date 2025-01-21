@@ -3,6 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon, XIcon } from "lucide-react";
 import { z } from "zod";
+import { useQueue } from "@sophys-web/api-client/hooks/use-queue";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
@@ -14,7 +15,6 @@ import {
   CardTitle,
 } from "@sophys-web/ui/card";
 import type { QueueItemProps } from "../../../lib/types";
-import { useQueue } from "../../_hooks/use-queue";
 import { ItemEditDialog } from "./item-edit-dialog";
 
 export function formatPlanNames(name: string) {
