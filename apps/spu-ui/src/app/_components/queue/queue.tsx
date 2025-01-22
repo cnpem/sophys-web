@@ -134,7 +134,7 @@ export function Queue() {
       <div className="flex flex-col gap-2">
         <RunningSection />
         <QueueCounter />
-        <ScrollArea className="relative flex h-[420px] flex-col">
+        <ScrollArea className="relative flex h-[610px] flex-col">
           <DndContext
             onDragEnd={handleDragEnd}
             modifiers={[restrictToVerticalAxis]}
