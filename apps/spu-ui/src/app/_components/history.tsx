@@ -21,11 +21,11 @@ import {
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
 import type { HistoryItemProps } from "../../lib/types";
+import { formatPlanNames } from "./queue/queue-item";
 import {
-  formatPlanNames,
-  PlanContent,
+  QueueItemBadges,
   QueueItemStatusBadge,
-} from "./queue/queue-item";
+} from "./queue/queue-item-badges";
 
 const RedoButton = React.forwardRef<
   React.ElementRef<typeof Button>,
@@ -89,7 +89,7 @@ function HistoryItem({ props }: { props: HistoryItemProps }) {
         </div>
       </CardHeader>
       <CardContent>
-        <PlanContent props={props} />
+        <QueueItemBadges props={props} />
       </CardContent>
     </Card>
   );
