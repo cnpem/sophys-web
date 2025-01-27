@@ -164,7 +164,13 @@ export function QueueItem({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <ItemEditDialog props={queueItemProps} disabled={disabled} />
+                  <ItemEditDialog
+                    props={queueItemProps}
+                    className="size-8"
+                    size="icon"
+                    variant="outline"
+                    disabled={disabled}
+                  />
                 </TooltipTrigger>
                 <TooltipContent>Edit item</TooltipContent>
               </Tooltip>
