@@ -48,7 +48,7 @@ function snakeToTitleCase(str: string) {
 interface DynamicFormProps {
   planData: {
     name: string;
-    description: string;
+    description: string | undefined;
     parameters: Parameter[];
   };
   devices: {
@@ -85,7 +85,9 @@ export function AnyForm({
         <TooltipProvider>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <h2 className="text-2xl font-bold">{planData.name}</h2>
-            <p className="text-gray-600">{planData.description}</p>
+            {planData.description && (
+              <p className="text-gray-600">{planData.description}</p>
+            )}
             <div className="grid grid-cols-3 gap-2">
               {planData.parameters.map((param) => (
                 <FormField
