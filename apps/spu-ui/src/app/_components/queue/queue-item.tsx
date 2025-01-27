@@ -3,6 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVerticalIcon, XIcon } from "lucide-react";
 import { z } from "zod";
+import type { ButtonProps } from "@sophys-web/ui/button";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
@@ -141,7 +142,7 @@ export function QueueItem({
               {formatPlanNames(queueItemProps.name)}
             </span>
           </CardTitle>
-          <div className="absolute right-2 top-2 flex gap-1">
+          <div className="absolute right-2 top-0 flex gap-1">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -160,17 +161,22 @@ export function QueueItem({
                 </TooltipTrigger>
                 <TooltipContent>Drag to move item</TooltipContent>
               </Tooltip>
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <ItemEditDialog props={queueItemProps} disabled={disabled} />
                 </TooltipTrigger>
                 <TooltipContent>Edit item</TooltipContent>
               </Tooltip>
+
               <Tooltip>
                 <TooltipTrigger asChild>
                   <RemoveButton
                     uid={queueItemProps.itemUid}
                     disabled={disabled}
+                    className="size-8"
+                    size="icon"
+                    variant="outline"
                   />
                 </TooltipTrigger>
                 <TooltipContent>Remove item</TooltipContent>
@@ -186,30 +192,25 @@ export function QueueItem({
   );
 }
 
-const RemoveButton = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  { uid?: string; disabled?: boolean }
->(({ uid, disabled, ...buttonProps }, ref) => {
-  const { remove } = useQueue();
-  const handleRemove = useCallback(() => {
-    if (uid !== undefined) {
-      remove.mutate({ uid });
-    }
-  }, [remove, uid]);
-  return (
-    <Button
-      ref={ref}
-      className="size-8"
-      onClick={handleRemove}
-      size="icon"
-      variant="outline"
-      disabled={disabled}
-      {...buttonProps}
-    >
-      <XIcon className="h-4 w-4" />
-    </Button>
-  );
-});
+interface RemoveButtonProps extends ButtonProps {
+  uid?: string;
+}
+
+const RemoveButton = React.forwardRef<HTMLButtonElement, RemoveButtonProps>(
+  ({ uid, ...props }, ref) => {
+    const { remove } = useQueue();
+    const handleRemove = useCallback(() => {
+      if (uid !== undefined) {
+        remove.mutate({ uid });
+      }
+    }, [remove, uid]);
+    return (
+      <Button ref={ref} {...props} onClick={handleRemove}>
+        <XIcon className="h-4 w-4" />
+      </Button>
+    );
+  },
+);
 
 export function PlanContent(props: QueueItemProps) {
   const common = commonKwargsSchema.safeParse(props.kwargs);
