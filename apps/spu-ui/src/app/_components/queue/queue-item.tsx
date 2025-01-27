@@ -89,7 +89,7 @@ export function RunningItem({ props }: { props: QueueItemProps }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <PlanContent props={props} />
+        <PlanContent {...props} />
       </CardContent>
     </Card>
   );
@@ -179,7 +179,7 @@ export function QueueItem({
           </div>
         </CardHeader>
         <CardContent>
-          <PlanContent props={queueItemProps} />
+          <PlanContent {...queueItemProps} />
         </CardContent>
       </Card>
     </li>
@@ -211,7 +211,7 @@ const RemoveButton = React.forwardRef<
   );
 });
 
-export function PlanContent({ props }: { props: QueueItemProps }) {
+export function PlanContent(props: QueueItemProps) {
   const common = commonKwargsSchema.safeParse(props.kwargs);
   if (!common.success) {
     console.error(common.error);

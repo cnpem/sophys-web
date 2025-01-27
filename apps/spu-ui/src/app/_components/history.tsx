@@ -79,7 +79,7 @@ function HistoryItem({ props }: { props: HistoryItemProps }) {
           )}
         </CardHeader>
         <CardContent>
-          <PlanContent props={props} />
+          <PlanContent {...props} />
         </CardContent>
       </Card>
     </TooltipProvider>
