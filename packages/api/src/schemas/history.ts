@@ -14,8 +14,8 @@ const getResponseSchema = z.object({
       itemUid: z.string().uuid(),
       result: z.object({
         exitStatus: z.string().optional(),
-        runUids: z.array(z.string()),
-        scanIds: z.array(z.string()),
+        runUids: z.array(z.string()).optional(),
+        scanIds: z.array(z.coerce.number()).optional(),
         timeStart: z.number(),
         timeStop: z.number(),
         msg: z.string().optional(),
