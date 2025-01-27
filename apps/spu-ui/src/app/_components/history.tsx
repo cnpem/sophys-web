@@ -40,7 +40,7 @@ function HistoryItem(props: HistoryItemProps) {
       >
         <CardHeader>
           <CardDescription className="flex items-center gap-4">
-            <QueueItemStatusBadge props={props} isRunning={false} />
+            <QueueItemStatusBadge props={props} />
             <span className="break-all">@{props.user}</span>
             <span>
               {format(fromUnixTime(props.result.timeStop), "MM/dd/yyyy")}

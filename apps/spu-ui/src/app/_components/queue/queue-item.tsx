@@ -81,7 +81,7 @@ export function RunningItem({ props }: { props: QueueItemProps }) {
     >
       <CardHeader>
         <CardDescription className="flex items-center gap-4">
-          <QueueItemStatusBadge props={props} isRunning={true} />
+          <QueueItemStatusBadge props={props} isRunning />
           <span className="break-all">@{props.user}</span>
         </CardDescription>
         <CardTitle>
@@ -133,7 +133,7 @@ export function QueueItem({
       >
         <CardHeader>
           <CardDescription className="flex items-center gap-4">
-            <QueueItemStatusBadge props={queueItemProps} isRunning={false} />
+            <QueueItemStatusBadge props={queueItemProps} />
             <span className="break-all">@{queueItemProps.user}</span>
           </CardDescription>
           <CardTitle>
