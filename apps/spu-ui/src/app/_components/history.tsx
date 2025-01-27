@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { format, fromUnixTime } from "date-fns";
 import { RotateCcwIcon } from "lucide-react";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
@@ -27,71 +28,61 @@ import {
   QueueItemStatusBadge,
 } from "./queue/queue-item";
 
-const RedoButton = React.forwardRef<
-  React.ElementRef<typeof Button>,
-  { props: HistoryItemProps }
->(({ props, ...buttonProps }, ref) => {
-  const { add } = useQueue();
-  if (!props.kwargs) {
-    return null;
-  }
-  const submitParams = {
-    item: {
-      name: props.name,
-      kwargs: props.kwargs,
-      args: [],
-      itemType: props.itemType,
-    },
-  };
-  return (
-    <Button
-      ref={ref}
-      className="size-8"
-      onClick={() => {
-        add.mutate(submitParams);
-      }}
-      size="icon"
-      variant="outline"
-      {...buttonProps}
-    >
-      <RotateCcwIcon className="h-4 w-4" />
-    </Button>
-  );
-});
-RedoButton.displayName = "RedoButton";
-
 function HistoryItem({ props }: { props: HistoryItemProps }) {
+  const { name, kwargs, itemType } = props;
+  const { add } = useQueue();
   return (
-    <Card
-      className={cn("relative rounded-sm border", {
-        "animate-pulse border-none bg-slate-100": !props.itemUid,
-      })}
-    >
-      <CardHeader>
-        <CardDescription className="flex items-center gap-4">
-          <QueueItemStatusBadge props={props} isRunning={false} />
-          <span className="break-all">@{props.user}</span>
-        </CardDescription>
-        <CardTitle>
-          <span className="break-all">{formatPlanNames(props.name)}</span>
-        </CardTitle>
-        <div className="absolute right-2 top-2 flex gap-1">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <RedoButton props={props} />
-              </TooltipTrigger>
-              <TooltipContent>
-                <Tooltip>Resubmit this item to the queue</Tooltip>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <PlanContent props={props} />
-      </CardContent>
-    </Card>
+    <TooltipProvider>
+      <Card
+        className={cn("relative rounded-sm border", {
+          "animate-pulse border-none bg-slate-100": !props.itemUid,
+        })}
+      >
+        <CardHeader>
+          <CardDescription className="flex items-center gap-4">
+            <QueueItemStatusBadge props={props} isRunning={false} />
+            <span className="break-all">@{props.user}</span>
+            <span>
+              {format(fromUnixTime(props.result.timeStop), "MM/dd/yyyy")}
+            </span>
+          </CardDescription>
+          <CardTitle>
+            <span className="break-all">{formatPlanNames(props.name)}</span>
+          </CardTitle>
+          {kwargs && (
+            <div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => {
+                      add.mutate({
+                        item: {
+                          name,
+                          kwargs,
+                          args: [],
+                          itemType,
+                        },
+                      });
+                    }}
+                    size="icon"
+                    className="absolute right-2 top-2 size-8"
+                    variant="outline"
+                  >
+                    <RotateCcwIcon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <Tooltip>Resubmit this item to the queue</Tooltip>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          )}
+        </CardHeader>
+        <CardContent>
+          <PlanContent props={props} />
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   );
 }
 
