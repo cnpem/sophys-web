@@ -134,7 +134,7 @@ export function Queue() {
       <div className="flex flex-col gap-2">
         <RunningSection />
         <QueueCounter />
-        <ScrollArea className="relative flex h-[420px] flex-col">
+        <ScrollArea className="relative flex h-[610px] flex-col">
           <DndContext
             onDragEnd={handleDragEnd}
             modifiers={[restrictToVerticalAxis]}
@@ -177,7 +177,7 @@ function RunningSection() {
   return (
     <div className="flex h-fit flex-col gap-2">
       <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
-        {getEngineStatus(status.data?.reState)}
+        Run engine {getEngineStatus(status.data?.reState)}
       </span>
       {queue.data?.runningItem.itemUid ? (
         <RunningItem

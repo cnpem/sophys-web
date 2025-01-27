@@ -22,11 +22,11 @@ import {
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
 import type { HistoryItemProps } from "../../lib/types";
+import { formatPlanNames } from "./queue/queue-item";
 import {
-  formatPlanNames,
-  PlanContent,
+  QueueItemBadges,
   QueueItemStatusBadge,
-} from "./queue/queue-item";
+} from "./queue/queue-item-badges";
 
 function HistoryItem(props: HistoryItemProps) {
   const { name, kwargs, itemType } = props;
@@ -79,7 +79,7 @@ function HistoryItem(props: HistoryItemProps) {
           )}
         </CardHeader>
         <CardContent>
-          <PlanContent {...props} />
+          <QueueItemBadges props={props} />
         </CardContent>
       </Card>
     </TooltipProvider>
@@ -94,7 +94,7 @@ export function History() {
   return (
     <div className="flex flex-col gap-2">
       <HistoryCounter />
-      <ScrollArea className="flex h-[630px] flex-col">
+      <ScrollArea className="flex h-[820px] flex-col">
         {data?.items.length === 0 ? (
           <p className="text-center text-muted-foreground">History is empty.</p>
         ) : (

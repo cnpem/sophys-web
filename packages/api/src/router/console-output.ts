@@ -75,21 +75,42 @@ function parseInnerMessage(message: string): ParsedLogMessage | null {
   const match = innerMessageRegex.exec(message);
 
   if (!match) {
-    console.error("Failed to parse inner message:", message);
-    return null;
+    console.error("Failed to parse inner message:\n", message);
+    const now = new Date();
+    return {
+      logLevel: "U",
+      date: now.toISOString().slice(0, 10),
+      timestamp: now.toISOString().slice(11, 19),
+      service: "Unknown",
+      textMessage: message,
+    };
   }
 
   const [, bracketContent, textMessage] = match;
   if (!bracketContent) {
-    console.error("Failed to parse bracket content:", message);
-    return null;
+    console.error("Failed to parse bracket content:\n", message);
+    const now = new Date();
+    return {
+      logLevel: "U",
+      date: now.toISOString().slice(0, 10),
+      timestamp: now.toISOString().slice(11, 19),
+      service: "Unknown",
+      textMessage: message,
+    };
   }
 
   const [logLevel, date, timestamp, service] = bracketContent.split(/\s+/);
 
   if (!logLevel || !date || !timestamp || !service || !textMessage) {
     console.error("Failed to parse bracket content:", message);
-    return null;
+    const now = new Date();
+    return {
+      logLevel: "U",
+      date: now.toISOString().slice(0, 10),
+      timestamp: now.toISOString().slice(11, 19),
+      service: "Unknown",
+      textMessage: message,
+    };
   }
 
   return {
