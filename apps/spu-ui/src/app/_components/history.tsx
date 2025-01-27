@@ -28,7 +28,7 @@ import {
   QueueItemStatusBadge,
 } from "./queue/queue-item";
 
-function HistoryItem({ props }: { props: HistoryItemProps }) {
+function HistoryItem(props: HistoryItemProps) {
   const { name, kwargs, itemType } = props;
   const { add } = useQueue();
   return (
@@ -101,7 +101,7 @@ export function History() {
           <ul className="space-y-2">
             {data?.items
               .sort((a, b) => b.result.timeStop - a.result.timeStop)
-              .map((item) => <HistoryItem key={item.itemUid} props={item} />)}
+              .map((item) => <HistoryItem key={item.itemUid} {...item} />)}
           </ul>
         )}
       </ScrollArea>
