@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CameraIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useQueue } from "@sophys-web/api-client/hooks";
+import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";
@@ -46,6 +47,7 @@ export function SingleAcquitision({
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
+  const { data } = api.auth.getUser.useQuery();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -78,6 +80,7 @@ export function SingleAcquitision({
         </DialogHeader>
         {lastSampleParams !== undefined && (
           <SingleAcquisitionForm
+            proposal={data?.proposal}
             lastSampleParams={lastSampleParams}
             onSubmitSuccess={() => {
               setOpen(false);
@@ -90,11 +93,13 @@ export function SingleAcquitision({
 }
 
 function SingleAcquisitionForm({
-  className,
   lastSampleParams,
+  proposal,
+  className,
   onSubmitSuccess,
 }: {
   lastSampleParams: LastSampleParams;
+  proposal?: string;
   className?: string;
   onSubmitSuccess: () => void;
 }) {
@@ -103,6 +108,7 @@ function SingleAcquisitionForm({
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: {
+      proposal: proposal,
       isRef: false,
       metadata: {
         row: lastSampleParams.row,
