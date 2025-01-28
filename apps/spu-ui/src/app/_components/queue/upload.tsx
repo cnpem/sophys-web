@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckIcon, MoveRightIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import type { Session } from "@sophys-web/auth";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
@@ -228,7 +227,9 @@ const stepsMap = [
 ] as const;
 
 function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
-  const { data: session, isLoading } = api.auth.getSession.useQuery();
+  const { data: user } = api.auth.getUser.useQuery();
+
+  const { addBatch } = useQueue();
 
   const [cleaningParams, setCleaningParams] =
     useState<z.infer<typeof cleaningKwargsSchema>>();
@@ -236,24 +237,14 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
     useState<z.infer<typeof acquisitionTableSchema>[]>();
   const [capillaryParams, setCapillaryParams] =
     useState<z.infer<typeof cleanCapillaryKwargsSchema>>();
-  const [proposal, setProposal] = useState<string>("");
+  const [formProposal, setFormProposal] = useState<string | undefined>();
   const [useCapillary, setUseCapillary] = useState(false);
-
-  const { addBatch } = useQueue();
-
-  const getProposal = useCallback(() => {
-    if (!proposal && session) {
-      const user = session.user as unknown as Session["user"];
-      return user.proposal;
-    }
-    return proposal;
-  }, [proposal, session]);
 
   const { step, currentStepIdx, next, goTo } = useStepForm([
     <ProposalForm
       key="proposal"
       initialValues={{
-        proposal: getProposal(),
+        proposal: formProposal ?? user?.proposal ?? "",
         useCapillary,
       }}
       onSubmit={onSubmitProposal}
@@ -261,7 +252,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
     <CleanCapillaryForm
       key="capillary"
       initialValues={{
-        proposal,
+        proposal: formProposal,
         ...capillaryParams,
         sampleType: "buffer",
         bufferTag: "NA",
@@ -279,7 +270,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
     <AcquisitionTableForm key="acquisition" onSubmit={onSubmitAcquisition} />,
     <div className="text-xs text-muted-foreground">
       <div className="text-lg font-bold">Step 1: Proposal</div>
-      <p>Proposal: {proposal}</p>
+      <p>Proposal: {formProposal}</p>
       <p>Use Capillary: {useCapillary ? "Yes" : "No"}</p>
       {!!useCapillary && (
         <>
@@ -342,15 +333,8 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
     </div>,
   ]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  if (!session) {
-    return <div>Not authenticated</div>;
-  }
-
   function onSubmitProposal(data: z.infer<typeof proposalSchema>) {
-    setProposal(data.proposal);
+    setFormProposal(data.proposal);
     setUseCapillary(data.useCapillary);
     if (data.useCapillary) {
       next();
@@ -386,7 +370,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
       args: [],
       kwargs: {
         ...params,
-        proposal,
+        proposal: formProposal,
         ...cleaningParams,
       },
       itemType: "plan",
@@ -399,7 +383,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
               args: [],
               kwargs: {
                 ...capillaryParams,
-                proposal,
+                proposal: formProposal,
               },
               itemType: "plan",
             },
@@ -454,22 +438,23 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
           {
             label: "Capillary",
             onClick: () => goTo(1),
-            isDisabled: !useCapillary || !proposal || currentStepIdx < 1,
+            isDisabled: !useCapillary || !formProposal || currentStepIdx < 1,
           },
           {
             label: "Cleaning",
             onClick: () => goTo(2),
-            isDisabled: !proposal || currentStepIdx < 2,
+            isDisabled: !formProposal || currentStepIdx < 2,
           },
           {
             label: "Acquisition",
             onClick: () => goTo(3),
-            isDisabled: !proposal || currentStepIdx < 3,
+            isDisabled: !formProposal || currentStepIdx < 3,
           },
           {
             label: "Check",
             onClick: () => goTo(4),
-            isDisabled: !proposal || !acquisitionParams || currentStepIdx < 4,
+            isDisabled:
+              !formProposal || !acquisitionParams || currentStepIdx < 4,
           },
         ]}
         currentStep={currentStepIdx}
