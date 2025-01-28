@@ -65,11 +65,7 @@ function capillaryStateFromTimes({
 }
 
 export const useCapillaryState = () => {
-  const { data } = api.history.get.useQuery(undefined, {
-    refetchOnMount: "always",
-    refetchOnWindowFocus: "always",
-    refetchInterval: 10 * 1000,
-  });
+  const { data } = api.history.get.useQuery();
   const [loadedSample, setLoadedSample] = useState<
     LastSampleParams | undefined
   >(undefined);

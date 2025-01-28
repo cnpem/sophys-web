@@ -13,9 +13,7 @@ type QueueItemProps =
 export const useQueue = () => {
   const utils = api.useUtils();
 
-  const queue = api.queue.get.useQuery(undefined, {
-    refetchInterval: 4000,
-  });
+  const queue = api.queue.get.useQuery();
 
   const add = api.queue.item.add.useMutation({
     onMutate: async (plan) => {

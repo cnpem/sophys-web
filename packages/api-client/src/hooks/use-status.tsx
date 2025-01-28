@@ -1,12 +1,17 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { api } from "@sophys-web/api-client/react";
 
 export const useStatus = () => {
   const utils = api.useUtils();
+  const prevQueueUid = useRef<string>();
+  const prevHistoryUid = useRef<string>();
 
   const status = api.status.get.useQuery(undefined, {
-    refetchInterval: 4000,
+    refetchInterval: 5 * 1000,
+    refetchOnWindowFocus: "always",
+    refetchOnMount: "always",
   });
 
   const envUpdate = api.environment.update.useMutation({
@@ -26,6 +31,22 @@ export const useStatus = () => {
       await utils.status.get.invalidate();
     },
   });
+
+  useEffect(() => {
+    if (status.data) {
+      const { planQueueUid, planHistoryUid } = status.data;
+
+      if (planQueueUid !== prevQueueUid.current) {
+        prevQueueUid.current = planQueueUid;
+        void utils.queue.get.invalidate();
+      }
+
+      if (planHistoryUid !== prevHistoryUid.current) {
+        prevHistoryUid.current = planHistoryUid;
+        void utils.history.get.invalidate();
+      }
+    }
+  }, [status.data, utils.history.get, utils.queue.get]);
 
   return { status, envUpdate, envOpen, envClose };
 };

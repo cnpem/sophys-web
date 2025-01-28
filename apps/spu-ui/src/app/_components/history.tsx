@@ -107,8 +107,6 @@ export function History() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useSearchDebounced(search);
   const { data, isLoading } = api.history.get.useQuery(undefined, {
-    refetchOnMount: "always",
-    refetchInterval: 10 * 1000,
     select: (data) => ({
       items: data.items.filter((item) =>
         formatPlanNames(item.name)
