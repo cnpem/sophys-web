@@ -35,9 +35,28 @@ const principalSchema = z.object({
   apiKeyScopes: z.array(z.string()).nullable(),
 });
 
+const userSchema = z.object({
+  name: z.string(),
+  roles: z.array(z.string()).optional().nullable(),
+  scopes: z.array(z.string()).optional().nullable(),
+  proposal: z.string(),
+});
+
 export const authRouter = {
   getSession: protectedProcedure.query(({ ctx }) => {
     return ctx.session;
+  }),
+  getUser: protectedProcedure.query(({ ctx }) => {
+    const user = userSchema.safeParse({
+      name: ctx.session.user.name,
+      roles: ctx.session.user.roles,
+      scopes: ctx.session.user.scopes,
+      proposal: ctx.session.user.proposal,
+    });
+    if (!user.success) {
+      throw new Error("Invalid user session:", user.error);
+    }
+    return user.data;
   }),
   whoAmI: protectedProcedure.query(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/auth/whoami`;
