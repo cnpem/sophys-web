@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { format, fromUnixTime } from "date-fns";
 import { RotateCcwIcon } from "lucide-react";
 import { useQueue } from "@sophys-web/api-client/hooks";
@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@sophys-web/ui/card";
+import { Input } from "@sophys-web/ui/input";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import {
   Tooltip,
@@ -86,22 +87,91 @@ function HistoryItem(props: HistoryItemProps) {
   );
 }
 
+function useSearchDebounced(search: string) {
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [search]);
+
+  return debouncedSearch;
+}
+
 export function History() {
-  const { data } = api.history.get.useQuery(undefined, {
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useSearchDebounced(search);
+  const { data, isLoading } = api.history.get.useQuery(undefined, {
     refetchOnMount: "always",
+    refetchInterval: 10 * 1000,
+    select: (data) => ({
+      items: data.items.filter((item) =>
+        formatPlanNames(item.name)
+          .toLowerCase()
+          .includes(debouncedSearch.toLowerCase()),
+      ),
+    }),
   });
+
+  if (isLoading || data === undefined) {
+    return (
+      <div className="flex h-full flex-col gap-2">
+        <HistoryCounter />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search history by name"
+        />
+        <div className="flex h-[780px] justify-center bg-slate-50 p-1">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const isEmpty = data.items.length === 0 && debouncedSearch.length === 0;
+
+  if (isEmpty) {
+    return (
+      <div className="flex h-full flex-col gap-2">
+        <HistoryCounter />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search history by name"
+        />
+        <div className="flex h-[780px] justify-center bg-slate-50 p-1">
+          <p className="text-muted-foreground">History is empty.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2">
       <HistoryCounter />
-      <ScrollArea className="flex h-[820px] flex-col">
-        {data?.items.length === 0 ? (
-          <p className="text-center text-muted-foreground">History is empty.</p>
+      <Input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search history by name"
+      />
+      <ScrollArea className="flex h-[780px] flex-col bg-slate-50 p-1">
+        {data.items.length === 0 ? (
+          <p className="text-center text-muted-foreground">
+            No history items found.
+          </p>
         ) : (
           <ul className="space-y-2">
-            {data?.items
+            {[...data.items]
               .sort((a, b) => b.result.timeStop - a.result.timeStop)
-              .map((item) => <HistoryItem key={item.itemUid} {...item} />)}
+              .map((item) => (
+                <HistoryItem key={item.itemUid} {...item} />
+              ))}
           </ul>
         )}
       </ScrollArea>
@@ -110,10 +180,7 @@ export function History() {
 }
 
 function HistoryCounter() {
-  const { data } = api.history.get.useQuery(undefined, {
-    refetchOnMount: "always",
-    refetchInterval: 10 * 1000,
-  });
+  const { data } = api.history.get.useQuery();
 
   return (
     <div className="flex items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center text-muted-foreground">
