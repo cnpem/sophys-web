@@ -106,7 +106,7 @@ function useSearchDebounced(search: string) {
 export function History() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useSearchDebounced(search);
-  const { data, isLoading } = api.history.get.useQuery(undefined, {
+  const { data, isPending } = api.history.get.useQuery(undefined, {
     select: (data) => ({
       items: data.items.filter((item) =>
         formatPlanNames(item.name)
@@ -116,7 +116,7 @@ export function History() {
     }),
   });
 
-  if (isLoading || data === undefined) {
+  if (isPending || data === undefined) {
     return (
       <div className="flex h-full flex-col gap-2">
         <HistoryCounter />
