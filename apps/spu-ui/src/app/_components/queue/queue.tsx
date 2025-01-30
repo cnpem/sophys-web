@@ -125,7 +125,7 @@ export function Queue() {
     }
   }
 
-  if (queue.isLoading) {
+  if (queue.isPending) {
     return <QueueSkeleton />;
   }
 
