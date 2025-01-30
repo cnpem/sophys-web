@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { api, HydrateClient } from "@sophys-web/api-client/server";
 import { auth } from "@sophys-web/auth";
 import Experiment from "./_components/experiment";
 import UserAvatar from "./_components/user-avatar";
@@ -6,7 +7,6 @@ import { getSamples } from "./actions/samples";
 
 export default async function Page() {
   const session = await auth();
-  const samples = await getSamples();
 
   if (!session) {
     return (
@@ -23,6 +23,20 @@ export default async function Page() {
   if (session.error) {
     redirect("/auth/signin");
   }
+  const [samples] = await Promise.allSettled([
+    getSamples(),
+    api.queue.get.prefetch(),
+    api.history.get.prefetch(),
+    api.status.get.prefetch(),
+  ]);
 
-  return <Experiment initialData={samples} />;
+  if (samples.status === "rejected") {
+    return <div>{samples.reason}</div>;
+  }
+
+  return (
+    <HydrateClient>
+      <Experiment initialData={samples.value} />
+    </HydrateClient>
+  );
 }
