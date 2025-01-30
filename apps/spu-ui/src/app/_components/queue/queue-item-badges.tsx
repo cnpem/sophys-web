@@ -109,6 +109,7 @@ export function QueueItemStatusBadge({
         "bg-red-200 text-red-800": status() === "failed",
         "bg-slate-200 text-slate-800": status() === "enqueued",
         "bg-blue-200 text-blue-800": status() === "running",
+        "bg-green-200 text-green-800": status() === "completed",
         "bg-yellow-200 text-yellow-800":
           status() === "aborted" ||
           status() === "halted" ||
