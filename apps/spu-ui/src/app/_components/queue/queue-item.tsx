@@ -111,6 +111,8 @@ export function QueueItem({
         className={cn("relative rounded-sm border", {
           "animate-pulse border-none bg-slate-100": !queueItemProps.itemUid,
           "opacity-60": disabled,
+          "border-2 border-slate-200 bg-slate-50 text-slate-700 opacity-85":
+            isDragging,
         })}
       >
         <CardHeader>
@@ -150,7 +152,7 @@ export function QueueItem({
                     className="size-8"
                     size="icon"
                     variant="outline"
-                    disabled={disabled}
+                    disabled={!!disabled || isDragging}
                   />
                 </TooltipTrigger>
                 <TooltipContent>Edit item</TooltipContent>
@@ -160,7 +162,7 @@ export function QueueItem({
                 <TooltipTrigger asChild>
                   <RemoveButton
                     uid={queueItemProps.itemUid}
-                    disabled={disabled}
+                    disabled={!!disabled || isDragging}
                     className="size-8"
                     size="icon"
                     variant="outline"
