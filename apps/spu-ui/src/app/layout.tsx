@@ -28,9 +28,9 @@ export default function RootLayout({
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Image
           alt="Sapucaia seed"
-          className="absolute bottom-0 right-0"
+          className="absolute bottom-4 right-4"
           height={100}
-          src={`${env.NEXT_PUBLIC_BASE_PATH}/sapucaia/sementinha.png`}
+          src={`${env.NEXT_PUBLIC_BASE_PATH}/sapucaia/seed-black.svg`}
           width={100}
         />
       </body>
