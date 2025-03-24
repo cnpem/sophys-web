@@ -53,7 +53,6 @@
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-devtools": "catalog:",
     "@trpc/client": "catalog:",
-    "@trpc/next": "11.0.0-rc.645",
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
     "nanoid": "^5.0.8",
