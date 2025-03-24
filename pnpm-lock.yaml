@@ -164,6 +164,9 @@ importers:
       '@sophys-web/eslint-config':
         specifier: workspace:*
         version: link:../../tooling/eslint
+      '@sophys-web/prettier-config':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
       '@sophys-web/tailwind-config':
         specifier: workspace:*
         version: link:../../tooling/tailwind
@@ -200,6 +203,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.8.2
+      typescript-eslint:
+        specifier: ^8.27.0
+        version: 8.28.0(eslint@9.23.0(jiti@2.4.0))(typescript@5.8.2)
 
   packages/api:
     dependencies:
