@@ -60,7 +60,7 @@ importers:
     devDependencies:
       '@sophys-web/typescript-config':
         specifier: workspace:*
-        version: link:packages/config-typescript
+        version: link:tooling/typescript
       '@types/node':
         specifier: ^20.11.24
         version: 20.11.24
@@ -172,13 +172,13 @@ importers:
     devDependencies:
       '@sophys-web/eslint-config':
         specifier: workspace:*
-        version: link:../../packages/config-eslint
+        version: link:../../tooling/eslint
       '@sophys-web/tailwind-config':
         specifier: workspace:*
-        version: link:../../packages/config-tailwind
+        version: link:../../tooling/tailwind
       '@sophys-web/typescript-config':
         specifier: workspace:*
-        version: link:../../packages/config-typescript
+        version: link:../../tooling/typescript
       '@types/node':
         specifier: ^20.11.24
         version: 20.11.24
@@ -242,10 +242,10 @@ importers:
     devDependencies:
       '@sophys-web/eslint-config':
         specifier: workspace:*
-        version: link:../config-eslint
+        version: link:../../tooling/eslint
       '@sophys-web/typescript-config':
         specifier: workspace:*
-        version: link:../config-typescript
+        version: link:../../tooling/typescript
       typescript:
         specifier: 'catalog:'
         version: 5.8.2
@@ -300,13 +300,13 @@ importers:
     devDependencies:
       '@sophys-web/eslint-config':
         specifier: workspace:*
-        version: link:../config-eslint
+        version: link:../../tooling/eslint
       '@sophys-web/tailwind-config':
         specifier: workspace:*
-        version: link:../config-tailwind
+        version: link:../../tooling/tailwind
       '@sophys-web/typescript-config':
         specifier: workspace:*
-        version: link:../config-typescript
+        version: link:../../tooling/typescript
       '@types/react':
         specifier: catalog:react18
         version: 18.3.18
@@ -340,75 +340,13 @@ importers:
     devDependencies:
       '@sophys-web/eslint-config':
         specifier: workspace:*
-        version: link:../config-eslint
+        version: link:../../tooling/eslint
       '@sophys-web/typescript-config':
         specifier: workspace:*
-        version: link:../config-typescript
+        version: link:../../tooling/typescript
       '@types/react':
         specifier: catalog:react18
         version: 18.3.18
-
-  packages/config-eslint:
-    dependencies:
-      '@eslint/compat':
-        specifier: ^1.2.4
-        version: 1.2.4(eslint@9.23.0(jiti@2.4.0))
-      '@next/eslint-plugin-next':
-        specifier: ^14.2.3
-        version: 14.2.3
-      eslint-plugin-import:
-        specifier: ^2.31.0
-        version: 2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.23.0(jiti@2.4.0))(typescript@5.8.2))(eslint@9.23.0(jiti@2.4.0))
-      eslint-plugin-jsx-a11y:
-        specifier: ^6.10.2
-        version: 6.10.2(eslint@9.23.0(jiti@2.4.0))
-      eslint-plugin-react:
-        specifier: ^7.37.2
-        version: 7.37.2(eslint@9.23.0(jiti@2.4.0))
-      eslint-plugin-react-hooks:
-        specifier: ^5.1.0
-        version: 5.1.0(eslint@9.23.0(jiti@2.4.0))
-      eslint-plugin-turbo:
-        specifier: ^2.3.3
-        version: 2.3.3(eslint@9.23.0(jiti@2.4.0))
-      typescript-eslint:
-        specifier: ^8.17.0
-        version: 8.17.0(eslint@9.23.0(jiti@2.4.0))(typescript@5.8.2)
-    devDependencies:
-      eslint-config-turbo:
-        specifier: ^2.0.0
-        version: 2.0.0(eslint@9.23.0(jiti@2.4.0))
-
-  packages/config-prettier:
-    dependencies:
-      '@ianvs/prettier-plugin-sort-imports':
-        specifier: ^4.3.1
-        version: 4.3.1(prettier@3.5.3)
-      prettier:
-        specifier: 'catalog:'
-        version: 3.5.3
-      prettier-plugin-tailwindcss:
-        specifier: ^0.5.11
-        version: 0.5.11(@ianvs/prettier-plugin-sort-imports@4.3.1(prettier@3.5.3))(prettier@3.5.3)
-    devDependencies:
-      '@sophys-web/typescript-config':
-        specifier: workspace:*
-        version: link:../config-typescript
-
-  packages/config-tailwind:
-    dependencies:
-      tailwindcss-animate:
-        specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@3.4.16)
-    devDependencies:
-      '@sophys-web/typescript-config':
-        specifier: workspace:*
-        version: link:../config-typescript
-      tailwindcss:
-        specifier: 'catalog:'
-        version: 3.4.16
-
-  packages/config-typescript: {}
 
   packages/ui:
     dependencies:
@@ -481,13 +419,13 @@ importers:
     devDependencies:
       '@sophys-web/eslint-config':
         specifier: workspace:*
-        version: link:../config-eslint
+        version: link:../../tooling/eslint
       '@sophys-web/tailwind-config':
         specifier: workspace:*
-        version: link:../config-tailwind
+        version: link:../../tooling/tailwind
       '@sophys-web/typescript-config':
         specifier: workspace:*
-        version: link:../config-typescript
+        version: link:../../tooling/typescript
       '@types/react':
         specifier: catalog:react18
         version: 18.3.18
@@ -545,13 +483,13 @@ importers:
     devDependencies:
       '@sophys-web/eslint-config':
         specifier: workspace:*
-        version: link:../config-eslint
+        version: link:../../tooling/eslint
       '@sophys-web/tailwind-config':
         specifier: workspace:*
-        version: link:../config-tailwind
+        version: link:../../tooling/tailwind
       '@sophys-web/typescript-config':
         specifier: workspace:*
-        version: link:../config-typescript
+        version: link:../../tooling/typescript
       '@types/react':
         specifier: catalog:react18
         version: 18.3.18
@@ -567,6 +505,68 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.8.2
+
+  tooling/eslint:
+    dependencies:
+      '@eslint/compat':
+        specifier: ^1.2.4
+        version: 1.2.4(eslint@9.23.0(jiti@2.4.0))
+      '@next/eslint-plugin-next':
+        specifier: ^14.2.3
+        version: 14.2.3
+      eslint-plugin-import:
+        specifier: ^2.31.0
+        version: 2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.23.0(jiti@2.4.0))(typescript@5.8.2))(eslint@9.23.0(jiti@2.4.0))
+      eslint-plugin-jsx-a11y:
+        specifier: ^6.10.2
+        version: 6.10.2(eslint@9.23.0(jiti@2.4.0))
+      eslint-plugin-react:
+        specifier: ^7.37.2
+        version: 7.37.2(eslint@9.23.0(jiti@2.4.0))
+      eslint-plugin-react-hooks:
+        specifier: ^5.1.0
+        version: 5.1.0(eslint@9.23.0(jiti@2.4.0))
+      eslint-plugin-turbo:
+        specifier: ^2.3.3
+        version: 2.3.3(eslint@9.23.0(jiti@2.4.0))
+      typescript-eslint:
+        specifier: ^8.17.0
+        version: 8.17.0(eslint@9.23.0(jiti@2.4.0))(typescript@5.8.2)
+    devDependencies:
+      eslint-config-turbo:
+        specifier: ^2.0.0
+        version: 2.0.0(eslint@9.23.0(jiti@2.4.0))
+
+  tooling/prettier:
+    dependencies:
+      '@ianvs/prettier-plugin-sort-imports':
+        specifier: ^4.3.1
+        version: 4.3.1(prettier@3.5.3)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.5.3
+      prettier-plugin-tailwindcss:
+        specifier: ^0.5.11
+        version: 0.5.11(@ianvs/prettier-plugin-sort-imports@4.3.1(prettier@3.5.3))(prettier@3.5.3)
+    devDependencies:
+      '@sophys-web/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript
+
+  tooling/tailwind:
+    dependencies:
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.16)
+    devDependencies:
+      '@sophys-web/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript
+      tailwindcss:
+        specifier: 'catalog:'
+        version: 3.4.16
+
+  tooling/typescript: {}
 
 packages:
 
@@ -1883,10 +1883,6 @@ packages:
   cross-spawn@5.1.0:
     resolution: {integrity: sha512-pTgQJ5KC0d2hcY8eyL1IzlBPYjTkyH72XRZPnLyKus2mBfNjQs3klqbJU2VILqZryAZUt9JOb3h/mWMy23/f5A==}
 
-  cross-spawn@7.0.3:
-    resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
-    engines: {node: '>= 8'}
-
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
@@ -1919,15 +1915,6 @@ packages:
 
   debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-
-  debug@4.3.4:
-    resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
-    engines: {node: '>=6.0'}
     peerDependencies:
       supports-color: '*'
     peerDependenciesMeta:
@@ -2653,9 +2640,6 @@ packages:
   mri@1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
     engines: {node: '>=4'}
-
-  ms@2.1.2:
-    resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
 
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
@@ -3570,7 +3554,7 @@ snapshots:
       '@babel/traverse': 7.25.7
       '@babel/types': 7.25.7
       convert-source-map: 2.0.0
-      debug: 4.3.4
+      debug: 4.4.0
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -3944,7 +3928,7 @@ snapshots:
       '@babel/traverse': 7.25.7
       '@babel/types': 7.25.7
       prettier: 3.5.3
-      semver: 7.5.4
+      semver: 7.6.3
     transitivePeerDependencies:
       - supports-color
 
@@ -4953,12 +4937,6 @@ snapshots:
       shebang-command: 1.2.0
       which: 1.3.1
 
-  cross-spawn@7.0.3:
-    dependencies:
-      path-key: 3.1.1
-      shebang-command: 2.0.0
-      which: 2.0.2
-
   cross-spawn@7.0.6:
     dependencies:
       path-key: 3.1.1
@@ -4994,10 +4972,6 @@ snapshots:
   debug@3.2.7:
     dependencies:
       ms: 2.1.3
-
-  debug@4.3.4:
-    dependencies:
-      ms: 2.1.2
 
   debug@4.4.0:
     dependencies:
@@ -5404,7 +5378,7 @@ snapshots:
 
   foreground-child@3.1.1:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
   fraction.js@4.3.7: {}
@@ -5806,8 +5780,6 @@ snapshots:
   minipass@7.1.2: {}
 
   mri@1.2.0: {}
-
-  ms@2.1.2: {}
 
   ms@2.1.3: {}
 
