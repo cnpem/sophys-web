@@ -13,8 +13,9 @@
     "build": "tsc",
     "dev": "tsc",
     "clean": "git clean -xdf .turbo .cache dist node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "type-check": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@sophys-web/auth": "workspace:*",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@sophys-web/eslint-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
+    "@sophys-web/prettier-config": "workspace:*",
     "typescript": "catalog:"
   },
   "prettier": "@sophys-web/prettier-config"

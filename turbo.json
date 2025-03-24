@@ -14,6 +14,10 @@
       "dependsOn": ["^topo", "^build"],
       "outputs": [".cache/.eslintcache"]
     },
+    "format":{
+      "outputs": [".cache/.prettiercache"],
+      "outputLogs": "new-only"
+    },
     "type-check": {
       "dependsOn": ["^topo", "^build"],
       "outputs": [".cache/tsbuildinfo.json"]

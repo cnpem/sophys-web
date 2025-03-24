@@ -32,6 +32,7 @@
     "build": "tsc",
     "dev": "tsc",
     "clean": "git clean -xdf dist .turbo .cache node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint src/",
     "type-check": "tsc --noEmit --emitDeclarationOnly false"
   },
@@ -39,6 +40,7 @@
     "react": "catalog:react18"
   },
   "devDependencies": {
+    "@sophys-web/prettier-config": "workspace:*",
     "@sophys-web/eslint-config": "workspace:*",
     "@sophys-web/tailwind-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",

@@ -12,10 +12,12 @@
   },
   "scripts": {
     "clean": "git clean -xdf .turbo node_modules .cache",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
+    "@sophys-web/prettier-config": "workspace:*",
     "@sophys-web/eslint-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
     "@types/react": "catalog:react18"

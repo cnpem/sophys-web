@@ -5,15 +5,16 @@
     "dev": "turbo watch dev --continue",
     "start": "turbo start",
     "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
-    "type-check": "turbo type-check",
+    "type-check": "turbo run type-check",
     "clean": "git clean -xdf node_modules .cache .turbo",
     "clean:workspaces": "turbo run clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,md}\"",
+    "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
+    "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
     "ui-add": "pnpm dlx shadcn@latest add -c packages/ui",
-    "local-ci": "pnpm lint && pnpm type-check && pnpm format:check"
+    "local-ci": "pnpm lint && pnpm type-check && pnpm format"
   },
   "devDependencies": {
+    "@sophys-web/prettier-config": "workspace:*",
     "eslint": "catalog:",
     "prettier": "catalog:",
     "turbo": "^2.4.4",
