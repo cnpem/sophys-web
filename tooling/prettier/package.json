@@ -12,7 +12,9 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@sophys-web/typescript-config": "workspace:*"
+    "@sophys-web/typescript-config": "workspace:*",
+    "@types/node": "^22.13.11",
+    "typescript": "catalog:"
   },
   "dependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
