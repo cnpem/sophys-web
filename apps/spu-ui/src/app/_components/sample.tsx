@@ -322,7 +322,7 @@ export function SampleItem({ sample }: { sample: Sample }) {
   const isRegistered = sample.type !== undefined;
 
   const classNames = cn(
-    "relative flex h-7 w-7 cursor-context-menu items-center justify-center rounded-full font-semibold text-white text-xs select-none hover:scale-105 hover:ring",
+    "relative flex h-7 w-7 cursor-context-menu select-none items-center justify-center rounded-full text-xs font-semibold text-white hover:scale-105 hover:ring",
     { "cursor-text opacity-50": !isRegistered },
     {
       "bg-slate-500": !sample.type,

@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 
-const gridVariants = cva("sm:max-w-[425px] grid m-4 gap-1", {
+const gridVariants = cva("m-4 grid gap-1 sm:max-w-[425px]", {
   variants: {
     size: {
       sm: "grid-cols-1",

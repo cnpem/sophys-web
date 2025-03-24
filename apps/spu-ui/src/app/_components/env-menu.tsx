@@ -75,7 +75,10 @@ export function EnvMenu() {
                   className="text-ellipsis text-xs text-muted-foreground"
                   key={key}
                 >
-                  {key}: {typeof value === "object" ? JSON.stringify(value) : value?.toString()}
+                  {key}:{" "}
+                  {typeof value === "object"
+                    ? JSON.stringify(value)
+                    : value?.toString()}
                 </p>
               ))
             : null}
