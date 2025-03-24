@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "clean": "rm -rf .next .turbo .cache node_modules",
+    "clean": "git clean -xdf .next .turbo .cache node_modules",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

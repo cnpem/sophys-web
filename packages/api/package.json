@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc",
-    "clean": "rm -rf .turbo .cache dist node_modules",
+    "clean": "git clean -xdf .turbo .cache dist node_modules",
     "lint": "eslint",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },

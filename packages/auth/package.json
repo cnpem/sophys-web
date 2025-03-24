@@ -11,7 +11,7 @@
     "./env": "./env.ts"
   },
   "scripts": {
-    "clean": "rm -rf .turbo node_modules .cache",
+    "clean": "git clean -xdf .turbo node_modules .cache",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },
