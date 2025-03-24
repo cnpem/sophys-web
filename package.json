@@ -4,7 +4,7 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "start": "turbo start",
-    "lint": "turbo lint",
+    "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
     "type-check": "turbo type-check",
     "clean": "turbo clean",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
