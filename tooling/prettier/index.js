@@ -43,7 +43,7 @@ const config = {
       },
     },
     {
-      files: "*.ts.hbs",
+      files: ["*.ts.hbs", "*.tsx.hbs"],
       options: {
         parser: "typescript",
       },
