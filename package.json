@@ -20,6 +20,7 @@
     "eslint": "catalog:",
     "prettier": "catalog:",
     "turbo": "^2.4.4",
+    "@turbo/gen": "^2.4.4",
     "typescript": "catalog:"
   },
   "packageManager": "pnpm@10.6.5",
