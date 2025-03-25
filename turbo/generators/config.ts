@@ -80,6 +80,47 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         templateFile: "templates/app/middleware.ts.hbs",
       },
       {
+        type: "add",
+        path: "apps/{{ name }}/src/app/layout.tsx",
+        templateFile: "templates/app/layout.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{ name }}/src/app/globals.css",
+        template: "@tailwind base;@tailwind components;@tailwind utilities;",
+      },
+      {
+        type: "add",
+        path: "apps/{{ name }}/src/app/page.tsx",
+        templateFile: "templates/app/page.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/auth/signin/page.tsx",
+        templateFile: "templates/app/signin.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/api/trpc/[trpc]/route.ts",
+        templateFile: "templates/app/api/trpc.ts.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/api/auth/[...nextauth]/route.ts",
+        templateFile: "templates/app/api/auth.ts.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/public/.gitkeep",
+        template: "",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/README.md",
+        template:
+          "# {{name}}\n\nThis project was scaffolded with [sophys-web](https://github.com/cnpem/sophys-web)",
+      },
+      {
         type: "modify",
         path: "apps/{{ name }}/package.json",
         async transform(content, answers) {
