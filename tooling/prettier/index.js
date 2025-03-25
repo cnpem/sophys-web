@@ -42,6 +42,12 @@ const config = {
         parser: "babel",
       },
     },
+    {
+      files: "*.ts.hbs",
+      options: {
+        parser: "typescript",
+      },
+    },
   ],
 };
 
