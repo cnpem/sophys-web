@@ -1,6 +1,7 @@
 {
   "name": "@sophys-web/tailwind-config",
   "version": "0.0.0",
+  "type": "module",
   "private": true,
   "exports": {
     ".": "./tailwind.config.ts"
