@@ -185,18 +185,16 @@ interface RemoveButtonProps extends ButtonProps {
   uid?: string;
 }
 
-const RemoveButton = React.forwardRef<HTMLButtonElement, RemoveButtonProps>(
-  ({ uid, ...props }, ref) => {
-    const { remove } = useQueue();
-    const handleRemove = useCallback(() => {
-      if (uid !== undefined) {
-        remove.mutate({ uid });
-      }
-    }, [remove, uid]);
-    return (
-      <Button ref={ref} {...props} onClick={handleRemove}>
-        <XIcon className="h-4 w-4" />
-      </Button>
-    );
-  },
-);
+function RemoveButton({ uid, ...props }: RemoveButtonProps) {
+  const { remove } = useQueue();
+  const handleRemove = useCallback(() => {
+    if (uid !== undefined) {
+      remove.mutate({ uid });
+    }
+  }, [remove, uid]);
+  return (
+    <Button {...props} onClick={handleRemove}>
+      <XIcon className="h-4 w-4" />
+    </Button>
+  );
+}
