@@ -9,8 +9,8 @@ export function OnDemandQueueItems() {
   const { loadedSample } = useCapillaryState();
 
   return (
-    <Card className="space-y-4 rounded-md shadow-none">
-      <CardHeader className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
+    <Card className="flex space-y-4 rounded-md pt-0 shadow-none">
+      <CardHeader className="flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
         <CardTitle className="flex items-center justify-center text-base font-semibold text-slate-700">
           On Demand Items
         </CardTitle>
@@ -30,13 +30,10 @@ export function OnDemandQueueItems() {
             </span>
           </p>
         )}
-        <div className="mt-4 flex flex-row items-center justify-between gap-2">
-          <SingleAcquitision
-            lastSampleParams={loadedSample}
-            className="w-full"
-          />
-          <QueueStop className="w-full" />
-          <CleaningDialog className="w-full" />
+        <div className="mt-4 flex items-center justify-start space-x-4">
+          <SingleAcquitision lastSampleParams={loadedSample} />
+          <QueueStop />
+          <CleaningDialog />
         </div>
       </CardContent>
     </Card>
