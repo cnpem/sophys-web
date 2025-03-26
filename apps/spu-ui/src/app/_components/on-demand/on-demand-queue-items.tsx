@@ -3,7 +3,7 @@ import { CapillaryStateBadge } from "~/app/_components/capillary-state-badge";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 import { CleaningDialog } from "./cleaning";
 import { QueueStop } from "./queue-stop";
-import { SingleAcquitision } from "./single-acquisition";
+import { SingleAcquisition } from "./single-acquisition";
 
 export function OnDemandQueueItems() {
   const { loadedSample } = useCapillaryState();
@@ -31,7 +31,7 @@ export function OnDemandQueueItems() {
           </p>
         )}
         <div className="mt-4 flex items-center justify-start space-x-4">
-          <SingleAcquitision lastSampleParams={loadedSample} />
+          <SingleAcquisition lastSampleParams={loadedSample} />
           <QueueStop />
           <CleaningDialog />
         </div>

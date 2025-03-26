@@ -39,7 +39,7 @@ import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import { acquireTimeOptions, sampleTypeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/single-acquisition";
 
-export function SingleAcquitision({
+export function SingleAcquisition({
   className,
   lastSampleParams,
 }: {
