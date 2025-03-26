@@ -125,16 +125,19 @@ export function QueueItem({
               {formatPlanNames(queueItemProps.name)}
             </span>
           </CardTitle>
-          <div className="absolute right-2 top-0 flex gap-1">
+          <div className="absolute right-1 top-0 flex gap-1">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     ref={setActivatorNodeRef}
                     {...listeners}
-                    className={cn("size-8 hover:cursor-grab", {
-                      "hover:cursor-grabbing": isDragging,
-                    })}
+                    className={cn(
+                      "size-8 rounded-t-none border-t-0 hover:cursor-grab",
+                      {
+                        "hover:cursor-grabbing": isDragging,
+                      },
+                    )}
                     size="icon"
                     variant="outline"
                     disabled={disabled}
@@ -149,7 +152,7 @@ export function QueueItem({
                 <TooltipTrigger asChild>
                   <ItemEditDialog
                     props={queueItemProps}
-                    className="size-8"
+                    className="size-8 rounded-t-none border-t-0"
                     size="icon"
                     variant="outline"
                     disabled={!!disabled || isDragging}
@@ -163,7 +166,7 @@ export function QueueItem({
                   <RemoveButton
                     uid={queueItemProps.itemUid}
                     disabled={!!disabled || isDragging}
-                    className="size-8"
+                    className="size-8 rounded-t-none border-t-0"
                     size="icon"
                     variant="outline"
                   />
