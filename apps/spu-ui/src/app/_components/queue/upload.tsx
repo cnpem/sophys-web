@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckIcon, MoveRightIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
@@ -29,7 +30,6 @@ import {
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
-import { toast } from "@sophys-web/ui/sonner";
 import type { schema as cleanCapillaryKwargsSchema } from "../../../lib/schemas/plans/clean-and-acquire";
 import type {
   tableSchema as acquisitionTableSchema,

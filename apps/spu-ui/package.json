@@ -40,6 +40,7 @@
     "react-dom": "catalog:react19",
     "react-hook-form": "^7.53.0",
     "server-only": "^0.0.1",
+    "sonner": "^2.0.1",
     "superjson": "2.2.1",
     "zod": "catalog:"
   },

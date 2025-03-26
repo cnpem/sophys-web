@@ -2,6 +2,7 @@
 
 import React, { useCallback } from "react";
 import { Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@sophys-web/ui/button";
 import {
   Card,
@@ -10,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@sophys-web/ui/card";
-import { toast } from "@sophys-web/ui/sonner";
 import {
   Tooltip,
   TooltipContent,

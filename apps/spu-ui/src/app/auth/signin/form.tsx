@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -14,7 +15,6 @@ import {
   FormMessage,
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
-import { toast } from "@sophys-web/ui/sonner";
 import { signIn } from "../../actions/auth";
 
 const FormSchema = z.object({

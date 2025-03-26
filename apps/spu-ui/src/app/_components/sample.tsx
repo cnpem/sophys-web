@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { cn } from "@sophys-web/ui";
@@ -32,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { toast } from "@sophys-web/ui/sonner";
 import {
   Tooltip,
   TooltipContent,

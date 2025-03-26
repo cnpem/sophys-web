@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import React, { useCallback, useState } from "react";
 import { PencilIcon } from "lucide-react";
+import { toast } from "sonner";
 import type { ButtonProps } from "@sophys-web/ui/button";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
 import { useQueue } from "@sophys-web/api-client/hooks";
@@ -14,7 +15,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@sophys-web/ui/dialog";
-import { toast } from "@sophys-web/ui/sonner";
 import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
