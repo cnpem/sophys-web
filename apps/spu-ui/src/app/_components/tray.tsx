@@ -40,7 +40,7 @@ export function Tray(props: TrayProps) {
   }, [tray]);
 
   return (
-    <Card className="space-y-4 rounded-md shadow-none">
+    <Card className="space-y-4 rounded-md pt-0 shadow-none">
       <CardHeader className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
         <CardTitle className="flex items-center text-base font-semibold text-slate-700">
           Tray
