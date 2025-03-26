@@ -203,8 +203,14 @@ function SampleForm({
       tray: sample.tray,
       row: sample.row,
       col: sample.col,
+      volume: 0,
     },
   });
+
+  function handleOpenChange(open: boolean) {
+    setOpen(open);
+    form.reset();
+  }
 
   function onSubmit(data: z.infer<typeof schema>) {
     toast.info("Submitting sample...");
@@ -238,6 +244,7 @@ function SampleForm({
         onSuccess: () => {
           toast.success("Sample submitted!");
           setOpen(false);
+          form.reset();
         },
         onError: (error) => {
           toast.error("Failed to submit sample", {
@@ -252,7 +259,7 @@ function SampleForm({
   return (
     <TooltipProvider>
       <Tooltip>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <TooltipTrigger asChild>
               <Button variant="outline" size="icon" className={className}>
@@ -296,11 +303,7 @@ function SampleForm({
                     <FormItem>
                       <FormLabel>Volume</FormLabel>
                       <FormControl>
-                        <Input
-                          // itemType="number"
-                          placeholder="Volume"
-                          {...field}
-                        />
+                        <Input placeholder="Volume" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
