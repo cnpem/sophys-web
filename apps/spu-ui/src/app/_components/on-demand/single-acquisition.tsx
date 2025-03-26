@@ -65,17 +65,15 @@ export function SingleAcquitision({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Acquire</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="flex flex-col gap-2">
             Please fill in the details below to submit the plan. The sample
             details are pre-filled.
-            <p>
-              <span className="mr-2 font-semibold">Sample:</span>
-              <span>
-                {lastSampleParams?.tray}, {lastSampleParams?.row}-
-                {lastSampleParams?.col}, {lastSampleParams?.sampleTag},{" "}
-                {lastSampleParams?.bufferTag}
-              </span>
-            </p>
+            <span className="mr-2 font-semibold">Sample:</span>
+            <span>
+              {lastSampleParams?.tray}, {lastSampleParams?.row}-
+              {lastSampleParams?.col}, {lastSampleParams?.sampleTag},{" "}
+              {lastSampleParams?.bufferTag}
+            </span>
           </DialogDescription>
         </DialogHeader>
         {lastSampleParams !== undefined && (
