@@ -56,11 +56,6 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
-        path: "apps/{{ name }}/next-env.d.ts",
-        templateFile: "templates/app/next-env.d.ts.hbs",
-      },
-      {
-        type: "add",
         path: "apps/{{ name }}/tailwind.config.ts",
         templateFile: "templates/app/tailwind.config.ts.hbs",
       },
