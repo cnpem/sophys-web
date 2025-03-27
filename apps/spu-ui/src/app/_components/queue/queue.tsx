@@ -10,6 +10,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { PlayIcon, SquareIcon, Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
 import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
@@ -20,7 +21,6 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
-import { toast } from "@sophys-web/ui/sonner";
 import type { QueueItemProps } from "../../../lib/types";
 import { EnvMenu } from "../env-menu";
 import { History } from "../history";

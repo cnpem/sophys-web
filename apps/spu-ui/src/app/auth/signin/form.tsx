@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -14,8 +15,7 @@ import {
   FormMessage,
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
-import { toast } from "@sophys-web/ui/sonner";
-import { signIn } from "../../actions/auth";
+import { Skeleton } from "@sophys-web/ui/skeleton";
 
 const FormSchema = z.object({
   username: z.string().min(2, { message: "Username is required" }),
@@ -25,7 +25,16 @@ const FormSchema = z.object({
   }),
 });
 
-export function SignInForm() {
+interface ActionState {
+  success: boolean;
+  message: string;
+}
+
+export function SignInForm({
+  signInAction,
+}: {
+  signInAction: (data: FormData) => Promise<ActionState>;
+}) {
   const params = useSearchParams();
   const router = useRouter();
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -40,22 +49,19 @@ export function SignInForm() {
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     toast.info("Signing in...");
     const callbackUrl = params.get("callbackUrl") ?? "/";
-    const res = await signIn({
-      username: data.username,
-      password: data.password,
-      proposal: data.proposal,
-    });
+    const formData = new FormData();
+    formData.append("username", data.username);
+    formData.append("password", data.password);
+    formData.append("proposal", data.proposal);
+    const res = await signInAction(formData);
 
-    if (res?.error) {
-      const error = res.error;
-      toast.error(error);
-      form.reset();
+    if (!res.success) {
+      toast.error(res.message);
+      return;
     }
 
-    if (!res?.error) {
-      toast.success("Signed in successfully");
-      router.push(callbackUrl);
-    }
+    toast.success(res.message);
+    router.push(callbackUrl);
   };
 
   return (
@@ -121,5 +127,16 @@ export function SignInForm() {
         </Button>
       </form>
     </Form>
+  );
+}
+
+export function SignInFormSkeleton() {
+  return (
+    <div className="flex flex-col space-y-6 rounded-sm border p-24 shadow-lg">
+      <Skeleton className="h-6 w-52" />
+      <Skeleton className="h-6 w-52" />
+      <Skeleton className="h-6 w-52" />
+      <Skeleton className="h-8 w-24" />
+    </div>
   );
 }

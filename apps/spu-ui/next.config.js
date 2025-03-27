@@ -1,8 +1,6 @@
-/** @type {import('jiti').createJiti} */
-const createJiti = require("jiti");
+import { createJiti } from "jiti";
 
-/** @type {import('jiti').Jiti} */
-const jiti = createJiti(__filename);
+const jiti = createJiti(import.meta.url);
 
 // Import env here to validate during build. Using jiti we can import .ts files :)
 jiti.import("./src/env");
@@ -27,4 +25,4 @@ const config = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
 };
 
-module.exports = config;
+export default config;

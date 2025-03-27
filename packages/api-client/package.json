@@ -37,15 +37,15 @@
     "type-check": "tsc --noEmit --emitDeclarationOnly false"
   },
   "peerDependencies": {
-    "react": "catalog:react18"
+    "react": "catalog:react19"
   },
   "devDependencies": {
     "@sophys-web/prettier-config": "workspace:*",
     "@sophys-web/eslint-config": "workspace:*",
     "@sophys-web/tailwind-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
-    "@types/react": "catalog:react18",
-    "@types/react-dom": "catalog:react18",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
     "typescript": "catalog:"
   },
   "dependencies": {
@@ -58,9 +58,9 @@
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
     "nanoid": "^5.0.8",
-    "next": "^14.2.25",
-    "react": "catalog:react18",
-    "react-dom": "catalog:react18",
+    "next": "^15.2.3",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
     "server-only": "^0.0.1",
     "superjson": "2.2.1",
     "zod": "catalog:"
