@@ -51,8 +51,8 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
-        path: "apps/{{ name }}/next.config.ts",
-        templateFile: "templates/app/next.config.ts.hbs",
+        path: "apps/{{ name }}/next.config.js",
+        templateFile: "templates/app/next.config.js.hbs",
       },
       {
         type: "add",

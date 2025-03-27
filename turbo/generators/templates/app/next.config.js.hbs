@@ -1,13 +1,12 @@
-import { fileURLToPath } from "node:url";
-import type { NextConfig } from "next";
-import createJiti from "jiti";
+import { createJiti } from "jiti";
 
-const jiti = createJiti(fileURLToPath(import.meta.url));
+const jiti = createJiti(import.meta.url);
 
 // Import env here to validate during build. Using jiti we can import .ts files :)
 jiti.import("./src/env");
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const config = {
   reactStrictMode: true,
   /** enable standalone output for docker self-hosting */
   // output: "standalone",
@@ -26,4 +25,4 @@ const nextConfig: NextConfig = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
 };
 
-export default nextConfig;
+export default config;
