@@ -5,8 +5,8 @@ import { api } from "@sophys-web/api-client/react";
 
 export const useStatus = () => {
   const utils = api.useUtils();
-  const prevQueueUid = useRef<string>();
-  const prevHistoryUid = useRef<string>();
+  const prevQueueUid = useRef<string | undefined>(undefined);
+  const prevHistoryUid = useRef<string | undefined>(undefined);
 
   const status = api.status.get.useQuery(undefined, {
     refetchInterval: 5 * 1000,

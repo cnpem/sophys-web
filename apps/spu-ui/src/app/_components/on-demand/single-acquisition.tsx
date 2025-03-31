@@ -5,6 +5,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CameraIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
@@ -34,12 +35,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { toast } from "@sophys-web/ui/sonner";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import { acquireTimeOptions, sampleTypeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/single-acquisition";
 
-export function SingleAcquitision({
+export function SingleAcquisition({
   className,
   lastSampleParams,
 }: {
@@ -65,17 +65,15 @@ export function SingleAcquitision({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Acquire</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="flex flex-col gap-2">
             Please fill in the details below to submit the plan. The sample
             details are pre-filled.
-            <p>
-              <span className="mr-2 font-semibold">Sample:</span>
-              <span>
-                {lastSampleParams?.tray}, {lastSampleParams?.row}-
-                {lastSampleParams?.col}, {lastSampleParams?.sampleTag},{" "}
-                {lastSampleParams?.bufferTag}
-              </span>
-            </p>
+            <span className="mr-2 font-semibold">Sample:</span>
+            <span>
+              {lastSampleParams?.tray}, {lastSampleParams?.row}-
+              {lastSampleParams?.col}, {lastSampleParams?.sampleTag},{" "}
+              {lastSampleParams?.bufferTag}
+            </span>
           </DialogDescription>
         </DialogHeader>
         {lastSampleParams !== undefined && (

@@ -14,11 +14,12 @@
     "local-ci": "pnpm lint && pnpm type-check && pnpm format"
   },
   "devDependencies": {
-    "@sophys-web/prettier-config": "workspace:*",
     "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
-    "prettier-plugin-tailwindcss": "^0.5.11",
+    "@sophys-web/prettier-config": "workspace:*",
+    "@turbo/gen": "^2.4.4",
     "eslint": "catalog:",
     "prettier": "catalog:",
+    "prettier-plugin-tailwindcss": "^0.5.11",
     "turbo": "^2.4.4",
     "@turbo/gen": "^2.4.4",
     "typescript": "catalog:"
