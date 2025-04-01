@@ -1,34 +1,15 @@
-import { redirect } from "next/navigation";
-import { api, HydrateClient } from "@sophys-web/api-client/server";
-import { auth } from "@sophys-web/auth";
+import { Avatar } from "./_components/avatar";
 
 export default async function Page() {
-  const session = await auth();
-
-  if (!session) {
-    return (
+  return (
+    <HydrateClient>
       <main className="flex flex-col items-center gap-4 p-24">
         <h1 className="text-4xl font-bold text-primary">{{ name }}</h1>
         <p className="text-lg">
           This is the UI for experiments conducted at the {{ name }} beamline.
         </p>
-        <p>Login to continue</p>
+        <Avatar />
       </main>
-    );
-  }
-
-  if (session.error) {
-    redirect("/auth/signin");
-  }
-  await Promise.allSettled([
-    api.queue.get.prefetch(),
-    api.history.get.prefetch(),
-    api.status.get.prefetch(),
-  ]);
-
-  return (
-    <HydrateClient>
-      <div>Replace this with your UI</div>
     </HydrateClient>
   );
 }
