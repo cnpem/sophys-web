@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { GeistMono } from "geist/font/mono";
 import { TRPCReactProvider } from "@sophys-web/api-client/react";
 import { Toaster } from "@sophys-web/ui/sonner";
+import { Avatar } from "./_components/avatar";
 
 export const metadata: Metadata = {
   title: "{{name}}",
@@ -18,6 +19,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={GeistMono.className}>
+        <div className="absolute right-1 top-1 rounded-md p-1 text-muted-foreground">
+          <Avatar />
+        </div>
         <Toaster richColors theme="light" />
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>

@@ -121,6 +121,11 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
+        path: "apps/{{name}}/src/app/_components/avatar.tsx",
+        templateFile: "templates/app/avatar.tsx.hbs",
+      },
+      {
+        type: "add",
         path: "apps/{{name}}/public/.gitkeep",
         template: "",
       },
