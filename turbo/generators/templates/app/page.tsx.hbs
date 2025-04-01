@@ -1,0 +1,13 @@
+import { Avatar } from "./_components/avatar";
+
+export default async function Page() {
+  return (
+    <main className="flex flex-col items-center gap-4 p-24">
+      <h1 className="text-4xl font-bold text-primary">{{ name }}</h1>
+      <p className="text-lg">
+        This is the UI for experiments conducted at the {{ name }} beamline.
+      </p>
+      <Avatar />
+    </main>
+  );
+}
