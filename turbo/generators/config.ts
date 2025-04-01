@@ -101,6 +101,11 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
+        path: "apps/{{name}}/src/app/auth/signin/form.tsx",
+        templateFile: "templates/app/signin-form.tsx.hbs",
+      },
+      {
+        type: "add",
         path: "apps/{{name}}/src/app/api/trpc/[trpc]/route.ts",
         templateFile: "templates/app/api/trpc.ts.hbs",
       },
@@ -108,6 +113,11 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         type: "add",
         path: "apps/{{name}}/src/app/api/auth/[...nextauth]/route.ts",
         templateFile: "templates/app/api/auth.ts.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/actions/auth.ts",
+        templateFile: "templates/app/actions/auth.ts.hbs",
       },
       {
         type: "add",
