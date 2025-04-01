@@ -131,6 +131,12 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
+        path: "apps/{{name}}/.env",
+        template:
+          "AUTH_SECRET=supersecret\nBLUESKY_HTTPSERVER_URL=http://localhost:60610",
+      },
+      {
+        type: "add",
         path: "apps/{{name}}/README.md",
         template:
           "# {{name}}\n\nThis project was scaffolded with [sophys-web](https://github.com/cnpem/sophys-web)",
