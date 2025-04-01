@@ -28,6 +28,12 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
     actions: [
       (answers) => {
         if ("name" in answers && typeof answers.name === "string") {
+          if (answers.name.includes(" ")) {
+            throw new Error("App name cannot contain spaces");
+          }
+          if (/[^a-zA-Z0-9-_]/.test(answers.name)) {
+            throw new Error("App name contains forbidden special characters");
+          }
           if (answers.name.startsWith("@sophys-web/")) {
             answers.name = answers.name.replace("@sophys-web/", "");
           }
