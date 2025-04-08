@@ -1,12 +1,11 @@
 "use client";
 
 import type { Session } from "next-auth";
+import React from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import BoringAvatar from "boring-avatars";
-import { ChevronsUpDown, LogInIcon, LogOutIcon } from "lucide-react";
-import { signOut } from "next-auth/react";
-import { api } from "@sophys-web/api-client/react";
+import { ChevronsUpDownIcon, LogInIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,17 +21,13 @@ import {
   useSidebar,
 } from "@sophys-web/ui/sidebar";
 
-export function NavUser(props: { session: Session | null }) {
+export function NavUser(props: {
+  session: Session | null;
+  signOut: React.ReactNode;
+}) {
   const { isMobile } = useSidebar();
   const { session } = props;
-  const { data: user, isPending } = api.auth.getUser.useQuery(undefined, {
-    enabled: !!session,
-  });
-
-  const handleSignOut = async () => {
-    await signOut({ redirect: false });
-    redirect("/");
-  };
+  const user = session?.user;
 
   if (!session) {
     return (
@@ -48,29 +43,8 @@ export function NavUser(props: { session: Session | null }) {
       </SidebarMenu>
     );
   }
-  if (session.error) {
+  if (session.error || !user?.name) {
     redirect("/auth/signin");
-  }
-
-  if (isPending || !user) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton>
-            <BoringAvatar
-              className="rounded-sm"
-              square
-              variant="marble"
-              name="Loading..."
-            />
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-semibold">username</span>
-              <span className="truncate text-xs">roles</span>
-            </div>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    );
   }
 
   return (
@@ -91,7 +65,7 @@ export function NavUser(props: { session: Session | null }) {
                   {user.roles?.join(", ")}
                 </span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4" />
+              <ChevronsUpDownIcon className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -117,10 +91,7 @@ export function NavUser(props: { session: Session | null }) {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleSignOut()}>
-              <LogOutIcon />
-              Log out
-            </DropdownMenuItem>
+            <DropdownMenuItem asChild>{props.signOut}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

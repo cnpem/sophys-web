@@ -1,7 +1,10 @@
+import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
-import { TableIcon } from "lucide-react";
-import { auth } from "@sophys-web/auth";
+import { redirect } from "next/navigation";
+import { LogOutIcon, TableIcon } from "lucide-react";
+import { auth, signOut } from "@sophys-web/auth";
+import { Button } from "@sophys-web/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +25,8 @@ import { NavUser } from "./nav-user";
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  // little hack to refresh the session after sign in
+  const _cookieStore = await cookies();
   const session = await auth();
   return (
     <Sidebar {...props}>
@@ -62,9 +67,33 @@ export async function AppSidebar({
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <NavUser session={session} />
+        <NavUser session={session} signOut={<SignOut />} />
       </SidebarFooter>
       <SidebarRail />:
     </Sidebar>
+  );
+}
+
+function SignOut() {
+  return (
+    <form
+      action={async () => {
+        "use server";
+        await signOut({
+          redirect: false,
+        });
+        redirect("/");
+      }}
+    >
+      <Button
+        className="flex w-full justify-start gap-2 p-0"
+        type="submit"
+        size="sm"
+        variant="ghost"
+      >
+        <LogOutIcon />
+        Log out
+      </Button>
+    </form>
   );
 }
