@@ -55,6 +55,7 @@ import type { QueueItemProps } from "../../../lib/types";
 import { DataTableViewOptions } from "../data-table/column-toggle";
 import { DataTablePagination } from "../data-table/table-pagination";
 import { EnvMenu } from "../env-menu";
+import { OnDemandSelector } from "../on-demand/on-demand-queue-items";
 import { columns } from "./columns";
 
 function DraggableRow({
@@ -178,6 +179,7 @@ export function DataTable() {
           }
           className="max-w-sm"
         />
+        <OnDemandSelector />
         <DataTableViewOptions table={table} />
       </div>
       <div className="rounded-md border">

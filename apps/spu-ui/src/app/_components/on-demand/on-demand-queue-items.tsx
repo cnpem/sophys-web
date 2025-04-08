@@ -1,4 +1,14 @@
+import { PlusIcon } from "lucide-react";
+import { Button } from "@sophys-web/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@sophys-web/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@sophys-web/ui/dropdown-menu";
 import { CapillaryStateBadge } from "~/app/_components/capillary-state-badge";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 import { CleaningDialog } from "./cleaning";
@@ -37,5 +47,35 @@ export function OnDemandQueueItems() {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+export function OnDemandSelector() {
+  const { loadedSample } = useCapillaryState();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm">
+          <PlusIcon />
+          Add
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-[150px]">
+        <DropdownMenuLabel>On demand</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <SingleAcquisition
+            className="w-full justify-start font-normal"
+            lastSampleParams={loadedSample}
+          />
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <QueueStop className="w-full justify-start font-normal" />
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <CleaningDialog className="w-full justify-start font-normal" />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
