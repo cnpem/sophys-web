@@ -6,7 +6,7 @@ import type {
   Row,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   closestCenter,
   DndContext,
@@ -31,17 +31,8 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlayIcon, SquareIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
-import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
-import { api } from "@sophys-web/api-client/react";
-import { Button } from "@sophys-web/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@sophys-web/ui/dropdown-menu";
+import { useQueue } from "@sophys-web/api-client/hooks";
 import { Input } from "@sophys-web/ui/input";
 import {
   Table,
@@ -54,7 +45,6 @@ import {
 import type { QueueItemProps } from "../../../lib/types";
 import { DataTableViewOptions } from "../data-table/column-toggle";
 import { DataTablePagination } from "../data-table/table-pagination";
-import { EnvMenu } from "../env-menu";
 import { columns } from "./columns";
 import { TableTools } from "./table-tools";
 
@@ -237,112 +227,6 @@ export function DataTable() {
         </DndContext>
       </div>
       <DataTablePagination table={table} />
-    </div>
-  );
-}
-
-export function QueueControls() {
-  const { clear, start, stop } = useQueue();
-  const utils = api.useUtils();
-  const { mutate: clearHistory } = api.history.clear.useMutation({
-    onSuccess: () => {
-      toast.success("History cleared");
-    },
-    onError: () => {
-      toast.error("Failed to clear history");
-    },
-    onSettled: async () => {
-      await utils.history.get.invalidate();
-    },
-  });
-  const { status } = useStatus();
-
-  const startQueue = useCallback(() => {
-    start.mutate(undefined, {
-      onSuccess: () => {
-        toast.success("Queue started");
-      },
-      onError: () => {
-        toast.error("Failed to start queue");
-      },
-    });
-  }, [start]);
-
-  const stopQueue = useCallback(() => {
-    stop.mutate(undefined, {
-      onSuccess: () => {
-        toast.success("Queue stopped");
-      },
-      onError: () => {
-        toast.error("Failed to stop queue");
-      },
-    });
-  }, [stop]);
-
-  const clearQueue = useCallback(() => {
-    clear.mutate(undefined, {
-      onSuccess: () => {
-        toast.success("Queue cleared");
-      },
-      onError: () => {
-        toast.error("Failed to clear queue");
-      },
-    });
-  }, [clear]);
-
-  return (
-    <div className="flex items-center justify-start gap-2">
-      <EnvMenu />
-      <Button
-        disabled={!status.data?.reState || status.data.itemsInQueue === 0}
-        onClick={() => {
-          if (status.data?.reState === "running") {
-            stopQueue();
-          } else {
-            startQueue();
-          }
-        }}
-        size="sm"
-        variant="default"
-      >
-        {status.data?.reState !== "running" ? (
-          <>
-            <PlayIcon className="mr-2 h-4 w-4" />
-            Start
-          </>
-        ) : (
-          <>
-            <SquareIcon className="mr-2 h-4 w-4" />
-            Stop
-          </>
-        )}
-      </Button>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="sm" variant="destructive">
-            <Trash2Icon className="mr-2 h-4 w-4" />
-            Clear
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => {
-              clearQueue();
-            }}
-          >
-            Clear Queue
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => {
-              clearHistory();
-            }}
-          >
-            Clear History
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
   );
 }
