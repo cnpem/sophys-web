@@ -252,7 +252,7 @@ export function CleaningDialog({ className }: { className?: string }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className={className}>
+        <Button variant="ghost" className={className}>
           <DropletIcon className="mr-2 h-4 w-4" />
           Clean
         </Button>

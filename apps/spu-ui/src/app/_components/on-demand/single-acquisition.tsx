@@ -53,7 +53,7 @@ export function SingleAcquisition({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          variant="outline"
+          variant="ghost"
           className={className}
           disabled={lastSampleParams === undefined}
         >

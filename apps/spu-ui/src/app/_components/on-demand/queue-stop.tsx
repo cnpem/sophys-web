@@ -18,7 +18,7 @@ export function QueueStop({ className }: { className?: string }) {
   };
 
   return (
-    <Button variant="outline" className={className} onClick={handleSubmit}>
+    <Button variant="ghost" className={className} onClick={handleSubmit}>
       <SquareIcon className="mr-2 h-4 w-4" />
       Stop
     </Button>
