@@ -1,23 +1,43 @@
 "use client";
 
+import type { UniqueIdentifier } from "@dnd-kit/core";
 import type { ColumnDef } from "@tanstack/react-table";
+import { useSortable } from "@dnd-kit/sortable";
 import { createColumnHelper } from "@tanstack/react-table";
-import { MoreHorizontalIcon } from "lucide-react";
+import { GripVerticalIcon } from "lucide-react";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@sophys-web/ui/dropdown-menu";
 import type { QueueItemProps } from "~/lib/types";
+import { RowActions } from "./row-actions";
+
+function DragHandle({ id }: { id: UniqueIdentifier }) {
+  const { attributes, listeners, isDragging } = useSortable({
+    id,
+  });
+  return (
+    <Button
+      {...attributes}
+      {...listeners}
+      data-dragging={isDragging}
+      variant="ghost"
+      size="icon"
+      className="cursor-grab data-[dragging=true]:cursor-grabbing"
+    >
+      <GripVerticalIcon className="size-3 text-muted-foreground" />
+      <span className="sr-only">Drag to reorder</span>
+    </Button>
+  );
+}
 
 const columnHelper = createColumnHelper<QueueItemProps>();
 
 const defaultColumns = [
+  columnHelper.display({
+    id: "drag",
+    header: () => null,
+    cell: ({ row }) => <DragHandle id={row.original.itemUid} />,
+  }),
   columnHelper.display({
     id: "position",
     header: "Position",
@@ -25,6 +45,10 @@ const defaultColumns = [
   }),
   columnHelper.accessor("name", {
     header: "Name",
+    cell: ({ getValue }) => {
+      const name = getValue();
+      return <div>{name.replace(/_/g, " ")}</div>;
+    },
   }),
   columnHelper.accessor("user", {
     header: "User",
@@ -75,23 +99,7 @@ const defaultColumns = [
   ),
   columnHelper.display({
     id: "actions",
-    cell: () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontalIcon className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Edit Item</DropdownMenuItem>
-            <DropdownMenuItem>Remove Item</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <RowActions item={row.original} />,
   }),
 ];
 
