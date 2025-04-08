@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import containerQuery from "@tailwindcss/container-queries";
 import twAnimate from "tailwindcss-animate";
 
 const config = {
@@ -85,7 +86,7 @@ const config = {
       },
     },
   },
-  plugins: [twAnimate],
+  plugins: [twAnimate, containerQuery],
 } satisfies Config;
 
 export default config;
