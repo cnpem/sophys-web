@@ -55,8 +55,8 @@ import type { QueueItemProps } from "../../../lib/types";
 import { DataTableViewOptions } from "../data-table/column-toggle";
 import { DataTablePagination } from "../data-table/table-pagination";
 import { EnvMenu } from "../env-menu";
-import { OnDemandSelector } from "../on-demand/on-demand-queue-items";
 import { columns } from "./columns";
+import { TableTools } from "./table-tools";
 
 function DraggableRow({
   row,
@@ -98,7 +98,7 @@ export function DataTable() {
 
   const isEmpty = queue.data?.items.length === 0;
 
-  function handleDragEnd(event: DragEndEvent) {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (isEmpty) {
       return;
@@ -125,7 +125,7 @@ export function DataTable() {
         },
       );
     }
-  }
+  };
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
@@ -179,7 +179,7 @@ export function DataTable() {
           }
           className="max-w-sm"
         />
-        <OnDemandSelector />
+        <TableTools />
         <DataTableViewOptions table={table} />
       </div>
       <div className="rounded-md border">
