@@ -52,8 +52,9 @@ export function UploadQueue() {
   return (
     <Dialog open={open} onOpenChange={setOpen} modal={false}>
       <DialogTrigger asChild>
-        <Button title="load new experiment queue" size="icon" variant="outline">
+        <Button title="load new experiment queue" size="sm" variant="ghost">
           <UploadIcon className="h-4 w-4" />
+          Upload Queue
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-screen-sm">
