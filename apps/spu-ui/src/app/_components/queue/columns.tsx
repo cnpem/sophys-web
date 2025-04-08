@@ -55,6 +55,10 @@ const defaultColumns = [
   }),
   columnHelper.accessor("itemType", {
     header: "Type",
+    cell: ({ getValue }) => {
+      const type = getValue();
+      return <Badge variant="outline">{type}</Badge>;
+    },
   }),
   columnHelper.accessor(
     (row) => {
