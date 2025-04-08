@@ -35,7 +35,7 @@ export const useQueue = () => {
         previousValue
           ? {
               ...previousValue,
-              items: [...previousValue.items, newItemResponse],
+              items: [newItemResponse, ...previousValue.items],
             }
           : undefined,
       );
