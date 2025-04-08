@@ -79,7 +79,7 @@ export function DataTable() {
   });
 
   return (
-    <div>
+    <div id="history">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter history items..."

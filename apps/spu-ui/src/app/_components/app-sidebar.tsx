@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LogOutIcon, TableIcon } from "lucide-react";
+import { HistoryIcon, LogOutIcon, TableIcon } from "lucide-react";
 import { auth, signOut } from "@sophys-web/auth";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -51,9 +51,15 @@ export async function AppSidebar({
           <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenuButton tooltip="Queue" asChild>
-              <Link href="/">
+              <Link href="#queue">
                 <TableIcon className="mr-2 h-4 w-4" />
                 Queue
+              </Link>
+            </SidebarMenuButton>
+            <SidebarMenuButton tooltip="History" asChild>
+              <Link href="#history">
+                <HistoryIcon className="mr-2 h-4 w-4" />
+                History
               </Link>
             </SidebarMenuButton>
           </SidebarGroupContent>

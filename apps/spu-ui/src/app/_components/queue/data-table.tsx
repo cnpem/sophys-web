@@ -166,7 +166,7 @@ export function DataTable() {
   });
 
   return (
-    <div>
+    <div id="queue">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter queue items..."
