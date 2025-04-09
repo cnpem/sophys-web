@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "exports": {
-    ".": "./tailwind.config.ts"
+    "./base.css": "./base.css"
   },
   "scripts": {
     "clean": "git clean -xdf .turbo .cache node_modules",
@@ -12,12 +12,12 @@
   },
   "devDependencies": {
     "@sophys-web/prettier-config": "workspace:*",
-    "@sophys-web/typescript-config": "workspace:*",
-    "tailwindcss": "catalog:"
+    "@sophys-web/typescript-config": "workspace:*"
   },
   "prettier": "@sophys-web/prettier-config",
   "dependencies": {
-    "@tailwindcss/container-queries": "^0.1.1",
-    "tailwindcss-animate": "^1.0.7"
+    "@tailwindcss/cli": "^4.1.3",
+    "tailwindcss": "catalog:",
+    "tw-animate-css": "^1.2.5"
   }
 }

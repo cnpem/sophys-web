@@ -1,3 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@sophys-web/tailwind-config/base.css";
+@import "@sophys-web/ui/styles.css";

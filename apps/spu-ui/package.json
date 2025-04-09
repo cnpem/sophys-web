@@ -51,6 +51,7 @@
     "@sophys-web/prettier-config": "workspace:*",
     "@sophys-web/tailwind-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "^4.1.3",
     "@types/node": "^22.13.11",
     "@types/papaparse": "^5.3.14",
     "@types/react": "catalog:react19",
@@ -58,8 +59,9 @@
     "autoprefixer": "^10.4.18",
     "eslint": "catalog:",
     "jiti": "^2.4.0",
-    "postcss": "^8.4.35",
+    "postcss": "^8.5.3",
     "tailwindcss": "catalog:",
+    "tw-animate-css": "^1.2.5",
     "typescript": "catalog:",
     "typescript-eslint": "^8.27.0"
   },

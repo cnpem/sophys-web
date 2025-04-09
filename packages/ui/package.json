@@ -30,10 +30,10 @@
     "@sophys-web/prettier-config": "workspace:*",
     "@sophys-web/tailwind-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
+    "@tailwindcss/cli": "^4.1.3",
     "@types/react": "catalog:react19",
-    "autoprefixer": "^10.4.18",
-    "postcss": "^8.4.35",
     "tailwindcss": "catalog:",
+    "tw-animate-css": "^1.2.5",
     "typescript": "catalog:"
   },
   "dependencies": {
