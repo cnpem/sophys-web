@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
-import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
   Dialog,
@@ -79,10 +78,10 @@ const registerSchema = z.discriminatedUnion("sampleType", [
 
 function RegisterSampleForm({
   sample,
-  className,
+  children,
 }: {
   sample: Sample;
-  className?: string;
+  children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -109,9 +108,7 @@ function RegisterSampleForm({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className={className}>
-        <span>{sample.type?.charAt(0) ?? "-"}</span>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Register a new sample</DialogTitle>
@@ -190,10 +187,10 @@ function RegisterSampleForm({
 
 function SampleForm({
   sample,
-  className,
+  children,
 }: {
   sample: Sample;
-  className?: string;
+  children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const { addBatch } = useQueue();
@@ -261,26 +258,13 @@ function SampleForm({
       <Tooltip>
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
-            <TooltipTrigger asChild>
-              <Button variant="outline" size="icon" className={className}>
-                <span>{sample.type?.charAt(0) ?? "-"}</span>
-              </Button>
-            </TooltipTrigger>
+            <TooltipTrigger asChild>{children}</TooltipTrigger>
           </DialogTrigger>
-          <TooltipContent>
-            <div className="space-y-4">
-              <div>
-                <strong>Sample Type:</strong>
-                <span>{sample.type}</span>
-              </div>
-              <div>
-                <strong>Sample Tag:</strong>
-                <span>{sample.sampleTag}</span>
-              </div>
-              <div>
-                <strong>Buffer Tag:</strong>
-                <span>{sample.bufferTag}</span>
-              </div>
+          <TooltipContent align="end">
+            <div className="flex flex-col">
+              <span>{`type: ${sample.type}`}</span>
+              <span>{`name: ${sample.sampleTag}`}</span>
+              {sample.bufferTag && <span>{`buffer: ${sample.bufferTag}`}</span>}
             </div>
           </TooltipContent>
 
@@ -323,23 +307,27 @@ function SampleForm({
 
 export function SampleItem({ sample }: { sample: Sample }) {
   const isRegistered = sample.type !== undefined;
-
-  const classNames = cn(
-    "relative flex h-7 w-7 cursor-context-menu select-none items-center justify-center rounded-full text-xs font-semibold text-white hover:scale-105 hover:ring",
-    { "cursor-text opacity-50": !isRegistered },
-    {
-      "bg-slate-500": !sample.type,
-      "bg-emerald-500": sample.type === "sample",
-      "bg-sky-500": sample.type === "buffer",
-    },
-  );
-
   return (
     <>
       {!isRegistered ? (
-        <RegisterSampleForm sample={sample} className={classNames} />
+        <RegisterSampleForm sample={sample}>
+          <Button
+            variant="outline"
+            className="@lg/main:size-12 @xl/main:size-16 bg-muted size-8 cursor-cell select-none rounded-full text-sm opacity-50 hover:scale-105 hover:ring hover:ring-slate-400"
+          >
+            {sample.type?.charAt(0) ?? "-"}
+          </Button>
+        </RegisterSampleForm>
       ) : (
-        <SampleForm sample={sample} className={classNames} />
+        <SampleForm sample={sample}>
+          <Button
+            data-sample-type={sample.type}
+            variant="outline"
+            className="@lg/main:size-12 @xl/main:size-16 size-8 cursor-context-menu select-none rounded-full text-sm hover:scale-105 hover:ring data-[sample-type=buffer]:border-emerald-400 data-[sample-type=sample]:border-sky-400 data-[sample-type=buffer]:bg-emerald-200 data-[sample-type=sample]:bg-sky-200 data-[sample-type=buffer]:text-emerald-800 data-[sample-type=sample]:text-sky-800 data-[sample-type=buffer]:hover:bg-emerald-300 data-[sample-type=sample]:hover:bg-sky-300"
+          >
+            {sample.type?.charAt(0) ?? "-"}
+          </Button>
+        </SampleForm>
       )}
     </>
   );

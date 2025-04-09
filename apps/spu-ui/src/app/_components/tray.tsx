@@ -40,7 +40,7 @@ export function Tray(props: TrayProps) {
   }, [tray]);
 
   return (
-    <Card className="space-y-4 rounded-md pt-0 shadow-none">
+    <Card className="space-y-4 rounded-md p-0 shadow-none">
       <CardHeader className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
         <CardTitle className="flex items-center text-base font-semibold text-slate-700">
           Tray
@@ -54,7 +54,7 @@ export function Tray(props: TrayProps) {
                   variant="outline"
                   className="absolute end-1 size-8"
                 >
-                  <Trash2Icon className="h-4 w-4" />
+                  <Trash2Icon className="size-4" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent className="font-normal">Clear</TooltipContent>
@@ -63,6 +63,7 @@ export function Tray(props: TrayProps) {
         </CardTitle>
       </CardHeader>
       <CardContent
+        className="@container/main"
         style={{
           display: "grid",
           gap: "0.25rem",
@@ -73,7 +74,7 @@ export function Tray(props: TrayProps) {
         <div />
         {trayColumns.map((col) => (
           <div
-            className="flex items-center justify-center text-sm font-semibold"
+            className="@lg/main:size-12 @xl/main:size-16 flex size-8 flex-1 items-center justify-center text-base font-normal"
             key={col}
           >
             {col}
@@ -83,7 +84,7 @@ export function Tray(props: TrayProps) {
           return (
             <React.Fragment key={sample.id}>
               {index % trayColumns.length === 0 && (
-                <div className="flex items-center justify-center text-sm font-semibold">
+                <div className="flex items-center justify-center text-base font-normal">
                   {trayRows[index / trayColumns.length]}
                 </div>
               )}
@@ -93,7 +94,7 @@ export function Tray(props: TrayProps) {
         })}
       </CardContent>
       <CardFooter className="justify-center">
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-center text-sm">
           Click on a sample to load it to the queue or on a empty slot to add an
           new sample.
         </p>
@@ -104,9 +105,11 @@ export function Tray(props: TrayProps) {
 
 export function LoadingTray() {
   return (
-    <Card className="rounded-md">
-      <CardHeader>
-        <CardTitle className="text-lg font-medium">Tray</CardTitle>
+    <Card className="space-y-4 rounded-md p-0 shadow-none">
+      <CardHeader className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
+        <CardTitle className="flex items-center text-base font-semibold text-slate-700">
+          Tray
+        </CardTitle>
       </CardHeader>
       <CardContent
         style={{
@@ -135,7 +138,7 @@ export function LoadingTray() {
                 className="flex items-center justify-center text-sm font-semibold"
                 key={col}
               >
-                <span className="h-7 w-7 animate-pulse rounded-full bg-muted text-white">
+                <span className="bg-muted h-7 w-7 animate-pulse rounded-full text-white">
                   ...
                 </span>
               </div>
