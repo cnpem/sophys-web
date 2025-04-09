@@ -41,8 +41,8 @@ export function Tray(props: TrayProps) {
 
   return (
     <Card className="space-y-4 rounded-md p-0 shadow-none">
-      <CardHeader className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
-        <CardTitle className="flex items-center text-base font-semibold text-slate-700">
+      <CardHeader className="relative flex items-center justify-center rounded-sm border-b border-slate-300 bg-slate-100 p-2">
+        <CardTitle className="flex items-center text-base font-semibold">
           Tray
           <TooltipProvider>
             <Tooltip>
@@ -93,7 +93,7 @@ export function Tray(props: TrayProps) {
           );
         })}
       </CardContent>
-      <CardFooter className="justify-center">
+      <CardFooter className="justify-center p-2">
         <p className="text-muted-foreground text-center text-sm">
           Click on a sample to load it to the queue or on a empty slot to add an
           new sample.
