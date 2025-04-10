@@ -79,7 +79,7 @@ export function DataTable() {
   });
 
   return (
-    <div id="history">
+    <div>
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter history items..."
@@ -105,7 +105,7 @@ export function DataTable() {
       </div>
       <div className="rounded-md border">
         <Table>
-          <TableHeader className="sticky top-0 z-10 bg-muted">
+          <TableHeader className="bg-muted sticky top-0 z-10">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
