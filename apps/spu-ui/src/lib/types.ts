@@ -10,3 +10,12 @@ export type QueueItemProps =
 
 type HistoryResponse = z.infer<typeof schemas.history.getResponseSchema>;
 export type HistoryItemProps = HistoryResponse["items"][number];
+
+export type REState =
+  | "idle"
+  | "running"
+  | "paused"
+  | "unknown"
+  | "closed"
+  | "error";
+export type REAction = "pause" | "resume" | "stop" | "halt" | "abort";
