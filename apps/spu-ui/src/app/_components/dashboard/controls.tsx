@@ -94,13 +94,15 @@ function Environment() {
         <TooltipContent side="bottom">Update Environment</TooltipContent>
       </Tooltip>
       <Tooltip>
-        <TooltipTrigger className="flex items-center">
-          <Switch
-            disabled={status.isPending}
-            checked={isOpen}
-            onClick={isOpen ? closeEnv : openEnv}
-            defaultChecked={!!reState}
-          />
+        <TooltipTrigger className="flex items-center" asChild>
+          <div className="inline-block">
+            <Switch
+              disabled={status.isPending}
+              checked={isOpen}
+              onClick={isOpen ? closeEnv : openEnv}
+              defaultChecked={!!reState}
+            />
+          </div>
         </TooltipTrigger>
         <TooltipContent side="bottom">
           {isOpen ? "Close Environment" : "Open Environment"}
@@ -145,7 +147,7 @@ function Queue() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            className="rounded-full"
+            className="size-8 rounded-full"
             onClick={stopQueue}
             size="icon"
             variant="default"
@@ -161,7 +163,7 @@ function Queue() {
   if (reState === "paused") {
     return (
       <Button
-        className="rounded-full"
+        className="size-8 rounded-full"
         disabled
         size="icon"
         variant="destructive"
@@ -175,7 +177,7 @@ function Queue() {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          className="size-7 rounded-full"
+          className="size-8 rounded-full"
           disabled={reState !== "idle" || itemsInQueue === 0}
           onClick={startQueue}
           size="icon"
