@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PlusIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -313,9 +314,10 @@ export function SampleItem({ sample }: { sample: Sample }) {
         <RegisterSampleForm sample={sample}>
           <Button
             variant="outline"
-            className="@lg/main:size-12 @xl/main:size-16 bg-muted size-8 cursor-cell select-none rounded-full text-sm opacity-50 hover:scale-105 hover:ring hover:ring-slate-400"
+            size="icon"
+            className="bg-muted cursor-cell select-none rounded-full text-sm opacity-50 hover:scale-105 hover:ring hover:ring-slate-400"
           >
-            {sample.type?.charAt(0) ?? "-"}
+            <PlusIcon className="size-4" />
           </Button>
         </RegisterSampleForm>
       ) : (
@@ -323,7 +325,8 @@ export function SampleItem({ sample }: { sample: Sample }) {
           <Button
             data-sample-type={sample.type}
             variant="outline"
-            className="@lg/main:size-12 @xl/main:size-16 size-8 cursor-context-menu select-none rounded-full text-sm hover:scale-105 hover:ring data-[sample-type=buffer]:border-emerald-400 data-[sample-type=sample]:border-sky-400 data-[sample-type=buffer]:bg-emerald-200 data-[sample-type=sample]:bg-sky-200 data-[sample-type=buffer]:text-emerald-800 data-[sample-type=sample]:text-sky-800 data-[sample-type=buffer]:hover:bg-emerald-300 data-[sample-type=sample]:hover:bg-sky-300"
+            size="icon"
+            className="cursor-context-menu select-none rounded-full text-sm hover:scale-105 hover:ring data-[sample-type=buffer]:border-emerald-400 data-[sample-type=sample]:border-sky-400 data-[sample-type=buffer]:bg-emerald-200 data-[sample-type=sample]:bg-sky-200 data-[sample-type=buffer]:text-emerald-800 data-[sample-type=sample]:text-sky-800 data-[sample-type=buffer]:hover:bg-emerald-300 data-[sample-type=sample]:hover:bg-sky-300"
           >
             {sample.type?.charAt(0) ?? "-"}
           </Button>

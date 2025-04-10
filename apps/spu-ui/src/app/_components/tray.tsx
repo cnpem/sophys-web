@@ -40,7 +40,7 @@ export function Tray(props: TrayProps) {
   }, [tray]);
 
   return (
-    <Card className="space-y-4 rounded-md p-0 shadow-none">
+    <Card className="min-w-xl space-y-4 rounded-md p-0 shadow-none">
       <CardHeader className="relative flex items-center justify-center rounded-sm border-b border-slate-300 bg-slate-100 p-2">
         <CardTitle className="flex items-center text-base font-semibold">
           Tray
@@ -63,7 +63,6 @@ export function Tray(props: TrayProps) {
         </CardTitle>
       </CardHeader>
       <CardContent
-        className="@container/main"
         style={{
           display: "grid",
           gap: "0.25rem",
@@ -72,9 +71,10 @@ export function Tray(props: TrayProps) {
         }}
       >
         <div />
+
         {trayColumns.map((col) => (
           <div
-            className="@lg/main:size-12 @xl/main:size-16 flex size-8 flex-1 items-center justify-center text-base font-normal"
+            className="flex size-9 items-center justify-center text-base font-normal"
             key={col}
           >
             {col}
