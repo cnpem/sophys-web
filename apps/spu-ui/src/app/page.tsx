@@ -1,8 +1,10 @@
+import { Suspense } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { api, HydrateClient } from "@sophys-web/api-client/server";
 import { auth } from "@sophys-web/auth";
-import Experiment from "./_components/experiment";
-import UserAvatar from "./_components/user-avatar";
+import { buttonVariants } from "@sophys-web/ui/button";
+import { Dashboard } from "./_components/dashboard/dashboard";
 import { getSamples } from "./actions/samples";
 
 export default async function Page() {
@@ -11,11 +13,16 @@ export default async function Page() {
   if (!session) {
     return (
       <main className="flex flex-col items-center gap-4 p-24">
-        <h1 className="text-4xl font-bold text-primary">Sophys Sapucaia UI</h1>
+        <h1 className="text-primary text-4xl font-bold">Sophys Sapucaia UI</h1>
         <p className="text-lg">
           This is the UI for experiments conducted at the Sapucaia beamline.
         </p>
-        <UserAvatar />
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href="/auth/signin"
+        >
+          Sign in
+        </Link>
       </main>
     );
   }
@@ -36,7 +43,9 @@ export default async function Page() {
 
   return (
     <HydrateClient>
-      <Experiment initialData={samples.value} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Dashboard initialData={samples.value} />
+      </Suspense>
     </HydrateClient>
   );
 }
