@@ -39,12 +39,7 @@ export function Console({ className }: { className?: string }) {
   }, [messages]);
 
   return (
-    <div
-      className={cn(
-        "mx-auto w-full max-w-3xl overflow-hidden rounded-lg border bg-white",
-        className,
-      )}
-    >
+    <div className={cn("w-full overflow-hidden rounded-lg border", className)}>
       <TopBar
         topBarTitle="Console"
         onRefetch={refetch}
@@ -56,7 +51,7 @@ export function Console({ className }: { className?: string }) {
         {messages?.map((message, i) => (
           <ConsoleMessage key={i} message={message} />
         ))}
-        <span className="text-center text-muted-foreground">
+        <span className="text-muted-foreground text-center">
           $<span className="animate-pulse">{" \u2588"}</span>
         </span>
       </ScrollArea>
@@ -87,7 +82,7 @@ function ConsoleMessage({ message }: { message: ParsedLogMessage }) {
         [{message.logLevel.toUpperCase()}] {message.date} {message.timestamp}
       </span>
       <span
-        className={cn("mr-2", "font-semibold text-muted-foreground", {
+        className={cn("mr-2", "text-muted-foreground font-semibold", {
           "text-purple-600":
             message.service === "bluesky_queueserver.manager.manager",
           "text-blue-600":
