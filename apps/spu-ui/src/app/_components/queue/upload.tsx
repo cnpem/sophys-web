@@ -269,7 +269,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
       onSubmit={onSubmitCleaning}
     />,
     <AcquisitionTableForm key="acquisition" onSubmit={onSubmitAcquisition} />,
-    <div className="text-xs text-muted-foreground">
+    <div className="text-muted-foreground text-xs">
       <div className="text-lg font-bold">Step 1: Proposal</div>
       <p>Proposal: {formProposal}</p>
       <p>Use Capillary: {useCapillary ? "Yes" : "No"}</p>

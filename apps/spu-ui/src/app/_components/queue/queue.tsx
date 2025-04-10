@@ -32,14 +32,14 @@ function QueueSkeleton() {
     <div className="grid grid-cols-2 gap-2">
       <div className="flex flex-col gap-2">
         <div className="flex h-fit flex-col gap-2">
-          <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
+          <span className="border-muted text-muted-foreground items-center justify-center rounded-md border bg-slate-50 p-1 text-center capitalize">
             loading
           </span>
           <ul className="space-y-2">
             <SkeletonItem />
           </ul>
         </div>
-        <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
+        <span className="border-muted text-muted-foreground items-center justify-center rounded-md border bg-slate-50 p-1 text-center capitalize">
           Queue
         </span>
         <div className="relative flex h-[calc(100vh-200px)] flex-col">
@@ -54,7 +54,7 @@ function QueueSkeleton() {
         </div>
       </div>
       <div className="flex h-fit flex-col gap-2">
-        <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
+        <span className="border-muted text-muted-foreground items-center justify-center rounded-md border bg-slate-50 p-1 text-center capitalize">
           History
         </span>
         <ul className="space-y-2">
@@ -73,7 +73,7 @@ function QueueSkeleton() {
 function QueueCounter() {
   const { queue } = useQueue();
   return (
-    <div className="flex items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center text-muted-foreground">
+    <div className="border-muted text-muted-foreground flex items-center justify-center rounded-md border bg-slate-50 p-1 text-center">
       <span className="mr-2 font-medium">Queue</span>
       <span className="rounded-md border-none bg-slate-200 px-2 font-bold">
         {queue.data?.items.length}
@@ -140,7 +140,7 @@ export function Queue() {
             modifiers={[restrictToVerticalAxis]}
           >
             {isEmpty ? (
-              <p className="text-center text-muted-foreground">
+              <p className="text-muted-foreground text-center">
                 Queue is empty.
               </p>
             ) : (
@@ -176,7 +176,7 @@ function RunningSection() {
   const { queue } = useQueue();
   return (
     <div className="flex h-fit flex-col gap-2">
-      <span className="items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center capitalize text-muted-foreground">
+      <span className="border-muted text-muted-foreground items-center justify-center rounded-md border bg-slate-50 p-1 text-center capitalize">
         Run engine {getEngineStatus(status.data?.reState)}
       </span>
       {queue.data?.runningItem.itemUid ? (
@@ -186,7 +186,7 @@ function RunningSection() {
         />
       ) : (
         <div className="flex h-40 items-center justify-center">
-          <span className="text-center text-muted-foreground">
+          <span className="text-muted-foreground text-center">
             No running item.
           </span>
         </div>

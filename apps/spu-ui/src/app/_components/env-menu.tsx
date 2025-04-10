@@ -59,7 +59,7 @@ export function EnvMenu() {
           Open
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="cursor-pointer text-muted-foreground hover:font-semibold hover:!text-red-500"
+          className="text-muted-foreground cursor-pointer hover:font-semibold hover:!text-red-500"
           onClick={() => {
             envClose.mutate();
           }}
@@ -72,7 +72,7 @@ export function EnvMenu() {
           {status.data
             ? Object.entries(status.data).map(([key, value]) => (
                 <p
-                  className="text-ellipsis text-xs text-muted-foreground"
+                  className="text-muted-foreground text-ellipsis text-xs"
                   key={key}
                 >
                   {key}:{" "}

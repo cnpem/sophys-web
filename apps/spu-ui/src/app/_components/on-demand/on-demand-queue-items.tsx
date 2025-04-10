@@ -28,7 +28,7 @@ export function OnDemandQueueItems() {
       <CardContent>
         <CapillaryStateBadge className="mb-2 text-sm font-semibold" />
         {loadedSample && (
-          <p className="space-x-2 text-sm text-muted-foreground">
+          <p className="text-muted-foreground space-x-2 text-sm">
             <span>Loaded Sample:</span>
             <span className="font-semibold">{`${loadedSample.tray}, ${loadedSample.row}-${loadedSample.col},`}</span>
             <span>{`type: ${loadedSample.sampleType},`}</span>

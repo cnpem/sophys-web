@@ -160,7 +160,7 @@ export function History() {
       />
       <ScrollArea className="flex h-[780px] flex-col bg-slate-50 p-1">
         {data.items.length === 0 ? (
-          <p className="text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center">
             No history items found.
           </p>
         ) : (
@@ -181,7 +181,7 @@ function HistoryCounter() {
   const { data } = api.history.get.useQuery();
 
   return (
-    <div className="flex items-center justify-center rounded-md border border-muted bg-slate-50 p-1 text-center text-muted-foreground">
+    <div className="border-muted text-muted-foreground flex items-center justify-center rounded-md border bg-slate-50 p-1 text-center">
       <span className="mr-2 font-medium">History</span>
       <span className="rounded-md border-none bg-slate-200 px-2 font-bold">
         {data?.items.length}

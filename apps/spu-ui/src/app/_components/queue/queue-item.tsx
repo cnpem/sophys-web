@@ -34,18 +34,18 @@ export function SkeletonItem() {
       <Card className="relative animate-pulse border-none">
         <CardHeader>
           <CardTitle className="flex items-center gap-4">
-            <span className="h-6 w-24 rounded bg-muted" />
-            <Badge className="border-none bg-muted" variant="outline" />
+            <span className="bg-muted h-6 w-24 rounded" />
+            <Badge className="bg-muted border-none" variant="outline" />
           </CardTitle>
           <CardDescription className="space-y-4">
             <div className="flex gap-2">
-              <span className="h-5 w-64 rounded bg-muted" />
-              <span className="h-5 w-28 rounded bg-muted" />
+              <span className="bg-muted h-5 w-64 rounded" />
+              <span className="bg-muted h-5 w-28 rounded" />
             </div>
             <div className="flex gap-2">
-              <Badge className="border-none bg-muted" variant="outline" />
-              <Badge className="border-none bg-muted" variant="outline" />
-              <Badge className="border-none bg-muted" variant="outline" />
+              <Badge className="bg-muted border-none" variant="outline" />
+              <Badge className="bg-muted border-none" variant="outline" />
+              <Badge className="bg-muted border-none" variant="outline" />
             </div>
           </CardDescription>
         </CardHeader>

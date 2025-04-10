@@ -24,7 +24,7 @@ function DragHandle({ id }: { id: UniqueIdentifier }) {
       size="icon"
       className="cursor-grab data-[dragging=true]:cursor-grabbing"
     >
-      <GripVerticalIcon className="size-3 text-muted-foreground" />
+      <GripVerticalIcon className="text-muted-foreground size-3" />
       <span className="sr-only">Drag to reorder</span>
     </Button>
   );
