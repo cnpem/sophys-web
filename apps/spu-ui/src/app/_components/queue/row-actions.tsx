@@ -30,6 +30,9 @@ export function RowActions({ item }: { item: QueueItemProps }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="flex flex-col" align="end">
         <DropdownMenuItem asChild>
+          <MoveToFront uid={uid} />
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
           <EditItem />
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -37,6 +40,35 @@ export function RowActions({ item }: { item: QueueItemProps }) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function MoveToFront({ uid }: { uid: string }) {
+  const { move } = useQueue();
+  const handleMove = () => {
+    toast.info("Moving item to front...");
+    move.mutate(
+      { uid, posDest: "front" },
+      {
+        onSuccess: () => {
+          toast.success("Item moved to front");
+        },
+        onError: () => {
+          toast.error("Failed to move item");
+        },
+      },
+    );
+  };
+
+  return (
+    <Button
+      className="justify-start font-normal"
+      size="sm"
+      variant="ghost"
+      onClick={handleMove}
+    >
+      Move to Front
+    </Button>
   );
 }
 
