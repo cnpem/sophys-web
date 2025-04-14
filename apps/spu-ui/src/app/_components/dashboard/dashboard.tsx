@@ -19,9 +19,9 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
       <Controls />
       <div className="@container/main flex flex-1 flex-col gap-4">
         <SectionCards />
-        <div className="flex h-[40rem] flex-row gap-4 border p-4 shadow-sm">
+        <div className="flex flex-row gap-4">
           <Trays initialData={initialData} />
-          <Console className="h-full flex-1" />
+          <Console />
         </div>
         <div className="flex flex-col gap-4 rounded-md border p-4 shadow-sm">
           <h1 id="queue" className="text-2xl font-normal">
