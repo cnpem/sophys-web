@@ -198,7 +198,7 @@ export function DataTable() {
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody className="**:data-[slot=table-cell]:first:w-8">
+            <TableBody className="**:data-[slot=table-cell]:first:w-8 **:data-[slot=table-cell]:last:w-8">
               {table.getRowModel().rows.length ? (
                 <SortableContext
                   items={dataIds}
