@@ -60,7 +60,7 @@ export default function Experiment({ initialData }: { initialData: Sample[] }) {
         <ControlPlane />
         <Queue />
       </div>
-      <Console className="mt-10 h-4/5 w-1/4 rounded-md" />
+      <Console />
     </div>
   );
 }
