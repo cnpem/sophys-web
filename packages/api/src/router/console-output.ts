@@ -1,3 +1,4 @@
+import { format, fromUnixTime } from "date-fns";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { env } from "../../env";
@@ -24,7 +25,7 @@ export const consoleOutputRouter = {
         const decoded = new TextDecoder().decode(chunk);
         const messages = parseMessagesFromText(decoded);
         for (const message of messages) {
-          const innerMessage = parseInnerMessage(message.msg);
+          const innerMessage = parseInnerMessage(message);
           if (innerMessage) {
             const id = nanoid();
             yield {
@@ -70,53 +71,53 @@ interface ParsedLogMessage {
   textMessage: string;
 }
 
-function parseInnerMessage(message: string): ParsedLogMessage | null {
+function parseInnerMessage(message: Message): ParsedLogMessage | null {
   const innerMessageRegex = /^\[(.*?)\]\s*([\s\S]*)$/;
-  const match = innerMessageRegex.exec(message);
+  const match = innerMessageRegex.exec(message.msg);
+  const date = fromUnixTime(message.time);
+  const formattedDate = format(date, "yyyy/MM/dd");
+  const formattedTime = format(date, "HH:mm:ss");
 
   if (!match) {
     console.error("Failed to parse inner message:\n", message);
-    const now = new Date();
     return {
       logLevel: "U",
-      date: now.toISOString().slice(0, 10),
-      timestamp: now.toISOString().slice(11, 19),
+      date: formattedDate,
+      timestamp: formattedTime,
       service: "Unknown",
-      textMessage: message,
+      textMessage: message.msg,
     };
   }
 
   const [, bracketContent, textMessage] = match;
   if (!bracketContent) {
     console.error("Failed to parse bracket content:\n", message);
-    const now = new Date();
     return {
       logLevel: "U",
-      date: now.toISOString().slice(0, 10),
-      timestamp: now.toISOString().slice(11, 19),
+      date: formattedDate,
+      timestamp: formattedTime,
       service: "Unknown",
-      textMessage: message,
+      textMessage: message.msg,
     };
   }
 
-  const [logLevel, date, timestamp, service] = bracketContent.split(/\s+/);
+  const [logLevel, _date, _timestamp, service] = bracketContent.split(/\s+/);
 
-  if (!logLevel || !date || !timestamp || !service || !textMessage) {
+  if (!logLevel || !service || !textMessage) {
     console.error("Failed to parse bracket content:", message);
-    const now = new Date();
     return {
       logLevel: "U",
-      date: now.toISOString().slice(0, 10),
-      timestamp: now.toISOString().slice(11, 19),
+      date: formattedDate,
+      timestamp: formattedTime,
       service: "Unknown",
-      textMessage: message,
+      textMessage: message.msg,
     };
   }
 
   return {
     logLevel,
-    date,
-    timestamp,
+    date: formattedDate,
+    timestamp: formattedTime,
     service,
     textMessage,
   };

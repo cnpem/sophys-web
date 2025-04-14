@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { DownloadIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
+import {
+  DownloadIcon,
+  RotateCcwIcon,
+  SquareTerminalIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
@@ -13,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
 
-export function Console({ className }: { className?: string }) {
+export function Console() {
   const { data: messages, refetch } = api.consoleOutput.stream.useQuery();
   const utils = api.useUtils();
   const ref = useRef<HTMLDivElement>(null);
@@ -39,15 +44,14 @@ export function Console({ className }: { className?: string }) {
   }, [messages]);
 
   return (
-    <div className={cn("w-full overflow-hidden rounded-lg border", className)}>
+    <div className="h-fit w-full overflow-hidden rounded-lg border">
       <TopBar
-        topBarTitle="Console"
         onRefetch={refetch}
         onClear={() => utils.consoleOutput.stream.reset()}
         onExport={handleExport}
       />
 
-      <ScrollArea className="h-[94%] w-full p-2 font-mono text-sm" ref={ref}>
+      <ScrollArea className="h-96 p-2 font-mono" ref={ref}>
         {messages?.map((message, i) => (
           <ConsoleMessage key={i} message={message} />
         ))}
@@ -71,51 +75,55 @@ function ConsoleMessage({ message }: { message: ParsedLogMessage }) {
   const formattedServiceName = (service: string) => {
     if (service.includes("bluesky_queueserver.manager")) {
       const splitNames = service.split(".");
-      return splitNames[splitNames.length - 1]?.toUpperCase() ?? "";
+      return splitNames[splitNames.length - 1] ?? "";
     }
-    return service.toUpperCase();
+    return service;
   };
 
   return (
-    <div className="my-1">
-      <span className="mr-2 text-slate-400">
-        [{message.logLevel.toUpperCase()}] {message.date} {message.timestamp}
+    <div
+      data-loglevel={message.logLevel.toUpperCase()}
+      className="animate-in slide-in-from-bottom fade-in rounded-xs my-1 flex flex-col border-l-4 p-1 text-sm data-[loglevel=E]:border-l-red-500 data-[loglevel=I]:border-l-sky-500 data-[loglevel=W]:border-l-yellow-500"
+    >
+      <div className="flex items-center justify-between gap-1">
+        <span
+          className={cn("text-muted-foreground ml-1 font-normal uppercase", {
+            "text-violet-700":
+              message.service === "bluesky_queueserver.manager.manager",
+            "text-sky-700":
+              message.service === "bluesky_queueserver.manager.start_manager",
+            "text-teal-700":
+              message.service === "bluesky_queueserver.manager.profile_ops",
+            "text-lime-700":
+              message.service === "bluesky_queueserver.manager.worker",
+            "text-pink-700":
+              message.service === "bluesky_queueserver.manager.executor",
+          })}
+        >
+          {formattedServiceName(message.service)}
+        </span>
+        <span className="text-muted-foreground/50 mr-2 text-balance">
+          {`${message.date} ${message.timestamp}`}
+        </span>
+      </div>
+      <span className="text-muted-foreground ml-1 text-pretty font-normal">
+        {message.textMessage}
       </span>
-      <span
-        className={cn("mr-2", "text-muted-foreground font-semibold", {
-          "text-purple-600":
-            message.service === "bluesky_queueserver.manager.manager",
-          "text-blue-600":
-            message.service === "bluesky_queueserver.manager.start_manager",
-          "text-cyan-600":
-            message.service === "bluesky_queueserver.manager.profile_ops",
-          "text-green-600":
-            message.service === "bluesky_queueserver.manager.worker",
-          "text-rose-600":
-            message.service === "bluesky_queueserver.manager.executor",
-        })}
-      >
-        {formattedServiceName(message.service)}
-      </span>
-      <span className="text-muted-foreground">{message.textMessage}</span>
     </div>
   );
 }
 
 interface TopBarProps {
-  topBarTitle: string;
   onRefetch: () => void;
   onClear: () => void;
   onExport: () => void;
 }
-
-export function TopBar(props: TopBarProps) {
-  const { onRefetch, onClear, onExport, topBarTitle } = props;
+function TopBar(props: TopBarProps) {
+  const { onRefetch, onClear, onExport } = props;
   return (
-    <div className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
-      <span className="text-base font-semibold text-slate-700">
-        {topBarTitle}
-      </span>
+    <div className="bg-muted text-muted-foreground relative flex items-center gap-2 border-b p-2 text-sm font-normal">
+      <SquareTerminalIcon className="size-4" />
+      Console
       <div className="absolute end-1 flex space-x-2">
         <TooltipProvider>
           <Tooltip>
