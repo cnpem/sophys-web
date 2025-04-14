@@ -1,22 +1,27 @@
-import { useState } from "react";
+import type { z } from "zod";
+import { useCallback, useState } from "react";
 import { MoreHorizontalIcon } from "lucide-react";
 import { toast } from "sonner";
+import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
 import { useQueue } from "@sophys-web/api-client/hooks";
+import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@sophys-web/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@sophys-web/ui/sheet";
+import { AnyForm } from "@sophys-web/widgets/form";
+import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
 
 export function RowActions({ item }: { item: QueueItemProps }) {
@@ -32,7 +37,7 @@ export function RowActions({ item }: { item: QueueItemProps }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="group/actions flex flex-col" align="end">
         <DropdownMenuItem asChild>
-          <EditItem />
+          <EditItem {...item} />
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <MoveToFront uid={uid} onOpenChange={setOpen} />
@@ -128,22 +133,84 @@ function RemoveItem({
   );
 }
 
-function EditItem() {
+function EditItem(props: QueueItemProps) {
+  const { data: plans } = api.plans.allowed.useQuery(undefined);
+  const { data: devices } = api.devices.allowedNames.useQuery(undefined);
+  const { update } = useQueue();
+  const [open, setOpen] = useState(false);
+
+  const planDetails = (() => {
+    if (plans) {
+      return Object.values(plans.plansAllowed).find(
+        (plan) => plan.name === props.name,
+      );
+    }
+    return undefined;
+  })();
+
+  const onSubmit = useCallback(
+    async (data: z.infer<AnySchema>) => {
+      const kwargs = data;
+      await update.mutateAsync(
+        {
+          item: {
+            itemUid: props.itemUid,
+            itemType: "plan",
+            name: props.name,
+            kwargs,
+            args: [],
+          },
+        },
+        {
+          onSuccess: () => {
+            toast.success(`Plan ${props.name} added to the queue`);
+            setOpen(false);
+          },
+          onError: (error) => {
+            const message = error.message.replace("\n", " ");
+            toast.error(
+              `Failed to add plan ${props.name} to the queue: ${message}`,
+            );
+          },
+        },
+      );
+    },
+    [update, props.itemUid, props.name],
+  );
+
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button className="justify-start font-normal" size="sm" variant="ghost">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          disabled={!planDetails || !devices}
+          size="sm"
+          variant="ghost"
+          className="group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50 justify-start font-normal"
+        >
           Edit Item
         </Button>
-      </SheetTrigger>
-      <SheetContent>
-        <SheetHeader>
-          <SheetTitle>Edit Item</SheetTitle>
-          <SheetDescription>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Item</DialogTitle>
+          <DialogDescription>
             Edit the details of the item in the queue.
-          </SheetDescription>
-        </SheetHeader>
-      </SheetContent>
-    </Sheet>
+          </DialogDescription>
+        </DialogHeader>
+        {planDetails && devices && (
+          <AnyForm
+            devices={devices}
+            planData={{
+              name: props.name,
+              description: planDetails.description,
+              parameters: planDetails.parameters,
+            }}
+            onSubmit={onSubmit}
+            schema={createSchema(planDetails.parameters)}
+            initialValues={props.kwargs as z.infer<AnySchema>}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
