@@ -35,7 +35,7 @@ const defaultColumns = [
       cell: ({ getValue }) => {
         const date = getValue();
         return (
-          <div className="text-sm">{format(date, "MM/dd/yyyy HH:mm:ss")}</div>
+          <div className="text-sm">{format(date, "yyyy/MM/dd HH:mm:ss")}</div>
         );
       },
     },
