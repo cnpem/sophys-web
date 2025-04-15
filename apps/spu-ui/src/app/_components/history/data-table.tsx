@@ -79,8 +79,8 @@ export function DataTable() {
   });
 
   return (
-    <div>
-      <div className="flex items-center space-y-4">
+    <div className="space-y-2">
+      <div className="flex items-center">
         <Input
           placeholder="Filter history items..."
           value={
