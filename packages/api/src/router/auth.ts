@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { env } from "../../env";
-import { protectedProcedure } from "../trpc";
+import { protectedProcedure, publicProcedure } from "../trpc";
 import { zodSnakeFetcher } from "../utils";
 
 const principalSchema = z.object({
@@ -43,7 +43,7 @@ const userSchema = z.object({
 });
 
 export const authRouter = {
-  getSession: protectedProcedure.query(({ ctx }) => {
+  getSession: publicProcedure.query(({ ctx }) => {
     return ctx.session;
   }),
   getUser: protectedProcedure.query(({ ctx }) => {
