@@ -7,6 +7,7 @@ import { Button } from "@sophys-web/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -28,22 +29,22 @@ interface TrayProps {
 
 export function Tray(props: TrayProps) {
   const tray = props.samples;
+  const trayId = tray[0]?.tray;
 
   const clearServerSamples = useCallback(async () => {
-    const trayId = tray[0]?.tray;
     if (!trayId) {
       toast.error("Unable to load tray info.");
       return;
     }
     toast.info("Clearing tray");
     await clearTray(trayId);
-  }, [tray]);
+  }, [trayId]);
 
   return (
-    <Card className="max-w-xl space-y-4 rounded-md p-0 shadow-none">
-      <CardHeader className="relative flex items-center justify-center rounded-sm border-b border-slate-300 bg-slate-100 p-2">
-        <CardTitle className="flex items-center text-base font-semibold">
-          Tray
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          {trayId === "Tray1" ? "Tray 1" : "Tray 2"}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -52,15 +53,21 @@ export function Tray(props: TrayProps) {
                   onClick={clearServerSamples}
                   size="icon"
                   variant="outline"
-                  className="absolute end-1 size-8"
                 >
                   <Trash2Icon className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent className="font-normal">Clear</TooltipContent>
+              <TooltipContent className="font-normal">
+                Clear Tray
+              </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </CardTitle>
+        <CardDescription>
+          Data loaded through this interface. You can register new ones by
+          clicking on an empty slot or load tasks to the queue by clicking on a
+          nonempty slot.
+        </CardDescription>
       </CardHeader>
       <CardContent
         className="overflow-x-auto py-2"
@@ -94,17 +101,15 @@ export function Tray(props: TrayProps) {
           );
         })}
       </CardContent>
-      <CardFooter className="flex flex-col items-center justify-center gap-2 p-2">
-        <p className="text-muted-foreground flex items-center justify-center gap-2 text-xs">
-          <span className="size-3 rounded-full bg-sky-200" />
-          <span>sample</span>
-          <span className="size-3 rounded-full bg-emerald-200" />
-          <span>buffer</span>
-        </p>
-        <p className="text-muted-foreground text-center text-sm">
-          Click on a sample to load it to the queue or on a empty slot to add an
-          new sample.
-        </p>
+      <CardFooter className="space-x-2 text-xs">
+        <span className="flex size-5 items-center justify-center rounded-full border border-sky-400 bg-sky-200 text-sky-800">
+          s
+        </span>
+        <span>sample</span>
+        <span className="flex size-5 items-center justify-center rounded-full border border-emerald-400 bg-emerald-200 text-emerald-800">
+          b
+        </span>
+        <span>buffer</span>
       </CardFooter>
     </Card>
   );
@@ -112,11 +117,10 @@ export function Tray(props: TrayProps) {
 
 export function LoadingTray() {
   return (
-    <Card className="space-y-4 rounded-md p-0 shadow-none">
-      <CardHeader className="relative flex items-center justify-center border-b border-slate-300 bg-slate-100 p-2">
-        <CardTitle className="flex items-center text-base font-semibold text-slate-700">
-          Tray
-        </CardTitle>
+    <Card>
+      <CardHeader>
+        <CardTitle>Tray</CardTitle>
+        <CardDescription>Loading tray data...</CardDescription>
       </CardHeader>
       <CardContent
         style={{

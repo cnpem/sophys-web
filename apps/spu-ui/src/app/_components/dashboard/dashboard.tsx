@@ -71,7 +71,7 @@ function Trays({ initialData }: { initialData: Sample[] }) {
     <>
       {isConnected ? (
         <Tabs className="space-y-2" defaultValue="tray1">
-          <TabsContent value="tray1" className="mt-0 *:data-[slot=card]:pt-0">
+          <TabsContent value="tray1">
             <Tray
               samples={
                 samples?.filter((sample) => sample.tray === TRAY1) ??
