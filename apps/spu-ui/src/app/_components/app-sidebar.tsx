@@ -75,7 +75,7 @@ export async function AppSidebar({
         </SidebarMenu>
         <NavUser session={session} signOut={<SignOut />} />
       </SidebarFooter>
-      <SidebarRail />:
+      <SidebarRail />
     </Sidebar>
   );
 }
