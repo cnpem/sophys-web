@@ -53,11 +53,11 @@ export function UploadQueue() {
     <Dialog open={open} onOpenChange={setOpen} modal={false}>
       <DialogTrigger asChild>
         <Button size="sm" variant="ghost">
-          <UploadIcon className="h-4 w-4" />
+          <UploadIcon className="size-4" />
           Upload
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-screen-sm">
+      <DialogContent className="min-w-xl">
         <DialogHeader>
           <DialogTitle>Load Experiment Queue</DialogTitle>
           <DialogDescription>
@@ -151,7 +151,7 @@ interface StepNavigationProps {
 
 export function StepNavigation({ steps, currentStep }: StepNavigationProps) {
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="mx-auto p-4">
       <div className="relative flex items-center justify-between">
         {steps.map((step, index) => (
           <React.Fragment key={index}>
@@ -198,14 +198,14 @@ function StepButton({
   isDisabled,
 }: StepButtonProps) {
   return (
-    <div className="relative flex flex-col items-center space-y-2">
+    <div className="relative flex flex-col items-center">
       <Button
         onClick={onClick}
         variant={isActive ? "default" : "outline"}
         size="icon"
         disabled={isDisabled}
         className={cn(
-          "h-10 w-10 rounded-full",
+          "rounded-full",
           isCompleted &&
             "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
         )}
