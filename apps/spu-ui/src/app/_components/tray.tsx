@@ -63,18 +63,19 @@ export function Tray(props: TrayProps) {
         </CardTitle>
       </CardHeader>
       <CardContent
+        className="overflow-x-auto py-2"
         style={{
           display: "grid",
           gap: "0.25rem",
-          gridTemplateColumns: `repeat(${trayColumns.length + 1}, 1fr)`,
-          gridTemplateRows: `repeat(${trayRows.length + 1}, 1fr)`,
+          gridTemplateColumns: `repeat(${trayColumns.length + 1}, minmax(2rem, 1fr))`,
+          gridTemplateRows: `repeat(${trayRows.length + 1}, minmax(2rem, 1fr))`,
         }}
       >
         <div />
 
         {trayColumns.map((col) => (
           <div
-            className="flex size-9 items-center justify-center text-base font-normal"
+            className="flex items-center justify-center text-sm font-normal md:text-base"
             key={col}
           >
             {col}
@@ -84,7 +85,7 @@ export function Tray(props: TrayProps) {
           return (
             <React.Fragment key={sample.id}>
               {index % trayColumns.length === 0 && (
-                <div className="flex items-center justify-center text-base font-normal">
+                <div className="flex items-center justify-center text-sm font-normal md:text-base">
                   {trayRows[index / trayColumns.length]}
                 </div>
               )}
@@ -93,7 +94,13 @@ export function Tray(props: TrayProps) {
           );
         })}
       </CardContent>
-      <CardFooter className="justify-center p-2">
+      <CardFooter className="flex flex-col items-center justify-center gap-2 p-2">
+        <p className="text-muted-foreground flex items-center justify-center gap-2 text-xs">
+          <span className="size-3 rounded-full bg-sky-200" />
+          <span>sample</span>
+          <span className="size-3 rounded-full bg-emerald-200" />
+          <span>buffer</span>
+        </p>
         <p className="text-muted-foreground text-center text-sm">
           Click on a sample to load it to the queue or on a empty slot to add an
           new sample.
