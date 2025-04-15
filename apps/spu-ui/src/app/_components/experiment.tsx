@@ -1,10 +1,10 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
+import { Console } from "@sophys-web/widgets/console";
 import type { Sample } from "./sample";
 import { useSSEData } from "../_hooks/use-sse-data";
 import { trayOptions } from "../../lib/constants";
-import { Console } from "./console";
 import { ControlPlane } from "./control-plane";
 import { OnDemandQueueItems } from "./on-demand/on-demand-queue-items";
 import { Queue } from "./queue/queue";
