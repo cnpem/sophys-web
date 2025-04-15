@@ -31,7 +31,8 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
           <div className="col-span-2 flex flex-col gap-4">
             <Card id="queue">
               <CardHeader>
-                <CardTitle className="text-2xl font-normal">Queue</CardTitle>
+                <CardTitle>Queue</CardTitle>
+                <CardDescription>Current tasks in the queue</CardDescription>
               </CardHeader>
               <CardContent>
                 <Queue />
@@ -39,7 +40,10 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
             </Card>
             <Card id="history">
               <CardHeader>
-                <CardTitle className="text-2xl font-normal">History</CardTitle>
+                <CardTitle>History</CardTitle>
+                <CardDescription>
+                  Concluded tasks and their results
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <History />
