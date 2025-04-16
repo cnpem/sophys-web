@@ -81,12 +81,16 @@ async function refreshBlueskyToken(refreshToken: string) {
     },
   );
   if (!res.ok) {
-    throw new Error("Failed to refresh Bluesky token");
+    return null;
   }
 
   const data: unknown = await res.json();
-  const parsed = await blueskyTokenSchema.parseAsync(data);
-  return parsed;
+  const parsed = blueskyTokenSchema.safeParse(data);
+
+  if (!parsed.success) {
+    return null;
+  }
+  return parsed.data;
 }
 
 export const authConfig: NextAuthConfig = {
@@ -107,16 +111,16 @@ export const authConfig: NextAuthConfig = {
         proposal: { label: "Proposal", type: "text" },
       },
       async authorize(credentials) {
-        const parsed = await z
+        const parsed = z
           .object({
             username: z.string().min(2),
             password: z.string().min(2),
             proposal: z.string().length(8),
           })
-          .safeParseAsync(credentials);
+          .safeParse(credentials);
 
         if (!parsed.success) {
-          throw parsed.error;
+          return null;
         }
 
         const formData = new FormData();
@@ -136,7 +140,7 @@ export const authConfig: NextAuthConfig = {
         }
 
         const data: unknown = await res.json();
-        const parsedToken = await blueskyTokenSchema.parseAsync(data);
+        const parsedToken = blueskyTokenSchema.parse(data);
 
         const rolesAndScopes = await getBlueskyRolesAndScopes(
           parsedToken.access_token,
@@ -189,24 +193,23 @@ export const authConfig: NextAuthConfig = {
       } else {
         if (!token.bluesky_refresh_token)
           throw new Error("No refresh token available");
-        try {
-          const refreshed = await refreshBlueskyToken(
-            token.bluesky_refresh_token,
-          );
-          return {
-            ...token,
-            bluesky_access_token: refreshed.access_token,
-            bluesky_refresh_token: refreshed.refresh_token,
-            bluesky_expires_at:
-              Math.floor(Date.now() / 1000) + refreshed.expires_in,
-          };
-        } catch (error) {
-          console.error("Failed to refresh Bluesky token", error);
+        const refreshed = await refreshBlueskyToken(
+          token.bluesky_refresh_token,
+        );
+
+        if (!refreshed) {
           return {
             ...token,
             error: "RefreshAccessTokenError" as const,
           };
         }
+        return {
+          ...token,
+          bluesky_access_token: refreshed.access_token,
+          bluesky_refresh_token: refreshed.refresh_token,
+          bluesky_expires_at:
+            Math.floor(Date.now() / 1000) + refreshed.expires_in,
+        };
       }
     },
   },
