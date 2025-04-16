@@ -3,7 +3,6 @@
 import type { Session } from "next-auth";
 import React from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import BoringAvatar from "boring-avatars";
 import { ChevronsUpDownIcon, LogInIcon } from "lucide-react";
 import {
@@ -29,7 +28,7 @@ export function NavUser(props: {
   const { session } = props;
   const user = session?.user;
 
-  if (!session) {
+  if (!session || !user?.name) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
@@ -42,9 +41,6 @@ export function NavUser(props: {
         </SidebarMenuItem>
       </SidebarMenu>
     );
-  }
-  if (session.error || !user?.name) {
-    redirect("/auth/signin");
   }
 
   return (
@@ -80,7 +76,7 @@ export function NavUser(props: {
                 square
                 variant="beam"
                 name={user.name}
-                size={32}
+                size={48}
               />
 
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -88,9 +84,19 @@ export function NavUser(props: {
                 <span className="truncate text-xs">
                   {user.roles?.join(", ")}
                 </span>
+                <span className="truncate text-xs">{`p${user.proposal}`}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+
+            {session.error && (
+              <>
+                <DropdownMenuLabel className="flex gap-2 p-0 font-normal">
+                  <span className="text-xs text-red-500">{`${session.error}: Please sign in again`}</span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+              </>
+            )}
             <DropdownMenuItem asChild>{props.signOut}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
