@@ -49,6 +49,7 @@
     "@types/react-dom": "catalog:react19",
     "eslint": "catalog:",
     "tailwindcss": "catalog:",
+    "tw-animate-css": "^1.2.5",
     "typescript": "catalog:"
   },
   "prettier": "@sophys-web/prettier-config"
