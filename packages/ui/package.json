@@ -56,7 +56,6 @@
     "react-hook-form": "^7.53.0",
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.2",
-    "tailwindcss-animate": "^1.0.7",
     "zod": "catalog:"
   },
   "prettier": "@sophys-web/prettier-config"

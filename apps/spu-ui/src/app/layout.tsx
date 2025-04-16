@@ -1,4 +1,5 @@
 import "@sophys-web/ui/styles.css";
+import "@sophys-web/widgets/styles.css";
 import "./globals.css";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
