@@ -33,6 +33,7 @@
     "@t3-oss/env-nextjs": "^0.10.1",
     "camelcase": "^8.0.0",
     "class-variance-authority": "^0.7.0",
+    "json-edit-react": "^1.25.6",
     "lucide-react": "^0.484.0",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
