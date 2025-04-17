@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@sophys-web/ui/card";
+import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import { Console } from "@sophys-web/widgets/console";
 import type { Sample } from "../sample";
@@ -24,11 +25,11 @@ const [TRAY1, TRAY2] = trayOptions;
 
 export function Dashboard({ initialData }: { initialData: Sample[] }) {
   return (
-    <div className="flex flex-1 flex-col p-24">
+    <>
       <Controls />
-      <div className="@container/main flex flex-1 flex-col gap-4">
-        <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="col-span-2 flex flex-col gap-4">
+      <div className="flex gap-2 p-8 sm:flex-col lg:flex-row">
+        <ScrollArea className="lg:h-svh lg:w-2/3 ">
+          <div className="flex flex-col gap-4">
             <Card id="queue">
               <CardHeader>
                 <CardTitle>Queue</CardTitle>
@@ -50,16 +51,17 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
               </CardContent>
             </Card>
           </div>
-          <div className="flex flex-col gap-4">
+        </ScrollArea>
+        <ScrollArea className="flex flex-col lg:h-svh lg:w-1/3">
+          <div className="flex w-full flex-col gap-4">
             <PV />
-
             <RunningItem />
             <Trays initialData={initialData} />
             <Console />
           </div>
-        </div>
+        </ScrollArea>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -120,7 +122,7 @@ function RunningItem() {
     );
   }
   return (
-    <Card className="col-span-1">
+    <Card>
       <CardHeader>
         <CardTitle>Running Item</CardTitle>
         <CardDescription>Currently running task</CardDescription>
