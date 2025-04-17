@@ -190,7 +190,7 @@ function EditItem(props: QueueItemProps) {
           Edit Item
         </Button>
       </DialogTrigger>
-      <DialogContent className="min-w-2xl">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Item</DialogTitle>
           <DialogDescription>
