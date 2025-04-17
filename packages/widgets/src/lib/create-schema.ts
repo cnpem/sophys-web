@@ -67,6 +67,7 @@ export const createSchema = (parameters: Parameter[]) => {
       case "list[str]":
         schemaFields[camelName] = z.array(z.string()).optional();
         break;
+      case "dict":
       case "typing.Optional[dict]":
         schemaFields[camelName] = z.record(z.string(), z.string()).optional();
         break;
