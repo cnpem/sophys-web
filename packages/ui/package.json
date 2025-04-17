@@ -19,7 +19,7 @@
     "clean": "git clean -xdf dist .turbo .cache node_modules",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint src/",
-    "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
+    "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
     "type-check": "tsc --noEmit"
   },
   "peerDependencies": {
