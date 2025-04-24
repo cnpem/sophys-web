@@ -34,7 +34,7 @@ export function CleanCapillaryForm({
 }) {
   const form = useForm({
     resolver: zodResolver(cleanCapillaryKwargsSchema),
-    defaultValues: initialValues ? Object.assign(initialValues) : undefined,
+    defaultValues: { ...initialValues },
   });
 
   const handleSubmitDiscriminated = (
