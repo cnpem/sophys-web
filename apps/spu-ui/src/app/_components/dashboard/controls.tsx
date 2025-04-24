@@ -41,7 +41,7 @@ export function Controls() {
   return (
     <TooltipProvider>
       <div className="animate-in slide-in-from-top bg-muted/20 fixed inset-x-0 top-1 z-40 mx-auto flex w-fit items-center justify-between gap-6 rounded-full border px-6 py-2 opacity-95 backdrop-blur-lg duration-500">
-        <div className="flex flex-col items-center gap-1 p-0 ">
+        <div className="flex flex-col items-center gap-1 p-0">
           <span
             data-re-state={reState}
             className="text-muted-foreground text-xs font-semibold data-[re-state=closed]:text-amber-400 data-[re-state=error]:text-red-400 data-[re-state=idle]:text-emerald-400 data-[re-state=paused]:text-amber-400 data-[re-state=running]:text-sky-400"

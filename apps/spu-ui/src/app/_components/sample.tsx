@@ -315,7 +315,7 @@ export function SampleItem({ sample }: { sample: Sample }) {
           <Button
             variant="outline"
             size="icon"
-            className="bg-muted cursor-cell select-none rounded-full text-sm opacity-50 hover:scale-105 hover:ring hover:ring-slate-400"
+            className="bg-muted cursor-cell rounded-full text-sm opacity-50 select-none hover:scale-105 hover:ring hover:ring-slate-400"
           >
             <PlusIcon className="size-4" />
           </Button>
@@ -326,7 +326,7 @@ export function SampleItem({ sample }: { sample: Sample }) {
             data-sample-type={sample.type}
             variant="outline"
             size="icon"
-            className="cursor-context-menu select-none rounded-full text-sm hover:scale-105 hover:ring data-[sample-type=buffer]:border-emerald-400 data-[sample-type=sample]:border-sky-400 data-[sample-type=buffer]:bg-emerald-200 data-[sample-type=sample]:bg-sky-200 data-[sample-type=buffer]:text-emerald-800 data-[sample-type=sample]:text-sky-800 data-[sample-type=buffer]:hover:bg-emerald-300 data-[sample-type=sample]:hover:bg-sky-300"
+            className="cursor-context-menu rounded-full text-sm select-none hover:scale-105 hover:ring data-[sample-type=buffer]:border-emerald-400 data-[sample-type=buffer]:bg-emerald-200 data-[sample-type=buffer]:text-emerald-800 data-[sample-type=buffer]:hover:bg-emerald-300 data-[sample-type=sample]:border-sky-400 data-[sample-type=sample]:bg-sky-200 data-[sample-type=sample]:text-sky-800 data-[sample-type=sample]:hover:bg-sky-300"
           >
             {sample.type?.charAt(0) ?? "-"}
           </Button>

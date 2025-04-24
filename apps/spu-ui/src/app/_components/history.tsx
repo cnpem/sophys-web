@@ -66,7 +66,7 @@ function HistoryItem(props: HistoryItemProps) {
                       });
                     }}
                     size="icon"
-                    className="absolute right-2 top-2 size-8"
+                    className="absolute top-2 right-2 size-8"
                     variant="outline"
                   >
                     <RotateCcwIcon className="h-4 w-4" />

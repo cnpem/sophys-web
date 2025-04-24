@@ -28,7 +28,7 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
     <>
       <Controls />
       <div className="flex gap-2 p-8 sm:flex-col lg:flex-row">
-        <ScrollArea className="lg:h-svh lg:w-2/3 ">
+        <ScrollArea className="lg:h-svh lg:w-2/3">
           <div className="flex flex-col gap-4">
             <Card id="queue">
               <CardHeader>

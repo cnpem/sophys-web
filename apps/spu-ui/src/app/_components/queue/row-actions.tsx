@@ -80,7 +80,7 @@ function MoveToFront({
 
   return (
     <Button
-      className="group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50 justify-start font-normal"
+      className="justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
       size="sm"
       variant="ghost"
       data-mutating={move.isPending}
@@ -121,7 +121,7 @@ function RemoveItem({
   };
   return (
     <Button
-      className="group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50 justify-start font-normal"
+      className="justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
       size="sm"
       variant="ghost"
       data-mutating={remove.isPending}
@@ -185,7 +185,7 @@ function EditItem(props: QueueItemProps) {
           disabled={!planDetails || !devices}
           size="sm"
           variant="ghost"
-          className="group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50 justify-start font-normal"
+          className="justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
         >
           Edit Item
         </Button>

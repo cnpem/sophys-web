@@ -212,7 +212,7 @@ function StepButton({
       >
         {isCompleted ? <CheckIcon className="h-4 w-4" /> : number}
       </Button>
-      <span className="absolute -bottom-6 whitespace-nowrap text-xs font-medium">
+      <span className="absolute -bottom-6 text-xs font-medium whitespace-nowrap">
         {label}
       </span>
     </div>
@@ -508,7 +508,7 @@ function ProposalForm({
           control={form.control}
           name="useCapillary"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+            <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
               <FormControl>
                 <Checkbox
                   checked={field.value}

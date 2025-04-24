@@ -72,7 +72,7 @@ export function EnvMenu() {
           {status.data
             ? Object.entries(status.data).map(([key, value]) => (
                 <p
-                  className="text-muted-foreground text-ellipsis text-xs"
+                  className="text-muted-foreground text-xs text-ellipsis"
                   key={key}
                 >
                   {key}:{" "}

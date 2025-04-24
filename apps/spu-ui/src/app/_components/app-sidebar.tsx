@@ -32,7 +32,7 @@ export async function AppSidebar({
     <Sidebar {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem className="flex items-center justify-between ">
+          <SidebarMenuItem className="flex items-center justify-between">
             <SidebarMenuButton tooltip="Sapucaia UI">
               <Image
                 alt="Sapucaia seed"

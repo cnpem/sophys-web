@@ -83,7 +83,7 @@ function ConsoleMessage({ message }: { message: ParsedLogMessage }) {
   return (
     <div
       data-loglevel={message.logLevel.toUpperCase()}
-      className="animate-in slide-in-from-bottom fade-in rounded-xs my-1 flex flex-col border-l-4 p-1 text-sm data-[loglevel=E]:border-l-red-500 data-[loglevel=I]:border-l-sky-500 data-[loglevel=W]:border-l-yellow-500"
+      className="animate-in slide-in-from-bottom fade-in my-1 flex flex-col rounded-xs border-l-4 p-1 text-sm data-[loglevel=E]:border-l-red-500 data-[loglevel=I]:border-l-sky-500 data-[loglevel=W]:border-l-yellow-500"
     >
       <div className="flex items-center justify-between gap-1">
         <span
@@ -106,7 +106,7 @@ function ConsoleMessage({ message }: { message: ParsedLogMessage }) {
           {`${message.date} ${message.timestamp}`}
         </span>
       </div>
-      <span className="text-muted-foreground ml-1 text-pretty font-normal">
+      <span className="text-muted-foreground ml-1 font-normal text-pretty">
         {message.textMessage}
       </span>
     </div>

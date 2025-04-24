@@ -125,7 +125,7 @@ export function QueueItem({
               {formatPlanNames(queueItemProps.name)}
             </span>
           </CardTitle>
-          <div className="absolute right-1 top-0 flex gap-1">
+          <div className="absolute top-0 right-1 flex gap-1">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
