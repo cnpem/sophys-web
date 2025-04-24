@@ -42,7 +42,6 @@ import {
   getSamples as getServerSamples,
   setSamples as setServerSamples,
 } from "../../actions/samples";
-import { samplePosition } from "../experiment";
 import { AcquisitionCleaningForm } from "./acquisition-cleaning-form";
 import { AcquisitionTableForm } from "./acquisition-table-form";
 import { CleanCapillaryForm } from "./capillary-form";
@@ -68,6 +67,13 @@ export function UploadQueue() {
       </DialogContent>
     </Dialog>
   );
+}
+
+function samplePosition(row: string, col: string, tray: string) {
+  return {
+    complete: `${tray}-${col}${row}`,
+    relative: `${col}${row}`,
+  };
 }
 
 async function uploadSamples(
