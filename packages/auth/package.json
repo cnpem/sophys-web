@@ -23,8 +23,8 @@
     "@types/react": "catalog:react19"
   },
   "dependencies": {
-    "@t3-oss/env-nextjs": "^0.10.1",
-    "next": "^15.3.0",
+    "@t3-oss/env-nextjs": "^0.13.0",
+    "next": "^15.3.1",
     "next-auth": "5.0.0-beta.25",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
