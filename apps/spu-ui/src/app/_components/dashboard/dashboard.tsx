@@ -1,5 +1,6 @@
 "use client";
 
+import { JsonEditor, monoLightTheme } from "json-edit-react";
 import { AlertCircleIcon, CylinderIcon, ThermometerIcon } from "lucide-react";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import {
@@ -135,24 +136,18 @@ function RunningItem() {
             </h3>
             <p className="text-muted-foreground">{runningItem.user}</p>
           </div>
-
           {runningItem.kwargs && (
-            <div className="mt-4">
-              <h4 className="mb-2 text-sm font-medium">Parameters</h4>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(runningItem.kwargs).map(([key, value]) => (
-                  <div key={key} className="text-sm">
-                    <span className="text-muted-foreground">{key}:</span>
-                    {value instanceof Object ? (
-                      <pre className="bg-muted mt-1 rounded-md p-2 text-sm">
-                        {JSON.stringify(value, null, 2)}
-                      </pre>
-                    ) : (
-                      <span className="ml-2">{String(value)}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
+            <div>
+              <h3>Parameters</h3>
+              <JsonEditor
+                restrictAdd={true}
+                restrictDelete={true}
+                restrictEdit={true}
+                restrictDrag={true}
+                data={runningItem.kwargs}
+                rootName={"kwargs"}
+                theme={monoLightTheme}
+              />
             </div>
           )}
         </div>
