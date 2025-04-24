@@ -100,7 +100,7 @@ export function AcquisitionTableForm({
 }: {
   onSubmit: (data: z.infer<typeof acquisitionTableSchema>[]) => void;
 }) {
-  const form = useForm<z.infer<typeof acquisitionTableFormSchema>>({
+  const form = useForm({
     resolver: zodResolver(acquisitionTableFormSchema),
   });
 

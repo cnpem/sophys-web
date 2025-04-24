@@ -56,7 +56,7 @@ function formatAgentDuration(input: string) {
 
 function CleaningForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
   const { addBatch } = useQueue();
-  const form = useForm<z.infer<typeof cleaningKwargsSchema>>({
+  const form = useForm({
     resolver: zodResolver(cleaningKwargsSchema),
   });
 

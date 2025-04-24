@@ -477,7 +477,7 @@ function ProposalForm({
   initialValues: z.infer<typeof proposalSchema>;
   onSubmit: (data: z.infer<typeof proposalSchema>) => void;
 }) {
-  const form = useForm<z.infer<typeof proposalSchema>>({
+  const form = useForm({
     resolver: zodResolver(proposalSchema),
     defaultValues: initialValues,
   });

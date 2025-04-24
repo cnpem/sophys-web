@@ -85,7 +85,7 @@ function RegisterSampleForm({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const form = useForm<z.infer<typeof registerSchema>>({
+  const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       sampleTag: "",
@@ -195,7 +195,7 @@ function SampleForm({
 }) {
   const [open, setOpen] = useState(false);
   const { addBatch } = useQueue();
-  const form = useForm<z.infer<typeof schema>>({
+  const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       tray: sample.tray,

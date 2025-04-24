@@ -103,7 +103,7 @@ function SingleAcquisitionForm({
 }) {
   const { addBatch } = useQueue();
 
-  const form = useForm<z.infer<typeof schema>>({
+  const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       proposal: proposal,

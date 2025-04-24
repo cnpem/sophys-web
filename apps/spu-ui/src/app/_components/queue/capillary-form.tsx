@@ -32,9 +32,9 @@ export function CleanCapillaryForm({
   onSubmit: (data: z.infer<typeof cleanCapillaryKwargsSchema>) => void;
   initialValues?: Partial<z.infer<typeof cleanCapillaryKwargsSchema>>;
 }) {
-  const form = useForm<z.infer<typeof cleanCapillaryKwargsSchema>>({
+  const form = useForm({
     resolver: zodResolver(cleanCapillaryKwargsSchema),
-    defaultValues: initialValues,
+    defaultValues: initialValues ? Object.assign(initialValues) : undefined,
   });
 
   const handleSubmitDiscriminated = (
