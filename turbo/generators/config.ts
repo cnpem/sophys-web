@@ -57,18 +57,13 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
-        path: "apps/{{ name }}/postcss.config.cjs",
+        path: "apps/{{ name }}/postcss.config.js",
         templateFile: "templates/app/postcss.config.js.hbs",
       },
       {
         type: "add",
         path: "apps/{{ name }}/next.config.js",
         templateFile: "templates/app/next.config.js.hbs",
-      },
-      {
-        type: "add",
-        path: "apps/{{ name }}/tailwind.config.ts",
-        templateFile: "templates/app/tailwind.config.ts.hbs",
       },
       {
         type: "add",
@@ -93,7 +88,8 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       {
         type: "add",
         path: "apps/{{ name }}/src/app/globals.css",
-        template: "@tailwind base;@tailwind components;@tailwind utilities;",
+        template:
+          '@import "tailwindcss";@import "tw-animate-css";@import "@sophys-web/tailwind-config/base.css";',
       },
       {
         type: "add",
@@ -127,8 +123,13 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
-        path: "apps/{{name}}/src/app/_components/avatar.tsx",
-        templateFile: "templates/app/avatar.tsx.hbs",
+        path: "apps/{{name}}/src/app/_components/nav-user.tsx",
+        templateFile: "templates/app/nav-user.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/_components/app-sidebar.tsx",
+        templateFile: "templates/app/app-sidebar.tsx.hbs",
       },
       {
         type: "add",
