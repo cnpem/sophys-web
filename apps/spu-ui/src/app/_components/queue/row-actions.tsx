@@ -1,5 +1,7 @@
+"use client";
+
 import type { z } from "zod";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { MoreHorizontalIcon } from "lucide-react";
 import { toast } from "sonner";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
@@ -134,19 +136,31 @@ function RemoveItem({
 }
 
 function EditItem(props: QueueItemProps) {
+  const { name, itemUid } = props;
   const { data: plans } = api.plans.allowed.useQuery(undefined);
   const { data: devices } = api.devices.allowedNames.useQuery(undefined);
   const { update } = useQueue();
   const [open, setOpen] = useState(false);
 
-  const planDetails = (() => {
+  const planDetails = useMemo(() => {
     if (plans) {
       return Object.values(plans.plansAllowed).find(
-        (plan) => plan.name === props.name,
+        (plan) => plan.name === name,
       );
     }
     return undefined;
-  })();
+  }, [plans, name]);
+
+  const planData = useMemo(() => {
+    if (planDetails) {
+      return {
+        name: planDetails.name,
+        description: planDetails.description,
+        parameters: planDetails.parameters,
+      };
+    }
+    return undefined;
+  }, [planDetails]);
 
   const onSubmit = useCallback(
     async (data: z.infer<AnySchema>) => {
@@ -154,28 +168,26 @@ function EditItem(props: QueueItemProps) {
       await update.mutateAsync(
         {
           item: {
-            itemUid: props.itemUid,
+            itemUid,
             itemType: "plan",
-            name: props.name,
+            name,
             kwargs,
             args: [],
           },
         },
         {
           onSuccess: () => {
-            toast.success(`Plan ${props.name} added to the queue`);
+            toast.success(`Plan ${name} added to the queue`);
             setOpen(false);
           },
           onError: (error) => {
             const message = error.message.replace("\n", " ");
-            toast.error(
-              `Failed to add plan ${props.name} to the queue: ${message}`,
-            );
+            toast.error(`Failed to add plan ${name} to the queue: ${message}`);
           },
         },
       );
     },
-    [update, props.itemUid, props.name],
+    [update, itemUid, name],
   );
 
   return (
@@ -197,14 +209,10 @@ function EditItem(props: QueueItemProps) {
             Edit the details of the item in the queue.
           </DialogDescription>
         </DialogHeader>
-        {planDetails && devices && (
+        {planDetails && planData && devices && (
           <AnyForm
             devices={devices}
-            planData={{
-              name: props.name,
-              description: planDetails.description,
-              parameters: planDetails.parameters,
-            }}
+            planData={planData}
             onSubmit={onSubmit}
             schema={createSchema(planDetails.parameters)}
             initialValues={props.kwargs as z.infer<AnySchema>}
