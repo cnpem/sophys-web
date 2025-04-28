@@ -13,6 +13,10 @@ type QueueItemProps =
 export const useQueue = () => {
   const utils = api.useUtils();
 
+  const onSettled = async () => {
+    await utils.queue.get.invalidate();
+  };
+
   const queue = api.queue.get.useQuery();
 
   const add = api.queue.item.add.useMutation({
@@ -41,64 +45,29 @@ export const useQueue = () => {
       );
       return { previousValue };
     },
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       // rollback to the previous value
       utils.queue.get.setData(undefined, context?.previousValue);
       throw new Error(error.message.trim().replace(/\n/g, " "));
     },
-    onSettled: async () => {
-      // refetch the queue
-      await utils.queue.get.invalidate();
-    },
+    onSettled,
   });
 
-  const addBatch = api.queue.item.addBatch.useMutation({
-    onSettled: async () => {
-      await utils.queue.get.invalidate();
-    },
-  });
+  const addBatch = api.queue.item.addBatch.useMutation({ onSettled });
 
-  const execute = api.queue.item.execute.useMutation({
-    onSettled: async () => {
-      await utils.queue.get.invalidate();
-    },
-  });
+  const execute = api.queue.item.execute.useMutation({ onSettled });
 
-  const remove = api.queue.item.remove.useMutation({
-    onSettled: async () => {
-      await utils.queue.get.invalidate();
-    },
-  });
+  const remove = api.queue.item.remove.useMutation({ onSettled });
 
-  const clear = api.queue.clear.useMutation({
-    onSettled: async () => {
-      await utils.queue.get.invalidate();
-    },
-  });
+  const clear = api.queue.clear.useMutation({ onSettled });
 
-  const start = api.queue.start.useMutation({
-    onSettled: async () => {
-      await utils.queue.get.invalidate();
-    },
-  });
+  const start = api.queue.start.useMutation({ onSettled });
 
-  const stop = api.queue.stop.useMutation({
-    onSettled: async () => {
-      await utils.queue.get.invalidate();
-    },
-  });
+  const stop = api.queue.stop.useMutation({ onSettled });
 
-  const update = api.queue.item.update.useMutation({
-    onSettled: async () => {
-      await utils.queue.get.invalidate();
-    },
-  });
+  const update = api.queue.item.update.useMutation({ onSettled });
 
-  const move = api.queue.item.move.useMutation({
-    onSettled: async () => {
-      await utils.queue.get.invalidate();
-    },
-  });
+  const move = api.queue.item.move.useMutation({ onSettled });
 
   return {
     queue,
