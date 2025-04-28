@@ -133,6 +133,51 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
+        path: "apps/{{name}}/src/app/_components/dashboard/dashboard.tsx",
+        templateFile: "templates/app/dashboard/dashboard.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/_components/dashboard/controls.tsx",
+        templateFile: "templates/app/dashboard/controls.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/_components/queue/columns.tsx",
+        templateFile: "templates/app/queue/columns.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/_components/queue/row-actions.tsx",
+        templateFile: "templates/app/queue/row-actions.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/_components/queue/data-table.tsx",
+        templateFile: "templates/app/queue/data-table.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/_components/history/columns.tsx",
+        templateFile: "templates/app/history/columns.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/_components/history/rerun.tsx",
+        templateFile: "templates/app/history/rerun.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/app/_components/history/data-table.tsx",
+        templateFile: "templates/app/history/data-table.tsx.hbs",
+      },
+      {
+        type: "add",
+        path: "apps/{{name}}/src/lib/types.ts",
+        templateFile: "templates/app/types.ts.hbs",
+      },
+      {
+        type: "add",
         path: "apps/{{name}}/public/.gitkeep",
         template: "",
       },
