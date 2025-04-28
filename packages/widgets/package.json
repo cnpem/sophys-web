@@ -31,6 +31,7 @@
     "@sophys-web/api-client": "workspace:*",
     "@sophys-web/ui": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.0",
+    "@tanstack/react-table": "^8.21.3",
     "camelcase": "^8.0.0",
     "class-variance-authority": "^0.7.1",
     "json-edit-react": "^1.26.1",
