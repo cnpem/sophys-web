@@ -17,23 +17,20 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         name: "name",
         message:
           "What is the name of the app? (You can skip the `@sophys-web/` prefix)",
-      },
-      {
-        type: "input",
-        name: "deps",
-        message:
-          "Enter a space separated list of dependencies you would like to install",
+        validate: (input) => {
+          if (input.includes(" ")) {
+            return "App name cannot contain spaces";
+          }
+          if (/[^a-zA-Z0-9-_]/.test(input)) {
+            return "App name contains forbidden special characters";
+          }
+          return true;
+        },
       },
     ],
     actions: [
       (answers) => {
         if ("name" in answers && typeof answers.name === "string") {
-          if (answers.name.includes(" ")) {
-            throw new Error("App name cannot contain spaces");
-          }
-          if (/[^a-zA-Z0-9-_]/.test(answers.name)) {
-            throw new Error("App name contains forbidden special characters");
-          }
           if (answers.name.startsWith("@sophys-web/")) {
             answers.name = answers.name.replace("@sophys-web/", "");
           }
@@ -193,34 +190,11 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
         template:
           "# {{name}}\n\nThis project was scaffolded with [sophys-web](https://github.com/cnpem/sophys-web)",
       },
-      {
-        type: "modify",
-        path: "apps/{{ name }}/package.json",
-        async transform(content, answers) {
-          if ("deps" in answers && typeof answers.deps === "string") {
-            const pkg = JSON.parse(content) as PackageJson;
-            for (const dep of answers.deps.split(" ").filter(Boolean)) {
-              const version = await fetch(
-                `https://registry.npmjs.org/-/package/${dep}/dist-tags`,
-              )
-                .then((res) => res.json())
-                .then((json) => json.latest);
-              if (!pkg.dependencies) pkg.dependencies = {};
-              pkg.dependencies[dep] = `^${version}`;
-            }
-            return JSON.stringify(pkg, null, 2);
-          }
-          return content;
-        },
-      },
       async (answers) => {
         /**
          * Install deps and format everything
          */
         if ("name" in answers && typeof answers.name === "string") {
-          // execSync("pnpm dlx sherif@latest --fix", {
-          //   stdio: "inherit",
-          // });
           execSync("pnpm i", { stdio: "inherit" });
           execSync(
             `pnpm prettier --write apps/${answers.name}/** --list-different`,

@@ -8,7 +8,7 @@ import type { HistoryItemProps } from "~/lib/types";
 
 export function RerunButton(props: HistoryItemProps) {
   const { add } = useQueue();
-  const { kwargs } = props;
+  const { name, itemType, kwargs } = props;
 
   if (!kwargs) {
     return null;
@@ -17,10 +17,10 @@ export function RerunButton(props: HistoryItemProps) {
     add.mutate(
       {
         item: {
-          name: props.name,
+          name,
           kwargs,
           args: [],
-          itemType: props.itemType,
+          itemType,
         },
       },
       {

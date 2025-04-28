@@ -57,16 +57,18 @@ function DraggableRow({
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.itemUid,
   });
+
+  const animation = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
   return (
     <TableRow
       data-dragging={isDragging}
       data-moving={moving}
       ref={setNodeRef}
       className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80 data-[moving=true]:opacity-50"
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition: transition,
-      }}
+      style={animation}
     >
       {row.getVisibleCells().map((cell) => (
         <TableCell key={cell.id}>
