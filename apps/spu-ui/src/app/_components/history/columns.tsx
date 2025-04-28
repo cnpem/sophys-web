@@ -5,8 +5,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { format, fromUnixTime } from "date-fns";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
+import { DataTableColumnHeader } from "@sophys-web/widgets/data-table/custom-header";
 import type { HistoryItemProps } from "~/lib/types";
-import { DataTableColumnHeader } from "../data-table/custom-header";
 import { RerunButton } from "./rerun";
 
 const columnHelper = createColumnHelper<HistoryItemProps>();

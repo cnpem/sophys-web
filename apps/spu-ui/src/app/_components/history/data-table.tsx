@@ -27,8 +27,8 @@ import {
   TableHeader,
   TableRow,
 } from "@sophys-web/ui/table";
-import { DataTableViewOptions } from "../data-table/column-toggle";
-import { DataTablePagination } from "../data-table/table-pagination";
+import { DataTableViewOptions } from "@sophys-web/widgets/data-table/column-toggle";
+import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
 import { columns } from "./columns";
 
 export function DataTable() {

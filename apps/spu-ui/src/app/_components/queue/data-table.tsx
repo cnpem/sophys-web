@@ -42,9 +42,9 @@ import {
   TableHeader,
   TableRow,
 } from "@sophys-web/ui/table";
+import { DataTableViewOptions } from "@sophys-web/widgets/data-table/column-toggle";
+import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
 import type { QueueItemProps } from "../../../lib/types";
-import { DataTableViewOptions } from "../data-table/column-toggle";
-import { DataTablePagination } from "../data-table/table-pagination";
 import { columns } from "./columns";
 import { TableTools } from "./table-tools";
 
