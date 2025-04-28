@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { JsonEditor, monoLightTheme } from "json-edit-react";
 import { CheckIcon, MoveRightIcon, UploadIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -49,7 +50,7 @@ import { CleanCapillaryForm } from "./capillary-form";
 export function UploadQueue() {
   const [open, setOpen] = useState(false);
   return (
-    <Dialog open={open} onOpenChange={setOpen} modal={false}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button size="sm" variant="ghost">
           <UploadIcon className="size-4" />
@@ -275,69 +276,27 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
       onSubmit={onSubmitCleaning}
     />,
     <AcquisitionTableForm key="acquisition" onSubmit={onSubmitAcquisition} />,
-    <div className="text-muted-foreground text-xs">
-      <div className="text-lg font-bold">Step 1: Proposal</div>
-      <p>Proposal: {formProposal}</p>
-      <p>Use Capillary: {useCapillary ? "Yes" : "No"}</p>
-      {!!useCapillary && (
-        <>
-          <div className="text-lg font-bold">Step 2: Capillary</div>
-          <p>Acquire Time: {capillaryParams?.acquireTime}</p>
-          <p>Number of Exposures: {capillaryParams?.numExposures}</p>
-          <p>Sample Type: {capillaryParams?.sampleType}</p>
-          <p>Sample Tag: {capillaryParams?.sampleTag}</p>
-          <p>Buffer Tag: {capillaryParams?.bufferTag}</p>
-          <p>Cleaning Method: {capillaryParams?.standardOption}</p>
-          <p>Agents: {capillaryParams?.agentsList?.join(", ")}</p>
-          <p>Agents Duration: {capillaryParams?.agentsDuration?.join(", ")}</p>
-        </>
-      )}
-      <div className="text-lg font-bold">Step 3: Cleaning</div>
-      <p>Cleaning Method: {cleaningParams?.standardOption}</p>
-      <p>Agents: {cleaningParams?.agentsList?.join(", ")}</p>
-      <p>Agents Duration: {cleaningParams?.agentsDuration?.join(", ")}</p>
-      <div className="text-lg font-bold">Step 4: Acquisition Kwargs</div>
-      <details>
-        <ScrollArea className="h-96">
-          {acquisitionParams?.map((params, index) => (
-            <div key={index} className="mt-1 rounded-sm border p-2">
-              <span>
-                Row: {params.row}
-                {", "}
-              </span>
-              <span>
-                Col: {params.col}
-                {", "}
-              </span>
-              <span>
-                Tray: {params.tray}
-                {", "}
-              </span>
-              <span>
-                Acquire Time: {params.acquireTime}
-                {", "}
-              </span>
-              <span>
-                Number of Exposures: {params.numExposures}
-                {", "}
-              </span>
-              <span>
-                Volume: {params.volume}
-                {", "}
-              </span>
-              <span>
-                Sample Tag: {params.sampleTag}
-                {", "}
-              </span>
-              <span>Buffer Tag: {params.bufferTag}</span>
-            </div>
-          ))}
-        </ScrollArea>
-      </details>
+    <>
+      <ScrollArea className="h-72">
+        <JsonEditor
+          viewOnly
+          data={{
+            Proposal: formProposal,
+            Capillary: {
+              useCapillary,
+              ...capillaryParams,
+            },
+            Cleaning: cleaningParams,
+            Acquisition: acquisitionParams,
+          }}
+          rootName={"Check"}
+          theme={monoLightTheme}
+        />
+      </ScrollArea>
       <Button className="mt-4" onClick={onSubmitToQueue}>
         Submit to Queue
       </Button>
-    </div>,
+    </>,
   ]);
 
   function onSubmitProposal(data: z.infer<typeof proposalSchema>) {
