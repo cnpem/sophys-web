@@ -42,7 +42,7 @@ export function SignInForm({
     defaultValues: {
       username: "",
       password: "",
-      proposal: "",
+      proposal: "12341234",
     },
   });
 
@@ -108,15 +108,10 @@ export function SignInForm({
           control={form.control}
           name="proposal"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="sr-only">
               <FormLabel>Proposal</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="20250001"
-                  {...field}
-                  maxLength={8}
-                  disabled={form.formState.isSubmitting}
-                />
+                <Input {...field} maxLength={8} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
