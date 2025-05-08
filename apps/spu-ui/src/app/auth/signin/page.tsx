@@ -1,10 +1,24 @@
 import { Suspense } from "react";
+import Link from "next/link";
+import { MoveLeftIcon } from "lucide-react";
+import { cn } from "@sophys-web/ui";
+import { buttonVariants } from "@sophys-web/ui/button";
 import { signIn } from "../../actions/auth";
 import { SignInForm, SignInFormSkeleton } from "./form";
 
 export default function SignInPage() {
   return (
-    <div className="flex items-center justify-center gap-6 p-24">
+    <div className="flex h-screen items-center justify-center">
+      <Link
+        className={cn(
+          buttonVariants({ variant: "link" }),
+          "absolute top-2 left-2",
+        )}
+        href="/"
+      >
+        <MoveLeftIcon className="size-4" />
+        Back to home
+      </Link>
       <Suspense fallback={<SignInFormSkeleton />}>
         <SignInForm signInAction={signIn} />
       </Suspense>
