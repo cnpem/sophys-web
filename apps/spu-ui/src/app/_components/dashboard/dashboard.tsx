@@ -19,6 +19,7 @@ import { useSSEData } from "~/app/_hooks/use-sse-data";
 import { trayOptions } from "~/lib/constants";
 import { DataTable as History } from "../history/data-table";
 import { DataTable as Queue } from "../queue/data-table";
+import { StoreCard } from "../store-card";
 import { LoadingTray, Tray } from "../tray";
 import { Controls } from "./controls";
 
@@ -55,6 +56,7 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
         </ScrollArea>
         <ScrollArea className="flex flex-col lg:h-svh lg:w-1/3">
           <div className="flex w-full flex-col gap-4">
+            <StoreCard />
             <PV />
             <RunningItem />
             <Trays initialData={initialData} />
