@@ -8,6 +8,7 @@ import { postRouter } from "./router/post";
 import { queueRouter } from "./router/queue";
 import { runEngineRouter } from "./router/run-engine";
 import { statusRouter } from "./router/status";
+import { storeRouter } from "./router/store";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
@@ -21,6 +22,7 @@ export const appRouter = createTRPCRouter({
   history: historyRouter,
   runEngine: runEngineRouter,
   auth: authRouter,
+  store: storeRouter,
 });
 
 // export type definition of API
