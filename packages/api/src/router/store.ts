@@ -108,31 +108,22 @@ export const storeRouter = {
       throw new Error("Unknown error");
     }
   }),
-  hGetAll: protectedProcedure
-    .input(
-      z.object({
-        key: z.string(),
-      }),
-    )
-    .query(async ({ input }) => {
-      try {
-        await client.connect();
-        const compoundKey = `${REDIS_STORE_PREFIX}:${input.key}`;
-        const result = await client.hGetAll(compoundKey);
-        console.log(`Key ${input.key} retrieved successfully. Result:`, result);
-        if (Object.keys(result).length === 0) {
-          console.warn(`Entry for key ${input.key} not found.`);
-          await client.close();
-          throw new Error(`Entry for key ${input.key} not found.`);
-        }
-        await client.close();
-        return result;
-      } catch (e) {
-        if (e instanceof Error) {
-          console.error(e);
-          throw new Error(e.message);
-        }
-        throw new Error("Unknown error");
-      }
-    }),
+  keyspaceEvents: protectedProcedure.subscription(async function* ({ ctx }) {
+    // This subscription listens for Redis keyspace events and yields them as they come in.
+    const { redisEE } = ctx;
+    console.log("[API] Subscribing to Redis keyspace events...");
+    for await (const [payload] of redisEE.toIterable("event")) {
+      console.log(
+        "[API] yielding keyspace event:",
+        payload.message,
+        "on key:",
+        payload.key,
+        "at",
+        payload.timestamp,
+      );
+      yield payload.message;
+    }
+    // Cleanup is handled automatically by the subscription system when the client disconnects
+    console.log("Redis keyspace event subscription cleaned up.");
+  }),
 } as const;
