@@ -1,8 +1,18 @@
 "use client";
 
-import type { z } from "zod";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 import { api } from "../react";
+
+const recordOrStrSchema = z.record(
+  z.string().transform((str) => {
+    try {
+      return JSON.parse(str) as unknown;
+    } catch {
+      return str;
+    }
+  }),
+);
 
 export function useStore<T extends z.ZodTypeAny>(storeSchema: T) {
   const utils = api.useUtils();
@@ -24,11 +34,24 @@ export function useStore<T extends z.ZodTypeAny>(storeSchema: T) {
     if (data) {
       setIsParsing(true);
       try {
-        const parsed = storeSchema.safeParse(data);
+        const recordFields = recordOrStrSchema.safeParse(data);
+        if (!recordFields.success) {
+          console.error(
+            "Unexpected error parsing redis string fields:",
+            recordFields.error,
+          );
+          setIsParsingError(true);
+          return;
+        }
+        console.log("record parsed data:", recordFields.data);
+        // parse the data using the schema
+        const parsed = storeSchema.safeParse(recordFields.data);
+        // const parsed = jsonPipedSchema.safeParse(data);
         if (parsed.success) {
           setStore(parsed.data as z.infer<T>);
         } else {
           console.error("Store data does not match schema:", parsed.error);
+          console.error("Details:", data);
           setStore(null);
           setIsParsingError(true);
         }
