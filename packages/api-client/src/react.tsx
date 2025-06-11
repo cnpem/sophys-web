@@ -4,7 +4,12 @@ import type { QueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { httpBatchStreamLink, loggerLink } from "@trpc/client";
+import {
+  httpBatchStreamLink,
+  httpSubscriptionLink,
+  loggerLink,
+  splitLink,
+} from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import superJSON from "superjson";
 import type { AppRouter } from "@sophys-web/api";
@@ -34,14 +39,23 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             env.NODE_ENV === "development" ||
             (op.direction === "down" && op.result instanceof Error),
         }),
-        httpBatchStreamLink({
-          transformer: superJSON,
-          url: `${getBaseUrl()}/api/trpc`,
-          headers() {
-            const headers = new Headers();
-            headers.set("x-trpc-source", "nextjs-react");
-            return headers;
-          },
+        splitLink({
+          condition: (op) => op.type === "subscription", // If it's a subscription
+          true: httpSubscriptionLink({
+            // Send it to the subscription link
+            transformer: superJSON,
+            url: `${getBaseUrl()}/api/trpc`,
+          }),
+          false: httpBatchStreamLink({
+            // Otherwise, send it to the batch/stream link
+            transformer: superJSON,
+            url: `${getBaseUrl()}/api/trpc`,
+            headers() {
+              const headers = new Headers();
+              headers.set("x-trpc-source", "nextjs-react");
+              return headers;
+            },
+          }),
         }),
       ],
     }),

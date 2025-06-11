@@ -14,17 +14,11 @@ export function useStore<T extends z.ZodTypeAny>(storeSchema: T) {
     data,
     isLoading,
     isError: isQueryError,
-  } = api.store.hGetAll.useQuery(
-    {
-      key: "app-store",
-    },
-    {
-      refetchInterval: 1000 * 60 * 3,
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: true,
-      refetchOnMount: true,
-    },
-  );
+  } = api.store.hGetAll.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
+  });
 
   useEffect(() => {
     if (data) {
@@ -53,7 +47,7 @@ export function useStore<T extends z.ZodTypeAny>(storeSchema: T) {
     isPending,
   } = api.store.hSetField.useMutation({
     onSuccess: async () => {
-      await utils.store.hGetAll.invalidate({ key: "app-store" });
+      await utils.store.hGetAll.invalidate();
     },
   });
 
@@ -62,11 +56,33 @@ export function useStore<T extends z.ZodTypeAny>(storeSchema: T) {
     newValue: z.infer<T>[K],
   ) {
     mutate({
-      key: "app-store",
       field: key as string,
       value: JSON.stringify(newValue),
     });
   }
+
+  // use the subscription to invalidate the hGetAll query and trigger a refetch
+  api.store.keyspaceEvents.useSubscription(
+    undefined, // Subscriptions typically don't have input, or a void input
+    {
+      onData(data) {
+        // This callback is fired every time the server yields a new event
+        console.log("Received keyspace event:", data);
+        // Invalidate the hGetAll query to refetch the store data
+        utils.store.hGetAll.invalidate().catch((err) => {
+          console.error("Error invalidating hGetAll query:", err);
+        });
+      },
+      onError(err) {
+        // This callback is fired if there's an error in the subscription stream
+        console.error("Subscription error:", err);
+      },
+      onStarted() {
+        // This callback is fired when the subscription successfully starts
+        console.log("Redis keyspace event subscription started!");
+      },
+    },
+  );
 
   return {
     store,
