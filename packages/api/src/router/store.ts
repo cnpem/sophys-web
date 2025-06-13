@@ -2,7 +2,7 @@ import { z } from "zod";
 import { redisOptions } from "../lib/redis";
 import { protectedProcedure } from "../trpc";
 
-export const storeRouter = {
+export const hashRouter = {
   hSet: protectedProcedure
     .input(
       z.object({
@@ -108,7 +108,10 @@ export const storeRouter = {
       throw new Error("Unknown error");
     }
   }),
-  keyspaceEvents: protectedProcedure.subscription(async function* ({ ctx }) {
+} as const;
+
+const streamRouter = {
+  onKeyspaceEvents: protectedProcedure.subscription(async function* ({ ctx }) {
     // This subscription listens for Redis keyspace events and yields them as they come in.
     const { redisEE } = ctx;
     console.log("[API] Subscribing to Redis keyspace events...");
@@ -126,4 +129,9 @@ export const storeRouter = {
     // Cleanup is handled automatically by the subscription system when the client disconnects
     console.log("Redis keyspace event subscription cleaned up.");
   }),
+} as const;
+
+export const storeRouter = {
+  stream: streamRouter,
+  hash: hashRouter,
 } as const;

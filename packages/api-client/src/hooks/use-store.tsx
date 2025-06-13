@@ -24,7 +24,7 @@ export function useStore<T extends z.ZodTypeAny>(storeSchema: T) {
     data,
     isLoading,
     isError: isQueryError,
-  } = api.store.hGetAll.useQuery(undefined, {
+  } = api.store.hash.hGetAll.useQuery(undefined, {
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     refetchOnMount: true,
@@ -61,9 +61,9 @@ export function useStore<T extends z.ZodTypeAny>(storeSchema: T) {
     mutate,
     isError: isMutateError,
     isPending,
-  } = api.store.hSetField.useMutation({
+  } = api.store.hash.hSetField.useMutation({
     onSuccess: async () => {
-      await utils.store.hGetAll.invalidate();
+      await utils.store.hash.hGetAll.invalidate();
     },
   });
 
@@ -77,11 +77,11 @@ export function useStore<T extends z.ZodTypeAny>(storeSchema: T) {
     });
   }
 
-  api.store.keyspaceEvents.useSubscription(undefined, {
+  api.store.stream.onKeyspaceEvents.useSubscription(undefined, {
     onData() {
       // This callback is fired every time the server yields a new event
       // to invalidate the hGetAll query to refetch the store data
-      utils.store.hGetAll.invalidate().catch((err) => {
+      utils.store.hash.hGetAll.invalidate().catch((err) => {
         console.error("Error invalidating hGetAll query:", err);
       });
     },
