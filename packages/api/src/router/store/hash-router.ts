@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { redisOptions } from "../lib/redis";
-import { protectedProcedure } from "../trpc";
+import { redisOptions } from "../../lib/redis";
+import { protectedProcedure } from "../../trpc";
 
 export const hashRouter = {
   hSet: protectedProcedure
@@ -108,30 +108,4 @@ export const hashRouter = {
       throw new Error("Unknown error");
     }
   }),
-} as const;
-
-const streamRouter = {
-  onKeyspaceEvents: protectedProcedure.subscription(async function* ({ ctx }) {
-    // This subscription listens for Redis keyspace events and yields them as they come in.
-    const { redisEE } = ctx;
-    console.log("[API] Subscribing to Redis keyspace events...");
-    for await (const [payload] of redisEE.toIterable("event")) {
-      console.log(
-        "[API] yielding keyspace event:",
-        payload.message,
-        "on key:",
-        payload.key,
-        "at",
-        payload.timestamp,
-      );
-      yield payload.message;
-    }
-    // Cleanup is handled automatically by the subscription system when the client disconnects
-    console.log("Redis keyspace event subscription cleaned up.");
-  }),
-} as const;
-
-export const storeRouter = {
-  stream: streamRouter,
-  hash: hashRouter,
 } as const;

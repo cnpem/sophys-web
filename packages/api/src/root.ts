@@ -8,7 +8,7 @@ import { postRouter } from "./router/post";
 import { queueRouter } from "./router/queue";
 import { runEngineRouter } from "./router/run-engine";
 import { statusRouter } from "./router/status";
-import { storeRouter } from "./router/store";
+import { storeRouter } from "./router/store/store-router";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
