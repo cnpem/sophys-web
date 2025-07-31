@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  acquireTimeOptions,
   cleaningAgents,
   sampleTypeOptions,
   trayColumns,
@@ -9,19 +8,6 @@ import {
 } from "../../constants";
 
 const name = "setup1_complete_standard_acquisition";
-
-const acquireTimeMapping: Record<number, (typeof acquireTimeOptions)[number]> =
-  {
-    200: "200",
-    100: "100",
-    50: "50",
-    25: "25",
-    12.5: "12.5",
-    6.25: "6.25",
-    3.125: "3.125",
-    1.5625: "1.5625",
-    0.5: "0.5",
-  } as const;
 
 const tableSchema = z.object({
   sampleType: z
@@ -64,21 +50,9 @@ const tableSchema = z.object({
         message: `Column must be one of the following options ${trayColumns.join(", ")}`,
       }),
     ),
-  acquireTime: z
-    .string()
-    .transform((val) => parseFloat(val.trim().replace(",", ".")))
-    .refine(
-      (val) => {
-        if (isNaN(val)) {
-          return false;
-        }
-        return acquireTimeMapping[val] !== undefined;
-      },
-      {
-        message: `Acquire time must be one of the following options ${Object.values(acquireTimeMapping).join(", ")}`,
-      },
-    )
-    .transform((val) => acquireTimeMapping[val]),
+  acquireTime: z.coerce
+    .number()
+    .min(0.1, "Acquire time (in seconds) must be at least 0.1"),
   volume: z.coerce.number().min(0, "Volume must be a positive number"),
   temperature: z.coerce.number().positive(),
   numExposures: z.coerce
@@ -141,14 +115,16 @@ const cleaningSchema = z
   });
 
 const schema = z.object({
-  sampleTag: z.string(),
   sampleType: z.enum(sampleTypeOptions),
+  sampleTag: z.string(),
   bufferTag: z.string(),
   tray: z.enum(trayOptions),
   row: z.enum(trayRows),
   col: z.enum(trayColumns),
   volume: z.number(),
-  acquireTime: z.enum(acquireTimeOptions),
+  acquireTime: z.coerce
+    .number()
+    .min(0.1, "Acquire time (in seconds) must be at least 0.1"),
   numExposures: z.number(),
   expUvTime: z.number(),
   measureUvNumber: z.number(),
@@ -160,3 +136,10 @@ const schema = z.object({
 
 export { name, schema, tableSchema, cleaningSchema };
 export type PlanKwargs = z.infer<typeof schema>;
+
+// example csv with order as the first column
+// order;sampleType;sampleTag;bufferTag;tray;row;col;volume;acquireTime;numExposures;expUvTime;measureUvNumber;temperature;
+// 1;buffer;buffer1;;Tray1;A;1;100;1;1;1;1;30;
+// 2;sample;sample1;buffer1;Tray1;A;2;200;1;1;1;1;30;
+// 3;sample;sample2;buffer1;Tray1;A;3;300;1;1;1;1;30;
+// 4;sample;sample3;buffer1;Tray1;A;4;400;1;1;1;1;30;

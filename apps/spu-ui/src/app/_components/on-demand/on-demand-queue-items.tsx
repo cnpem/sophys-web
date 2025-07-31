@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
-import { CleaningDialog } from "./cleaning";
+// import { CleaningDialog } from "./cleaning";
 import { QueueStop } from "./queue-stop";
 import { SingleAcquisition } from "./single-acquisition";
 
@@ -35,9 +35,9 @@ export function OnDemandSelector() {
         <DropdownMenuItem asChild>
           <QueueStop className="w-full justify-start font-normal" />
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
+        {/* <DropdownMenuItem asChild>
           <CleaningDialog className="w-full justify-start font-normal" />
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

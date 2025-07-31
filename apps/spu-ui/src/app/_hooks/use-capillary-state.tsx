@@ -12,7 +12,8 @@ import {
   schema as loadSampleKwargs,
   name as loadSamplePlan,
 } from "../../lib/schemas/plans/load";
-import { name as singleCleaningPlan } from "../../lib/schemas/plans/single-cleaning";
+import { name as setup1CustomCleaningProcedure } from "../../lib/schemas/plans/setup1-custom-cleaning-procedure";
+import { name as setup1StandardCleaningProcedure } from "../../lib/schemas/plans/setup1-standard-cleaning-procedure";
 
 const STALE_TIME_IN_SECONDS = 15 * 60; // 15 minutes
 
@@ -28,7 +29,8 @@ const knownErrorExitStatuses = [
 const cleaningPlans = [
   completeAcquisitionWithCleaningPlan,
   cleanAndCheckPlan,
-  singleCleaningPlan,
+  setup1StandardCleaningProcedure,
+  setup1CustomCleaningProcedure,
 ];
 
 export interface LastSampleParams {

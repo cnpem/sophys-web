@@ -139,19 +139,6 @@ export function CleanCapillaryForm({
           />
           <FormField
             control={form.control}
-            name="bufferTag"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Buffer Tag</FormLabel>
-                <FormControl>
-                  <Input disabled {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="standardOption"
             render={({ field }) => (
               <FormItem>

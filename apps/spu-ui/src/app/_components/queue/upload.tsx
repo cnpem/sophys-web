@@ -263,7 +263,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
         proposal: formProposal,
         ...capillaryParams,
         sampleType: "buffer",
-        bufferTag: "NA",
         isRef: true,
       }}
       onSubmit={onSubmitCapillary}
