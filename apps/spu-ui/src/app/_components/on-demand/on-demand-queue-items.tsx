@@ -1,4 +1,5 @@
 import { PlusIcon } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@sophys-web/ui/button";
 import {
   DropdownMenu,
@@ -8,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
+import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 // import { CleaningDialog } from "./cleaning";
 import { QueueStop } from "./queue-stop";
@@ -35,9 +37,20 @@ export function OnDemandSelector() {
         <DropdownMenuItem asChild>
           <QueueStop className="w-full justify-start font-normal" />
         </DropdownMenuItem>
-        {/* <DropdownMenuItem asChild>
-          <CleaningDialog className="w-full justify-start font-normal" />
-        </DropdownMenuItem> */}
+        <DropdownMenuItem asChild>
+          <NewItemSearch
+            className="w-full justify-start font-normal"
+            onSuccessCallback={() => {
+              toast.success("Item added to the queue");
+            }}
+            onErrorCallback={(error) => {
+              toast.error(`Failed to add item to the queue: ${error}`);
+            }}
+          />
+        </DropdownMenuItem>
+        {/* <DropdownMenuItem asChild> 
+              <CleaningDialog className="w-full justify-start font-normal" />
+            </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
