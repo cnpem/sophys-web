@@ -1,4 +1,4 @@
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -39,13 +39,20 @@ export function OnDemandSelector() {
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <NewItemSearch
-            className="w-full justify-start font-normal"
             onSuccessCallback={() => {
               toast.success("Item added to the queue");
             }}
             onErrorCallback={(error) => {
               toast.error(`Failed to add item to the queue: ${error}`);
             }}
+            trigger={
+              <Button
+                variant="ghost"
+                className="w-full justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
+              >
+                <SearchIcon className="mr-2 h-4 w-4" /> Other
+              </Button>
+            }
           />
         </DropdownMenuItem>
         {/* <DropdownMenuItem asChild> 

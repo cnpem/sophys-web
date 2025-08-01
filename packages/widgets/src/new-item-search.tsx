@@ -6,7 +6,6 @@ import { ArrowRightIcon, SearchIcon } from "lucide-react";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
-import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
   Dialog,
@@ -21,11 +20,12 @@ import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 
 interface EditItemProps {
-  className?: string;
+  trigger?: React.ReactNode;
   onSuccessCallback?: () => void;
   onErrorCallback?: (error: string) => void;
 }
 export function NewItemSearch(props: EditItemProps) {
+  const { onSuccessCallback, onErrorCallback, trigger } = props;
   const { data: plans, isLoading: isLoadingPlans } =
     api.plans.allowed.useQuery(undefined);
   const { data: devices } = api.devices.allowedNames.useQuery(undefined);
@@ -73,37 +73,31 @@ export function NewItemSearch(props: EditItemProps) {
         },
         {
           onSuccess: () => {
-            // toast.success(`Plan ${search} added to the queue`);
-            props.onSuccessCallback?.();
+            onSuccessCallback?.();
             setOpen(false);
           },
           onError: (error) => {
             const message = error.message.replace("\n", " ");
-            props.onErrorCallback?.(message);
-            // toast.error(
-            //   `Failed to add plan ${search} to the queue: ${message}`,
-            // );
+            onErrorCallback?.(message);
           },
         },
       );
     },
-    [add, search],
+    [add, search, onSuccessCallback, onErrorCallback],
   );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          disabled={add.isPending}
-          size="icon"
-          variant="ghost"
-          className={cn(
-            "font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50",
-            props.className,
-          )}
-        >
-          <SearchIcon className="mr-2 ml-1 h-4 w-4" /> Other
-        </Button>
+        {trigger ?? (
+          <Button
+            disabled={add.isPending}
+            variant="ghost"
+            className="font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
+          >
+            <SearchIcon className="mr-2 h-4 w-4" /> New Item
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
