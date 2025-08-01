@@ -23,7 +23,6 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@sophys-web/ui/sidebar";
-import { env } from "~/env";
 import { NavUser } from "./nav-user";
 
 export async function AppSidebar({
