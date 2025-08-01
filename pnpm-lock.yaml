@@ -83,6 +83,154 @@ importers:
         specifier: 'catalog:'
         version: 5.8.3
 
+  apps/qua-ui:
+    dependencies:
+      '@dnd-kit/core':
+        specifier: ^6.3.1
+        version: 6.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@dnd-kit/modifiers':
+        specifier: ^9.0.0
+        version: 9.0.0(@dnd-kit/core@6.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+      '@dnd-kit/sortable':
+        specifier: ^10.0.0
+        version: 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+      '@dnd-kit/utilities':
+        specifier: ^3.2.2
+        version: 3.2.2(react@19.1.0)
+      '@hookform/resolvers':
+        specifier: ^5.0.1
+        version: 5.0.1(react-hook-form@7.56.1(react@19.1.0))
+      '@sophys-web/api':
+        specifier: workspace:*
+        version: link:../../packages/api
+      '@sophys-web/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@sophys-web/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
+      '@sophys-web/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      '@sophys-web/widgets':
+        specifier: workspace:*
+        version: link:../../packages/widgets
+      '@t3-oss/env-nextjs':
+        specifier: ^0.13.0
+        version: 0.13.0(arktype@2.1.20)(typescript@5.8.3)(zod@3.24.2)
+      '@tanstack/react-query':
+        specifier: 'catalog:'
+        version: 5.72.1(react@19.1.0)
+      '@tanstack/react-query-devtools':
+        specifier: 'catalog:'
+        version: 5.72.1(@tanstack/react-query@5.72.1(react@19.1.0))(react@19.1.0)
+      '@tanstack/react-table':
+        specifier: ^8.21.3
+        version: 8.21.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@trpc/client':
+        specifier: 'catalog:'
+        version: 11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3)
+      '@trpc/react-query':
+        specifier: 'catalog:'
+        version: 11.0.4(@tanstack/react-query@5.72.1(react@19.1.0))(@trpc/client@11.0.4(@trpc/server@11.0.4(typescript@5.8.3))(typescript@5.8.3))(@trpc/server@11.0.4(typescript@5.8.3))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)
+      '@trpc/server':
+        specifier: 'catalog:'
+        version: 11.0.4(typescript@5.8.3)
+      boring-avatars:
+        specifier: ^1.11.2
+        version: 1.11.2
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      geist:
+        specifier: ^1.3.1
+        version: 1.3.1(next@15.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
+      json-edit-react:
+        specifier: ^1.26.1
+        version: 1.26.1(react@19.1.0)
+      lucide-react:
+        specifier: ^0.503.0
+        version: 0.503.0(react@19.1.0)
+      nanoid:
+        specifier: ^5.1.5
+        version: 5.1.5
+      next:
+        specifier: 15.3.1
+        version: 15.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      next-auth:
+        specifier: 5.0.0-beta.25
+        version: 5.0.0-beta.25(next@15.3.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+      react:
+        specifier: catalog:react19
+        version: 19.1.0
+      react-dom:
+        specifier: catalog:react19
+        version: 19.1.0(react@19.1.0)
+      react-hook-form:
+        specifier: ^7.56.1
+        version: 7.56.1(react@19.1.0)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+      sonner:
+        specifier: ^2.0.3
+        version: 2.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      superjson:
+        specifier: 2.2.2
+        version: 2.2.2
+      zod:
+        specifier: 'catalog:'
+        version: 3.24.2
+    devDependencies:
+      '@sophys-web/eslint-config':
+        specifier: workspace:*
+        version: link:../../tooling/eslint
+      '@sophys-web/prettier-config':
+        specifier: workspace:*
+        version: link:../../tooling/prettier
+      '@sophys-web/tailwind-config':
+        specifier: workspace:*
+        version: link:../../tooling/tailwind
+      '@sophys-web/typescript-config':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
+      '@tailwindcss/postcss':
+        specifier: ^4.1.4
+        version: 4.1.4
+      '@types/node':
+        specifier: ^22.14.1
+        version: 22.14.1
+      '@types/react':
+        specifier: catalog:react19
+        version: 19.1.2
+      '@types/react-dom':
+        specifier: catalog:react19
+        version: 19.1.2(@types/react@19.1.2)
+      autoprefixer:
+        specifier: ^10.4.21
+        version: 10.4.21(postcss@8.5.3)
+      eslint:
+        specifier: 'catalog:'
+        version: 9.24.0(jiti@2.4.2)
+      jiti:
+        specifier: ^2.4.2
+        version: 2.4.2
+      postcss:
+        specifier: ^8.5.3
+        version: 8.5.3
+      tailwindcss:
+        specifier: 'catalog:'
+        version: 4.1.3
+      tw-animate-css:
+        specifier: ^1.2.8
+        version: 1.2.8
+      typescript:
+        specifier: 'catalog:'
+        version: 5.8.3
+      typescript-eslint:
+        specifier: ^8.31.0
+        version: 8.31.0(eslint@9.24.0(jiti@2.4.2))(typescript@5.8.3)
+
   apps/spu-ui:
     dependencies:
       '@dnd-kit/core':
