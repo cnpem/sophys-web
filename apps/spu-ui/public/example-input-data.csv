@@ -1,0 +1,9 @@
+order;sampleType;sampleTag;bufferTag;tray;row;col;volume;acquireTime;numExposures;expUvTime;measureUvNumber;temperature;
+1;buffer;buffer1;;Tray1;A;1;100;1;1;1;1;30;
+2;sample;sample1;buffer1;Tray1;A;2;200;1;1;1;1;30;
+3;sample;sample2;buffer1;Tray1;A;3;300;1;1;1;1;30;
+4;sample;sample3;buffer1;Tray1;A;4;400;1;1;1;1;30;
+5;buffer;buffer2;;Tray2;B;5;101;2;2;2;2;31;
+6;sample;sample4;buffer2;Tray2;B;6;201;2;2;2;2;31;
+7;sample;sample5;buffer2;Tray2;B;7;301;2;2;2;2;31;
+8;sample;sample6;buffer2;Tray2;B;8;401;2;2;2;2;31;

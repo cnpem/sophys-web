@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { JsonEditor, monoLightTheme } from "json-edit-react";
 import { CheckIcon, MoveRightIcon, UploadIcon } from "lucide-react";
@@ -47,6 +48,8 @@ import { AcquisitionCleaningForm } from "./acquisition-cleaning-form";
 import { AcquisitionTableForm } from "./acquisition-table-form";
 import { CleanCapillaryForm } from "./capillary-form";
 
+const exampleCsvPath = "/example-input-data.csv";
+
 export function UploadQueue() {
   const [open, setOpen] = useState(false);
   return (
@@ -62,8 +65,20 @@ export function UploadQueue() {
           <DialogTitle>Load Experiment Queue</DialogTitle>
           <DialogDescription>
             Load a new experiment queue from a CSV file.
+            <Link href={exampleCsvPath} download={"example-input-data.csv"}>
+              <Button
+                asChild
+                variant="link"
+                className="text-xs font-extralight"
+              >
+                <a download="example-input-data.csv" href={exampleCsvPath}>
+                  (Download CSV example)
+                </a>
+              </Button>
+            </Link>
           </DialogDescription>
         </DialogHeader>
+
         <StepByStepForm onSubmitSuccess={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
