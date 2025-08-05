@@ -36,7 +36,7 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import { acquireTimeOptions, sampleTypeOptions } from "~/lib/constants";
+import { sampleTypeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/single-acquisition";
 
 export function SingleAcquisition({
@@ -52,11 +52,7 @@ export function SingleAcquisition({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          className={className}
-          disabled={lastSampleParams === undefined}
-        >
+        <Button variant="ghost" className={className}>
           <CameraIcon className="mr-2 h-4 w-4" />
           Acquire
         </Button>
@@ -76,15 +72,13 @@ export function SingleAcquisition({
             </span>
           </DialogDescription>
         </DialogHeader>
-        {lastSampleParams !== undefined && (
-          <SingleAcquisitionForm
-            proposal={data?.proposal}
-            lastSampleParams={lastSampleParams}
-            onSubmitSuccess={() => {
-              setOpen(false);
-            }}
-          />
-        )}
+        <SingleAcquisitionForm
+          proposal={data?.proposal}
+          lastSampleParams={lastSampleParams}
+          onSubmitSuccess={() => {
+            setOpen(false);
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -96,7 +90,7 @@ function SingleAcquisitionForm({
   className,
   onSubmitSuccess,
 }: {
-  lastSampleParams: LastSampleParams;
+  lastSampleParams: LastSampleParams | undefined;
   proposal?: string;
   className?: string;
   onSubmitSuccess: () => void;
@@ -108,14 +102,16 @@ function SingleAcquisitionForm({
     defaultValues: {
       proposal: proposal,
       isRef: false,
-      metadata: {
-        row: lastSampleParams.row,
-        col: lastSampleParams.col,
-        tray: lastSampleParams.tray,
-      },
-      sampleType: lastSampleParams.sampleType,
-      sampleTag: lastSampleParams.sampleTag,
-      bufferTag: lastSampleParams.bufferTag,
+      ...(lastSampleParams && {
+        metadata: {
+          row: lastSampleParams.row,
+          col: lastSampleParams.col,
+          tray: lastSampleParams.tray,
+        },
+        sampleType: lastSampleParams.sampleType,
+        sampleTag: lastSampleParams.sampleTag,
+        bufferTag: lastSampleParams.bufferTag,
+      }),
     },
   });
 
@@ -183,7 +179,10 @@ function SingleAcquisitionForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sample Type</FormLabel>
-                <Select {...field}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select" />
@@ -248,22 +247,9 @@ function SingleAcquisitionForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Acquire Time</FormLabel>
-                <Select {...field} onValueChange={field.onChange}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {acquireTimeOptions.map((option) => {
-                      return (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

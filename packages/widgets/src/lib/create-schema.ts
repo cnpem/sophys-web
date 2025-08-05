@@ -43,7 +43,26 @@ export const createSchema = (parameters: Parameter[]) => {
         break;
       case "typing.List[int]":
       case "list[int]":
-        schemaFields[camelName] = z.array(z.coerce.number().int());
+        // schemaFields[camelName] = z.array(z.coerce.number().int());
+        schemaFields[camelName] = z
+          .any()
+          .transform((val) => {
+            if (Array.isArray(val)) {
+              // Already an array of strings
+              return val.map(Number);
+            }
+            if (typeof val === "string") {
+              // Split by comma, trim whitespace, filter out empty strings and convert to numbers
+              return val
+                .split(",")
+                .map((v) => v.trim())
+                .filter((v) => v.length > 0)
+                .map(Number);
+            }
+            // If null/undefined or other, return empty array
+            return [];
+          })
+          .optional();
         break;
       case "float":
       case "typing.Optional[float]":
@@ -53,7 +72,26 @@ export const createSchema = (parameters: Parameter[]) => {
         break;
       case "typing.List[float]":
       case "list[float]":
-        schemaFields[camelName] = z.array(z.coerce.number()).optional();
+        // schemaFields[camelName] = z.array(z.coerce.number()).optional();
+        schemaFields[camelName] = z
+          .any()
+          .transform((val) => {
+            if (Array.isArray(val)) {
+              // Already an array of strings
+              return val.map(Number);
+            }
+            if (typeof val === "string") {
+              // Split by comma, trim whitespace, filter out empty strings and convert to numbers
+              return val
+                .split(",")
+                .map((v) => v.trim())
+                .filter((v) => v.length > 0)
+                .map(Number);
+            }
+            // If null/undefined or other, return empty array
+            return [];
+          })
+          .optional();
         break;
       case "typing.Union[float, typing.Sequence[float], None]":
         schemaFields[camelName] = z
@@ -65,7 +103,26 @@ export const createSchema = (parameters: Parameter[]) => {
         break;
       case "typing.List[str]":
       case "list[str]":
-        schemaFields[camelName] = z.array(z.string()).optional();
+        // schemaFields[camelName] = z.array(z.string()).optional();
+        // it also needs to be able to parse strings like "a, b, c" as ["a", "b", "c"] when it comes from the UI
+        schemaFields[camelName] = z
+          .any()
+          .transform((val) => {
+            if (Array.isArray(val)) {
+              // Already an array of strings
+              return val.map(String);
+            }
+            if (typeof val === "string") {
+              // Split by comma, trim whitespace, filter out empty strings
+              return val
+                .split(",")
+                .map((v) => v.trim())
+                .filter((v) => v.length > 0);
+            }
+            // If null/undefined or other, return empty array
+            return [];
+          })
+          .optional();
         break;
       case "dict":
       case "typing.Optional[dict]":
