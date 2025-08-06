@@ -1,0 +1,47 @@
+{
+  "name": "@sophys-web/pvws-store",
+  "type": "module",
+  "private": true,
+  "version": "0.1.0",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./env": "./env.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc",
+    "clean": "git clean -xdf dist .turbo .cache node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "peerDependencies": {
+    "react": "catalog:react19"
+  },
+  "devDependencies": {
+    "@sophys-web/eslint-config": "workspace:*",
+    "@sophys-web/prettier-config": "workspace:*",
+    "@sophys-web/tailwind-config": "workspace:*",
+    "@sophys-web/typescript-config": "workspace:*",
+    "@types/node": "^24.2.0",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "typescript": "catalog:"
+  },
+  "dependencies": {
+    "@sophys-web/auth": "workspace:*",
+    "@t3-oss/env-nextjs": "^0.10.1",
+    "next": "^15.2.3",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "use-sync-external-store": "^1.5.0",
+    "zod": "catalog:",
+    "zustand": "^5.0.6"
+  },
+  "prettier": "@sophys-web/prettier-config"
+}
