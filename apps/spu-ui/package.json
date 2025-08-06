@@ -23,6 +23,7 @@
     "@sophys-web/auth": "workspace:*",
     "@sophys-web/ui": "workspace:*",
     "@sophys-web/widgets": "workspace:*",
+    "@sophys-web/pvws-store": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.0",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-query-devtools": "catalog:",

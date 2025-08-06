@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { api, HydrateClient } from "@sophys-web/api-client/server";
 import { auth } from "@sophys-web/auth";
+import { PVWSConnectionHandler } from "@sophys-web/pvws-store";
 import { buttonVariants } from "@sophys-web/ui/button";
 import { Dashboard } from "./_components/dashboard/dashboard";
 import { getSamples } from "./actions/samples";
@@ -44,6 +45,7 @@ export default async function Page() {
   return (
     <HydrateClient>
       <Suspense fallback={<div>Loading...</div>}>
+        <PVWSConnectionHandler />
         <Dashboard initialData={samples.value} />
       </Suspense>
     </HydrateClient>
