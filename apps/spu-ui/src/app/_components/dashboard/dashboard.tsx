@@ -1,7 +1,7 @@
 "use client";
 
 import { JsonEditor, monoLightTheme } from "json-edit-react";
-import { AlertCircleIcon, CylinderIcon, ThermometerIcon } from "lucide-react";
+import { AlertCircleIcon, CylinderIcon } from "lucide-react";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import {
   Card,
@@ -21,6 +21,7 @@ import { DataTable as History } from "../history/data-table";
 import { DataTable as Queue } from "../queue/data-table";
 import { LoadingTray, Tray } from "../tray";
 import { Controls } from "./controls";
+import { SampleTemperatureMonitor } from "./sample-temperature";
 
 const [TRAY1, TRAY2] = trayOptions;
 
@@ -166,16 +167,7 @@ function PV() {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center rounded-md border p-3">
-            <ThermometerIcon className="mr-3 h-8 w-8 text-red-500" />
-            <div>
-              <div className="text-muted-foreground text-sm">
-                Temperature (TBA)
-              </div>
-              <div className="text-2xl font-semibold">XXX°C</div>
-            </div>
-          </div>
-
+          <SampleTemperatureMonitor />
           <div className="flex items-center rounded-md border p-3">
             <CylinderIcon className="mr-3 h-8 w-8 text-blue-500" />
             <div>
