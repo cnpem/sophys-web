@@ -5,6 +5,7 @@ import { api, HydrateClient } from "@sophys-web/api-client/server";
 import { auth } from "@sophys-web/auth";
 import { PVWSConnectionHandler } from "@sophys-web/pvws-store";
 import { buttonVariants } from "@sophys-web/ui/button";
+import { env } from "~/env";
 import { Dashboard } from "./_components/dashboard/dashboard";
 import { getSamples } from "./actions/samples";
 
@@ -45,7 +46,7 @@ export default async function Page() {
   return (
     <HydrateClient>
       <Suspense fallback={<div>Loading...</div>}>
-        <PVWSConnectionHandler />
+        <PVWSConnectionHandler pvwsUrl={env.NEXT_PUBLIC_PVWS_URL} />
         <Dashboard initialData={samples.value} />
       </Suspense>
     </HydrateClient>
