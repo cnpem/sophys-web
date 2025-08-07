@@ -1,0 +1,11 @@
+{
+  "extends": "@sophys-web/typescript-config/internal-package.json",
+  "include": ["src"],
+  "exclude": ["dist", "build", "node_modules"],
+  "compilerOptions": {
+    "rootDir": ".",
+    "jsx": "preserve",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "baseUrl": "."
+  }
+}
