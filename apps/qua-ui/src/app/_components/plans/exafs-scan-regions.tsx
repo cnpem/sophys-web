@@ -38,32 +38,32 @@ import {
 
 const kRegionSchema = z.object({
   space: z.literal("k-space"),
-  initial: z.number().min(0).max(30),
-  final: z.number().min(0).max(30),
-  step: z.number().min(0.01),
+  initial: z.coerce.number().min(0).max(30),
+  final: z.coerce.number().min(0).max(30),
+  step: z.coerce.number().min(0.01),
 });
 
-const EnergyRegionSchema = z.object({
+const energyRegionSchema = z.object({
   space: z.literal("energy-space"),
-  initial: z.number().min(0),
-  final: z.number().min(0),
-  step: z.number().min(0.1),
+  initial: z.coerce.number().min(0),
+  final: z.coerce.number().min(0),
+  step: z.coerce.number().min(0.1),
 });
 
 const planSchema = z.object({
-  regions: z.array(z.union([kRegionSchema, EnergyRegionSchema])),
-  settleTime: z.number({
+  regions: z.array(z.union([kRegionSchema, energyRegionSchema])),
+  settleTime: z.coerce.number({
     description: "Time in ms for the settling phase",
   }),
-  acquisitionTime: z.number({
+  acquisitionTime: z.coerce.number({
     description: "Time in ms for the acquisition phase",
   }),
   fluorescence: z.boolean(),
-  edgeEnergy: z.number({
+  edgeEnergy: z.coerce.number({
     description:
       "Edge (E0) energy in eV for converting the energy space to k-space",
   }),
-  repeats: z
+  repeats: z.coerce
     .number({
       description: "Number of repeats for the plan",
     })
@@ -74,7 +74,7 @@ const planSchema = z.object({
   }),
 });
 
-const planName = "example-plan";
+const planName = "example_plan";
 
 export function AddExafsScanRegions({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
@@ -119,55 +119,70 @@ function KToEnergy(k: number) {
   return 3.81 * k * k;
 }
 
-function calculateNewRegionInK(
+function calculateNewRegionInEnergy(
   regionsArray: z.infer<typeof planSchema>["regions"],
+  edgeEnergyRaw: unknown,
 ) {
+  const edgeEnergy = Number(edgeEnergyRaw);
+  if (isNaN(edgeEnergy)) {
+    throw new Error("edgeEnergy must be a valid number");
+  }
   // Calculate the new region based on the existing regions
   const lastRegion = regionsArray[regionsArray.length - 1];
-  if (lastRegion) {
-    if (lastRegion.space === "energy-space") {
-      const initial = EnergyToK(lastRegion.final);
-      const step = EnergyToK(lastRegion.step);
-      const final = initial + step; // Increment by step
-      return {
-        space: "k-space",
-        initial,
-        final,
-        step,
-      } as z.infer<typeof kRegionSchema>;
-    } else {
-      // If the last region is already in k-space, just return it with the added step
-      const initial = lastRegion.final;
-      const step = lastRegion.step;
-      const final = initial + step; // Increment by step
-      return {
-        space: "k-space",
-        initial,
-        final,
-        step,
-      } as z.infer<typeof kRegionSchema>;
-    }
+  if (!lastRegion) {
+    // If no regions exist, create a new one starting from edgeEnergy
+    return {
+      space: "energy-space",
+      initial: edgeEnergy,
+      final: edgeEnergy + 0.1, // Default step of 0.1 eV
+      step: 0.1,
+    } as z.infer<typeof energyRegionSchema>;
   }
-  return { space: "k-space", initial: 0, final: 0, step: 0.01 } as z.infer<
-    typeof kRegionSchema
-  >;
+
+  if (lastRegion.space === "k-space") {
+    const initial = KToEnergy(lastRegion.final) + edgeEnergy;
+    const step = KToEnergy(lastRegion.step);
+    const final = initial + step; // Increment by step
+    return {
+      space: "energy-space",
+      initial,
+      final,
+      step,
+    } as z.infer<typeof energyRegionSchema>;
+  } else {
+    // If the last region is already in energy-space, just return it with the added step
+    const initial = lastRegion.final;
+    const step = lastRegion.step;
+    const final = initial + step; // Increment by step
+    return {
+      space: "energy-space",
+      initial,
+      final,
+      step,
+    } as z.infer<typeof energyRegionSchema>;
+  }
 }
 
 function convertRegionKtoEnergy(
   region: z.infer<typeof kRegionSchema>,
-  edgeEnergy: number,
-): z.infer<typeof EnergyRegionSchema> {
+  edgeEnergyRaw: unknown,
+): z.infer<typeof energyRegionSchema> {
+  const edgeEnergy = Number(edgeEnergyRaw);
+  if (isNaN(edgeEnergy)) {
+    throw new Error("edgeEnergy must be a valid number");
+  }
+
   // Convert k-space region to energy-space region
   return {
     space: "energy-space",
     initial: KToEnergy(region.initial) + edgeEnergy,
     final: KToEnergy(region.final) + edgeEnergy,
     step: KToEnergy(region.step),
-  } as z.infer<typeof EnergyRegionSchema>;
+  } as z.infer<typeof energyRegionSchema>;
 }
 
 function convertRegionEnergyToK(
-  region: z.infer<typeof EnergyRegionSchema>,
+  region: z.infer<typeof energyRegionSchema>,
 ): z.infer<typeof kRegionSchema> {
   // Convert energy-space region to k-space region
   return {
@@ -212,6 +227,8 @@ function ExampleForm({
     toast.info("Submitting sample...");
     const kwargs = data;
 
+    console.log("Submitting EXAFS scan regions:", kwargs);
+
     addBatch.mutate(
       {
         items: [
@@ -245,6 +262,46 @@ function ExampleForm({
     );
   }
 
+  function handleUpdateRegionField(
+    index: number,
+    fieldName:
+      | keyof z.infer<typeof kRegionSchema>
+      | keyof z.infer<typeof energyRegionSchema>,
+    inputValue: string,
+  ) {
+    const value = parseFloat(inputValue);
+    if (isNaN(value)) return;
+    const currentRegion = form.getValues("regions")[index];
+    if (!currentRegion) return;
+
+    // if the field is "step", it updates the final based on initial + step
+    // else it just updates the specific field
+    const updatedRegion = {
+      ...currentRegion,
+      [fieldName]: value,
+    };
+    if (fieldName === "step") {
+      updatedRegion.final = updatedRegion.initial + value;
+    }
+
+    // Validate the updated region based on its space type
+    if (currentRegion.space === "k-space") {
+      const parsed = kRegionSchema.safeParse(updatedRegion);
+      if (parsed.success) {
+        update(index, parsed.data);
+      } else {
+        toast.error(`Invalid K-Space region: ${parsed.error.message}`);
+      }
+    } else {
+      const parsed = energyRegionSchema.safeParse(updatedRegion);
+      if (parsed.success) {
+        update(index, parsed.data);
+      } else {
+        toast.error(`Invalid Energy Space region: ${parsed.error.message}`);
+      }
+    }
+  }
+
   return (
     <Form {...form}>
       <form
@@ -260,13 +317,7 @@ function ExampleForm({
                 <FormItem>
                   <FormLabel>Edge Energy (eV)</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(parseFloat(e.target.value))
-                      }
-                    />
+                    <Input type="number" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -279,13 +330,7 @@ function ExampleForm({
                 <FormItem>
                   <FormLabel>Settle Time (ms)</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(parseFloat(e.target.value))
-                      }
-                    />
+                    <Input type="number" step="any" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -300,13 +345,7 @@ function ExampleForm({
                 <FormItem>
                   <FormLabel>Acquisition Time (ms)</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      onChange={(e) =>
-                        field.onChange(parseFloat(e.target.value))
-                      }
-                    />
+                    <Input type="number" step="any" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -348,19 +387,22 @@ function ExampleForm({
                       // When changing space type, update the existing region
                       // and provide default values for the new type
                       if (value === "k-space") {
-                        update(
-                          index,
-                          convertRegionEnergyToK(
-                            field as z.infer<typeof EnergyRegionSchema>,
-                          ),
-                        );
+                        const regionInE = energyRegionSchema.safeParse(field);
+                        if (!regionInE.success) {
+                          toast.error("Failed to parse region data");
+                          return;
+                        }
+                        update(index, convertRegionEnergyToK(regionInE.data));
                       } else {
+                        const regionInK = kRegionSchema.safeParse(field);
+                        if (!regionInK.success) {
+                          toast.error("Failed to parse region data");
+                          return;
+                        }
+                        const edgeEnergy = form.getValues("edgeEnergy");
                         update(
                           index,
-                          convertRegionKtoEnergy(
-                            field as z.infer<typeof kRegionSchema>,
-                            form.getValues("edgeEnergy"),
-                          ),
+                          convertRegionKtoEnergy(regionInK.data, edgeEnergy),
                         );
                       }
                     }}
@@ -382,6 +424,10 @@ function ExampleForm({
                     {...form.register(`regions.${index}.initial`, {
                       valueAsNumber: true,
                     })}
+                    onChange={(e) =>
+                      handleUpdateRegionField(index, "initial", e.target.value)
+                    }
+                    step="any"
                   />
                   <Input
                     type="number"
@@ -389,6 +435,10 @@ function ExampleForm({
                     {...form.register(`regions.${index}.final`, {
                       valueAsNumber: true,
                     })}
+                    onChange={(e) =>
+                      handleUpdateRegionField(index, "final", e.target.value)
+                    }
+                    step="any"
                   />
                   <Input
                     type="number"
@@ -396,45 +446,38 @@ function ExampleForm({
                     {...form.register(`regions.${index}.step`, {
                       valueAsNumber: true,
                     })}
+                    onChange={(e) =>
+                      handleUpdateRegionField(index, "step", e.target.value)
+                    }
+                    step="any"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
+                    className="flex-shrink-1 p-1"
                     onClick={() => remove(index)}
                   >
                     <Trash2Icon className="h-4 w-4 text-red-500" />
                   </Button>
                 </div>
               ))}
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  type="button"
-                  variant="default"
-                  className="w-full"
-                  onClick={() => {
-                    // Append a new default k-space region
-                    const newRegion = calculateNewRegionInK(
-                      form.getValues("regions"),
-                    );
-                    append(newRegion);
-                  }}
-                >
-                  Add Region
-                </Button>
-                <Button
-                  type="button"
-                  className="w-full"
-                  variant="destructive"
-                  onClick={() => {
-                    if (fields.length > 0) {
-                      remove(fields.length - 1);
-                    }
-                  }}
-                >
-                  Remove Region
-                </Button>
-              </div>
+              <Button
+                type="button"
+                variant="default"
+                className="w-full"
+                onClick={() => {
+                  // Append a new default energy-space region
+                  const edgeEnergy = form.getValues("edgeEnergy");
+                  const newRegion = calculateNewRegionInEnergy(
+                    form.getValues("regions"),
+                    edgeEnergy,
+                  );
+                  append(newRegion);
+                }}
+              >
+                Add Region
+              </Button>
             </div>
           </div>
           <FormField
