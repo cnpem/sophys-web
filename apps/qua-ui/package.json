@@ -64,5 +64,9 @@
     "typescript": "catalog:",
     "typescript-eslint": "^8.31.0"
   },
-  "prettier": "@sophys-web/prettier-config"
+  "prettier": "@sophys-web/prettier-config",
+  "engines": {
+    "node": ">=23.0.0",
+    "pnpm": ">=9.6.0"
+  }
 }
