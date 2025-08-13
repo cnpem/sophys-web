@@ -3,7 +3,7 @@ import devicesSchema from "../schemas/devices";
 import { protectedProcedure } from "../trpc";
 import { zodSnakeFetcher } from "../utils";
 
-interface AllowedNames {
+export interface AllowedNames {
   flyables: string[];
   movables: string[];
   readables: string[];
