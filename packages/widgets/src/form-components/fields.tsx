@@ -351,20 +351,16 @@ function SelectListField({
       name={camelCase(param.name)}
       render={({ field }) => (
         <FormItem>
-          <Tooltip>
-            <TooltipTrigger>
-              <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
-            </TooltipTrigger>
-            <TooltipContent>
-              <FormDescription>{param.description}</FormDescription>
-            </TooltipContent>
-          </Tooltip>
+          <div className="inline-flex gap-1">
+            <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
+            <InfoTooltip>{param.description}</InfoTooltip>
+          </div>
           <Select
             defaultValue={field.value as string}
             onValueChange={field.onChange}
           >
             <FormControl>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select an option" />
               </SelectTrigger>
             </FormControl>
@@ -419,21 +415,17 @@ function MultiSelectField({
       name={camelCase(param.name)}
       render={({ field }) => (
         <FormItem className="mt-2 flex flex-col">
-          <Tooltip>
-            <TooltipTrigger>
-              <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
-            </TooltipTrigger>
-            <TooltipContent>
-              <FormDescription>{param.description}</FormDescription>
-            </TooltipContent>
-          </Tooltip>
+          <div className="inline-flex gap-1">
+            <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
+            <InfoTooltip>{param.description}</InfoTooltip>
+          </div>
           <MultiSelectDialog
             defaultOptions={field.value as string[]}
             onChange={field.onChange}
             options={typeOptions}
             placeholder="Select options"
+            selectAll
           />
-          <FormDescription>{param.description}</FormDescription>
           <FormMessage />
         </FormItem>
       )}
