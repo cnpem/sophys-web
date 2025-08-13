@@ -36,6 +36,8 @@ export default async function Page() {
     api.queue.get.prefetch(),
     api.history.get.prefetch(),
     api.status.get.prefetch(),
+    api.devices.allowedNames.prefetch(),
+    api.plans.allowed.prefetch(),
   ]);
 
   if (samples.status === "rejected") {
