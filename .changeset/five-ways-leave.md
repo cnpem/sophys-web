@@ -15,4 +15,4 @@
 
 @sophys-web/widgets
 
-- Fix layout for long names in milti-select dropdown.
+- Fix layout for long names in multi-select dropdown.

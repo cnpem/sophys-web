@@ -64,7 +64,7 @@ export function MultiSelectDialog({
   const renderTrigger = useCallback(() => {
     if (!Array.isArray(selectedOptions) || selectedOptions.length === 0)
       return placeholder;
-    if (selectedOptions.length <= 2) return `${selectedOptions.join(", ")}`;
+    if (selectedOptions.length === 1) return selectedOptions[0];
     return "(multiple items selected)";
   }, [selectedOptions, placeholder]);
 
@@ -92,18 +92,27 @@ export function MultiSelectDialog({
               event.stopPropagation();
             }}
           >
-            Select All
+            Select/Unselect All
           </DropdownMenuCheckboxItem>
         ) : null}
-        {options.map((option) => (
-          <DropdownMenuCheckboxItem
-            checked={selectedOptions.includes(option)}
-            key={option}
-            onSelect={handleItemClick(option)}
-          >
-            {option}
-          </DropdownMenuCheckboxItem>
-        ))}
+        {options
+          .sort((a, b) => {
+            // sort options dynamically by selected first
+            const aSelected = selectedOptions.includes(a);
+            const bSelected = selectedOptions.includes(b);
+            if (aSelected && !bSelected) return -1;
+            if (!aSelected && bSelected) return 1;
+            return a.localeCompare(b);
+          })
+          .map((option) => (
+            <DropdownMenuCheckboxItem
+              checked={selectedOptions.includes(option)}
+              key={option}
+              onSelect={handleItemClick(option)}
+            >
+              {option}
+            </DropdownMenuCheckboxItem>
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
