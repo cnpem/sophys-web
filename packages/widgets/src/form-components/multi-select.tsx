@@ -1,8 +1,6 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { cva } from "class-variance-authority";
-import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
   DropdownMenu,
@@ -10,19 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
-
-const gridVariants = cva("m-4 grid gap-1 sm:max-w-[425px]", {
-  variants: {
-    size: {
-      sm: "grid-cols-1",
-      md: "grid-cols-2",
-      lg: "grid-cols-3",
-    },
-  },
-  defaultVariants: {
-    size: "sm",
-  },
-});
 
 interface MultiSelectDialogProps {
   defaultOptions?: string[];
@@ -79,29 +64,21 @@ export function MultiSelectDialog({
   const renderTrigger = useCallback(() => {
     if (!Array.isArray(selectedOptions) || selectedOptions.length === 0)
       return placeholder;
-    if (selectedOptions.length <= 2) return `[${selectedOptions.join(", ")}]`;
-    return `[${selectedOptions.slice(0, 2).join(", ")}, ...]`;
+    if (selectedOptions.length <= 2) return `${selectedOptions.join(", ")}`;
+    return "(multiple items selected)";
   }, [selectedOptions, placeholder]);
-
-  const optionsSize = useCallback((op: string[]) => {
-    if (op.length <= 4) return "sm";
-    if (op.length <= 8) return "md";
-    return "lg";
-  }, []);
 
   return (
     <DropdownMenu onOpenChange={handleOpenChange} open={isOpen}>
       <DropdownMenuTrigger asChild>
         <Button
-          className="w-full justify-start text-left font-normal"
+          className="justify-start overflow-hidden text-left font-normal"
           variant="outline"
         >
           {renderTrigger()}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        className={cn(gridVariants({ size: optionsSize(options) }))}
-      >
+      <DropdownMenuContent className="w-full gap-1">
         {selectAll ? (
           <DropdownMenuCheckboxItem
             checked={selectedOptions.length === options.length}

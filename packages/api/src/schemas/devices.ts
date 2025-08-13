@@ -10,7 +10,6 @@ const responseSchema = z.object({
       isFlyable: z.boolean(),
       isMovable: z.boolean(),
       isReadable: z.boolean(),
-      longName: z.string(),
       module: z.string(),
       components: z
         .record(
@@ -19,7 +18,6 @@ const responseSchema = z.object({
             isFlyable: z.boolean(),
             isMovable: z.boolean(),
             isReadable: z.boolean(),
-            longName: z.string(),
             module: z.string(),
           }),
         )
