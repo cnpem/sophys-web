@@ -52,7 +52,7 @@ export function AnyForm({
         <TooltipProvider>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-8 text-center"
+            className="w-full space-y-8 text-center"
           >
             <h2 className="text-2xl font-semibold">
               {planData.name.replace(/_/g, " ")}

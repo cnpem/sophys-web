@@ -3,6 +3,12 @@ import devicesSchema from "../schemas/devices";
 import { protectedProcedure } from "../trpc";
 import { zodSnakeFetcher } from "../utils";
 
+export interface AllowedNames {
+  flyables: string[];
+  movables: string[];
+  readables: string[];
+}
+
 export const devicesRouter = {
   allowed: protectedProcedure.query(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/devices/allowed`;
@@ -30,16 +36,24 @@ export const devicesRouter = {
         body: undefined,
         authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
       });
-      const flyables = Object.values(res.devicesAllowed)
-        .filter((d) => d.isFlyable)
-        .map((d) => d.longName);
-      const movables = Object.values(res.devicesAllowed)
-        .filter((d) => d.isMovable)
-        .map((d) => d.longName);
-      const readables = Object.values(res.devicesAllowed)
-        .filter((d) => d.isReadable)
-        .map((d) => d.longName);
-      return { flyables, movables, readables };
+      // map through devicesAllowed, if isFlyable, isMovable, or isReadable
+      // get the device's key as its name
+      const response: AllowedNames = Object.entries(res.devicesAllowed).reduce(
+        (acc: AllowedNames, [key, device]) => {
+          if (device.isFlyable) {
+            acc.flyables.push(camelToTitleCase(key));
+          }
+          if (device.isMovable) {
+            acc.movables.push(camelToTitleCase(key));
+          }
+          if (device.isReadable) {
+            acc.readables.push(camelToTitleCase(key));
+          }
+          return acc;
+        },
+        { flyables: [], movables: [], readables: [] },
+      );
+      return response;
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message);
@@ -48,3 +62,9 @@ export const devicesRouter = {
     }
   }),
 };
+
+function camelToTitleCase(str: string) {
+  return str
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
