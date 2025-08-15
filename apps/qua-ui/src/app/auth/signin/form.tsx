@@ -44,12 +44,12 @@ export function SignInForm({
 }) {
   const params = useSearchParams();
   const router = useRouter();
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       username: "",
       password: "",
-      proposal: "12341234",
+      proposal: "",
     },
   });
 
@@ -76,7 +76,8 @@ export function SignInForm({
       <CardHeader>
         <CardTitle className="text-lg md:text-xl">Sign in</CardTitle>
         <CardDescription className="text-xs md:text-sm">
-          Enter your username and password to sign in to your account.
+          Enter your username and password to sign in to your account. Remember
+          to fill in the 8-digit proposal number which this session is for.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -107,8 +108,8 @@ export function SignInForm({
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="********"
                       type="password"
+                      placeholder="********"
                       {...field}
                       disabled={form.formState.isSubmitting}
                     />
@@ -121,10 +122,15 @@ export function SignInForm({
               control={form.control}
               name="proposal"
               render={({ field }) => (
-                <FormItem className="sr-only">
+                <FormItem>
                   <FormLabel>Proposal</FormLabel>
                   <FormControl>
-                    <Input {...field} maxLength={8} disabled />
+                    <Input
+                      placeholder="20250001"
+                      {...field}
+                      maxLength={8}
+                      disabled={form.formState.isSubmitting}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
