@@ -28,7 +28,7 @@
     "neverBuiltDependencies": []
   },
   "engines": {
-    "node": ">=22.14.0",
+    "node": ">=22.11.0",
     "pnpm": ">=9.6.0"
   },
   "name": "sophys-web",
