@@ -52,7 +52,6 @@
     "@sophys-web/tailwind-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.4",
-    "@types/node": "^22.14.1",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
     "autoprefixer": "^10.4.21",
