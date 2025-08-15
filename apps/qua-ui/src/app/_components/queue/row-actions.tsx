@@ -29,7 +29,7 @@ import {
   planEditSchema,
   PlanForm,
   planName,
-} from "../plans/exafs-scan-regions";
+} from "../plans/region-energy-scan";
 
 export function RowActions({ item }: { item: QueueItemProps }) {
   const [open, setOpen] = useState(false);
