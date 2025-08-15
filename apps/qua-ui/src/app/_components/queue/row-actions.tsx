@@ -25,6 +25,7 @@ import {
 import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
+import { PlanForm, planName, planSchema } from "../plans/exafs-scan-regions";
 
 export function RowActions({ item }: { item: QueueItemProps }) {
   const [open, setOpen] = useState(false);
@@ -190,6 +191,53 @@ function EditItem(props: QueueItemProps) {
     [update, itemUid, name],
   );
 
+  function RenderForm() {
+    if (!planDetails || !planData || !devices) {
+      return <div>Loading...</div>;
+    }
+
+    if (planDetails.name === planName) {
+      // Special case for EXAFS scan regions plan
+      // convert regions from a list of tuples into the expected format
+      const regions = (props.kwargs as z.infer<typeof planSchema>).regions.map(
+        (region) => {
+          if (Array.isArray(region)) {
+            return {
+              space: region[0],
+              initial: region[1],
+              final: region[2],
+              step: region[3],
+            };
+          }
+          return region;
+        },
+      );
+      const kwargs = {
+        ...props.kwargs,
+        regions: regions,
+      };
+      const parsed = planSchema.safeParse(kwargs);
+      if (!parsed.success) {
+        console.error(
+          "Failed to parse kwargs for EXAFS scan regions plan",
+          parsed.error,
+        );
+        return <div>Error parsing plan data</div>;
+      }
+      return <PlanForm defaultValues={parsed.data} onSubmit={onSubmit} />;
+    }
+
+    return (
+      <AnyForm
+        devices={devices}
+        planData={planData}
+        onSubmit={onSubmit}
+        schema={createSchema(planDetails.parameters)}
+        initialValues={props.kwargs as z.infer<AnySchema>}
+      />
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -209,15 +257,7 @@ function EditItem(props: QueueItemProps) {
             Edit the details of the item in the queue.
           </DialogDescription>
         </DialogHeader>
-        {planDetails && planData && devices && (
-          <AnyForm
-            devices={devices}
-            planData={planData}
-            onSubmit={onSubmit}
-            schema={createSchema(planDetails.parameters)}
-            initialValues={props.kwargs as z.infer<AnySchema>}
-          />
-        )}
+        <RenderForm />
       </DialogContent>
     </Dialog>
   );

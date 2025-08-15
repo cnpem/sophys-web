@@ -51,7 +51,7 @@ const energyRegionSchema = z.object({
   step: z.coerce.number().min(0.1),
 });
 
-const planSchema = z.object({
+export const planSchema = z.object({
   regions: z.array(z.union([kRegionSchema, energyRegionSchema])),
   settleTime: z.coerce.number({
     description: "Time in ms for the settling phase",
@@ -81,12 +81,86 @@ const planSchema = z.object({
   }),
 });
 
-const formSchema = planSchema;
-const planName = "example_plan";
+// schema for reading the plan kwargs from the queue as json and converting it to the form schema
+// the only difference is that the regions are tuples instead of objects and need to be converted
+export const planEditSchema = z.object({
+  regions: z
+    .array(z.tuple([z.string(), z.number(), z.number(), z.number()]))
+    .transform((regions) =>
+      regions.map((region) => convertRegionTupleToObject(region)),
+    ),
+  settleTime: z.coerce.number(),
+  acquisitionTime: z.coerce.number(),
+  fluorescence: z.boolean(),
+  edgeEnergy: z.coerce.number(),
+  acquireThermocouple: z.boolean().optional().default(false),
+  upAndDown: z.boolean().optional().default(false),
+  saveFlyData: z.boolean().optional().default(false),
+  fileName: z.string().optional(),
+  metadata: z.string().optional(),
+  repeats: z.coerce.number().int().min(1).default(1),
+  proposal: z.string().optional(),
+});
+
+export const planName = "region_energy_scan";
 
 export function AddExafsScanRegions({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
   const { data } = api.auth.getUser.useQuery();
+  const { addBatch } = useQueue();
+
+  function onSubmit(data: z.infer<typeof planSchema>) {
+    toast.info("Submitting sample...");
+    // const kwargs = data;
+    // const repeatedItems = generateRepeatedItems(data);
+
+    addBatch.mutate(
+      {
+        items: [
+          // ...repeatedItems,
+          {
+            name: planName,
+            itemType: "plan",
+            args: [],
+            kwargs: {
+              regions: data.regions.map(convertRegionObjectToTuple),
+              settleTime: data.settleTime,
+              acquisitionTime: data.acquisitionTime,
+              fluorescence: data.fluorescence,
+              edgeEnergy: data.edgeEnergy,
+              acquireThermocouple: data.acquireThermocouple,
+              upAndDown: data.upAndDown,
+              saveFlyData: data.saveFlyData,
+              fileName: data.fileName,
+              proposal: data.proposal,
+              metadata: data.metadata,
+              repeats: data.repeats,
+            },
+          },
+          // Add a stop instruction to the queue
+          {
+            name: "queue_stop",
+            itemType: "instruction",
+            args: [],
+            kwargs: {},
+          },
+        ],
+        pos: "front",
+      },
+      {
+        onSuccess: () => {
+          toast.success("Sample submitted!");
+          setOpen(false);
+        },
+        onError: (error) => {
+          toast.error("Failed to submit sample", {
+            description: error.message,
+            closeButton: true,
+          });
+        },
+      },
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -104,12 +178,7 @@ export function AddExafsScanRegions({ className }: { className?: string }) {
             Please fill in the details below to submit the plan.
           </DialogDescription>
         </DialogHeader>
-        <ExampleForm
-          proposal={data?.proposal}
-          onSubmitSuccess={() => {
-            setOpen(false);
-          }}
-        />
+        <PlanForm proposal={data?.proposal} onSubmit={onSubmit} />
       </DialogContent>
     </Dialog>
   );
@@ -207,12 +276,25 @@ function convertRegionObjectToTuple(
   return [region.space, region.initial, region.final, region.step];
 }
 
-type defaultValuesPartial = Partial<z.infer<typeof formSchema>>;
+function convertRegionTupleToObject(
+  region: [string, number, number, number],
+): z.infer<typeof kRegionSchema> | z.infer<typeof energyRegionSchema> {
+  const [space, initial, final, step] = region;
+  if (space === "k-space") {
+    return { space, initial, final, step } as z.infer<typeof kRegionSchema>;
+  } else {
+    return { space, initial, final, step } as z.infer<
+      typeof energyRegionSchema
+    >;
+  }
+}
 
-function ExampleForm({
+type defaultValuesPartial = Partial<z.infer<typeof planSchema>>;
+
+export function PlanForm({
   proposal,
   className,
-  onSubmitSuccess,
+  onSubmit,
   defaultValues = {
     regions: [],
     settleTime: 0,
@@ -227,13 +309,11 @@ function ExampleForm({
 }: {
   proposal?: string;
   className?: string;
-  onSubmitSuccess: () => void;
-  defaultValues: defaultValuesPartial;
+  onSubmit: (data: z.infer<typeof planSchema>) => void;
+  defaultValues?: defaultValuesPartial;
 }) {
-  const { addBatch } = useQueue();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof planSchema>>({
+    resolver: zodResolver(planSchema),
     defaultValues: {
       ...defaultValues,
       proposal,
@@ -245,59 +325,6 @@ function ExampleForm({
     control: form.control,
     name: "regions",
   });
-
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    toast.info("Submitting sample...");
-    // const kwargs = data;
-    // const repeatedItems = generateRepeatedItems(data);
-
-    addBatch.mutate(
-      {
-        items: [
-          // ...repeatedItems,
-          {
-            name: planName,
-            itemType: "plan",
-            args: [],
-            kwargs: {
-              regions: data.regions.map(convertRegionObjectToTuple),
-              settleTime: data.settleTime,
-              acquisitionTime: data.acquisitionTime,
-              fluorescence: data.fluorescence,
-              edgeEnergy: data.edgeEnergy,
-              acquireThermocouple: data.acquireThermocouple,
-              upAndDown: data.upAndDown,
-              saveFlyData: data.saveFlyData,
-              fileName: data.fileName,
-              proposal: data.proposal,
-              metadata: data.metadata,
-              repeats: data.repeats,
-            },
-          },
-          // Add a stop instruction to the queue
-          {
-            name: "queue_stop",
-            itemType: "instruction",
-            args: [],
-            kwargs: {},
-          },
-        ],
-        pos: "front",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Sample submitted!");
-          onSubmitSuccess();
-        },
-        onError: (error) => {
-          toast.error("Failed to submit sample", {
-            description: error.message,
-            closeButton: true,
-          });
-        },
-      },
-    );
-  }
 
   function handleUpdateRegionField(
     index: number,
