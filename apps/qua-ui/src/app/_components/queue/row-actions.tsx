@@ -208,20 +208,19 @@ function EditItem(props: QueueItemProps) {
         props.kwargs,
       );
       // create defaultValues from propos.kwargs and replace proposal field if userData is available
-
-      const defaultValues = planEditSchema.safeParse({
+      const initialValues = planEditSchema.safeParse({
         ...props.kwargs,
         proposal: userData?.proposal ?? undefined,
       });
-      if (!defaultValues.success) {
+      if (!initialValues.success) {
         console.error(
           "Failed to parse kwargs for EXAFS scan regions plan",
-          defaultValues.error,
+          initialValues.error,
         );
         return <div>Error parsing plan data</div>;
       }
       return (
-        <PlanForm defaultValues={defaultValues.data} onSubmit={onSubmit} />
+        <PlanForm initialValues={initialValues.data} onSubmit={onSubmit} />
       );
     }
 
