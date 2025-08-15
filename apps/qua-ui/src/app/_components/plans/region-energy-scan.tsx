@@ -204,47 +204,39 @@ function EnergyToK(energy: number, edgeEnergy: number) {
   return Math.round(Math.sqrt((energy - edgeEnergy) / 3.81) * 10000) / 10000; // Round to 4 decimal places
 }
 
-function KToEnergy(k: number) {
-  // Convert k-space to energy using the formula E = (hbar^2 * k^2) / (2 * m)
-  // Here, we use the simplified formula E = 3.81 * k^2 and round to 2 decimal places
-  return Math.round(3.81 * k * k * 100) / 100;
-}
-
-function calculateNewRegionInEnergy(
+function calculateNextRegion(
   regionsArray: z.infer<typeof formSchema>["regions"],
   edgeEnergyRaw: unknown,
 ) {
+  // Calculate the next region based on the last region in the array in the same space as the last region
   const edgeEnergy = Number(edgeEnergyRaw);
   if (isNaN(edgeEnergy)) {
     throw new Error("edgeEnergy must be a valid number");
   }
-  // Calculate the new region based on the existing regions
   const lastRegion = regionsArray[regionsArray.length - 1];
   if (!lastRegion) {
-    // If no regions exist, create a new one starting from edgeEnergy
+    // If no regions exist, create a new one in energy-space with zero values
     return {
       space: "energy-space",
-      initial: 0,
-      final: 0, // Default step of 0.1 eV
-      step: 0,
+      initial: 0, // Default initial value
+      final: 0, // Default final value
+      step: 0, // Default step value
     } as z.infer<typeof energyRegionSchema>;
   }
-
+  const lastDelta = lastRegion.final - lastRegion.initial;
+  const initial = lastRegion.final;
+  const final = initial + lastDelta; // Increment by the same delta as the last region
+  const step = lastRegion.step; // Keep the same step
   if (lastRegion.space === "k-space") {
-    const initial = KToEnergy(lastRegion.final) + edgeEnergy;
-    const step = KToEnergy(lastRegion.step);
-    const final = initial + step; // Increment by step
+    // If the last region is in k-space, return a new region in k-space
     return {
-      space: "energy-space",
+      space: "k-space",
       initial,
       final,
       step,
-    } as z.infer<typeof energyRegionSchema>;
+    } as z.infer<typeof kRegionSchema>;
   } else {
-    // If the last region is already in energy-space, just return it with the added step
-    const initial = lastRegion.final;
-    const step = lastRegion.step;
-    const final = initial + step; // Increment by step
+    // If the last region is in energy-space, return a new region in energy-space
     return {
       space: "energy-space",
       initial,
@@ -252,24 +244,6 @@ function calculateNewRegionInEnergy(
       step,
     } as z.infer<typeof energyRegionSchema>;
   }
-}
-
-function convertRegionKtoEnergy(
-  region: z.infer<typeof kRegionSchema>,
-  edgeEnergyRaw: unknown,
-): z.infer<typeof energyRegionSchema> {
-  const edgeEnergy = Number(edgeEnergyRaw);
-  if (isNaN(edgeEnergy)) {
-    throw new Error("edgeEnergy must be a valid number");
-  }
-
-  // Convert k-space region to energy-space region
-  return {
-    space: "energy-space",
-    initial: KToEnergy(region.initial) + edgeEnergy,
-    final: KToEnergy(region.final) + edgeEnergy,
-    step: KToEnergy(region.step),
-  } as z.infer<typeof energyRegionSchema>;
 }
 
 function convertRegionEnergyToK(
@@ -502,8 +476,7 @@ export function PlanForm({
                   <Select
                     value={field.space}
                     onValueChange={(value) => {
-                      // When changing space type, update the existing region
-                      // and provide default values for the new type
+                      // Converts only from energy-space to k-space
                       if (value === "k-space") {
                         const regionInE = energyRegionSchema.safeParse(field);
                         if (!regionInE.success) {
@@ -515,22 +488,11 @@ export function PlanForm({
                           index,
                           convertRegionEnergyToK(regionInE.data, edgeEnergy),
                         );
-                      } else {
-                        const regionInK = kRegionSchema.safeParse(field);
-                        if (!regionInK.success) {
-                          toast.error("Failed to parse region data");
-                          return;
-                        }
-                        const edgeEnergy = form.getValues("edgeEnergy");
-                        update(
-                          index,
-                          convertRegionKtoEnergy(regionInK.data, edgeEnergy),
-                        );
                       }
                     }}
                   >
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger disabled={field.space === "k-space"}>
                         <SelectValue placeholder="Select Region Type" />
                       </SelectTrigger>
                     </FormControl>
@@ -570,6 +532,8 @@ export function PlanForm({
                     size="icon"
                     className="flex-shrink-1 p-1"
                     onClick={() => remove(index)}
+                    // disable the button for the first region
+                    disabled={index === 0}
                   >
                     <Trash2Icon className="h-4 w-4 text-red-500" />
                   </Button>
@@ -583,7 +547,7 @@ export function PlanForm({
                   // Append a new default energy-space region
                   const edgeEnergy = form.getValues("edgeEnergy");
                   const regionsArray = form.getValues("regions");
-                  const newRegion = calculateNewRegionInEnergy(
+                  const newRegion = calculateNextRegion(
                     regionsArray,
                     edgeEnergy,
                   );
