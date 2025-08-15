@@ -51,7 +51,7 @@ const energyRegionSchema = z.object({
   step: z.coerce.number().min(0.1),
 });
 
-export const planSchema = z.object({
+export const formSchema = z.object({
   regions: z.array(z.union([kRegionSchema, energyRegionSchema])),
   settleTime: z.coerce.number({
     description: "Time in ms for the settling phase",
@@ -99,7 +99,30 @@ export const planEditSchema = z.object({
   fileName: z.string().optional(),
   metadata: z.string().optional(),
   repeats: z.coerce.number().int().min(1).default(1),
-  proposal: z.string().optional(),
+  proposal: z.string(),
+});
+
+// this plan performs the inverse transformation from formSchema to the plan submission schema
+// changing the regions from objects to tuples
+export const planSubmitSchema = z.object({
+  regions: z
+    .array(z.union([kRegionSchema, energyRegionSchema]))
+    .transform((regions) =>
+      regions.map((region) =>
+        convertRegionObjectToTuple(region as z.infer<typeof kRegionSchema>),
+      ),
+    ),
+  settleTime: z.coerce.number(),
+  acquisitionTime: z.coerce.number(),
+  fluorescence: z.boolean(),
+  edgeEnergy: z.coerce.number(),
+  acquireThermocouple: z.boolean().optional().default(false),
+  upAndDown: z.boolean().optional().default(false),
+  saveFlyData: z.boolean().optional().default(false),
+  fileName: z.string().optional(),
+  metadata: z.string().optional(),
+  repeats: z.coerce.number().int().min(1).default(1),
+  proposal: z.string(),
 });
 
 export const planName = "region_energy_scan";
@@ -109,33 +132,17 @@ export function AddExafsScanRegions({ className }: { className?: string }) {
   const { data } = api.auth.getUser.useQuery();
   const { addBatch } = useQueue();
 
-  function onSubmit(data: z.infer<typeof planSchema>) {
+  function onSubmit(data: z.infer<typeof planEditSchema>) {
     toast.info("Submitting sample...");
-    // const kwargs = data;
-    // const repeatedItems = generateRepeatedItems(data);
 
     addBatch.mutate(
       {
         items: [
-          // ...repeatedItems,
           {
             name: planName,
             itemType: "plan",
             args: [],
-            kwargs: {
-              regions: data.regions.map(convertRegionObjectToTuple),
-              settleTime: data.settleTime,
-              acquisitionTime: data.acquisitionTime,
-              fluorescence: data.fluorescence,
-              edgeEnergy: data.edgeEnergy,
-              acquireThermocouple: data.acquireThermocouple,
-              upAndDown: data.upAndDown,
-              saveFlyData: data.saveFlyData,
-              fileName: data.fileName,
-              proposal: data.proposal,
-              metadata: data.metadata,
-              repeats: data.repeats,
-            },
+            kwargs: data,
           },
           // Add a stop instruction to the queue
           {
@@ -178,7 +185,12 @@ export function AddExafsScanRegions({ className }: { className?: string }) {
             Please fill in the details below to submit the plan.
           </DialogDescription>
         </DialogHeader>
-        <PlanForm proposal={data?.proposal} onSubmit={onSubmit} />
+        <PlanForm
+          onSubmit={onSubmit}
+          defaultValues={{
+            proposal: data?.proposal ?? "",
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -197,7 +209,7 @@ function KToEnergy(k: number) {
 }
 
 function calculateNewRegionInEnergy(
-  regionsArray: z.infer<typeof planSchema>["regions"],
+  regionsArray: z.infer<typeof formSchema>["regions"],
   edgeEnergyRaw: unknown,
 ) {
   const edgeEnergy = Number(edgeEnergyRaw);
@@ -271,7 +283,7 @@ function convertRegionEnergyToK(
 }
 
 function convertRegionObjectToTuple(
-  region: z.infer<typeof planSchema>["regions"][number],
+  region: z.infer<typeof formSchema>["regions"][number],
 ) {
   return [region.space, region.initial, region.final, region.step];
 }
@@ -289,10 +301,9 @@ function convertRegionTupleToObject(
   }
 }
 
-type defaultValuesPartial = Partial<z.infer<typeof planSchema>>;
+type defaultValuesPartial = Partial<z.infer<typeof formSchema>>;
 
 export function PlanForm({
-  proposal,
   className,
   onSubmit,
   defaultValues = {
@@ -307,17 +318,13 @@ export function PlanForm({
     repeats: 1,
   },
 }: {
-  proposal?: string;
   className?: string;
-  onSubmit: (data: z.infer<typeof planSchema>) => void;
+  onSubmit: (data: z.infer<typeof planSubmitSchema>) => void;
   defaultValues?: defaultValuesPartial;
 }) {
-  const form = useForm<z.infer<typeof planSchema>>({
-    resolver: zodResolver(planSchema),
-    defaultValues: {
-      ...defaultValues,
-      proposal,
-    },
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues,
   });
 
   // Use useFieldArray for managing the 'regions' array
@@ -335,8 +342,10 @@ export function PlanForm({
   ) {
     const value = parseFloat(inputValue);
     if (isNaN(value)) return;
-    const currentRegion = form.getValues("regions")[index];
-    if (!currentRegion) return;
+    const regions = form.getValues("regions");
+    if (!regions || !Array.isArray(regions) || regions[index] === undefined)
+      return;
+    const currentRegion = regions[index];
 
     // if the field is "step", it updates the final based on initial + step
     // else it just updates the specific field
@@ -366,10 +375,23 @@ export function PlanForm({
     }
   }
 
+  function handleInternalTransformSubmit(data: z.infer<typeof formSchema>) {
+    // Transform regions to tuples for submissiion from formSchema to planSchema
+    console.log("handling transform submit with data:", data);
+    const transformed = planSubmitSchema.safeParse(data);
+    if (!transformed.success) {
+      toast.error(`Failed to transform data: ${transformed.error.message}`);
+      return;
+    }
+    console.log("Transformed data:", transformed.data);
+
+    onSubmit(transformed.data);
+  }
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleInternalTransformSubmit)}
         className={cn("space-y-8", className)}
       >
         <div className="flex flex-col space-y-4">
@@ -611,9 +633,9 @@ export function PlanForm({
                     <Input
                       type="text"
                       {...field}
-                      value={field.value || proposal}
+                      value={field.value}
                       onChange={(e) => field.onChange(e.target.value)}
-                      disabled={!!proposal} // Disable if proposal is provided
+                      disabled={!!field.value} // Disable if proposal is provided
                     />
                   </FormControl>
                   <FormMessage />
