@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
+import { Textarea } from "@sophys-web/ui/textarea";
 
 const kRegionSchema = z.object({
   space: z.literal("k-space"),
@@ -63,17 +64,24 @@ const planSchema = z.object({
     description:
       "Edge (E0) energy in eV for converting the energy space to k-space",
   }),
+  acquireThermocouple: z.boolean().optional().default(false),
+  upAndDown: z.boolean().optional().default(false),
+  saveFlyData: z.boolean().optional().default(false),
+  fileName: z.string().optional(),
+  metadata: z.string().optional(),
   repeats: z.coerce
     .number({
       description: "Number of repeats for the plan",
     })
     .int()
-    .min(1),
+    .min(1)
+    .default(1),
   proposal: z.string({
     description: "Proposal ID",
   }),
 });
 
+const formSchema = planSchema;
 const planName = "example_plan";
 
 export function AddExafsScanRegions({ className }: { className?: string }) {
@@ -193,27 +201,42 @@ function convertRegionEnergyToK(
   } as z.infer<typeof kRegionSchema>;
 }
 
+function convertRegionObjectToTuple(
+  region: z.infer<typeof planSchema>["regions"][number],
+) {
+  return [region.space, region.initial, region.final, region.step];
+}
+
+type defaultValuesPartial = Partial<z.infer<typeof formSchema>>;
+
 function ExampleForm({
   proposal,
   className,
   onSubmitSuccess,
+  defaultValues = {
+    regions: [],
+    settleTime: 0,
+    acquisitionTime: 0,
+    edgeEnergy: 0,
+    fluorescence: false,
+    acquireThermocouple: false,
+    upAndDown: false,
+    saveFlyData: false,
+    repeats: 1,
+  },
 }: {
   proposal?: string;
   className?: string;
   onSubmitSuccess: () => void;
+  defaultValues: defaultValuesPartial;
 }) {
   const { addBatch } = useQueue();
 
-  const form = useForm<z.infer<typeof planSchema>>({
-    resolver: zodResolver(planSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      regions: [],
-      settleTime: 0,
-      acquisitionTime: 0,
-      fluorescence: false,
-      edgeEnergy: 0,
-      repeats: 1,
-      proposal: proposal,
+      ...defaultValues,
+      proposal,
     },
   });
 
@@ -223,21 +246,35 @@ function ExampleForm({
     name: "regions",
   });
 
-  function onSubmit(data: z.infer<typeof planSchema>) {
+  function onSubmit(data: z.infer<typeof formSchema>) {
     toast.info("Submitting sample...");
-    const kwargs = data;
-
-    console.log("Submitting EXAFS scan regions:", kwargs);
+    // const kwargs = data;
+    // const repeatedItems = generateRepeatedItems(data);
 
     addBatch.mutate(
       {
         items: [
+          // ...repeatedItems,
           {
             name: planName,
             itemType: "plan",
             args: [],
-            kwargs,
+            kwargs: {
+              regions: data.regions.map(convertRegionObjectToTuple),
+              settleTime: data.settleTime,
+              acquisitionTime: data.acquisitionTime,
+              fluorescence: data.fluorescence,
+              edgeEnergy: data.edgeEnergy,
+              acquireThermocouple: data.acquireThermocouple,
+              upAndDown: data.upAndDown,
+              saveFlyData: data.saveFlyData,
+              fileName: data.fileName,
+              proposal: data.proposal,
+              metadata: data.metadata,
+              repeats: data.repeats,
+            },
           },
+          // Add a stop instruction to the queue
           {
             name: "queue_stop",
             itemType: "instruction",
@@ -336,8 +373,6 @@ function ExampleForm({
                 </FormItem>
               )}
             />
-          </div>
-          <div className="flex flex-row items-center space-x-4">
             <FormField
               control={form.control}
               name="acquisitionTime"
@@ -351,6 +386,9 @@ function ExampleForm({
                 </FormItem>
               )}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="fluorescence"
@@ -364,6 +402,60 @@ function ExampleForm({
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>Add Fluorescence?</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="acquireThermocouple"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Acquire Thermocouple?</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="upAndDown"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Up and Down Scan?</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="saveFlyData"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Save Fly Data?</FormLabel>
                   </div>
                 </FormItem>
               )}
@@ -480,26 +572,86 @@ function ExampleForm({
               </Button>
             </div>
           </div>
-          <FormField
-            control={form.control}
-            name="proposal"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Proposal ID</FormLabel>
-                <FormControl>
-                  <Input
-                    type="text"
-                    {...field}
-                    value={field.value || proposal}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    disabled={!!proposal} // Disable if proposal is provided
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+          <div className="flex w-full flex-row items-stretch space-x-4">
+            <FormField
+              control={form.control}
+              name="proposal"
+              render={({ field }) => (
+                <FormItem className="w-28 flex-shrink-0">
+                  <FormLabel>Proposal ID</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      {...field}
+                      value={field.value || proposal}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      disabled={!!proposal} // Disable if proposal is provided
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fileName"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>File Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="repeats"
+              render={({ field }) => (
+                <FormItem className="w-20 flex-shrink-0">
+                  <FormLabel>Repeats</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
+        <FormField
+          control={form.control}
+          name="metadata"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Metadata (JSON)</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  value={field.value}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  className="h-32 font-mono"
+                  placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button
           type="submit"
           className="w-full"
