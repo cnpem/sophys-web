@@ -25,7 +25,11 @@ import {
 import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
-import { PlanForm, planName, planSchema } from "../plans/exafs-scan-regions";
+import {
+  planEditSchema,
+  PlanForm,
+  planName,
+} from "../plans/exafs-scan-regions";
 
 export function RowActions({ item }: { item: QueueItemProps }) {
   const [open, setOpen] = useState(false);
@@ -137,6 +141,7 @@ function RemoveItem({
 }
 
 function EditItem(props: QueueItemProps) {
+  const { data: userData } = api.auth.getUser.useQuery();
   const { name, itemUid } = props;
   const { data: plans } = api.plans.allowed.useQuery(undefined);
   const { data: devices } = api.devices.allowedNames.useQuery(undefined);
@@ -198,34 +203,32 @@ function EditItem(props: QueueItemProps) {
 
     if (planDetails.name === planName) {
       // Special case for EXAFS scan regions plan
-      // convert regions from a list of tuples into the expected format
-      const regions = (props.kwargs as z.infer<typeof planSchema>).regions.map(
-        (region) => {
-          if (Array.isArray(region)) {
-            return {
-              space: region[0],
-              initial: region[1],
-              final: region[2],
-              step: region[3],
-            };
-          }
-          return region;
-        },
+      console.log(
+        "Rendering EXAFS scan regions form with kwargs:",
+        props.kwargs,
       );
-      const kwargs = {
+      // create defaultValues from propos.kwargs and replace proposal field if userData is available
+
+      const defaultValues = planEditSchema.safeParse({
         ...props.kwargs,
-        regions: regions,
-      };
-      const parsed = planSchema.safeParse(kwargs);
-      if (!parsed.success) {
+        proposal: userData?.proposal ?? undefined,
+      });
+      if (!defaultValues.success) {
         console.error(
           "Failed to parse kwargs for EXAFS scan regions plan",
-          parsed.error,
+          defaultValues.error,
         );
         return <div>Error parsing plan data</div>;
       }
-      return <PlanForm defaultValues={parsed.data} onSubmit={onSubmit} />;
+      return (
+        <PlanForm defaultValues={defaultValues.data} onSubmit={onSubmit} />
+      );
     }
+
+    const initialValues = {
+      ...props.kwargs,
+      proposal: userData?.proposal ?? undefined,
+    };
 
     return (
       <AnyForm
@@ -233,7 +236,7 @@ function EditItem(props: QueueItemProps) {
         planData={planData}
         onSubmit={onSubmit}
         schema={createSchema(planDetails.parameters)}
-        initialValues={props.kwargs as z.infer<AnySchema>}
+        initialValues={initialValues}
       />
     );
   }
