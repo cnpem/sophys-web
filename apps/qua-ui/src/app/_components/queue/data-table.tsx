@@ -46,7 +46,7 @@ import { DataTableViewOptions } from "@sophys-web/widgets/data-table/column-togg
 import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
 import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
 import type { QueueItemProps } from "~/lib/types";
-import { AddExafsScanRegions } from "../plans/exafs-scan-regions";
+import { AddRegionEnergyScan } from "../plans/region-energy-scan";
 import { columns } from "./columns";
 
 function DraggableRow({
@@ -172,7 +172,7 @@ export function DataTable() {
           }
           className="max-w-sm"
         />
-        <AddExafsScanRegions />
+        <AddRegionEnergyScan />
         <NewItemSearch
           onSuccessCallback={() => {
             toast.success("Item added to the queue");
