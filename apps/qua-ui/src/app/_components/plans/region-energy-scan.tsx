@@ -474,6 +474,8 @@ export function PlanForm({
                   className="flex flex-row items-center space-x-2"
                 >
                   <Select
+                    // disabled if it is the first region
+                    disabled={index === 0}
                     value={field.space}
                     onValueChange={(value) => {
                       // Converts only from energy-space to k-space
