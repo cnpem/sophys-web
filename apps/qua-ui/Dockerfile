@@ -2,6 +2,7 @@ FROM node:22-alpine AS base
 RUN corepack enable
 RUN apk add --no-cache libc6-compat curl
 RUN npm install -g turbo
+RUN turbo telemetry disable
 
 FROM base AS builder
 
