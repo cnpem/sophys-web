@@ -1,9 +1,4 @@
 import { createJiti } from "jiti";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const jiti = createJiti(import.meta.url);
 
@@ -28,8 +23,6 @@ const config = {
   typescript: { ignoreBuildErrors: true },
   /** base path setup for reverse proxy */
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
-  output: "standalone",
-  outputFileTracingRoot: path.join(__dirname, "../../"),
 };
 
 export default config;
