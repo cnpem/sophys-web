@@ -133,3 +133,20 @@ pnpm add --filter @sophys-web/<app-name> <package-name>
 ```
 
 You can read more about the options to managing dependencies on this monorepo in the [turborepo docs on managing dependencies](https://turborepo.com/docs/crafting-your-repository/managing-dependencies).
+
+## Deployment
+
+### With Docker
+
+To deploy the app with Docker, you can use the provided `Dockerfile` in the app's directory. The `Dockerfile` is set up to build the app and run it in a production environment.
+To build the Docker image, run the following command in the root directory of the monorepo:
+
+```bash
+docker build -t sophys-web-qua-ui -f apps/qua-ui/Dockerfile .
+```
+
+To run the Docker container, use the following command:
+
+```bash
+docker run -d -p 3000:3000 sophys-web-qua-ui
+```

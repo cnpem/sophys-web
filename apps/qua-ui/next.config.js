@@ -23,6 +23,7 @@ const config = {
   typescript: { ignoreBuildErrors: true },
   /** base path setup for reverse proxy */
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
+  output: "standalone",
 };
 
 export default config;
