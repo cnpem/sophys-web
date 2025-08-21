@@ -15,6 +15,7 @@ ARG NEXT_PUBLIC_BASE_PATH
 
 # Set environment variables used in internal packages
 ARG AUTH_SECRET 
+ENV AUTH_TRUST_HOST true
 ARG BLUESKY_HTTPSERVER_URL
 
 WORKDIR /app
@@ -26,6 +27,8 @@ RUN pnpm install --frozen-lockfile
 RUN pnpm build --filter=@sophys-web/qua-ui
 
 FROM builder AS production
+
+ENV NODE_ENV production
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
