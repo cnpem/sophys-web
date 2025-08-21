@@ -9,9 +9,13 @@ FROM base AS builder
 # Set "shared" environment variables
 ARG PORT
 ARG COOLIFY_URL
+ENV COOLIFY_URL=$COOLIFY_URL
 
 # Set qua-ui environment variables
 ARG NEXT_PUBLIC_BASE_PATH
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
+ARG NEXT_PUBLIC_PVWS_URL
+ENV NEXT_PUBLIC_PVWS_URL=$NEXT_PUBLIC_PVWS_URL
 
 # Set environment variables used in internal packages
 ARG AUTH_SECRET 
