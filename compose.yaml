@@ -4,17 +4,21 @@ services:
       context: .
       dockerfile: apps/${APP_NAME}/Dockerfile
       args:
-        NODE_ENV: ${NODE_ENV}
-        PORT: ${PORT-3000}
+        PORT: ${PORT:-3000}
         NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
         AUTH_SECRET: ${AUTH_SECRET}
         BLUESKY_HTTPSERVER_URL: ${BLUESKY_HTTPSERVER_URL}
     environment:
-      NODE_ENV: ${NODE_ENV}
-      PORT: ${PORT}
+      PORT: ${PORT:-3000}
       NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
       AUTH_SECRET: ${AUTH_SECRET}
       BLUESKY_HTTPSERVER_URL: ${BLUESKY_HTTPSERVER_URL}
     ports:
-      - "${PORT-3000}:3000"
+      - "${PORT:-3000}:3000"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 6s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

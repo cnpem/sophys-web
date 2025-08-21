@@ -7,7 +7,6 @@ RUN turbo telemetry disable
 FROM base AS builder
 
 # Set "shared" environment variables
-ARG NODE_ENV
 ARG PORT
 ARG COOLIFY_URL
 
