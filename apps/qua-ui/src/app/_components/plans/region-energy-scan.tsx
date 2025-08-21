@@ -28,6 +28,7 @@ import {
   FormMessage,
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
+import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -179,19 +180,21 @@ export function AddRegionEnergyScan({ className }: { className?: string }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="*:min-w-2/3 sm:max-w-2xl">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Example</DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
             Please fill in the details below to submit the plan.
           </DialogDescription>
         </DialogHeader>
-        <PlanForm
-          onSubmit={onSubmit}
-          initialValues={{
-            proposal: data?.proposal ?? "",
-          }}
-        />
+        <ScrollArea className="max-h-[70vh] w-full">
+          <PlanForm
+            onSubmit={onSubmit}
+            initialValues={{
+              proposal: data?.proposal ?? "",
+            }}
+          />
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
@@ -391,42 +394,6 @@ export function PlanForm({
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="fluorescence"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Add Fluorescence?</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="acquireThermocouple"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Acquire Thermocouple?</FormLabel>
-                  </div>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="upAndDown"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
@@ -442,7 +409,6 @@ export function PlanForm({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="saveFlyData"
@@ -456,6 +422,40 @@ export function PlanForm({
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>Save Fly Data?</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="fluorescence"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Add Fluorescence?</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="acquireThermocouple"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Acquire Thermocouple?</FormLabel>
                   </div>
                 </FormItem>
               )}
@@ -474,8 +474,10 @@ export function PlanForm({
                   className="flex flex-row items-center space-x-2"
                 >
                   <Select
-                    // disabled if it is the first region
-                    disabled={index === 0}
+                    // disabled if it is the first region or not the last region
+                    disabled={index === 0 || index !== fields.length - 1}
+                    defaultValue={field.space}
+                    {...form.register(`regions.${index}.space`)}
                     value={field.space}
                     onValueChange={(value) => {
                       // Converts only from energy-space to k-space
@@ -534,8 +536,8 @@ export function PlanForm({
                     size="icon"
                     className="flex-shrink-1 p-1"
                     onClick={() => remove(index)}
-                    // disable the button for the first region
-                    disabled={index === 0}
+                    // disabled if it is the first region or not the last region
+                    disabled={index === 0 || index !== fields.length - 1}
                   >
                     <Trash2Icon className="h-4 w-4 text-red-500" />
                   </Button>
@@ -626,7 +628,7 @@ export function PlanForm({
           name="metadata"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Metadata (JSON)</FormLabel>
+              <FormLabel>Metadata</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
