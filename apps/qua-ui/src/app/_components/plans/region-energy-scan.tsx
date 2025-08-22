@@ -40,15 +40,15 @@ import { Textarea } from "@sophys-web/ui/textarea";
 
 const kRegionSchema = z.object({
   space: z.literal("k-space"),
-  initial: z.coerce.number().min(0).max(30),
-  final: z.coerce.number().min(0).max(30),
+  initial: z.coerce.number().max(30).gt(0),
+  final: z.coerce.number().max(30).gt(0),
   step: z.coerce.number().min(0.01),
 });
 
 const energyRegionSchema = z.object({
   space: z.literal("energy-space"),
-  initial: z.coerce.number().min(0),
-  final: z.coerce.number().min(0),
+  initial: z.coerce.number().gt(0),
+  final: z.coerce.number().gt(0),
   step: z.coerce.number().min(0.1),
 });
 
@@ -66,8 +66,8 @@ export const formSchema = z.object({
       "Edge (E0) energy in eV for converting the energy space to k-space",
   }),
   acquireThermocouple: z.boolean().optional().default(false),
-  upAndDown: z.boolean().optional().default(false),
-  saveFlyData: z.boolean().optional().default(false),
+  upAndDown: z.boolean().default(false),
+  saveFlyData: z.boolean().default(false),
   fileName: z.string().optional(),
   metadata: z.string().optional(),
   repeats: z.coerce
@@ -114,13 +114,14 @@ export const planSubmitSchema = z.object({
         convertRegionObjectToTuple(region as z.infer<typeof kRegionSchema>),
       ),
     ),
-  settleTime: z.coerce.number(),
-  acquisitionTime: z.coerce.number(),
+  settleTime: z.coerce.number().min(1),
+  acquisitionTime: z.coerce.number().min(1),
   fluorescence: z.boolean(),
-  edgeEnergy: z.coerce.number(),
-  acquireThermocouple: z.boolean().optional().default(false),
-  upAndDown: z.boolean().optional().default(false),
-  saveFlyData: z.boolean().optional().default(false),
+  edgeEnergy: z.coerce.number().min(1),
+  // Optional fields with defaults
+  acquireThermocouple: z.boolean().default(false),
+  upAndDown: z.boolean().default(false),
+  saveFlyData: z.boolean().default(false),
   fileName: z.string().optional(),
   metadata: z.string().optional(),
   repeats: z.coerce.number().int().min(1).default(1),
@@ -226,10 +227,9 @@ function calculateNextRegion(
       step: 0, // Default step value
     } as z.infer<typeof energyRegionSchema>;
   }
-  const lastDelta = lastRegion.final - lastRegion.initial;
   const initial = lastRegion.final;
-  const final = initial + lastDelta; // Increment by the same delta as the last region
-  const step = lastRegion.step; // Keep the same step
+  const final = 0; // Increment by the same delta as the last region
+  const step = 0; // Keep the same step
   if (lastRegion.space === "k-space") {
     // If the last region is in k-space, return a new region in k-space
     return {
@@ -320,7 +320,7 @@ export function PlanForm({
       ...requiredDefaults,
       ...initialValues, // override with initial values if provided
     } as z.infer<typeof formSchema>,
-    mode: "onSubmit",
+    // mode: "onSubmit",
   });
 
   // Use useFieldArray for managing the 'regions' array
@@ -406,6 +406,7 @@ export function PlanForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Up and Down Scan?</FormLabel>
                   </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -423,6 +424,7 @@ export function PlanForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Save Fly Data?</FormLabel>
                   </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -440,6 +442,7 @@ export function PlanForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Add Fluorescence?</FormLabel>
                   </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -457,6 +460,7 @@ export function PlanForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Acquire Thermocouple?</FormLabel>
                   </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -541,6 +545,7 @@ export function PlanForm({
                   >
                     <Trash2Icon className="h-4 w-4 text-red-500" />
                   </Button>
+                  <FormMessage />
                 </div>
               ))}
               <Button
