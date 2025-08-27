@@ -24,7 +24,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={GeistMono.className}>
-        <Toaster richColors theme="light" />
+        <Toaster richColors theme="light" position="top-right" />
         <TRPCReactProvider>
           <SidebarProvider defaultOpen={defaultOpen}>
             <AppSidebar variant="sidebar" collapsible="icon" />
