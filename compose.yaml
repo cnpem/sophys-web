@@ -1,26 +1,15 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: apps/${APP_NAME}/Dockerfile
-      args:
-        AUTH_SECRET: ${AUTH_SECRET}
-        BLUESKY_HTTPSERVER_URL: ${BLUESKY_HTTPSERVER_URL}
-        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
-        NEXT_PUBLIC_PVWS_URL: ${NEXT_PUBLIC_PVWS_URL}
-        COOLIFY_URL: ${COOLIFY_URL}
+    container_name: ${APP_NAME}
+    image: sophys-web/${APP_NAME}:${APP_VERSION:-latest}
     environment:
       AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_TRUST_HOST: 1
       BLUESKY_HTTPSERVER_URL: ${BLUESKY_HTTPSERVER_URL}
       NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
       NEXT_PUBLIC_PVWS_URL: ${NEXT_PUBLIC_PVWS_URL}
-      COOLIFY_URL: ${COOLIFY_URL}
+    restart: unless-stopped
     expose:
       - "3000"
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 6s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+    ports:
+      - "${APP_PORT:-80}:3000"
