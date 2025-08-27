@@ -1,6 +1,6 @@
-import { createJiti } from "jiti";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { createJiti } from "jiti";
 
 const jiti = createJiti(import.meta.url);
 
@@ -9,7 +9,6 @@ jiti.import("./src/env");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 /** @type {import('next').NextConfig} */
 const config = {
@@ -29,8 +28,8 @@ const config = {
   typescript: { ignoreBuildErrors: true },
   /** base path setup for reverse proxy */
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || "",
-  // ** Setting up standalone config for docker self-hosting and tracing 
-  // files when deploying a monorepo app. 
+  // ** Setting up standalone config for docker self-hosting and tracing
+  // files when deploying a monorepo app.
   // See : https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
   //  */
   output: "standalone",

@@ -181,7 +181,7 @@ export function AddRegionEnergyScan({ className }: { className?: string }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="max-w-2xl sm:min-w-[540px]">
         <DialogHeader>
           <DialogTitle>Example</DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
@@ -249,23 +249,6 @@ function calculateNextRegion(
   }
 }
 
-function convertRegionEnergyToK(
-  region: z.infer<typeof energyRegionSchema>,
-  edgeEnergyRaw: unknown,
-): z.infer<typeof kRegionSchema> {
-  // Convert energy-space region to k-space region
-  const edgeEnergy = Number(edgeEnergyRaw);
-  if (isNaN(edgeEnergy)) {
-    throw new Error("edgeEnergy must be a valid number");
-  }
-  return {
-    space: "k-space",
-    initial: EnergyToK(region.initial, edgeEnergy),
-    final: EnergyToK(region.final, edgeEnergy),
-    step: EnergyToK(region.step, 0),
-  } as z.infer<typeof kRegionSchema>;
-}
-
 function convertRegionObjectToTuple(
   region: z.infer<typeof formSchema>["regions"][number],
 ) {
@@ -324,7 +307,12 @@ export function PlanForm({
   });
 
   // Use useFieldArray for managing the 'regions' array
-  const { fields, append, remove, update } = useFieldArray({
+  const {
+    fields: regionsArrayFields,
+    append,
+    remove,
+    update,
+  } = useFieldArray({
     control: form.control,
     name: "regions",
   });
@@ -340,6 +328,47 @@ export function PlanForm({
     console.log("Transformed data:", transformed.data);
 
     onSubmit(transformed.data);
+  }
+
+  function handleRegionSpaceChange(index: number, newSpace: string) {
+    if (newSpace !== "k-space") {
+      // do nothing, we only convert to k-space and not the other way around
+      return;
+    }
+    const currentRegion = form.getValues(`regions.${index}`);
+    const edgeEnergy = form.getValues("edgeEnergy");
+
+    if (!edgeEnergy || isNaN(edgeEnergy)) {
+      toast.error("Please enter a valid edge energy before converting regions");
+      return;
+    }
+
+    // Update the region at the specified index with converted values
+    update(index, {
+      space: "k-space",
+      initial: currentRegion.initial
+        ? EnergyToK(currentRegion.initial, edgeEnergy)
+        : 0,
+      final: currentRegion.final
+        ? EnergyToK(currentRegion.final, edgeEnergy)
+        : 0,
+      step: 0,
+    });
+  }
+
+  function handleAddNewRegion() {
+    const regions = form.getValues("regions");
+    const edgeEnergy = form.getValues("edgeEnergy");
+    try {
+      const newRegion = calculateNextRegion(regions, edgeEnergy);
+      append(newRegion);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unknown error occurred while adding a new region");
+      }
+    }
   }
 
   return (
@@ -465,107 +494,114 @@ export function PlanForm({
               )}
             />
           </div>
-
           <div
-            className="flex flex-col space-y-4 rounded-md border border-dashed p-4"
+            className="flex flex-col gap-2 rounded-md border border-dashed p-4"
             role="region-block"
           >
-            <FormLabel>Regions</FormLabel>
-            <div className="flex flex-col space-y-2">
-              {fields.map((field, index) => (
-                <div
-                  key={field.id} // Use field.id for unique key prop
-                  className="flex flex-row items-center space-x-2"
-                >
-                  <Select
-                    // disabled if it is the first region or not the last region
-                    disabled={index === 0 || index !== fields.length - 1}
-                    defaultValue={field.space}
-                    {...form.register(`regions.${index}.space`)}
-                    value={field.space}
-                    onValueChange={(value) => {
-                      // Converts only from energy-space to k-space
-                      if (value === "k-space") {
-                        const regionInE = energyRegionSchema.safeParse(field);
-                        if (!regionInE.success) {
-                          toast.error("Failed to parse region data");
-                          return;
-                        }
-                        const edgeEnergy = form.getValues("edgeEnergy");
-                        update(
-                          index,
-                          convertRegionEnergyToK(regionInE.data, edgeEnergy),
-                        );
-                      }
-                    }}
-                  >
-                    <FormControl>
-                      <SelectTrigger disabled={field.space === "k-space"}>
-                        <SelectValue placeholder="Select Region Type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="k-space">K-Space</SelectItem>
-                      <SelectItem value="energy-space">Energy Space</SelectItem>
-                    </SelectContent>
-                  </Select>
+            <FormLabel className="col-span-5 text-center text-lg font-semibold">
+              Regions
+            </FormLabel>
 
-                  <Input
-                    type="number"
-                    placeholder="Initial"
-                    {...form.register(`regions.${index}.initial`, {
-                      valueAsNumber: true,
-                    })}
-                    step="any"
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Final"
-                    {...form.register(`regions.${index}.final`, {
-                      valueAsNumber: true,
-                    })}
-                    step="any"
-                  />
-                  <Input
-                    type="number"
-                    placeholder="Step"
-                    {...form.register(`regions.${index}.step`, {
-                      valueAsNumber: true,
-                    })}
-                    step="any"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="flex-shrink-1 p-1"
-                    onClick={() => remove(index)}
-                    // disabled if it is the first region or not the last region
-                    disabled={index === 0 || index !== fields.length - 1}
-                  >
-                    <Trash2Icon className="h-4 w-4 text-red-500" />
-                  </Button>
-                  <FormMessage />
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="default"
-                className="w-full"
-                onClick={() => {
-                  // Append a new default energy-space region
-                  const edgeEnergy = form.getValues("edgeEnergy");
-                  const regionsArray = form.getValues("regions");
-                  const newRegion = calculateNextRegion(
-                    regionsArray,
-                    edgeEnergy,
-                  );
-                  append(newRegion);
-                }}
+            {regionsArrayFields.map((field, index) => (
+              <div
+                key={field.id} // Use field.id for unique key prop
+                className="col-span-5 grid [grid-template-columns:1.2fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
               >
-                Add Region
-              </Button>
-            </div>
+                {
+                  // Only show the header on the first row
+                  index === 0 && (
+                    <>
+                      <span className="text-sm font-semibold">Space</span>
+                      <span className="text-sm font-semibold">Initial</span>
+                      <span className="text-sm font-semibold">Final</span>
+                      <span className="text-sm font-semibold">Step</span>
+                      <span></span>
+                    </>
+                  )
+                }
+                <Select
+                  // disabled if it is the first region or not the last region
+                  disabled={
+                    index === 0 || index !== regionsArrayFields.length - 1
+                  }
+                  value={field.space}
+                  onValueChange={(value) => {
+                    handleRegionSpaceChange(index, value);
+                  }}
+                >
+                  <FormControl>
+                    <SelectTrigger
+                      disabled={field.space === "k-space"}
+                      className="w-full"
+                    >
+                      <SelectValue placeholder="Select Region Type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="k-space">K-Space</SelectItem>
+                    <SelectItem value="energy-space">Energy Space</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Input
+                  type="number"
+                  placeholder="Initial"
+                  {...form.register(`regions.${index}.initial`, {
+                    valueAsNumber: true,
+                  })}
+                  step="any"
+                />
+                <Input
+                  type="number"
+                  placeholder="Final"
+                  {...form.register(`regions.${index}.final`, {
+                    valueAsNumber: true,
+                  })}
+                  step="any"
+                />
+                <Input
+                  type="number"
+                  placeholder="Step"
+                  {...form.register(`regions.${index}.step`, {
+                    valueAsNumber: true,
+                  })}
+                  step="any"
+                  // capture keypress enter to add a new region
+                  onKeyDown={(e) => {
+                    // only add a new region if it is the last region
+                    if (index !== regionsArrayFields.length - 1) {
+                      return;
+                    }
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddNewRegion();
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="flex-shrink-1 p-1"
+                  onClick={() => remove(index)}
+                  // disabled if it is the first region or not the last region
+                  disabled={
+                    index === 0 || index !== regionsArrayFields.length - 1
+                  }
+                >
+                  <Trash2Icon className="h-4 w-4 text-red-500" />
+                </Button>
+                <FormMessage />
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="default"
+              className="col-span-5 mt-2"
+              onClick={handleAddNewRegion}
+            >
+              Add Region
+            </Button>
           </div>
 
           <div className="flex w-full flex-row items-stretch space-x-4">
@@ -581,7 +617,6 @@ export function PlanForm({
                       {...field}
                       value={field.value}
                       onChange={(e) => field.onChange(e.target.value)}
-                      // disabled={!!field.value} // Disable if proposal is provided
                     />
                   </FormControl>
                   <FormMessage />
