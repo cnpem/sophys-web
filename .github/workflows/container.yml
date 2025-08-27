@@ -1,11 +1,11 @@
 # Builds and publish docker image to ghcr
 name: build_and_push
-# Trigger the workflow on push to tags matching the pattern i.e 'qua-ui-v0.1.2' or 'spu-ui-v0.2.1'
+# Trigger the workflow on push to tags matching the pattern i.e 'qua-ui__v0.1.2' or 'spu-ui__v0.2.1'
 on:
   push:
     tags:
-      - "qua-ui-v*"
-      - "spu-ui-v*"
+      - "qua-ui__v*"
+      - "spu-ui__v*"
 
 jobs:
   build-and-push:
@@ -18,8 +18,8 @@ jobs:
         id: vars
         run: |
           TAG=${GITHUB_REF#refs/tags/}
-          APP=$(echo $TAG | cut -d'-' -f1)
-          VERSION=$(echo $TAG | cut -d'-' -f2)
+          APP="${TAG%%__*}"
+          VERSION="${TAG#*__}"
           echo "app=$APP" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
