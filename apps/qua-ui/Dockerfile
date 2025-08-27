@@ -40,7 +40,7 @@ ARG BLUESKY_HTTPSERVER_URL
  
 # Build the project
 COPY --from=builder /app/out/full/ .
-RUN SKIP_ENV_VALIDATION=1 pnpm turbo run build
+RUN CI=1 pnpm turbo run build
  
 FROM base AS runner
 WORKDIR /app
