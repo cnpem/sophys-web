@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CameraIcon, Trash2Icon } from "lucide-react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
@@ -371,6 +371,43 @@ export function PlanForm({
     }
   }
 
+  // Watch relevant fields for estimated time calculation
+  const watchedRegions = useWatch({ control: form.control, name: "regions" });
+  const watchedSettleTime = useWatch({
+    control: form.control,
+    name: "settleTime",
+  });
+  const watchedAcquisitionTime = useWatch({
+    control: form.control,
+    name: "acquisitionTime",
+  });
+  const watchedRepeats = useWatch({ control: form.control, name: "repeats" });
+  const watchedUpAndDown = useWatch({
+    control: form.control,
+    name: "upAndDown",
+  });
+
+  const estimatedTotalTime = () => {
+    const numRegions = watchedRegions.length || 0;
+    const settleTime = watchedSettleTime || 0;
+    const acquisitionTime = watchedAcquisitionTime || 0;
+    const repeats = watchedRepeats ?? 1;
+    const upAndDown = watchedUpAndDown ? 2 : 1;
+    const totalTimeMs =
+      numRegions * (settleTime + acquisitionTime) * repeats * upAndDown;
+    // decide to show in seconds, minutes or hours based on the value
+    if (totalTimeMs < 60000) {
+      // less than a minute, show in seconds
+      return `${(totalTimeMs / 1000).toFixed(1)} seconds`;
+    } else if (totalTimeMs < 3600000) {
+      // less than an hour, show in minutes
+      return `${(totalTimeMs / 60000).toFixed(1)} minutes`;
+    } else {
+      // more than an hour, show in hours
+      return `${(totalTimeMs / 3600000).toFixed(2)} hours`;
+    }
+  };
+
   return (
     <Form {...form}>
       <form
@@ -594,10 +631,14 @@ export function PlanForm({
                 <FormMessage />
               </div>
             ))}
+            {/* show estimated total time */}
+            <span className="text-secondary-foreground col-span-5 mt-2 text-center text-sm italic">
+              Estimated Total Time: {estimatedTotalTime()}
+            </span>
             <Button
               type="button"
               variant="default"
-              className="col-span-5 mt-2"
+              className="col-span-5"
               onClick={handleAddNewRegion}
             >
               Add Region
