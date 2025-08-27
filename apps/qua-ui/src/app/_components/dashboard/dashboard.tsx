@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { JsonEditor, monoLightTheme } from "json-edit-react";
 import { AlertCircleIcon } from "lucide-react";
+import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import {
   Card,
@@ -59,6 +61,39 @@ export function Dashboard() {
 function RunningItem() {
   const { queue } = useQueue();
   const runningItem = queue.data?.runningItem;
+  const prevRunningItemRef = useRef(runningItem);
+
+  useEffect(() => {
+    // If previously there was a running item, and now it's empty, show toast
+    const prev = prevRunningItemRef.current;
+    const prevExists = prev && Object.keys(prev).length > 0;
+    const nowEmpty = !runningItem || Object.keys(runningItem).length === 0;
+    if (prevExists && nowEmpty) {
+      toast.message("Plan finished", {
+        icon: <AlertCircleIcon />,
+        description: (
+          <div className="text-accent-foreground">
+            {prev.name}
+            {Object.keys(prev.kwargs ?? {}).length > 0 && (
+              <div className="mt-2">
+                <h3 className="mb-2 font-medium">Parameters</h3>
+                <pre className="overflow-y-auto rounded p-2 break-words whitespace-pre-wrap">
+                  {JSON.stringify(prev.kwargs, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
+        ),
+        duration: Infinity,
+        closeButton: true,
+        classNames: {
+          toast: "!bg-green-100",
+          icon: "animate-bounce",
+        },
+      });
+    }
+    prevRunningItemRef.current = runningItem;
+  }, [runningItem]);
 
   if (!runningItem || Object.keys(runningItem).length === 0) {
     return (
