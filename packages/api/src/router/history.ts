@@ -17,7 +17,11 @@ export const historyRouter = {
       if (!res.success) {
         throw new Error(res.msg);
       }
-      return res;
+      // invert the order of items so the most recent is first
+      return {
+        ...res,
+        items: res.items.slice().reverse(),
+      };
     } catch (e) {
       if (e instanceof Error) {
         console.error(e);

@@ -1,0 +1,40 @@
+# Builds and publish docker image to ghcr
+name: build_and_push
+# Trigger the workflow on push to tags matching the pattern i.e 'qua-ui__v0.1.2' or 'spu-ui__v0.2.1'
+on:
+  push:
+    tags:
+      - "qua-ui__v*"
+      - "spu-ui__v*"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up variables
+        id: vars
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          APP="${TAG%%__*}"
+          VERSION="${TAG#*__}"
+          echo "app=$APP" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io/${{ github.repository_owner }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -f apps/${{ steps.vars.outputs.app }}/Dockerfile \
+            -t ${{ github.repository }}/${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }} .
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}/${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }}

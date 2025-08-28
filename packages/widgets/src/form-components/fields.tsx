@@ -101,10 +101,13 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
   if (type.includes("bool")) {
     return <BoolField param={param} form={form} type={type} />;
   }
-  if (type.includes("typing.Literal")) {
+  if (type.includes("typing.Literal") && !type.includes("list")) {
     return <LiteralField param={param} form={form} type={type} />;
   }
-  if (type.includes("int") || type.includes("float") || type.includes("str")) {
+  if (
+    !type.includes("list") &&
+    (type.includes("int") || type.includes("float") || type.includes("str"))
+  ) {
     return <BaseTypeField param={param} form={form} type={type} />;
   }
   if (
@@ -130,8 +133,8 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
 
   return (
     <div className="flex flex-col text-red-500" key={camelCase(param.name)}>
-      <p>Unsupported parameter with no type annotations:</p>
-      <p>{camelCase(param.name)}</p>
+      <p>Unsupported parameter: {camelCase(param.name)}</p>
+      <RecordField type={type} param={param} form={form} />
     </div>
   );
 }

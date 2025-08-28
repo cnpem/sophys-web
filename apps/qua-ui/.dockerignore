@@ -1,0 +1,12 @@
+Dockerfile
+.dockerignore
+node_modules
+README.md
+.next
+.git
+/apps/*
+apps/qua-ui/node_modules
+/apps/qua-ui/.next
+/apps/qua-ui/.turbo
+apps/qua-ui/.env
+!/apps/qua-ui/
