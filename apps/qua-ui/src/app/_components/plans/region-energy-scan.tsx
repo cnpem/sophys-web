@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CameraIcon, Trash2Icon } from "lucide-react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
