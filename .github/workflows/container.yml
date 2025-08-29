@@ -33,7 +33,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -f apps/${{ steps.vars.outputs.app }}/Dockerfile \
-            -t ${{ github.repository }}__${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }} .
+            -t ghcr.io/${{ github.repository }}__${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }} .
 
       - name: Push Docker image
         run: |
