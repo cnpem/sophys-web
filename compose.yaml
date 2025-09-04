@@ -1,15 +1,7 @@
 services:
   app:
-    container_name: ${APP_NAME}
-    build:
-      context: .
-      dockerfile: apps/${APP_NAME}/Dockerfile
-      args:
-        AUTH_SECRET: ${AUTH_SECRET}
-        AUTH_TRUST_HOST: 1
-        BLUESKY_HTTPSERVER_URL: ${BLUESKY_HTTPSERVER_URL}
-        NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
-        NEXT_PUBLIC_PVWS_URL: ${NEXT_PUBLIC_PVWS_URL}
+    container_name: ${APP_NAME}:${APP_VERSION}
+    image: ghcr.io/cnpem/sophys-web__${APP_NAME}:${APP_VERSION}
     environment:
       AUTH_SECRET: ${AUTH_SECRET}
       AUTH_TRUST_HOST: 1
