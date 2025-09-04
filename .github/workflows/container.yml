@@ -10,6 +10,9 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,8 +36,8 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -f apps/${{ steps.vars.outputs.app }}/Dockerfile \
-            -t ${{ github.repository }}/${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }} .
+            -t ghcr.io/${{ github.repository }}__${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }} .
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}/${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }}
+          docker push ghcr.io/${{ github.repository }}__${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }}
