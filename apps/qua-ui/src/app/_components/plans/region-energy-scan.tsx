@@ -372,39 +372,56 @@ export function PlanForm({
   }
 
   // Watch relevant fields for estimated time calculation
-  const watchedRegions = useWatch({ control: form.control, name: "regions" });
+  const watchedRegions = useWatch({
+    control: form.control,
+    name: "regions",
+    exact: true,
+  });
   const watchedSettleTime = useWatch({
     control: form.control,
     name: "settleTime",
+    exact: true,
   });
   const watchedAcquisitionTime = useWatch({
     control: form.control,
     name: "acquisitionTime",
+    exact: true,
   });
   const watchedRepeats = useWatch({ control: form.control, name: "repeats" });
   const watchedUpAndDown = useWatch({
     control: form.control,
     name: "upAndDown",
+    exact: true,
   });
 
   const estimatedTotalTime = () => {
-    const numRegions = watchedRegions.length || 0;
-    const settleTime = watchedSettleTime || 0;
-    const acquisitionTime = watchedAcquisitionTime || 0;
-    const repeats = watchedRepeats ?? 1;
-    const upAndDown = watchedUpAndDown ? 2 : 1;
+    // Calculate total time in milliseconds
+    const oneSecondMs = 1000;
+    const oneMinuteMs = 60000;
+    const oneHourMs = 3600000;
+    const numRegions = watchedRegions.length;
+    const settleTime = z.coerce.number().default(0).parse(watchedSettleTime);
+    const acquisitionTime = z.coerce
+      .number()
+      .default(0)
+      .parse(watchedAcquisitionTime);
+    const repeats = z.coerce.number().default(1).parse(watchedRepeats);
+    const upAndDownTimes = watchedUpAndDown ? 2 : 1;
     const totalTimeMs =
-      numRegions * (settleTime + acquisitionTime) * repeats * upAndDown;
+      numRegions * (settleTime + acquisitionTime) * repeats * upAndDownTimes;
     // decide to show in seconds, minutes or hours based on the value
-    if (totalTimeMs < 60000) {
+    if (totalTimeMs < oneSecondMs) {
+      // less than a second, just show a message
+      return "less than a second";
+    } else if (totalTimeMs < oneMinuteMs) {
       // less than a minute, show in seconds
-      return `${(totalTimeMs / 1000).toFixed(1)} seconds`;
-    } else if (totalTimeMs < 3600000) {
+      return `${(totalTimeMs / oneSecondMs).toFixed(1)} seconds`;
+    } else if (totalTimeMs < oneHourMs) {
       // less than an hour, show in minutes
-      return `${(totalTimeMs / 60000).toFixed(1)} minutes`;
+      return `${(totalTimeMs / oneMinuteMs).toFixed(1)} minutes`;
     } else {
       // more than an hour, show in hours
-      return `${(totalTimeMs / 3600000).toFixed(2)} hours`;
+      return `${(totalTimeMs / oneHourMs).toFixed(1)} hours`;
     }
   };
 
