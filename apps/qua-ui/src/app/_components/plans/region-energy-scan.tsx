@@ -108,7 +108,7 @@ export const planEditSchema = z.object({
 export const planSubmitSchema = z.object({
   regions: z
     .array(z.union([kRegionSchema, energyRegionSchema]))
-    .length(1, "At least one region is required")
+    .min(1, "At least one region is required")
     .transform((regions) =>
       regions.map((region) =>
         convertRegionObjectToTuple(region as z.infer<typeof kRegionSchema>),
