@@ -558,7 +558,7 @@ export function PlanForm({
 
             {regionsArrayFields.map((field, index) => (
               <div
-                key={field.id} // Use field.id for unique key prop
+                key={field.id}
                 className="col-span-5 grid [grid-template-columns:1.2fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
               >
                 {
@@ -600,6 +600,7 @@ export function PlanForm({
                 <Input
                   type="number"
                   placeholder="Initial"
+                  className="min-w-[9ch]"
                   {...form.register(`regions.${index}.initial`, {
                     valueAsNumber: true,
                   })}
@@ -608,6 +609,7 @@ export function PlanForm({
                 <Input
                   type="number"
                   placeholder="Final"
+                  className="min-w-[9ch]"
                   {...form.register(`regions.${index}.final`, {
                     valueAsNumber: true,
                   })}
@@ -616,6 +618,7 @@ export function PlanForm({
                 <Input
                   type="number"
                   placeholder="Step"
+                  className="min-w-[9ch]"
                   {...form.register(`regions.${index}.step`, {
                     valueAsNumber: true,
                   })}
