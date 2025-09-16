@@ -288,6 +288,40 @@ const requiredDefaults = {
   proposal: "",
 } as z.infer<typeof formSchema>;
 
+const timeEstimateSchema = z.object({
+  numRegions: z.coerce.number().min(1),
+  settleTime: z.coerce.number().min(0),
+  acquisitionTime: z.coerce.number().min(0),
+  repeats: z.coerce.number().min(1).default(1),
+  upAndDown: z.boolean().default(false),
+});
+
+function estimateTotalTimeInMs({
+  numRegions,
+  settleTime,
+  acquisitionTime,
+  repeats,
+  upAndDown,
+}: z.infer<typeof timeEstimateSchema>) {
+  const upAndDownTimes = upAndDown ? 2 : 1;
+  return numRegions * (settleTime + acquisitionTime) * repeats * upAndDownTimes;
+}
+
+function convertTotalTimeToReadable(totalMs: number) {
+  const oneSecondMs = 1000;
+  const oneMinuteMs = 60000;
+  const oneHourMs = 3600000;
+  if (totalMs < oneSecondMs) {
+    return "less than a second";
+  } else if (totalMs < oneMinuteMs) {
+    return `${(totalMs / oneSecondMs).toFixed(1)} seconds`;
+  } else if (totalMs < oneHourMs) {
+    return `${(totalMs / oneMinuteMs).toFixed(1)} minutes`;
+  } else {
+    return `${(totalMs / oneHourMs).toFixed(1)} hours`;
+  }
+}
+
 export function PlanForm({
   className,
   onSubmit,
@@ -395,34 +429,19 @@ export function PlanForm({
   });
 
   const estimatedTotalTime = () => {
-    // Calculate total time in milliseconds
-    const oneSecondMs = 1000;
-    const oneMinuteMs = 60000;
-    const oneHourMs = 3600000;
-    const numRegions = watchedRegions.length;
-    const settleTime = z.coerce.number().default(0).parse(watchedSettleTime);
-    const acquisitionTime = z.coerce
-      .number()
-      .default(0)
-      .parse(watchedAcquisitionTime);
-    const repeats = z.coerce.number().default(1).parse(watchedRepeats);
-    const upAndDownTimes = watchedUpAndDown ? 2 : 1;
-    const totalTimeMs =
-      numRegions * (settleTime + acquisitionTime) * repeats * upAndDownTimes;
-    // decide to show in seconds, minutes or hours based on the value
-    if (totalTimeMs < oneSecondMs) {
-      // less than a second, just show a message
-      return "less than a second";
-    } else if (totalTimeMs < oneMinuteMs) {
-      // less than a minute, show in seconds
-      return `${(totalTimeMs / oneSecondMs).toFixed(1)} seconds`;
-    } else if (totalTimeMs < oneHourMs) {
-      // less than an hour, show in minutes
-      return `${(totalTimeMs / oneMinuteMs).toFixed(1)} minutes`;
-    } else {
-      // more than an hour, show in hours
-      return `${(totalTimeMs / oneHourMs).toFixed(1)} hours`;
+    const validatedInputs = timeEstimateSchema.safeParse({
+      numRegions: watchedRegions.length,
+      settleTime: watchedSettleTime,
+      acquisitionTime: watchedAcquisitionTime,
+      repeats: watchedRepeats,
+      upAndDown: watchedUpAndDown,
+    });
+    if (!validatedInputs.success) {
+      return "N/A";
     }
+    const totalTimeMs = estimateTotalTimeInMs(validatedInputs.data);
+    // decide to show in seconds, minutes or hours based on the value
+    return convertTotalTimeToReadable(totalTimeMs);
   };
 
   return (
