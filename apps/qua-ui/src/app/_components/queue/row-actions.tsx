@@ -1,9 +1,9 @@
 "use client";
 
-import type { z } from "zod";
 import { useCallback, useMemo, useState } from "react";
 import { MoreHorizontalIcon } from "lucide-react";
 import { toast } from "sonner";
+import { z } from "zod";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
@@ -26,10 +26,23 @@ import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
 import {
-  planEditSchema,
-  PlanForm,
-  planName,
+  convertRegionTuplesToObjects,
+  formSchema,
+  MainForm,
+  PLAN_NAME,
+  regionTupleSchema,
 } from "../plans/region-energy-scan";
+
+const kwargsSchema = formSchema
+  .omit({ regions: true })
+  .extend({
+    regions: z.array(regionTupleSchema),
+  })
+  .transform((data) => ({
+    ...data,
+    // convert regions from array of tuples into array of objects
+    regions: convertRegionTuplesToObjects(data.regions),
+  }));
 
 export function RowActions({ item }: { item: QueueItemProps }) {
   const [open, setOpen] = useState(false);
@@ -201,14 +214,10 @@ function EditItem(props: QueueItemProps) {
       return <div>Loading...</div>;
     }
 
-    if (planDetails.name === planName) {
+    if (planDetails.name === PLAN_NAME) {
       // Special case for EXAFS scan regions plan
-      console.log(
-        "Rendering EXAFS scan regions form with kwargs:",
-        props.kwargs,
-      );
       // create defaultValues from propos.kwargs and replace proposal field if userData is available
-      const initialValues = planEditSchema.safeParse({
+      const initialValues = kwargsSchema.safeParse({
         ...props.kwargs,
         proposal: userData?.proposal ?? undefined,
       });
@@ -220,7 +229,17 @@ function EditItem(props: QueueItemProps) {
         return <div>Error parsing plan data</div>;
       }
       return (
-        <PlanForm initialValues={initialValues.data} onSubmit={onSubmit} />
+        // <PlanForm initialValues={initialValues.data} onSubmit={onSubmit} />
+        <MainForm
+          editItemParams={{
+            itemUid: props.itemUid,
+            name: props.name,
+            itemType: "plan",
+            kwargs: initialValues.data,
+          }}
+          // pass kwargs with
+          proposal={userData?.proposal ?? "do-something"}
+        />
       );
     }
 
