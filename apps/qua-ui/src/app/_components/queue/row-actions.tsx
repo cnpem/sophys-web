@@ -1,9 +1,9 @@
 "use client";
 
+import type { z } from "zod";
 import { useCallback, useMemo, useState } from "react";
 import { MoreHorizontalIcon } from "lucide-react";
 import { toast } from "sonner";
-import { z } from "zod";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
@@ -26,23 +26,9 @@ import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
 import {
-  convertRegionTuplesToObjects,
-  formSchema,
-  MainForm,
+  EditRegionEnergyScanForm,
   PLAN_NAME,
-  regionTupleSchema,
 } from "../plans/region-energy-scan";
-
-const kwargsSchema = formSchema
-  .omit({ regions: true })
-  .extend({
-    regions: z.array(regionTupleSchema),
-  })
-  .transform((data) => ({
-    ...data,
-    // convert regions from array of tuples into array of objects
-    regions: convertRegionTuplesToObjects(data.regions),
-  }));
 
 export function RowActions({ item }: { item: QueueItemProps }) {
   const [open, setOpen] = useState(false);
@@ -156,11 +142,64 @@ function RemoveItem({
 function EditItem(props: QueueItemProps) {
   const { data: userData } = api.auth.getUser.useQuery();
   const { name, itemUid } = props;
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
+        >
+          Edit Item
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Item</DialogTitle>
+          <DialogDescription>
+            Edit the details of the item in the queue.
+          </DialogDescription>
+        </DialogHeader>
+        {name === PLAN_NAME ? (
+          <EditRegionEnergyScanForm
+            itemUid={itemUid}
+            name={name}
+            kwargs={props.kwargs}
+            proposal={userData?.proposal ?? undefined}
+            onSubmitSuccess={() => setOpen(false)}
+          />
+        ) : (
+          <EditGenericPlanForm
+            name={name}
+            itemUid={itemUid}
+            kwargs={props.kwargs}
+            proposal={userData?.proposal ?? undefined}
+            onSubmitSuccess={() => setOpen(false)}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface EditGenericPlanFormProps
+  extends Pick<QueueItemProps, "name" | "itemUid" | "kwargs"> {
+  proposal?: string;
+  onSubmitSuccess?: () => void;
+}
+
+function EditGenericPlanForm({
+  name,
+  itemUid,
+  proposal,
+  kwargs,
+  onSubmitSuccess,
+}: EditGenericPlanFormProps) {
   const { data: plans } = api.plans.allowed.useQuery(undefined);
   const { data: devices } = api.devices.allowedNames.useQuery(undefined);
   const { update } = useQueue();
-  const [open, setOpen] = useState(false);
-
   const planDetails = useMemo(() => {
     if (plans) {
       return Object.values(plans.plansAllowed).find(
@@ -187,17 +226,16 @@ function EditItem(props: QueueItemProps) {
       await update.mutateAsync(
         {
           item: {
-            itemUid,
+            itemUid: itemUid,
             itemType: "plan",
-            name,
+            name: name,
             kwargs,
             args: [],
           },
         },
         {
           onSuccess: () => {
-            toast.success(`Plan ${name} added to the queue`);
-            setOpen(false);
+            if (onSubmitSuccess) onSubmitSuccess();
           },
           onError: (error) => {
             const message = error.message.replace("\n", " ");
@@ -206,80 +244,25 @@ function EditItem(props: QueueItemProps) {
         },
       );
     },
-    [update, itemUid, name],
+    [update, itemUid, name, onSubmitSuccess],
   );
 
-  function RenderForm() {
-    if (!planDetails || !planData || !devices) {
-      return <div>Loading...</div>;
-    }
+  const initialValues = {
+    ...kwargs,
+    proposal: proposal ?? undefined,
+  };
 
-    if (planDetails.name === PLAN_NAME) {
-      // Special case for EXAFS scan regions plan
-      // create defaultValues from propos.kwargs and replace proposal field if userData is available
-      const initialValues = kwargsSchema.safeParse({
-        ...props.kwargs,
-        proposal: userData?.proposal ?? undefined,
-      });
-      if (!initialValues.success) {
-        console.error(
-          "Failed to parse kwargs for EXAFS scan regions plan",
-          initialValues.error,
-        );
-        return <div>Error parsing plan data</div>;
-      }
-      return (
-        // <PlanForm initialValues={initialValues.data} onSubmit={onSubmit} />
-        <MainForm
-          editItemParams={{
-            itemUid: props.itemUid,
-            name: props.name,
-            itemType: "plan",
-            kwargs: initialValues.data,
-          }}
-          // pass kwargs with
-          proposal={userData?.proposal ?? "do-something"}
-        />
-      );
-    }
-
-    const initialValues = {
-      ...props.kwargs,
-      proposal: userData?.proposal ?? undefined,
-    };
-
-    return (
-      <AnyForm
-        devices={devices}
-        planData={planData}
-        onSubmit={onSubmit}
-        schema={createSchema(planDetails.parameters)}
-        initialValues={initialValues}
-      />
-    );
+  if (!planDetails || !planData || !devices) {
+    return <div>Loading beamline parameters...</div>;
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          disabled={!planDetails || !devices}
-          size="sm"
-          variant="ghost"
-          className="justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
-        >
-          Edit Item
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Item</DialogTitle>
-          <DialogDescription>
-            Edit the details of the item in the queue.
-          </DialogDescription>
-        </DialogHeader>
-        <RenderForm />
-      </DialogContent>
-    </Dialog>
+    <AnyForm
+      devices={devices}
+      planData={planData}
+      onSubmit={onSubmit}
+      schema={createSchema(planDetails.parameters)}
+      initialValues={initialValues}
+    />
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CameraIcon, Trash2Icon } from "lucide-react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
@@ -36,6 +37,7 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Textarea } from "@sophys-web/ui/textarea";
+import { QueueItemProps } from "~/lib/types";
 
 export const PLAN_NAME = "region_energy_scan" as const;
 
@@ -325,6 +327,7 @@ export function MainForm({
   className,
   proposal,
   editItemParams,
+  onSubmitSuccess,
 }: {
   className?: string;
   proposal: string;
@@ -335,6 +338,7 @@ export function MainForm({
     kwargs: z.infer<typeof formSchema>;
     itemUid: string;
   };
+  onSubmitSuccess?: () => void;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -348,8 +352,6 @@ export function MainForm({
   const { addBatch: submitPlan, update: editPlan } = useQueue();
 
   function onSubmit(formData: z.infer<typeof formSchema>) {
-    toast.info("Submitting sample...");
-
     const apiData = {
       ...formData,
       regions: convertRegionObjectsToTuples(formData.regions),
@@ -368,8 +370,7 @@ export function MainForm({
         },
         {
           onSuccess: () => {
-            toast.success("Plan edited!");
-            form.reset({ ...formDefaults, proposal: formData.proposal });
+            if (onSubmitSuccess) onSubmitSuccess();
           },
           onError: (error) => {
             toast.error("Failed to edit plan", {
@@ -379,39 +380,38 @@ export function MainForm({
           },
         },
       );
-      return;
+    } else {
+      submitPlan.mutate(
+        {
+          items: [
+            {
+              name: PLAN_NAME,
+              itemType: "plan",
+              args: [],
+              kwargs: apiData,
+            },
+            {
+              name: "queue_stop",
+              itemType: "instruction",
+              args: [],
+              kwargs: {},
+            },
+          ],
+          pos: "front",
+        },
+        {
+          onSuccess: () => {
+            if (onSubmitSuccess) onSubmitSuccess();
+          },
+          onError: (error) => {
+            toast.error("Failed to submit", {
+              description: error.message,
+              closeButton: true,
+            });
+          },
+        },
+      );
     }
-    submitPlan.mutate(
-      {
-        items: [
-          {
-            name: PLAN_NAME,
-            itemType: "plan",
-            args: [],
-            kwargs: apiData,
-          },
-          {
-            name: "queue_stop",
-            itemType: "instruction",
-            args: [],
-            kwargs: {},
-          },
-        ],
-        pos: "front",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Plan submitted!");
-          form.reset({ ...formDefaults, proposal: formData.proposal });
-        },
-        onError: (error) => {
-          toast.error("Failed to submit", {
-            description: error.message,
-            closeButton: true,
-          });
-        },
-      },
-    );
   }
 
   const { fields, append, remove, update } = useFieldArray({
@@ -898,10 +898,15 @@ export function MainForm({
   );
 }
 
+// ========================================================================
+// Add New Plan Dialog Component
+// ========================================================================
+
 export function AddRegionEnergyScan({ className }: { className?: string }) {
+  const [open, setOpen] = useState(false);
   const { data } = api.auth.getUser.useQuery();
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
@@ -921,9 +926,66 @@ export function AddRegionEnergyScan({ className }: { className?: string }) {
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="max-h-[70vh] w-full">
-          {data?.proposal && <MainForm proposal={data.proposal} />}
+          {data?.proposal && (
+            <MainForm
+              proposal={data.proposal}
+              onSubmitSuccess={() => setOpen(false)}
+            />
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ========================================================================
+// Edit Form Component and schemas
+// ========================================================================
+
+const editKwargsSchema = formSchema
+  .omit({ regions: true })
+  .extend({
+    regions: z.array(regionTupleSchema),
+  })
+  .transform((data) => ({
+    ...data,
+    // convert regions from array of tuples into array of objects
+    regions: convertRegionTuplesToObjects(data.regions),
+  }));
+
+interface EditRegionEnergyScanFormProps
+  extends Pick<QueueItemProps, "name" | "itemUid" | "kwargs"> {
+  proposal?: string;
+  onSubmitSuccess?: () => void;
+  className?: string;
+}
+
+export function EditRegionEnergyScanForm(props: EditRegionEnergyScanFormProps) {
+  const initialValues = editKwargsSchema.safeParse({
+    ...props.kwargs,
+    proposal: props.proposal ?? undefined,
+  });
+  if (!initialValues.success) {
+    console.error(
+      "Failed to parse kwargs for EXAFS scan regions plan",
+      initialValues.error,
+    );
+    return <div>Error parsing plan data</div>;
+  }
+  if (!props.proposal) {
+    return <div>Cannot edit plan without a proposal ID</div>;
+  }
+  return (
+    <MainForm
+      editItemParams={{
+        itemUid: props.itemUid,
+        name: props.name,
+        itemType: "plan",
+        kwargs: initialValues.data,
+      }}
+      proposal={props.proposal}
+      onSubmitSuccess={props.onSubmitSuccess}
+      className={props.className}
+    />
   );
 }
