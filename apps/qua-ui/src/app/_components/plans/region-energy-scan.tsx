@@ -37,7 +37,8 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Textarea } from "@sophys-web/ui/textarea";
-import { QueueItemProps } from "~/lib/types";
+import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import type { QueueItemProps } from "~/lib/types";
 
 export const PLAN_NAME = "region_energy_scan" as const;
 
@@ -275,39 +276,6 @@ function convertTotalTimeToReadable(totalMs: number) {
   }
 }
 
-/**
- * Component to display estimated total time message based on form inputs.
- */
-function EstimatedTotalTimeMessage({
-  regions,
-  settleTime,
-  acquisitionTime,
-  repeats,
-  upAndDown,
-}: z.infer<typeof estimateTimeSchema>) {
-  const estimated = estimateTotalTimeInMs({
-    regions,
-    settleTime,
-    acquisitionTime,
-    repeats,
-    upAndDown,
-  });
-  if (estimated.errors.length > 0) {
-    return (
-      <ul className="col-span-5 mt-1 list-inside list-disc text-center text-sm text-red-400 italic">
-        {estimated.errors.map((error, idx) => (
-          <li key={idx}>{error}</li>
-        ))}
-      </ul>
-    );
-  }
-  return (
-    <span className="text-secondary-foreground col-span-5 mt-1 text-center text-sm italic">
-      Estimated Total Time: {convertTotalTimeToReadable(estimated.timeInMs)}
-    </span>
-  );
-}
-
 // =========================================================================
 // MainForm Component
 // =========================================================================
@@ -497,6 +465,14 @@ export function MainForm({
     name: "upAndDown",
   });
 
+  const estimatedTime = estimateTotalTimeInMs({
+    regions: watchedRegions,
+    settleTime: watchedSettleTime,
+    acquisitionTime: watchedAcquisitionTime,
+    repeats: watchedRepeats,
+    upAndDown: watchedUpAndDown,
+  });
+
   return (
     <Form {...form}>
       <form
@@ -642,172 +618,194 @@ export function MainForm({
             />
           </div>
 
-          <div
-            className="flex flex-col gap-2 rounded-md border border-dashed p-4"
-            role="region-block"
-          >
-            <FormLabel className="col-span-5 text-center text-lg font-semibold">
-              Regions
-            </FormLabel>
-
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="col-span-5 grid [grid-template-columns:1.2fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
-              >
-                {index === 0 && (
-                  <>
-                    <span className="text-sm font-semibold">Space</span>
-                    <span className="text-sm font-semibold">Initial</span>
-                    <span className="text-sm font-semibold">Final</span>
-                    <span className="text-sm font-semibold">Step</span>
-                    <span></span>
-                  </>
-                )}
-                <FormField
-                  control={form.control}
-                  name={`regions.${index}.space`}
-                  render={({ field: selectField }) => (
-                    <FormItem className="w-full">
-                      <Select
-                        value={selectField.value}
-                        onValueChange={(value: "k-space" | "energy-space") => {
-                          selectField.onChange(value); // Update form state FIRST
-                          handleRegionSpaceChange(index, value); // Then trigger custom logic
-                        }}
-                        disabled={
-                          index === 0 ||
-                          index !== fields.length - 1 ||
-                          field.space === "k-space"
-                        }
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select Region Type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="k-space">K-Space</SelectItem>
-                          <SelectItem value="energy-space">
-                            Energy Space
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`regions.${index}.initial`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Initial"
-                          className="min-w-[9ch]"
-                          {...field}
-                          value={field.value === 0 ? "" : field.value}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                          step="any"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`regions.${index}.final`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Final"
-                          className="min-w-[9ch]"
-                          {...field}
-                          value={field.value === 0 ? "" : field.value}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                          step="any"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`regions.${index}.step`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          placeholder="Step"
-                          className="min-w-[9ch]"
-                          {...field}
-                          value={field.value === 0 ? "" : field.value}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                          step="any"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="flex-shrink-1 p-1"
-                  onClick={() => remove(index)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      remove(index);
-                    }
-                  }}
-                  disabled={fields.length === 1 || index !== fields.length - 1}
-                >
-                  <Trash2Icon className="h-4 w-4 text-red-500" />
-                </Button>
-              </div>
-            ))}
-            <EstimatedTotalTimeMessage
-              regions={watchedRegions}
-              settleTime={watchedSettleTime}
-              acquisitionTime={watchedAcquisitionTime}
-              repeats={watchedRepeats}
-              upAndDown={watchedUpAndDown}
-            />
-            <Button
-              type="button"
-              variant="default"
-              className="col-span-5"
-              onClick={handleAddNewRegion}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleAddNewRegion();
-                }
-              }}
+          <ScrollArea className="h-64 max-h-72 w-full px-1">
+            <div
+              data-errorMessage={estimatedTime.errors.length > 0}
+              className="flex flex-col gap-2 rounded-md border border-dashed p-4 data-[errorMessage=true]:border-red-500"
+              role="region-block"
             >
-              Add Region
-            </Button>
-          </div>
+              <FormLabel className="col-span-5 text-center text-lg font-semibold">
+                Regions
+                <InfoTooltip
+                  variant={
+                    estimatedTime.errors.length > 0 ? "destructive" : "default"
+                  }
+                >
+                  {estimatedTime.errors.length > 0 ? (
+                    <ul className="list-inside list-disc text-sm text-red-300">
+                      {estimatedTime.errors.map((error, idx) => (
+                        <li key={idx}>{error}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <span className="text-sm">
+                      Define one or more regions for the energy scan. The last
+                      region can be set to k-space.
+                    </span>
+                  )}
+                </InfoTooltip>
+              </FormLabel>
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="col-span-5 grid [grid-template-columns:1.2fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
+                >
+                  {index === 0 && (
+                    <>
+                      <span className="text-sm font-semibold">Space</span>
+                      <span className="text-sm font-semibold">Initial</span>
+                      <span className="text-sm font-semibold">Final</span>
+                      <span className="text-sm font-semibold">Step</span>
+                      <span></span>
+                    </>
+                  )}
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.space`}
+                    render={({ field: selectField }) => (
+                      <FormItem className="w-full">
+                        <Select
+                          value={selectField.value}
+                          onValueChange={(
+                            value: "k-space" | "energy-space",
+                          ) => {
+                            selectField.onChange(value); // Update form state FIRST
+                            handleRegionSpaceChange(index, value); // Then trigger custom logic
+                          }}
+                          disabled={
+                            index === 0 ||
+                            index !== fields.length - 1 ||
+                            field.space === "k-space"
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select Region Type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="k-space">K-Space</SelectItem>
+                            <SelectItem value="energy-space">
+                              Energy Space
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.initial`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Initial"
+                            className="min-w-[9ch]"
+                            {...field}
+                            value={field.value === 0 ? "" : field.value}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            step="any"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.final`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Final"
+                            className="min-w-[9ch]"
+                            {...field}
+                            value={field.value === 0 ? "" : field.value}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            step="any"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.step`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Step"
+                            className="min-w-[9ch]"
+                            {...field}
+                            value={field.value === 0 ? "" : field.value}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            step="any"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="flex-shrink-1 p-1"
+                    onClick={() => remove(index)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        remove(index);
+                      }
+                    }}
+                    disabled={
+                      fields.length === 1 || index !== fields.length - 1
+                    }
+                  >
+                    <Trash2Icon className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              ))}
+
+              <span className="text-secondary-foreground col-span-5 mt-1 text-center text-sm italic">
+                Estimated Total Time:{" "}
+                {convertTotalTimeToReadable(estimatedTime.timeInMs)}
+              </span>
+
+              <Button
+                type="button"
+                variant="default"
+                className="col-span-5"
+                onClick={handleAddNewRegion}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddNewRegion();
+                  }
+                }}
+              >
+                Add Region
+              </Button>
+            </div>
+          </ScrollArea>
           <div className="flex w-full flex-row items-stretch space-x-4">
             <FormField
               control={form.control}
