@@ -155,7 +155,7 @@ function EditItem(props: QueueItemProps) {
           Edit Item
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="w-fit max-w-full flex-col">
         <DialogHeader>
           <DialogTitle>Edit Item</DialogTitle>
           <DialogDescription>
@@ -169,6 +169,7 @@ function EditItem(props: QueueItemProps) {
             kwargs={props.kwargs}
             proposal={userData?.proposal ?? undefined}
             onSubmitSuccess={() => setOpen(false)}
+            className="w-2xl"
           />
         ) : (
           <EditGenericPlanForm

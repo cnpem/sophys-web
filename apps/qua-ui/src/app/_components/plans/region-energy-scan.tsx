@@ -918,21 +918,20 @@ export function AddRegionEnergyScan({ className }: { className?: string }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-2xl sm:min-w-[540px]">
+      <DialogContent className="w-fit max-w-full flex-col">
         <DialogHeader>
           <DialogTitle>Example</DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
             Please fill in the details below to submit the plan.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="max-h-[70vh] w-full">
-          {data?.proposal && (
-            <MainForm
-              proposal={data.proposal}
-              onSubmitSuccess={() => setOpen(false)}
-            />
-          )}
-        </ScrollArea>
+        {data?.proposal && (
+          <MainForm
+            proposal={data.proposal}
+            onSubmitSuccess={() => setOpen(false)}
+            className="w-2xl"
+          />
+        )}
       </DialogContent>
     </Dialog>
   );
