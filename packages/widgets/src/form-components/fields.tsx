@@ -2,7 +2,6 @@ import type { UseFormReturn } from "react-hook-form";
 import type { z } from "zod";
 import camelCase from "camelcase";
 import { JsonEditor, monoLightTheme } from "json-edit-react";
-import { InfoIcon } from "lucide-react";
 import {
   FormControl,
   FormField,
@@ -20,12 +19,8 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@sophys-web/ui/tooltip";
 import type { AnySchema, Parameter } from "../lib/create-schema";
+import { InfoTooltip } from "./info-tooltip";
 import { MultiSelectDialog } from "./multi-select";
 
 const deviceOptionsNames = ["__READABLE__", "__MOVABLE__", "__FLYABLE__"];
@@ -53,17 +48,6 @@ function snakeToTitleCase(str: string) {
         first !== undefined && first.toUpperCase() + rest.join(""),
     )
     .join(" ");
-}
-
-function InfoTooltip({ children }: { children: React.ReactNode }) {
-  return (
-    <Tooltip>
-      <TooltipTrigger>
-        <InfoIcon className="size-4" />
-      </TooltipTrigger>
-      <TooltipContent>{children}</TooltipContent>
-    </Tooltip>
-  );
 }
 
 interface Devices {
