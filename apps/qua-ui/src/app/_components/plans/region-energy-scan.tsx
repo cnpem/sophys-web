@@ -131,7 +131,7 @@ export const formSchema = z.object({
 const formDefaults = {
   regions: [defaultRegionObject],
   edgeEnergy: 0,
-  settleTime: 0,
+  settleTime: 20,
   acquisitionTime: 0,
   fluorescence: false,
   acquireThermocouple: false,
