@@ -6,6 +6,10 @@ import { format, fromUnixTime } from "date-fns";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { DataTableColumnHeader } from "@sophys-web/widgets/data-table/custom-header";
+import {
+  itemStatusFromResult,
+  statusBgVariants,
+} from "@sophys-web/widgets/lib/history-item-status-utils";
 import type { HistoryItemProps } from "~/lib/types";
 import { RerunButton } from "./rerun";
 
@@ -42,11 +46,7 @@ const defaultColumns = [
   ),
   columnHelper.accessor(
     (row) => {
-      const result = row.result;
-      if (result.traceback) {
-        return result.exitStatus ?? "failed";
-      }
-      return result.exitStatus ?? "finished";
+      return itemStatusFromResult(row.result);
     },
     {
       id: "status",
@@ -54,19 +54,7 @@ const defaultColumns = [
       cell: ({ getValue }) => {
         const status = getValue();
         return (
-          <Badge
-            className={cn("border-none bg-slate-200 text-slate-800", {
-              "bg-red-200 text-red-800": status === "failed",
-              "bg-green-200 text-green-800": status === "completed",
-              "bg-yellow-200 text-yellow-800":
-                status === "aborted" ||
-                status === "halted" ||
-                status === "stopped",
-            })}
-            variant="outline"
-          >
-            {status}
-          </Badge>
+          <Badge className={cn(statusBgVariants({ status }))}>{status}</Badge>
         );
       },
     },
