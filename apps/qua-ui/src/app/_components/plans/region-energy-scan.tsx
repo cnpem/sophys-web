@@ -495,7 +495,7 @@ export function MainForm({
                       type="number"
                       step="any"
                       {...field}
-                      value={field.value === 0 ? "" : field.value}
+                      value={field.value}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
@@ -514,7 +514,7 @@ export function MainForm({
                       type="number"
                       step="any"
                       {...field}
-                      value={field.value === 0 ? "" : field.value}
+                      value={field.value}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
@@ -533,7 +533,7 @@ export function MainForm({
                       type="number"
                       step="any"
                       {...field}
-                      value={field.value === 0 ? "" : field.value}
+                      value={field.value}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
@@ -706,7 +706,7 @@ export function MainForm({
                             placeholder="Initial"
                             className="min-w-[9ch]"
                             {...field}
-                            value={field.value === 0 ? "" : field.value}
+                            value={field.value}
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
@@ -729,7 +729,7 @@ export function MainForm({
                             placeholder="Final"
                             className="min-w-[9ch]"
                             {...field}
-                            value={field.value === 0 ? "" : field.value}
+                            value={field.value}
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
@@ -752,7 +752,7 @@ export function MainForm({
                             placeholder="Step"
                             className="min-w-[9ch]"
                             {...field}
-                            value={field.value === 0 ? "" : field.value}
+                            value={field.value}
                             onChange={(e) =>
                               field.onChange(Number(e.target.value))
                             }
@@ -855,7 +855,7 @@ export function MainForm({
                     <Input
                       type="number"
                       {...field}
-                      value={field.value === 0 ? "" : field.value}
+                      value={field.value}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
