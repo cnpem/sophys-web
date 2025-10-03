@@ -58,7 +58,7 @@ const regionObjectSchema = z
       .gt(0, { message: "Final value must be greater than 0" }),
     step: z.coerce
       .number()
-      .min(0.1, { message: "Step value must be at least 0.1" }),
+      .gt(0, { message: "Step value must be greater than 0" }),
   })
   .refine((data) => data.final > data.initial, {
     message: "Final value must be greater than Initial value",
