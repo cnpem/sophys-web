@@ -5,7 +5,7 @@ const getResponse = z
     msg: z.string().optional(),
     items_in_queue: z.number(),
     items_in_history: z.number(),
-    running_item_uid: z.coerce.string(),
+    running_item_uid: z.string().nullable(),
     manager_state: z.string(),
     queue_stop_pending: z.boolean(),
     queue_autostart_enabled: z.boolean(),
