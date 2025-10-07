@@ -71,7 +71,7 @@ function InfoTooltip({ children }: { children: React.ReactNode }) {
 function parseLiteralTypes(type: string): string[] {
   // match Literal[...] inside possibly prefix with regex
   const literalMatch = /Literal\[(.*)\]/.exec(type);
-  if (!literalMatch || !literalMatch[1]) {
+  if (!literalMatch?.[1]) {
     return [];
   }
   const inside = literalMatch[1];
