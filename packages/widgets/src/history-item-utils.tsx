@@ -78,7 +78,7 @@ export const statusBgVariants = cva("bg-slate-200 text-slate-800", {
       halted: "bg-yellow-200 text-yellow-800",
       stopped: "bg-yellow-200 text-yellow-800",
       finished: "bg-slate-200 text-slate-800",
-      other: "bg-greyy-200 text-grey-800",
+      other: "bg-grey-200 text-grey-800",
     },
   },
   defaultVariants: {
@@ -97,39 +97,6 @@ export function HistoryItemStatusBadge({
     <Badge className={statusBgVariants({ variant, className })}>
       {variant}
     </Badge>
-  );
-}
-
-export function HistoryItemDetails({
-  item,
-  className,
-}: {
-  item: HistoryItemProps;
-  className?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <h3>Plan Name:</h3>
-      <span className="text-sm">{item.name}</span>
-      <h3>Finished At:</h3>
-      <span className="text-sm">
-        {new Date(item.result.timeStop).toLocaleString()}
-      </span>
-      <HistoryItemStatusBadge variant={itemStatusFromResult(item.result)} />
-      <div>
-        <h3>Parameters</h3>
-        <JsonEditor
-          restrictAdd={true}
-          restrictDelete={true}
-          restrictEdit={true}
-          restrictDrag={true}
-          data={item.kwargs}
-          rootName={"parameters"}
-          theme={monoLightTheme}
-          className={cn("!bg-transparent !text-sm", className)}
-        />
-      </div>
-    </div>
   );
 }
 
