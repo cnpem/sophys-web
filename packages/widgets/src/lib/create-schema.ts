@@ -14,14 +14,22 @@ export const createSchema = (parameters: Parameter[]) => {
     const type = annotation?.type ?? "";
     const camelName = camelCase(name);
 
-    if (type.includes("typing.Literal")) {
-      const valuesStr = type.replace("typing.Literal[", "").replace("]", "");
+    if (type.includes("Literal") && !type.includes("list")) {
+      const valuesStr = type.replace("typing.", "").replace("Literal[", "").replace("]", "");
       const valueArray = valuesStr.split(", ").map((v) => v.replace(/'/g, ""));
       schemaFields[camelName] = z.coerce
         .string()
         .refine((val) => valueArray.includes(val), {
           message: `Value must be one of: ${valueArray.join(", ")}`,
         });
+      return;
+    }
+    
+    if (type.includes("Literal") && type.includes("list")) {
+      schemaFields[camelName] = z
+          .array(z.string())
+          .optional()
+          .default([]);
       return;
     }
     switch (type) {
