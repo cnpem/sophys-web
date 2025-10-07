@@ -14,7 +14,7 @@ export const createSchema = (parameters: Parameter[]) => {
     const type = annotation?.type ?? "";
     const camelName = camelCase(name);
 
-    if (type.includes("Literal") && !type.includes("list")) {
+    if (type.includes("Literal") && !(type.includes("list") || type.includes("Sequence"))) {
       const valuesStr = type.replace("typing.", "").replace("Literal[", "").replace("]", "");
       const valueArray = valuesStr.split(", ").map((v) => v.replace(/'/g, ""));
       schemaFields[camelName] = z.coerce
@@ -25,7 +25,7 @@ export const createSchema = (parameters: Parameter[]) => {
       return;
     }
     
-    if (type.includes("Literal") && type.includes("list")) {
+    if (type.includes("Literal") && (type.includes("list") || type.includes("Sequence"))) {
       schemaFields[camelName] = z
           .array(z.string())
           .optional()
