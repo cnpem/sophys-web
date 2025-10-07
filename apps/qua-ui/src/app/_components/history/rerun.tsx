@@ -5,6 +5,11 @@ import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@sophys-web/ui/tooltip";
 import type { HistoryItemProps } from "~/lib/types";
 
 export function RerunButton(props: HistoryItemProps) {
@@ -44,9 +49,13 @@ export function RerunButton(props: HistoryItemProps) {
   };
 
   return (
-    <Button variant="ghost" size="sm" onClick={rerun}>
-      <RotateCcwIcon className="size-4" />
-      Rerun
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="icon" onClick={rerun}>
+          <RotateCcwIcon className="size-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>Rerun</TooltipContent>
+    </Tooltip>
   );
 }
