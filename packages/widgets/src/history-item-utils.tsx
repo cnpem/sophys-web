@@ -171,64 +171,74 @@ export function HistoryItemDialog({
             Detailed information about the selected history item.
           </DialogDescription>
         </DialogHeader>
-        <ul className="mb-4 flex flex-col items-start gap-2">
-          <HistoryItemStatusBadge
-            variant={itemStatusFromResult(item.result)}
-            className="w-full"
-          />
-          <li>
-            <span className="text-accent">Name:</span> {item.name}
-          </li>
-          <li>
-            <span className="text-accent">Start Time:</span>
-            <span className="ml-1 text-sm">
-              {format(
-                fromUnixTime(item.result.timeStart),
-                "yyyy/MM/dd HH:mm:ss",
-              )}
-            </span>
-          </li>
-          <li>
-            <span className="text-accent">End Time:</span>
-            <span className="ml-1 text-sm">
-              {format(
-                fromUnixTime(item.result.timeStop),
-                "yyyy/MM/dd HH:mm:ss",
-              )}
-            </span>
-          </li>
-          <li>
-            <span className="text-accent">User:</span> {item.user}
-          </li>
-          <li>
-            <span className="text-accent">Parameters:</span>
-            <JsonEditor
-              restrictAdd={true}
-              restrictDelete={true}
-              restrictEdit={true}
-              restrictDrag={true}
-              data={item.kwargs}
-              rootName={"kwargs"}
-              theme={monoLightTheme}
-              className={cn("!text-md !ml-0", className)}
-            />
-          </li>
-          <li>
-            <span className="text-accent">
-              Message:
-              <TracebackDialog item={item} />
-            </span>
-            {item.result.msg && (
-              <p className="whitespace-pre-wrap">{item.result.msg}</p>
-            )}
-          </li>
-        </ul>
+        <HistoryItemContent item={item} />
       </DialogContent>
     </Dialog>
   );
 }
 
-function TracebackDialog({ item }: { item: HistoryItemProps }) {
+export function HistoryItemContent({
+  item,
+  className,
+}: {
+  item: HistoryItemProps;
+  className?: string;
+}) {
+  return (
+    <ul
+      className={cn("mb-4 flex flex-col items-start gap-2 text-sm", className)}
+    >
+      <HistoryItemStatusBadge
+        variant={itemStatusFromResult(item.result)}
+        className="w-full"
+      />
+      <li>
+        <span className="text-muted-foreground font-semibold">Name:</span>{" "}
+        {item.name}
+      </li>
+      <li>
+        <span className="text-muted-foreground font-semibold">Start Time:</span>
+        <span className="ml-1 text-sm">
+          {format(fromUnixTime(item.result.timeStart), "yyyy/MM/dd HH:mm:ss")}
+        </span>
+      </li>
+      <li>
+        <span className="text-muted-foreground font-semibold">End Time:</span>
+        <span className="ml-1 text-sm">
+          {format(fromUnixTime(item.result.timeStop), "yyyy/MM/dd HH:mm:ss")}
+        </span>
+      </li>
+      <li>
+        <span className="text-muted-foreground font-semibold">User:</span>{" "}
+        {item.user}
+      </li>
+      <li>
+        <span className="text-muted-foreground font-semibold">Parameters:</span>
+        <JsonEditor
+          restrictAdd={true}
+          restrictDelete={true}
+          restrictEdit={true}
+          restrictDrag={true}
+          data={item.kwargs}
+          rootName={"kwargs"}
+          theme={monoLightTheme}
+          className={cn("!ml-0 !text-sm", className)}
+        />
+      </li>
+      <li>
+        <span className="text-muted-foreground font-semibold">
+          Message:
+          <TracebackDialog item={item} />
+        </span>
+        {item.result.msg && (
+          <p className="whitespace-pre-wrap">{item.result.msg}</p>
+        )}
+      </li>
+    </ul>
+  );
+}
+
+export function TracebackDialog({ item }: { item: HistoryItemProps }) {
   const traceback = item.result.traceback;
 
   function onDownload() {
@@ -263,9 +273,10 @@ function TracebackDialog({ item }: { item: HistoryItemProps }) {
         <DialogHeader>
           <DialogTitle>Traceback</DialogTitle>
           <DialogDescription>
-            Traceback for <span className="font-medium">{item.name}</span> -
-            Started at:{" "}
-            <span className="font-medium">
+            Traceback for{" "}
+            <span className="text-sm font-semibold">{item.name}</span> - started
+            at:{" "}
+            <span className="font-semibold">
               {format(
                 fromUnixTime(item.result.timeStart),
                 "yyyy/MM/dd HH:mm:ss",
@@ -279,8 +290,8 @@ function TracebackDialog({ item }: { item: HistoryItemProps }) {
             className="bg-accent h-96 w-fit rounded-md border p-4"
             id="my-scroll"
           >
-            <pre className="field-sizing-content font-mono text-base whitespace-pre-wrap">
-              {traceback + traceback + traceback + traceback + traceback}
+            <pre className="field-sizing-content font-mono text-sm whitespace-pre-wrap">
+              {traceback}
             </pre>
             <ScrollBar orientation="vertical" />
           </ScrollArea>
