@@ -76,16 +76,16 @@ function parseLiteralTypes(type: string): string[] {
   }
   const inside = literalMatch[1];
   // remove extra [ or ] with global tag
-  const cleaned = inside.replace(/\[|\]/g, '');
+  const cleaned = inside.replace(/\[|\]/g, "");
   // split with comma and trim and remove only wrapping ' if present
   return cleaned
     .split(/\s*,\s*/)
-    .map(opt => {
+    .map((opt) => {
       const trimmed = opt.trim();
       // remove surrounding single or double quotes, if they exist
-      return trimmed.replace(/^'(.*)'$/, '$1').replace(/^"(.*)"$/, '$1');
+      return trimmed.replace(/^'(.*)'$/, "$1").replace(/^"(.*)"$/, "$1");
     })
-    .filter(opt => opt.length > 0);
+    .filter((opt) => opt.length > 0);
 }
 
 interface Devices {
@@ -123,13 +123,17 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
   if (type.includes("bool")) {
     return <BoolField param={param} form={form} type={type} />;
   }
-  if (type.includes("Literal") && !(type.includes("list") || type.includes("Sequence"))) {
+  if (
+    type.includes("Literal") &&
+    !(type.includes("list") || type.includes("Sequence"))
+  ) {
     return <LiteralField param={param} form={form} type={type} />;
   }
-  if ((type.includes("list") || type.includes("Sequence")) && type.includes("Literal")){
-    return (
-        <MultiLiteralField param={param} form={form} type={type} />
-      );
+  if (
+    (type.includes("list") || type.includes("Sequence")) &&
+    type.includes("Literal")
+  ) {
+    return <MultiLiteralField param={param} form={form} type={type} />;
   }
   if (
     !type.includes("list") &&
@@ -252,7 +256,7 @@ function LiteralField({ param, type, form }: TypedFieldProps) {
 
 function MultiLiteralField({ param, type, form }: TypedFieldProps) {
   const options = parseLiteralTypes(type);
-  if (options.length === 0){
+  if (options.length === 0) {
     console.warn(`MultiLiteralField: There is no options for type "${type}"`);
   }
   return (
@@ -278,7 +282,6 @@ function MultiLiteralField({ param, type, form }: TypedFieldProps) {
     />
   );
 }
-
 
 function BoolField({ param, form }: TypedFieldProps) {
   return (
