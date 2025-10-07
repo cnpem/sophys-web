@@ -3,14 +3,15 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { createColumnHelper } from "@tanstack/react-table";
 import { format, fromUnixTime } from "date-fns";
+import type { HistoryItemProps } from "@sophys-web/widgets/history-item-utils";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { DataTableColumnHeader } from "@sophys-web/widgets/data-table/custom-header";
 import {
+  HistoryItemDialog,
   itemStatusFromResult,
   statusBgVariants,
-} from "@sophys-web/widgets/lib/history-item-status-utils";
-import type { HistoryItemProps } from "~/lib/types";
+} from "@sophys-web/widgets/history-item-utils";
 import { RerunButton } from "./rerun";
 
 const columnHelper = createColumnHelper<HistoryItemProps>();
@@ -54,14 +55,21 @@ const defaultColumns = [
       cell: ({ getValue }) => {
         const status = getValue();
         return (
-          <Badge className={cn(statusBgVariants({ status }))}>{status}</Badge>
+          <Badge className={cn(statusBgVariants({ variant: status }))}>
+            {status}
+          </Badge>
         );
       },
     },
   ),
   columnHelper.display({
     id: "actions",
-    cell: ({ row }) => <RerunButton {...row.original} />,
+    cell: ({ row }) => (
+      <div className="flex flex-row justify-end">
+        <RerunButton {...row.original} />
+        <HistoryItemDialog item={row.original} className="ml-2" />
+      </div>
+    ),
   }),
 ];
 
