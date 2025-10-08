@@ -620,8 +620,8 @@ export function MainForm({
 
           <ScrollArea className="h-64 max-h-72 w-full px-1">
             <div
-              data-errorMessage={estimatedTime.errors.length > 0}
-              className="flex flex-col gap-2 rounded-md border border-dashed p-4 data-[errorMessage=true]:border-red-500"
+              data-error={estimatedTime.errors.length > 0}
+              className="flex flex-col gap-2 rounded-md border border-dashed p-4 data-[error=true]:border-red-500"
               role="region-block"
             >
               <FormLabel className="col-span-5 text-center text-lg font-semibold">
