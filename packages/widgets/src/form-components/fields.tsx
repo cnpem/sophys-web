@@ -270,7 +270,8 @@ function MultiLiteralField({ param, type, form }: TypedFieldProps) {
             <InfoTooltip>{param.description}</InfoTooltip>
           </div>
           <MultiSelectDialog
-            defaultOptions={field.value as string[]}
+            defaultValue={[]}
+            value={field.value as unknown}
             onChange={field.onChange}
             options={options}
             placeholder="Select options"
@@ -479,7 +480,8 @@ function MultiSelectField({
             <InfoTooltip>{param.description}</InfoTooltip>
           </div>
           <MultiSelectDialog
-            defaultOptions={field.value as string[]}
+            defaultValue={[]}
+            value={field.value as unknown}
             onChange={field.onChange}
             options={typeOptions}
             placeholder="Select options"
