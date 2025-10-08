@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { JsonEditor, monoLightTheme } from "json-edit-react";
 import { AlertCircleIcon } from "lucide-react";
+import { useSound } from "use-sound";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import {
@@ -40,6 +41,19 @@ export function RunningItem() {
         data.items.find((item) => item.itemUid === finishedItemUid),
     },
   );
+
+  const [playSound] = useSound("/sounds/hopeful-notification.mp3");
+
+  useEffect(() => {
+    if (!dialogOpen) return;
+    // play sound immediately when dialog opens
+    playSound();
+    // then set interval to play sound every 5 seconds
+    const interval = setInterval(() => {
+      playSound();
+    }, 5000); // every 5 seconds
+    return () => clearInterval(interval);
+  }, [dialogOpen, playSound]);
 
   useEffect(() => {
     const prevRunningItemUid = runningItemUidRef.current;
