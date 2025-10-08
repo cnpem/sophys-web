@@ -225,7 +225,8 @@ function estimateTotalTimeInMs(props: z.infer<typeof estimateTimeSchema>): {
   const errors: string[] = [];
   if (!parsed.success) {
     parsed.error.errors.forEach((err) => {
-      if (err.message) errors.push(err.message);
+      const component = err.path.join(".");
+      errors.push(`${component}: ${err.message}`);
     });
     return { timeInMs: 0, errors };
   }
@@ -626,24 +627,6 @@ export function MainForm({
             >
               <FormLabel className="col-span-5 text-center text-lg font-semibold">
                 Regions
-                <InfoTooltip
-                  variant={
-                    estimatedTime.errors.length > 0 ? "destructive" : "default"
-                  }
-                >
-                  {estimatedTime.errors.length > 0 ? (
-                    <ul className="list-inside list-disc text-sm text-red-300">
-                      {estimatedTime.errors.map((error, idx) => (
-                        <li key={idx}>{error}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <span className="text-sm">
-                      Define one or more regions for the energy scan. The last
-                      region can be set to k-space.
-                    </span>
-                  )}
-                </InfoTooltip>
               </FormLabel>
               {fields.map((field, index) => (
                 <div
@@ -787,7 +770,16 @@ export function MainForm({
 
               <span className="text-secondary-foreground col-span-5 mt-1 text-center text-sm italic">
                 Estimated Total Time:{" "}
-                {convertTotalTimeToReadable(estimatedTime.timeInMs)}
+                {convertTotalTimeToReadable(estimatedTime.timeInMs)}{" "}
+                {estimatedTime.errors.length > 0 && (
+                  <InfoTooltip variant="destructive">
+                    <ul className="list-inside list-disc text-sm text-red-300">
+                      {estimatedTime.errors.map((error, idx) => (
+                        <li key={idx}>{error}</li>
+                      ))}
+                    </ul>
+                  </InfoTooltip>
+                )}
               </span>
 
               <Button
