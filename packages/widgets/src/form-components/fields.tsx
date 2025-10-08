@@ -45,6 +45,7 @@ function definePlaceholder(type: string) {
   }
   return "No information on input type";
 }
+
 function snakeToTitleCase(str: string) {
   return str
     .split("_")
@@ -64,6 +65,27 @@ function InfoTooltip({ children }: { children: React.ReactNode }) {
       <TooltipContent>{children}</TooltipContent>
     </Tooltip>
   );
+}
+
+// this might be useful in other parts too
+function parseLiteralTypes(type: string): string[] {
+  // match Literal[...] inside possibly prefix with regex
+  const literalMatch = /Literal\[(.*)\]/.exec(type);
+  if (!literalMatch?.[1]) {
+    return [];
+  }
+  const inside = literalMatch[1];
+  // remove extra [ or ] with global tag
+  const cleaned = inside.replace(/\[|\]/g, "");
+  // split with comma and trim and remove only wrapping ' if present
+  return cleaned
+    .split(/\s*,\s*/)
+    .map((opt) => {
+      const trimmed = opt.trim();
+      // remove surrounding single or double quotes, if they exist
+      return trimmed.replace(/^'(.*)'$/, "$1").replace(/^"(.*)"$/, "$1");
+    })
+    .filter((opt) => opt.length > 0);
 }
 
 interface Devices {
@@ -101,8 +123,17 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
   if (type.includes("bool")) {
     return <BoolField param={param} form={form} type={type} />;
   }
-  if (type.includes("typing.Literal") && !type.includes("list")) {
+  if (
+    type.includes("Literal") &&
+    !(type.includes("list") || type.includes("Sequence"))
+  ) {
     return <LiteralField param={param} form={form} type={type} />;
+  }
+  if (
+    (type.includes("list") || type.includes("Sequence")) &&
+    type.includes("Literal")
+  ) {
+    return <MultiLiteralField param={param} form={form} type={type} />;
   }
   if (
     !type.includes("list") &&
@@ -188,10 +219,7 @@ function CallableField({ param, form }: TypedFieldProps) {
 }
 
 function LiteralField({ param, type, form }: TypedFieldProps) {
-  const optionsStr = type.replace("typing.Literal[", "").replace("]", "");
-  const options = optionsStr.split(", ").map((option) => {
-    return option.replace(/'/g, "");
-  });
+  const options = parseLiteralTypes(type);
   return (
     <FormField
       control={form.control}
@@ -219,6 +247,36 @@ function LiteralField({ param, type, form }: TypedFieldProps) {
               </SelectContent>
             </Select>
           </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function MultiLiteralField({ param, type, form }: TypedFieldProps) {
+  const options = parseLiteralTypes(type);
+  if (options.length === 0) {
+    console.warn(`MultiLiteralField: There is no options for type "${type}"`);
+  }
+  return (
+    <FormField
+      control={form.control}
+      name={camelCase(param.name)}
+      render={({ field }) => (
+        <FormItem>
+          <div className="inline-flex gap-1">
+            <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
+            <InfoTooltip>{param.description}</InfoTooltip>
+          </div>
+          <MultiSelectDialog
+            defaultValue={[]}
+            value={field.value as unknown}
+            onChange={field.onChange}
+            options={options}
+            placeholder="Select options"
+            selectAll
+          />
           <FormMessage />
         </FormItem>
       )}
@@ -422,7 +480,8 @@ function MultiSelectField({
             <InfoTooltip>{param.description}</InfoTooltip>
           </div>
           <MultiSelectDialog
-            defaultOptions={field.value as string[]}
+            defaultValue={[]}
+            value={field.value as unknown}
             onChange={field.onChange}
             options={typeOptions}
             placeholder="Select options"

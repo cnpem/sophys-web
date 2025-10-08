@@ -10,36 +10,39 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 
 interface MultiSelectDialogProps {
-  defaultOptions?: string[];
+  defaultValue: string[];
+  value: unknown;
   options: string[];
   placeholder?: string;
   selectAll?: boolean;
   onChange: (selectedOptions: string[]) => void;
 }
 
+function isStringArray(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) && value.every((item) => typeof item === "string")
+  );
+}
+
 export function MultiSelectDialog({
+  defaultValue,
+  value,
   options,
-  defaultOptions,
   placeholder = "Select options",
-  selectAll = false,
+  selectAll = true,
   onChange,
 }: MultiSelectDialogProps) {
-  const [selectedOptions, setSelectedOptions] = useState<string[]>(
-    defaultOptions ?? [],
-  );
+  const safeValue = isStringArray(value) ? value : defaultValue;
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOptionToggle = useCallback(
     (option: string) => {
-      setSelectedOptions((prev) => {
-        const newOptions = prev.includes(option)
-          ? prev.filter((item) => item !== option)
-          : [...prev, option];
-        onChange(newOptions);
-        return newOptions;
-      });
+      const newOptions = safeValue.includes(option)
+        ? safeValue.filter((item) => item !== option)
+        : [...safeValue, option];
+      onChange(newOptions);
     },
-    [onChange],
+    [onChange, safeValue],
   );
 
   const handleItemClick = useCallback(
@@ -51,22 +54,15 @@ export function MultiSelectDialog({
     [handleOptionToggle],
   );
 
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (!open) {
-        onChange(selectedOptions);
-      }
-      setIsOpen(open);
-    },
-    [onChange, selectedOptions],
-  );
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+  }, []);
 
   const renderTrigger = useCallback(() => {
-    if (!Array.isArray(selectedOptions) || selectedOptions.length === 0)
-      return placeholder;
-    if (selectedOptions.length === 1) return selectedOptions[0];
+    if (!Array.isArray(safeValue) || safeValue.length === 0) return placeholder;
+    if (safeValue.length === 1) return safeValue[0];
     return "(multiple items selected)";
-  }, [selectedOptions, placeholder]);
+  }, [safeValue, placeholder]);
 
   return (
     <DropdownMenu onOpenChange={handleOpenChange} open={isOpen}>
@@ -81,38 +77,30 @@ export function MultiSelectDialog({
       <DropdownMenuContent className="w-full gap-1">
         {selectAll ? (
           <DropdownMenuCheckboxItem
-            checked={selectedOptions.length === options.length}
+            checked={safeValue.length === options.length}
             onSelect={(event) => {
-              if (selectedOptions.length === options.length) {
-                setSelectedOptions([]);
+              if (safeValue.length === options.length) {
+                onChange([]);
               } else {
-                setSelectedOptions(options);
+                onChange(options);
               }
               event.preventDefault();
               event.stopPropagation();
             }}
+            className="font-medium"
           >
             Select/Unselect All
           </DropdownMenuCheckboxItem>
         ) : null}
-        {options
-          .sort((a, b) => {
-            // sort options dynamically by selected first
-            const aSelected = selectedOptions.includes(a);
-            const bSelected = selectedOptions.includes(b);
-            if (aSelected && !bSelected) return -1;
-            if (!aSelected && bSelected) return 1;
-            return a.localeCompare(b);
-          })
-          .map((option) => (
-            <DropdownMenuCheckboxItem
-              checked={selectedOptions.includes(option)}
-              key={option}
-              onSelect={handleItemClick(option)}
-            >
-              {option}
-            </DropdownMenuCheckboxItem>
-          ))}
+        {options.map((option) => (
+          <DropdownMenuCheckboxItem
+            checked={safeValue.includes(option)}
+            key={option}
+            onSelect={handleItemClick(option)}
+          >
+            {option}
+          </DropdownMenuCheckboxItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
