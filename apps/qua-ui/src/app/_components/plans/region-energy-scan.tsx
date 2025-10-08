@@ -37,248 +37,101 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Textarea } from "@sophys-web/ui/textarea";
+import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import type { QueueItemProps } from "~/lib/types";
 
-const kRegionSchema = z.object({
-  space: z.literal("k-space"),
-  initial: z.coerce.number().max(30).gt(0),
-  final: z.coerce.number().max(30).gt(0),
-  step: z.coerce.number().min(0.01),
-});
+export const PLAN_NAME = "region_energy_scan" as const;
 
-const energyRegionSchema = z.object({
-  space: z.literal("energy-space"),
-  initial: z.coerce.number().gt(0),
-  final: z.coerce.number().gt(0),
-  step: z.coerce.number().min(0.1),
-});
+const spaceEnum = z.enum(["energy-space", "k-space"]);
+/**
+ * Schema for a single region in object format.
+ * This is used for form state management.
+ */
+const regionObjectSchema = z
+  .object({
+    space: spaceEnum,
+    initial: z.coerce
+      .number()
+      .gt(0, { message: "Initial value must be greater than 0" }),
+    final: z.coerce
+      .number()
+      .gt(0, { message: "Final value must be greater than 0" }),
+    step: z.coerce
+      .number()
+      .gt(0, { message: "Step value must be greater than 0" }),
+  })
+  .refine((data) => data.final > data.initial, {
+    message: "Final value must be greater than Initial value",
+  });
 
+/**
+ * Schema for a single region in tuple format.
+ * This is used for API submission and retrieval.
+ */
+export const regionTupleSchema = z.tuple([
+  spaceEnum,
+  z.number(),
+  z.number(),
+  z.number(),
+]);
+
+const defaultRegionObject = {
+  space: "energy-space",
+  initial: 1,
+  final: 1,
+  step: 1,
+} as const satisfies z.infer<typeof regionObjectSchema>;
+
+/**
+ *  Schema for submitting the form
+ *  Regions are now an array of objects
+ */
 export const formSchema = z.object({
-  regions: z.array(z.union([kRegionSchema, energyRegionSchema])),
-  settleTime: z.coerce.number({
-    description: "Time in ms for the settling phase",
+  regions: z.array(regionObjectSchema).min(1, {
+    message: "At least one region is required",
   }),
-  acquisitionTime: z.coerce.number({
-    description: "Time in ms for the acquisition phase",
-  }),
+  settleTime: z.coerce
+    .number({
+      description: "Time in ms for the settling phase",
+    })
+    .gt(0, "Settle Time must be a positive number"),
+  acquisitionTime: z.coerce
+    .number({
+      description: "Time in ms for the acquisition phase",
+    })
+    .gt(0, "Acquisition Time must a positive number"),
   fluorescence: z.boolean(),
-  edgeEnergy: z.coerce.number({
-    description:
-      "Edge (E0) energy in eV for converting the energy space to k-space",
-  }),
-  acquireThermocouple: z.boolean().optional().default(false),
-  upAndDown: z.boolean().default(false),
-  saveFlyData: z.boolean().default(false),
+  edgeEnergy: z.coerce
+    .number({
+      description:
+        "Edge (E0) energy in eV for converting energy space to k-space",
+    })
+    .gt(0, "Edge Energy must a positive number"),
+  acquireThermocouple: z.boolean(),
+  upAndDown: z.boolean(),
+  saveFlyData: z.boolean(),
   fileName: z.string().optional(),
   metadata: z.string().optional(),
   repeats: z.coerce
     .number({
       description: "Number of repeats for the plan",
     })
-    .int()
-    .min(1)
-    .default(1),
-  proposal: z.string({
-    description: "Proposal ID",
-  }),
+    .int("Repeats must be an integer")
+    .min(1, "Repeats must be at least 1"),
+  proposal: z
+    .string({
+      description: "Proposal ID",
+    })
+    .min(1, "Proposal ID is required"),
 });
 
-// schema for reading the plan kwargs from the queue as json and converting it to the form schema
-// the only difference is that the regions are tuples instead of objects and need to be converted
-export const planEditSchema = z.object({
-  regions: z
-    .array(z.tuple([z.string(), z.number(), z.number(), z.number()]))
-    .transform((regions) =>
-      regions.map((region) => convertRegionTupleToObject(region)),
-    ),
-  settleTime: z.coerce.number(),
-  acquisitionTime: z.coerce.number(),
-  fluorescence: z.boolean(),
-  edgeEnergy: z.coerce.number(),
-  acquireThermocouple: z.boolean().optional().default(false),
-  upAndDown: z.boolean().optional().default(false),
-  saveFlyData: z.boolean().optional().default(false),
-  fileName: z.string().optional(),
-  metadata: z.string().optional(),
-  repeats: z.coerce.number().int().min(1).default(1),
-  proposal: z.string(),
-});
-
-// this plan performs the inverse transformation from formSchema to the plan submission schema
-// changing the regions from objects to tuples
-export const planSubmitSchema = z.object({
-  regions: z
-    .array(z.union([kRegionSchema, energyRegionSchema]))
-    .length(1, "At least one region is required")
-    .transform((regions) =>
-      regions.map((region) =>
-        convertRegionObjectToTuple(region as z.infer<typeof kRegionSchema>),
-      ),
-    ),
-  settleTime: z.coerce.number().min(1),
-  acquisitionTime: z.coerce.number().min(1),
-  fluorescence: z.boolean(),
-  edgeEnergy: z.coerce.number().min(1),
-  // Optional fields with defaults
-  acquireThermocouple: z.boolean().default(false),
-  upAndDown: z.boolean().default(false),
-  saveFlyData: z.boolean().default(false),
-  fileName: z.string().optional(),
-  metadata: z.string().optional(),
-  repeats: z.coerce.number().int().min(1).default(1),
-  proposal: z.string(),
-});
-
-export const planName = "region_energy_scan";
-
-export function AddRegionEnergyScan({ className }: { className?: string }) {
-  const [open, setOpen] = useState(false);
-  const { data } = api.auth.getUser.useQuery();
-  const { addBatch } = useQueue();
-
-  function onSubmit(data: z.infer<typeof planSubmitSchema>) {
-    toast.info("Submitting sample...");
-
-    addBatch.mutate(
-      {
-        items: [
-          {
-            name: planName,
-            itemType: "plan",
-            args: [],
-            kwargs: data,
-          },
-          // Add a stop instruction to the queue
-          {
-            name: "queue_stop",
-            itemType: "instruction",
-            args: [],
-            kwargs: {},
-          },
-        ],
-        pos: "front",
-      },
-      {
-        onSuccess: () => {
-          toast.success("Sample submitted!");
-          setOpen(false);
-        },
-        onError: (error) => {
-          toast.error("Failed to submit sample", {
-            description: error.message,
-            closeButton: true,
-          });
-        },
-      },
-    );
-  }
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className={className}>
-          <CameraIcon className="mr-2 h-4 w-4" />
-          New Region Energy Scan
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent className="max-w-2xl sm:min-w-[540px]">
-        <DialogHeader>
-          <DialogTitle>Example</DialogTitle>
-          <DialogDescription className="flex flex-col gap-2">
-            Please fill in the details below to submit the plan.
-          </DialogDescription>
-        </DialogHeader>
-        <ScrollArea className="max-h-[70vh] w-full">
-          <PlanForm
-            onSubmit={onSubmit}
-            initialValues={{
-              proposal: data?.proposal ?? "",
-            }}
-          />
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function EnergyToK(energy: number, edgeEnergy: number) {
-  // Convert energy to k-space using the formula k = sqrt(2 * m * (E - E0)) / hbar
-  // Here, we use the simplified formula k = sqrt((E-E0)/3.81)
-  // and round to 4 decimal places
-  return Math.round(Math.sqrt((energy - edgeEnergy) / 3.81) * 10000) / 10000; // Round to 4 decimal places
-}
-
-function calculateNextRegion(
-  regionsArray: z.infer<typeof formSchema>["regions"],
-  edgeEnergyRaw: unknown,
-) {
-  // Calculate the next region based on the last region in the array in the same space as the last region
-  const edgeEnergy = Number(edgeEnergyRaw);
-  if (isNaN(edgeEnergy)) {
-    throw new Error("edgeEnergy must be a valid number");
-  }
-  const lastRegion = regionsArray[regionsArray.length - 1];
-  if (!lastRegion) {
-    // If no regions exist, create a new one in energy-space with zero values
-    return {
-      space: "energy-space",
-      initial: 0, // Default initial value
-      final: 0, // Default final value
-      step: 0, // Default step value
-    } as z.infer<typeof energyRegionSchema>;
-  }
-  const initial = lastRegion.final;
-  const final = 0; // Increment by the same delta as the last region
-  const step = 0; // Keep the same step
-  if (lastRegion.space === "k-space") {
-    // If the last region is in k-space, return a new region in k-space
-    return {
-      space: "k-space",
-      initial,
-      final,
-      step,
-    } as z.infer<typeof kRegionSchema>;
-  } else {
-    // If the last region is in energy-space, return a new region in energy-space
-    return {
-      space: "energy-space",
-      initial,
-      final,
-      step,
-    } as z.infer<typeof energyRegionSchema>;
-  }
-}
-
-function convertRegionObjectToTuple(
-  region: z.infer<typeof formSchema>["regions"][number],
-) {
-  return [region.space, region.initial, region.final, region.step];
-}
-
-function convertRegionTupleToObject(
-  region: [string, number, number, number],
-): z.infer<typeof kRegionSchema> | z.infer<typeof energyRegionSchema> {
-  const [space, initial, final, step] = region;
-  if (space === "k-space") {
-    return { space, initial, final, step } as z.infer<typeof kRegionSchema>;
-  } else {
-    return { space, initial, final, step } as z.infer<
-      typeof energyRegionSchema
-    >;
-  }
-}
-
-const requiredDefaults = {
-  regions: [
-    {
-      space: "energy-space",
-      initial: 0,
-      final: 0,
-      step: 0,
-    },
-  ],
+/**
+ * Default values for the form, using object structure for regions.
+ */
+const formDefaults = {
+  regions: [defaultRegionObject],
   edgeEnergy: 0,
-  settleTime: 0,
+  settleTime: 20,
   acquisitionTime: 0,
   fluorescence: false,
   acquireThermocouple: false,
@@ -286,57 +139,295 @@ const requiredDefaults = {
   saveFlyData: false,
   repeats: 1,
   proposal: "",
+  metadata: "",
 } as z.infer<typeof formSchema>;
 
-export function PlanForm({
+/**
+ * Utility to convert an array of region objects to an array of region tuples.
+ * This is used for API submission.
+ */
+function convertRegionObjectsToTuples(
+  regions: z.infer<typeof regionObjectSchema>[],
+): z.infer<typeof regionTupleSchema>[] {
+  return regions.map((region) => [
+    region.space,
+    region.initial,
+    region.final,
+    region.step,
+  ]);
+}
+
+/**
+ * Utility to convert an array of region tuples to an array of region objects.
+ * This is used for pre-filling the form.
+ */
+export function convertRegionTuplesToObjects(
+  tuples: z.infer<typeof regionTupleSchema>[],
+): z.infer<typeof regionObjectSchema>[] {
+  return tuples.map((tuple) => ({
+    space: tuple[0],
+    initial: tuple[1],
+    final: tuple[2],
+    step: tuple[3],
+  }));
+}
+
+function EnergyToK(energy: number, edgeEnergy: number) {
+  const value = (energy - edgeEnergy) / 3.81;
+  if (value < 0) {
+    console.warn(
+      `Energy (${energy}) is less than Edge Energy (${edgeEnergy}). Cannot convert to k-space.`,
+    );
+    return 0;
+  }
+  return Math.round(Math.sqrt(value) * 10000) / 10000;
+}
+
+// ========================================================================
+// Estimate total time logic
+// ========================================================================
+
+/**
+ * Calculate number of points in a region as int((final - initial) / step)
+ * returns 0 for invalid regions (no step, step <= 0, final - initial <= 0)
+ * @param region
+ * @returns number of points
+ */
+function calculatePointsInRegion(region: z.infer<typeof regionObjectSchema>): {
+  points: number | undefined;
+  error?: string;
+} {
+  return { points: Math.floor((region.final - region.initial) / region.step) };
+}
+
+const estimateTimeSchema = formSchema.pick({
+  regions: true,
+  settleTime: true,
+  acquisitionTime: true,
+  repeats: true,
+  upAndDown: true,
+});
+/**
+ * Estimate total time in ms for the scan based on the regions, settle time, acquisition time, repeats and upAndDown
+ * @param regions
+ * @param settleTime
+ * @param acquisitionTime
+ * @param repeats
+ * @param upAndDown
+ * @returns
+ * { timeInMs: number; errors: string[] } - estimated time in ms and any errors encountered during calculation
+ */
+function estimateTotalTimeInMs(props: z.infer<typeof estimateTimeSchema>): {
+  timeInMs: number;
+  errors: string[];
+} {
+  const parsed = estimateTimeSchema.safeParse(props);
+  const errors: string[] = [];
+  if (!parsed.success) {
+    parsed.error.errors.forEach((err) => {
+      const component = err.path.join(".");
+      errors.push(`${component}: ${err.message}`);
+    });
+    return { timeInMs: 0, errors };
+  }
+  const { regions, settleTime, acquisitionTime, repeats, upAndDown } =
+    parsed.data;
+
+  const result = regions.reduce(
+    (acc, region) => {
+      const { points, error } = calculatePointsInRegion(region);
+      if (error) acc.errors.push(error);
+      acc.points += points ?? 0;
+      return acc;
+    },
+    { points: 0, errors: [] as string[] },
+  );
+  const countTotalPoints = result.points;
+  const upAndDownTimes = upAndDown ? 2 : 1;
+  const timeInMs =
+    countTotalPoints *
+    (settleTime + acquisitionTime) *
+    repeats *
+    upAndDownTimes;
+  return {
+    timeInMs,
+    errors: result.errors,
+  };
+}
+
+/**
+ * Convert total time in ms to a readable string in seconds, minutes or hours
+ * @param totalMs
+ * @returns human readable string representation of estimated time (e.g. "5.0 seconds", "2.5 minutes", "1.0 hours")
+ */
+function convertTotalTimeToReadable(totalMs: number) {
+  const oneSecondMs = 1000;
+  const oneMinuteMs = 60000;
+  const oneHourMs = 3600000;
+  if (totalMs === 0) {
+    return "Not enough data";
+  } else if (totalMs < oneSecondMs) {
+    return "less than a second";
+  } else if (totalMs < oneMinuteMs) {
+    return `${(totalMs / oneSecondMs).toFixed(1)} seconds`;
+  } else if (totalMs < oneHourMs) {
+    return `${(totalMs / oneMinuteMs).toFixed(1)} minutes`;
+  } else {
+    return `${(totalMs / oneHourMs).toFixed(1)} hours`;
+  }
+}
+
+// =========================================================================
+// MainForm Component
+// =========================================================================
+
+/**
+ * Main form component for the Region Energy Scan plan.
+ * Handles both creation and editing of plans.
+ * Props:
+ * - className: optional class name for styling
+ * - proposal: proposal ID to associate with the plan
+ * - editItemParams: optional parameters for editing an existing plan
+ *
+ * If editItemParams is provided, the form will be pre-filled with the existing plan data.
+ * and submitting the form will update the existing plan instead of creating a new one in the queue.
+ */
+export function MainForm({
   className,
-  onSubmit,
-  initialValues,
+  proposal,
+  editItemParams,
+  onSubmitSuccess,
 }: {
   className?: string;
-  onSubmit: (data: z.infer<typeof planSubmitSchema>) => void;
-  initialValues?: Partial<z.infer<typeof planEditSchema>>;
+  proposal: string;
+  editItemParams?: {
+    name: string;
+    itemType: string;
+    args?: unknown[];
+    kwargs: z.infer<typeof formSchema>;
+    itemUid: string;
+  };
+  onSubmitSuccess?: () => void;
 }) {
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      ...requiredDefaults,
-      ...initialValues, // override with initial values if provided
-    } as z.infer<typeof formSchema>,
-    // mode: "onSubmit",
+      ...formDefaults,
+      ...editItemParams?.kwargs,
+      proposal,
+    },
   });
 
-  // Use useFieldArray for managing the 'regions' array
-  const {
-    fields: regionsArrayFields,
-    append,
-    remove,
-    update,
-  } = useFieldArray({
+  const { addBatch: submitPlan, update: editPlan } = useQueue();
+
+  function onSubmit(formData: z.infer<typeof formSchema>) {
+    const apiData = {
+      ...formData,
+      regions: convertRegionObjectsToTuples(formData.regions),
+    };
+
+    if (editItemParams) {
+      editPlan.mutate(
+        {
+          item: {
+            name: editItemParams.name,
+            itemType: "plan",
+            args: [],
+            kwargs: apiData,
+            itemUid: editItemParams.itemUid,
+          },
+        },
+        {
+          onSuccess: () => {
+            if (onSubmitSuccess) onSubmitSuccess();
+          },
+          onError: (error) => {
+            toast.error("Failed to edit plan", {
+              description: error.message,
+              closeButton: true,
+            });
+          },
+        },
+      );
+    } else {
+      submitPlan.mutate(
+        {
+          items: [
+            {
+              name: PLAN_NAME,
+              itemType: "plan",
+              args: [],
+              kwargs: apiData,
+            },
+            {
+              name: "queue_stop",
+              itemType: "instruction",
+              args: [],
+              kwargs: {},
+            },
+          ],
+          pos: "front",
+        },
+        {
+          onSuccess: () => {
+            if (onSubmitSuccess) onSubmitSuccess();
+          },
+          onError: (error) => {
+            toast.error("Failed to submit", {
+              description: error.message,
+              closeButton: true,
+            });
+          },
+        },
+      );
+    }
+  }
+
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: "regions",
   });
 
-  function handleInternalTransformSubmit(data: z.infer<typeof formSchema>) {
-    // Transform regions to tuples for submissiion from formSchema to planSchema
-    console.log("handling transform submit with data:", data);
-    const transformed = planSubmitSchema.safeParse(data);
-    if (!transformed.success) {
-      toast.error(`Failed to transform data: ${transformed.error.message}`);
+  // Watch edgeEnergy for k-space conversion logic
+  const edgeEnergy = form.watch("edgeEnergy");
+
+  function handleAddNewRegion() {
+    if (isNaN(edgeEnergy)) {
+      toast.error("Please enter a valid edge energy to add a k-space region.");
       return;
     }
-    console.log("Transformed data:", transformed.data);
+    const regions = form.getValues("regions");
+    const lastRegion = regions[regions.length - 1];
+    if (!lastRegion) {
+      toast.error("Unexpected error: No last region found.");
+      return;
+    }
+    const lastSpace = lastRegion.space;
+    const lastFinal = lastRegion.final;
 
-    onSubmit(transformed.data);
+    const newRegionData: z.infer<typeof regionObjectSchema> = {
+      space: lastSpace,
+      initial: lastFinal,
+      final: 0,
+      step: 0,
+    };
+    append(newRegionData);
   }
 
-  function handleRegionSpaceChange(index: number, newSpace: string) {
+  function handleRegionSpaceChange(
+    index: number,
+    newSpace: "k-space" | "energy-space",
+  ) {
     if (newSpace !== "k-space") {
       // do nothing, we only convert to k-space and not the other way around
       return;
     }
-    const currentRegion = form.getValues(`regions.${index}`);
-    const edgeEnergy = form.getValues("edgeEnergy");
+    const regions = form.getValues("regions");
+    const currentRegion = regions[index];
+    if (!currentRegion) {
+      toast.error("Unexpected error: No region found at the specified index.");
+      return;
+    }
 
     if (!edgeEnergy || isNaN(edgeEnergy)) {
       toast.error("Please enter a valid edge energy before converting regions");
@@ -356,23 +447,11 @@ export function PlanForm({
     });
   }
 
-  function handleAddNewRegion() {
-    const regions = form.getValues("regions");
-    const edgeEnergy = form.getValues("edgeEnergy");
-    try {
-      const newRegion = calculateNextRegion(regions, edgeEnergy);
-      append(newRegion);
-    } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred while adding a new region");
-      }
-    }
-  }
-
-  // Watch relevant fields for estimated time calculation
-  const watchedRegions = useWatch({ control: form.control, name: "regions" });
+  // Watch regions and other relevant fields for time estimation
+  const watchedRegions = useWatch({
+    control: form.control,
+    name: "regions",
+  });
   const watchedSettleTime = useWatch({
     control: form.control,
     name: "settleTime",
@@ -387,32 +466,22 @@ export function PlanForm({
     name: "upAndDown",
   });
 
-  const estimatedTotalTime = () => {
-    const numRegions = watchedRegions.length || 0;
-    const settleTime = watchedSettleTime || 0;
-    const acquisitionTime = watchedAcquisitionTime || 0;
-    const repeats = watchedRepeats ?? 1;
-    const upAndDown = watchedUpAndDown ? 2 : 1;
-    const totalTimeMs =
-      numRegions * (settleTime + acquisitionTime) * repeats * upAndDown;
-    // decide to show in seconds, minutes or hours based on the value
-    if (totalTimeMs < 60000) {
-      // less than a minute, show in seconds
-      return `${(totalTimeMs / 1000).toFixed(1)} seconds`;
-    } else if (totalTimeMs < 3600000) {
-      // less than an hour, show in minutes
-      return `${(totalTimeMs / 60000).toFixed(1)} minutes`;
-    } else {
-      // more than an hour, show in hours
-      return `${(totalTimeMs / 3600000).toFixed(2)} hours`;
-    }
-  };
+  const estimatedTime = estimateTotalTimeInMs({
+    regions: watchedRegions,
+    settleTime: watchedSettleTime,
+    acquisitionTime: watchedAcquisitionTime,
+    repeats: watchedRepeats,
+    upAndDown: watchedUpAndDown,
+  });
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleInternalTransformSubmit)}
+        onSubmit={form.handleSubmit(onSubmit)}
         className={cn("space-y-8", className)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.preventDefault();
+        }}
       >
         <div className="flex flex-col space-y-4">
           <div className="flex flex-row items-center space-x-4">
@@ -423,7 +492,13 @@ export function PlanForm({
                 <FormItem>
                   <FormLabel>Edge Energy (eV)</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      step="any"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -436,7 +511,13 @@ export function PlanForm({
                 <FormItem>
                   <FormLabel>Settle Time (ms)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="any" {...field} />
+                    <Input
+                      type="number"
+                      step="any"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -449,7 +530,13 @@ export function PlanForm({
                 <FormItem>
                   <FormLabel>Acquisition Time (ms)</FormLabel>
                   <FormControl>
-                    <Input type="number" step="any" {...field} />
+                    <Input
+                      type="number"
+                      step="any"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -531,22 +618,22 @@ export function PlanForm({
               )}
             />
           </div>
-          <div
-            className="flex flex-col gap-2 rounded-md border border-dashed p-4"
-            role="region-block"
-          >
-            <FormLabel className="col-span-5 text-center text-lg font-semibold">
-              Regions
-            </FormLabel>
 
-            {regionsArrayFields.map((field, index) => (
-              <div
-                key={field.id} // Use field.id for unique key prop
-                className="col-span-5 grid [grid-template-columns:1.2fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
-              >
-                {
-                  // Only show the header on the first row
-                  index === 0 && (
+          <ScrollArea className="h-64 max-h-72 w-full px-1">
+            <div
+              data-error={estimatedTime.errors.length > 0}
+              className="flex flex-col gap-2 rounded-md border border-dashed p-4 data-[error=true]:border-red-500"
+              role="region-block"
+            >
+              <FormLabel className="col-span-5 text-center text-lg font-semibold">
+                Regions
+              </FormLabel>
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="col-span-5 grid [grid-template-columns:1.2fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
+                >
+                  {index === 0 && (
                     <>
                       <span className="text-sm font-semibold">Space</span>
                       <span className="text-sm font-semibold">Initial</span>
@@ -554,97 +641,163 @@ export function PlanForm({
                       <span className="text-sm font-semibold">Step</span>
                       <span></span>
                     </>
-                  )
-                }
-                <Select
-                  // disabled if it is the first region or not the last region
-                  disabled={
-                    index === 0 || index !== regionsArrayFields.length - 1
-                  }
-                  value={field.space}
-                  onValueChange={(value) => {
-                    handleRegionSpaceChange(index, value);
-                  }}
-                >
-                  <FormControl>
-                    <SelectTrigger
-                      disabled={field.space === "k-space"}
-                      className="w-full"
-                    >
-                      <SelectValue placeholder="Select Region Type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="k-space">K-Space</SelectItem>
-                    <SelectItem value="energy-space">Energy Space</SelectItem>
-                  </SelectContent>
-                </Select>
+                  )}
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.space`}
+                    render={({ field: selectField }) => (
+                      <FormItem className="w-full">
+                        <Select
+                          value={selectField.value}
+                          onValueChange={(
+                            value: "k-space" | "energy-space",
+                          ) => {
+                            selectField.onChange(value); // Update form state FIRST
+                            handleRegionSpaceChange(index, value); // Then trigger custom logic
+                          }}
+                          disabled={
+                            index === 0 ||
+                            index !== fields.length - 1 ||
+                            field.space === "k-space"
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select Region Type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="k-space">K-Space</SelectItem>
+                            <SelectItem value="energy-space">
+                              Energy Space
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <Input
-                  type="number"
-                  placeholder="Initial"
-                  {...form.register(`regions.${index}.initial`, {
-                    valueAsNumber: true,
-                  })}
-                  step="any"
-                />
-                <Input
-                  type="number"
-                  placeholder="Final"
-                  {...form.register(`regions.${index}.final`, {
-                    valueAsNumber: true,
-                  })}
-                  step="any"
-                />
-                <Input
-                  type="number"
-                  placeholder="Step"
-                  {...form.register(`regions.${index}.step`, {
-                    valueAsNumber: true,
-                  })}
-                  step="any"
-                  // capture keypress enter to add a new region
-                  onKeyDown={(e) => {
-                    // only add a new region if it is the last region
-                    if (index !== regionsArrayFields.length - 1) {
-                      return;
-                    }
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddNewRegion();
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="flex-shrink-1 p-1"
-                  onClick={() => remove(index)}
-                  // disabled if it is the first region or not the last region
-                  disabled={
-                    index === 0 || index !== regionsArrayFields.length - 1
-                  }
-                >
-                  <Trash2Icon className="h-4 w-4 text-red-500" />
-                </Button>
-                <FormMessage />
-              </div>
-            ))}
-            {/* show estimated total time */}
-            <span className="text-secondary-foreground col-span-5 mt-2 text-center text-sm italic">
-              Estimated Total Time: {estimatedTotalTime()}
-            </span>
-            <Button
-              type="button"
-              variant="default"
-              className="col-span-5"
-              onClick={handleAddNewRegion}
-            >
-              Add Region
-            </Button>
-          </div>
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.initial`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Initial"
+                            className="min-w-[9ch]"
+                            {...field}
+                            value={field.value}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            step="any"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.final`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Final"
+                            className="min-w-[9ch]"
+                            {...field}
+                            value={field.value}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            step="any"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.step`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Step"
+                            className="min-w-[9ch]"
+                            {...field}
+                            value={field.value}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            step="any"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="flex-shrink-1 p-1"
+                    onClick={() => remove(index)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        remove(index);
+                      }
+                    }}
+                    disabled={
+                      fields.length === 1 || index !== fields.length - 1
+                    }
+                  >
+                    <Trash2Icon className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              ))}
+
+              <span className="text-secondary-foreground col-span-5 mt-1 text-center text-sm italic">
+                Estimated Total Time:{" "}
+                {convertTotalTimeToReadable(estimatedTime.timeInMs)}{" "}
+                {estimatedTime.errors.length > 0 && (
+                  <InfoTooltip variant="destructive">
+                    <ul className="list-inside list-disc text-sm text-red-300">
+                      {estimatedTime.errors.map((error, idx) => (
+                        <li key={idx}>{error}</li>
+                      ))}
+                    </ul>
+                  </InfoTooltip>
+                )}
+              </span>
+
+              <Button
+                type="button"
+                variant="default"
+                className="col-span-5"
+                onClick={handleAddNewRegion}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddNewRegion();
+                  }
+                }}
+              >
+                Add Region
+              </Button>
+            </div>
+          </ScrollArea>
           <div className="flex w-full flex-row items-stretch space-x-4">
             <FormField
               control={form.control}
@@ -675,7 +828,7 @@ export function PlanForm({
                     <Input
                       type="text"
                       {...field}
-                      value={field.value}
+                      value={field.value ?? ""}
                       onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
@@ -713,7 +866,7 @@ export function PlanForm({
               <FormControl>
                 <Textarea
                   {...field}
-                  value={field.value}
+                  value={field.value ?? ""}
                   onChange={(e) => field.onChange(e.target.value)}
                   className="h-32 font-mono"
                   placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
@@ -732,5 +885,96 @@ export function PlanForm({
         </Button>
       </form>
     </Form>
+  );
+}
+
+// ========================================================================
+// Add New Plan Dialog Component
+// ========================================================================
+
+export function AddRegionEnergyScan({ className }: { className?: string }) {
+  const [open, setOpen] = useState(false);
+  const { data } = api.auth.getUser.useQuery();
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          className={className}
+          disabled={!data?.proposal}
+        >
+          <CameraIcon className="mr-2 h-4 w-4" />
+          New Region Energy Scan
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent className="w-fit max-w-full flex-col">
+        <DialogHeader>
+          <DialogTitle>Example</DialogTitle>
+          <DialogDescription className="flex flex-col gap-2">
+            Please fill in the details below to submit the plan.
+          </DialogDescription>
+        </DialogHeader>
+        {data?.proposal && (
+          <MainForm
+            proposal={data.proposal}
+            onSubmitSuccess={() => setOpen(false)}
+            className="w-2xl"
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ========================================================================
+// Edit Form Component and schemas
+// ========================================================================
+
+const editKwargsSchema = formSchema
+  .omit({ regions: true })
+  .extend({
+    regions: z.array(regionTupleSchema),
+  })
+  .transform((data) => ({
+    ...data,
+    // convert regions from array of tuples into array of objects
+    regions: convertRegionTuplesToObjects(data.regions),
+  }));
+
+interface EditRegionEnergyScanFormProps
+  extends Pick<QueueItemProps, "name" | "itemUid" | "kwargs"> {
+  proposal?: string;
+  onSubmitSuccess?: () => void;
+  className?: string;
+}
+
+export function EditRegionEnergyScanForm(props: EditRegionEnergyScanFormProps) {
+  const initialValues = editKwargsSchema.safeParse({
+    ...props.kwargs,
+    proposal: props.proposal ?? undefined,
+  });
+  if (!initialValues.success) {
+    console.error(
+      "Failed to parse kwargs for EXAFS scan regions plan",
+      initialValues.error,
+    );
+    return <div>Error parsing plan data</div>;
+  }
+  if (!props.proposal) {
+    return <div>Cannot edit plan without a proposal ID</div>;
+  }
+  return (
+    <MainForm
+      editItemParams={{
+        itemUid: props.itemUid,
+        name: props.name,
+        itemType: "plan",
+        kwargs: initialValues.data,
+      }}
+      proposal={props.proposal}
+      onSubmitSuccess={props.onSubmitSuccess}
+      className={props.className}
+    />
   );
 }
