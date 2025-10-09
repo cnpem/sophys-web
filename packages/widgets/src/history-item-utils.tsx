@@ -131,7 +131,7 @@ export function HistoryItemDialog({
         </TooltipTrigger>
         <TooltipContent>View Details</TooltipContent>
       </Tooltip>
-      <DialogContent className={cn("w-fit max-w-full", className)}>
+      <DialogContent className={cn("max-w-3xl", className)}>
         <DialogHeader>
           <DialogTitle>History Item</DialogTitle>
           <DialogDescription>
@@ -206,7 +206,7 @@ export function HistoryItemContent({
             <TracebackDialog item={item} />
           </span>
           {item.result.msg && (
-            <p className="whitespace-pre-wrap">{item.result.msg}</p>
+            <p className="max-w-full whitespace-pre-wrap">{item.result.msg}</p>
           )}
         </li>
       </ul>
@@ -245,7 +245,7 @@ export function TracebackDialog({ item }: { item: HistoryItemProps }) {
         </TooltipTrigger>
         <TooltipContent>View Traceback</TooltipContent>
       </Tooltip>
-      <DialogContent className="max-h-dvh w-fit max-w-full">
+      <DialogContent className="flex h-svh max-h-svh w-5xl max-w-full flex-col">
         <DialogHeader>
           <DialogTitle>Traceback</DialogTitle>
           <DialogDescription>
@@ -260,21 +260,11 @@ export function TracebackDialog({ item }: { item: HistoryItemProps }) {
             </span>
           </DialogDescription>
         </DialogHeader>
-        {!traceback && <div>No traceback available.</div>}
-        {traceback && (
-          <ScrollArea
-            className="bg-accent max-h-96 w-fit rounded-md border p-4"
-            id="my-scroll"
-          >
-            <pre
-              className="field-sizing-content max-h-full font-mono text-sm whitespace-pre-wrap"
-              id="traceback-content"
-            >
-              {traceback}
-            </pre>
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-        )}
+        <ScrollArea className="bg-accent max-h-full min-h-0 flex-1 rounded-md border p-4">
+          <pre className="h-full max-h-full w-full overflow-auto font-mono text-sm whitespace-pre-wrap">
+            {traceback ?? "No traceback available."}
+          </pre>
+        </ScrollArea>
         <DialogFooter>
           <Button
             variant="outline"
