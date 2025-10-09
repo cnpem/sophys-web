@@ -152,56 +152,65 @@ export function HistoryItemContent({
   className?: string;
 }) {
   return (
-    <ul
-      className={cn("mb-4 flex flex-col items-start gap-2 text-sm", className)}
-    >
-      <HistoryItemStatusBadge
-        variant={itemStatusFromResult(item.result)}
-        className="w-full"
-      />
-      <li>
-        <span className="text-muted-foreground font-semibold">Name:</span>{" "}
-        {item.name}
-      </li>
-      <li>
-        <span className="text-muted-foreground font-semibold">Start Time:</span>
-        <span className="ml-1 text-sm">
-          {format(fromUnixTime(item.result.timeStart), "yyyy/MM/dd HH:mm:ss")}
-        </span>
-      </li>
-      <li>
-        <span className="text-muted-foreground font-semibold">End Time:</span>
-        <span className="ml-1 text-sm">
-          {format(fromUnixTime(item.result.timeStop), "yyyy/MM/dd HH:mm:ss")}
-        </span>
-      </li>
-      <li>
-        <span className="text-muted-foreground font-semibold">User:</span>{" "}
-        {item.user}
-      </li>
-      <li>
-        <span className="text-muted-foreground font-semibold">Parameters:</span>
-        <JsonEditor
-          restrictAdd={true}
-          restrictDelete={true}
-          restrictEdit={true}
-          restrictDrag={true}
-          data={item.kwargs}
-          rootName={"kwargs"}
-          theme={monoLightTheme}
-          className={cn("!ml-0 !text-sm", className)}
-        />
-      </li>
-      <li>
-        <span className="text-muted-foreground font-semibold">
-          Message:
-          <TracebackDialog item={item} />
-        </span>
-        {item.result.msg && (
-          <p className="whitespace-pre-wrap">{item.result.msg}</p>
+    <ScrollArea className="max-h-96">
+      <ul
+        className={cn(
+          "mb-4 flex flex-col items-start gap-2 text-sm",
+          className,
         )}
-      </li>
-    </ul>
+      >
+        <HistoryItemStatusBadge
+          variant={itemStatusFromResult(item.result)}
+          className="w-full"
+        />
+        <li>
+          <span className="text-muted-foreground font-semibold">Name:</span>{" "}
+          {item.name}
+        </li>
+        <li>
+          <span className="text-muted-foreground font-semibold">
+            Start Time:
+          </span>
+          <span className="ml-1 text-sm">
+            {format(fromUnixTime(item.result.timeStart), "yyyy/MM/dd HH:mm:ss")}
+          </span>
+        </li>
+        <li>
+          <span className="text-muted-foreground font-semibold">End Time:</span>
+          <span className="ml-1 text-sm">
+            {format(fromUnixTime(item.result.timeStop), "yyyy/MM/dd HH:mm:ss")}
+          </span>
+        </li>
+        <li>
+          <span className="text-muted-foreground font-semibold">User:</span>{" "}
+          {item.user}
+        </li>
+        <li>
+          <span className="text-muted-foreground font-semibold">
+            Parameters:
+          </span>
+          <JsonEditor
+            restrictAdd={true}
+            restrictDelete={true}
+            restrictEdit={true}
+            restrictDrag={true}
+            data={item.kwargs}
+            rootName={"kwargs"}
+            theme={monoLightTheme}
+            className={cn("!ml-0 !text-sm", className)}
+          />
+        </li>
+        <li>
+          <span className="text-muted-foreground font-semibold">
+            Message:
+            <TracebackDialog item={item} />
+          </span>
+          {item.result.msg && (
+            <p className="whitespace-pre-wrap">{item.result.msg}</p>
+          )}
+        </li>
+      </ul>
+    </ScrollArea>
   );
 }
 
@@ -236,7 +245,7 @@ export function TracebackDialog({ item }: { item: HistoryItemProps }) {
         </TooltipTrigger>
         <TooltipContent>View Traceback</TooltipContent>
       </Tooltip>
-      <DialogContent className="max-h-96 w-fit max-w-full">
+      <DialogContent className="max-h-dvh w-fit max-w-full">
         <DialogHeader>
           <DialogTitle>Traceback</DialogTitle>
           <DialogDescription>
@@ -254,10 +263,13 @@ export function TracebackDialog({ item }: { item: HistoryItemProps }) {
         {!traceback && <div>No traceback available.</div>}
         {traceback && (
           <ScrollArea
-            className="bg-accent h-96 w-fit rounded-md border p-4"
+            className="bg-accent max-h-96 w-fit rounded-md border p-4"
             id="my-scroll"
           >
-            <pre className="field-sizing-content font-mono text-sm whitespace-pre-wrap">
+            <pre
+              className="field-sizing-content max-h-full font-mono text-sm whitespace-pre-wrap"
+              id="traceback-content"
+            >
               {traceback}
             </pre>
             <ScrollBar orientation="vertical" />
