@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@sophys-web/ui/dialog";
-import { ScrollArea, ScrollBar } from "@sophys-web/ui/scroll-area";
+import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
