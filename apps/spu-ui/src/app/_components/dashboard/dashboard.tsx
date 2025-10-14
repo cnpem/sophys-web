@@ -1,8 +1,6 @@
 "use client";
 
-import { JsonEditor, monoLightTheme } from "json-edit-react";
-import { AlertCircleIcon, CylinderIcon } from "lucide-react";
-import { useQueue } from "@sophys-web/api-client/hooks";
+import { CylinderIcon } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -21,6 +19,7 @@ import { DataTable as History } from "../history/data-table";
 import { DataTable as Queue } from "../queue/data-table";
 import { LoadingTray, Tray } from "../tray";
 import { Controls } from "./controls";
+import { RunningItem } from "./running-item";
 import { SampleTemperatureMonitor } from "./sample-temperature";
 
 const [TRAY1, TRAY2] = trayOptions;
@@ -100,60 +99,6 @@ function Trays({ initialData }: { initialData: Sample[] }) {
         <LoadingTray />
       )}
     </>
-  );
-}
-
-function RunningItem() {
-  const { queue } = useQueue();
-  const runningItem = queue.data?.runningItem;
-
-  if (!runningItem || Object.keys(runningItem).length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Running Item</CardTitle>
-          <CardDescription>Currently running task</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircleIcon className="text-muted-foreground mb-2 size-10" />
-            <p className="text-muted-foreground">No task currently running</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Running Item</CardTitle>
-        <CardDescription>Currently running task</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-lg font-semibold">
-              {runningItem.name.replace(/_/g, " ")}
-            </h3>
-            <p className="text-muted-foreground">{runningItem.user}</p>
-          </div>
-          {runningItem.kwargs && (
-            <div>
-              <h3>Parameters</h3>
-              <JsonEditor
-                restrictAdd={true}
-                restrictDelete={true}
-                restrictEdit={true}
-                restrictDrag={true}
-                data={runningItem.kwargs}
-                rootName={"kwargs"}
-                theme={monoLightTheme}
-              />
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 
