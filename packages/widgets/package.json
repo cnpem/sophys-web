@@ -34,6 +34,7 @@
     "@tanstack/react-table": "^8.21.3",
     "camelcase": "^8.0.0",
     "class-variance-authority": "^0.7.1",
+    "date-fns": "^4.1.0",
     "json-edit-react": "^1.26.1",
     "lucide-react": "^0.503.0",
     "react": "catalog:react19",
