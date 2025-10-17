@@ -30,6 +30,7 @@ import {
 import { DataTableViewOptions } from "@sophys-web/widgets/data-table/column-toggle";
 import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
 import { columns } from "./columns";
+import { FinishedItemAlertDialog } from "./finished-item-alert-dialog";
 
 export function DataTable() {
   const { data, isPending } = api.history.get.useQuery();
@@ -81,6 +82,7 @@ export function DataTable() {
   return (
     <div className="space-y-2">
       <div className="flex items-center">
+        <FinishedItemAlertDialog />
         <Input
           placeholder="Filter history items..."
           value={
