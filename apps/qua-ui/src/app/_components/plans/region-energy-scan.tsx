@@ -359,14 +359,8 @@ export function MainForm({
               args: [],
               kwargs: apiData,
             },
-            {
-              name: "queue_stop",
-              itemType: "instruction",
-              args: [],
-              kwargs: {},
-            },
           ],
-          pos: "front",
+          pos: "back",
         },
         {
           onSuccess: () => {
