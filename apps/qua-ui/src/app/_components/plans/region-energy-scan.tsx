@@ -326,6 +326,17 @@ export function MainForm({
       regions: convertRegionObjectsToTuples(formData.regions),
     };
 
+    // TODO: should this be in form validation?
+    if (
+      formData.regions[0]?.initial &&
+      formData.regions[0].initial > edgeEnergy
+    ) {
+      toast.error(
+        `First energy region must be lower than edge energy (e0)! Current e0: ${edgeEnergy} eV, initial energy: ${formData.regions[0].initial} eV`,
+      );
+      return;
+    }
+
     if (editItemParams) {
       editPlan.mutate(
         {
