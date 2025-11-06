@@ -25,7 +25,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
@@ -37,7 +36,7 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Textarea } from "@sophys-web/ui/textarea";
-import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import { ErrorMessageTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 import type { QueueItemProps } from "~/lib/types";
 
 export const PLAN_NAME = "region_energy_scan" as const;
@@ -62,6 +61,7 @@ const regionObjectSchema = z
   })
   .refine((data) => data.final > data.initial, {
     message: "Final value must be greater than Initial value",
+    path: ["final"],
   });
 
 /**
@@ -83,10 +83,9 @@ const defaultRegionObject = {
 } as const satisfies z.infer<typeof regionObjectSchema>;
 
 /**
- *  Schema for submitting the form
- *  Regions are now an array of objects
+ * Base Schema for form validation
  */
-export const formSchema = z.object({
+export const baseFormSchema = z.object({
   regions: z.array(regionObjectSchema).min(1, {
     message: "At least one region is required",
   }),
@@ -99,14 +98,14 @@ export const formSchema = z.object({
     .number({
       description: "Time in ms for the acquisition phase",
     })
-    .gt(0, "Acquisition Time must a positive number"),
+    .gt(0, "Acquisition Time must be a positive number"),
   fluorescence: z.boolean(),
   edgeEnergy: z.coerce
     .number({
       description:
         "Edge (E0) energy in eV for converting energy space to k-space",
     })
-    .gt(0, "Edge Energy must a positive number"),
+    .gt(0, "Edge Energy must be a positive number"),
   acquireThermocouple: z.boolean(),
   upAndDown: z.boolean(),
   saveFlyData: z.boolean(),
@@ -123,6 +122,32 @@ export const formSchema = z.object({
       description: "Proposal ID",
     })
     .min(1, "Proposal ID is required"),
+});
+
+/**
+ * Subset of the form schema to be watched and calculate
+ * dynamically the estimated total time of the plan
+ */
+const watchEstimateTimeSchema = baseFormSchema.pick({
+  regions: true,
+  settleTime: true,
+  acquisitionTime: true,
+  repeats: true,
+  upAndDown: true,
+});
+
+/**
+ *  Schema for submitting the complete form
+ */
+export const formSchema = baseFormSchema.superRefine((data, ctx) => {
+  // `First energy region must start lower than edge energy (e0)
+  if (data.regions[0] && data.regions[0].initial >= data.edgeEnergy) {
+    ctx.addIssue({
+      path: ["regions", 0, "initial"],
+      code: z.ZodIssueCode.custom,
+      message: `First energy region must start lower than edge energy (e0)! Current e0: ${data.edgeEnergy} eV, initial energy: ${data.regions[0].initial} eV`,
+    });
+  }
 });
 
 /**
@@ -193,20 +218,10 @@ function EnergyToK(energy: number, edgeEnergy: number) {
  * @param region
  * @returns number of points
  */
-function calculatePointsInRegion(region: z.infer<typeof regionObjectSchema>): {
-  points: number | undefined;
-  error?: string;
-} {
-  return { points: Math.floor((region.final - region.initial) / region.step) };
+function calculatePointsInRegion(region: z.infer<typeof regionObjectSchema>) {
+  return Math.floor((region.final - region.initial) / region.step);
 }
 
-const estimateTimeSchema = formSchema.pick({
-  regions: true,
-  settleTime: true,
-  acquisitionTime: true,
-  repeats: true,
-  upAndDown: true,
-});
 /**
  * Estimate total time in ms for the scan based on the regions, settle time, acquisition time, repeats and upAndDown
  * @param regions
@@ -217,42 +232,26 @@ const estimateTimeSchema = formSchema.pick({
  * @returns
  * { timeInMs: number; errors: string[] } - estimated time in ms and any errors encountered during calculation
  */
-function estimateTotalTimeInMs(props: z.infer<typeof estimateTimeSchema>): {
-  timeInMs: number;
-  errors: string[];
-} {
-  const parsed = estimateTimeSchema.safeParse(props);
-  const errors: string[] = [];
+function estimateTotalTimeInMs(props: z.infer<typeof watchEstimateTimeSchema>) {
+  const parsed = watchEstimateTimeSchema.safeParse(props);
   if (!parsed.success) {
-    parsed.error.errors.forEach((err) => {
-      const component = err.path.join(".");
-      errors.push(`${component}: ${err.message}`);
-    });
-    return { timeInMs: 0, errors };
+    return;
   }
   const { regions, settleTime, acquisitionTime, repeats, upAndDown } =
     parsed.data;
 
   const result = regions.reduce(
     (acc, region) => {
-      const { points, error } = calculatePointsInRegion(region);
-      if (error) acc.errors.push(error);
-      acc.points += points ?? 0;
+      const points = calculatePointsInRegion(region);
+      acc.points += points;
       return acc;
     },
     { points: 0, errors: [] as string[] },
   );
-  const countTotalPoints = result.points;
   const upAndDownTimes = upAndDown ? 2 : 1;
-  const timeInMs =
-    countTotalPoints *
-    (settleTime + acquisitionTime) *
-    repeats *
-    upAndDownTimes;
-  return {
-    timeInMs,
-    errors: result.errors,
-  };
+  return (
+    result.points * (settleTime + acquisitionTime) * repeats * upAndDownTimes
+  );
 }
 
 /**
@@ -260,14 +259,14 @@ function estimateTotalTimeInMs(props: z.infer<typeof estimateTimeSchema>): {
  * @param totalMs
  * @returns human readable string representation of estimated time (e.g. "5.0 seconds", "2.5 minutes", "1.0 hours")
  */
-function convertTotalTimeToReadable(totalMs: number) {
+function convertTotalTimeToReadable(totalMs: number | undefined) {
   const oneSecondMs = 1000;
   const oneMinuteMs = 60000;
   const oneHourMs = 3600000;
-  if (totalMs === 0) {
-    return "Not enough data";
+  if (!totalMs || totalMs === 0) {
+    return "Unable to estimate";
   } else if (totalMs < oneSecondMs) {
-    return "less than a second";
+    return "Less than a second";
   } else if (totalMs < oneMinuteMs) {
     return `${(totalMs / oneSecondMs).toFixed(1)} seconds`;
   } else if (totalMs < oneHourMs) {
@@ -301,9 +300,6 @@ export function MainForm({
   className?: string;
   proposal: string;
   editItemParams?: {
-    name: string;
-    itemType: string;
-    args?: unknown[];
     kwargs: z.infer<typeof formSchema>;
     itemUid: string;
   };
@@ -326,22 +322,11 @@ export function MainForm({
       regions: convertRegionObjectsToTuples(formData.regions),
     };
 
-    // TODO: should this be in form validation?
-    if (
-      formData.regions[0]?.initial &&
-      formData.regions[0].initial > edgeEnergy
-    ) {
-      toast.error(
-        `First energy region must be lower than edge energy (e0)! Current e0: ${edgeEnergy} eV, initial energy: ${formData.regions[0].initial} eV`,
-      );
-      return;
-    }
-
     if (editItemParams) {
       editPlan.mutate(
         {
           item: {
-            name: editItemParams.name,
+            name: PLAN_NAME,
             itemType: "plan",
             args: [],
             kwargs: apiData,
@@ -505,7 +490,7 @@ export function MainForm({
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -524,7 +509,7 @@ export function MainForm({
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -543,7 +528,7 @@ export function MainForm({
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -564,7 +549,7 @@ export function MainForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Up and Down Scan?</FormLabel>
                   </div>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -582,7 +567,7 @@ export function MainForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Save Fly Data?</FormLabel>
                   </div>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -600,7 +585,7 @@ export function MainForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Add Fluorescence?</FormLabel>
                   </div>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -618,7 +603,7 @@ export function MainForm({
                   <div className="space-y-1 leading-none">
                     <FormLabel>Acquire Thermocouple?</FormLabel>
                   </div>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -626,7 +611,7 @@ export function MainForm({
 
           <ScrollArea className="h-64 max-h-72 w-full px-1">
             <div
-              data-error={estimatedTime.errors.length > 0}
+              data-error={Object.keys(form.formState.errors).length > 0}
               className="flex flex-col gap-2 rounded-md border border-dashed p-4 data-[error=true]:border-red-500"
               role="region-block"
             >
@@ -678,7 +663,7 @@ export function MainForm({
                             </SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <ErrorMessageTooltip />
                       </FormItem>
                     )}
                   />
@@ -701,7 +686,7 @@ export function MainForm({
                             step="any"
                           />
                         </FormControl>
-                        <FormMessage />
+                        <ErrorMessageTooltip />
                       </FormItem>
                     )}
                   />
@@ -724,7 +709,7 @@ export function MainForm({
                             step="any"
                           />
                         </FormControl>
-                        <FormMessage />
+                        <ErrorMessageTooltip />
                       </FormItem>
                     )}
                   />
@@ -747,7 +732,7 @@ export function MainForm({
                             step="any"
                           />
                         </FormControl>
-                        <FormMessage />
+                        <ErrorMessageTooltip />
                       </FormItem>
                     )}
                   />
@@ -773,19 +758,15 @@ export function MainForm({
                 </div>
               ))}
 
-              <span className="text-secondary-foreground col-span-5 mt-1 text-center text-sm italic">
+              <p className="text-secondary-foreground col-span-5 mt-1 text-center text-sm italic">
                 Estimated Total Time:{" "}
-                {convertTotalTimeToReadable(estimatedTime.timeInMs)}{" "}
-                {estimatedTime.errors.length > 0 && (
-                  <InfoTooltip variant="destructive">
-                    <ul className="list-inside list-disc text-sm text-red-300">
-                      {estimatedTime.errors.map((error, idx) => (
-                        <li key={idx}>{error}</li>
-                      ))}
-                    </ul>
-                  </InfoTooltip>
-                )}
-              </span>
+                <span
+                  data-error={!estimatedTime}
+                  className="data-[error=true]:text-red-500"
+                >
+                  {convertTotalTimeToReadable(estimatedTime)}
+                </span>
+              </p>
 
               <Button
                 type="button"
@@ -818,7 +799,7 @@ export function MainForm({
                       onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -837,7 +818,7 @@ export function MainForm({
                       onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -856,7 +837,7 @@ export function MainForm({
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
@@ -877,7 +858,7 @@ export function MainForm({
                   placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
                 />
               </FormControl>
-              <FormMessage />
+              <ErrorMessageTooltip />
             </FormItem>
           )}
         />
@@ -915,7 +896,7 @@ export function AddRegionEnergyScan({ className }: { className?: string }) {
 
       <DialogContent className="w-fit max-w-full flex-col">
         <DialogHeader>
-          <DialogTitle>Example</DialogTitle>
+          <DialogTitle>New Region Energy Scan</DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
             Please fill in the details below to submit the plan.
           </DialogDescription>
@@ -936,19 +917,35 @@ export function AddRegionEnergyScan({ className }: { className?: string }) {
 // Edit Form Component and schemas
 // ========================================================================
 
-const editKwargsSchema = formSchema
-  .omit({ regions: true })
-  .extend({
+/**
+ * Schema for parsing queue items into the form inputs with less rigorous validation.
+ */
+const editKwargsSchema = z
+  .object({
     regions: z.array(regionTupleSchema),
+    settleTime: z.coerce.number(),
+    acquisitionTime: z.coerce.number(),
+    fluorescence: z.boolean(),
+    edgeEnergy: z.coerce.number(),
+    acquireThermocouple: z.boolean(),
+    upAndDown: z.boolean(),
+    saveFlyData: z.boolean(),
+    fileName: z.string().optional(),
+    metadata: z.string().optional(),
+    repeats: z.coerce.number(),
+    proposal: z.string(),
   })
-  .transform((data) => ({
-    ...data,
-    // convert regions from array of tuples into array of objects
-    regions: convertRegionTuplesToObjects(data.regions),
-  }));
+  .transform(
+    (data) =>
+      ({
+        ...data,
+        // convert regions from array of tuples into array of objects
+        regions: convertRegionTuplesToObjects(data.regions),
+      }) as const satisfies z.infer<typeof formSchema>,
+  );
 
 interface EditRegionEnergyScanFormProps
-  extends Pick<QueueItemProps, "name" | "itemUid" | "kwargs"> {
+  extends Pick<QueueItemProps, "itemUid" | "kwargs"> {
   proposal?: string;
   onSubmitSuccess?: () => void;
   className?: string;
@@ -973,8 +970,6 @@ export function EditRegionEnergyScanForm(props: EditRegionEnergyScanFormProps) {
     <MainForm
       editItemParams={{
         itemUid: props.itemUid,
-        name: props.name,
-        itemType: "plan",
         kwargs: initialValues.data,
       }}
       proposal={props.proposal}
