@@ -14,7 +14,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@sophys-web/ui/dialog";
 import {
   DropdownMenu,
@@ -31,43 +30,15 @@ import {
 } from "../plans/region-energy-scan";
 
 export function RowActions({ item }: { item: QueueItemProps }) {
+  const { data: userData } = api.auth.getUser.useQuery();
+  const { move, remove } = useQueue();
   const [open, setOpen] = useState(false);
-  const { itemUid: uid } = item;
-  return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontalIcon className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="group/actions flex flex-col" align="end">
-        <DropdownMenuItem asChild>
-          <EditItem {...item} />
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <MoveToFront uid={uid} onOpenChange={setOpen} />
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <RemoveItem uid={uid} onOpenChange={setOpen} />
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
-function MoveToFront({
-  uid,
-  onOpenChange,
-}: {
-  uid: string;
-  onOpenChange?: (open: boolean) => void;
-}) {
-  const { move } = useQueue();
   const handleMove = () => {
     toast.info("Moving item to front...");
     move.mutate(
-      { uid, posDest: "front" },
+      { uid: item.itemUid, posDest: "front" },
       {
         onSuccess: () => {
           toast.success("Item moved to front");
@@ -76,40 +47,16 @@ function MoveToFront({
           toast.error("Failed to move item");
         },
         onSettled: () => {
-          if (onOpenChange) {
-            onOpenChange(false);
-          }
+          setOpen(false);
         },
       },
     );
   };
 
-  return (
-    <Button
-      className="justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
-      size="sm"
-      variant="ghost"
-      data-mutating={move.isPending}
-      disabled={move.isPending}
-      onClick={handleMove}
-    >
-      Move to Front
-    </Button>
-  );
-}
-
-function RemoveItem({
-  uid,
-  onOpenChange,
-}: {
-  uid: string;
-  onOpenChange?: (open: boolean) => void;
-}) {
-  const { remove } = useQueue();
   const handleRemove = () => {
     toast.info("Removing item...");
     remove.mutate(
-      { uid },
+      { uid: item.itemUid },
       {
         onSuccess: () => {
           toast.success("Item removed");
@@ -118,69 +65,90 @@ function RemoveItem({
           toast.error("Failed to remove item");
         },
         onSettled: () => {
-          if (onOpenChange) {
-            onOpenChange(false);
-          }
+          setOpen(false);
         },
       },
     );
   };
-  return (
-    <Button
-      className="justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
-      size="sm"
-      variant="ghost"
-      data-mutating={remove.isPending}
-      disabled={remove.isPending}
-      onClick={handleRemove}
-    >
-      Remove Item
-    </Button>
-  );
-}
-
-function EditItem(props: QueueItemProps) {
-  const { data: userData } = api.auth.getUser.useQuery();
-  const { name, itemUid } = props;
-  const [open, setOpen] = useState(false);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          size="sm"
-          variant="ghost"
-          className="justify-start font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
-        >
-          Edit Item
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="w-fit max-w-full flex-col">
-        <DialogHeader>
-          <DialogTitle>Edit Item</DialogTitle>
-          <DialogDescription>
-            Edit the details of the item in the queue.
-          </DialogDescription>
-        </DialogHeader>
-        {name === PLAN_NAME ? (
-          <EditRegionEnergyScanForm
-            itemUid={itemUid}
-            kwargs={props.kwargs}
-            proposal={userData?.proposal ?? undefined}
-            onSubmitSuccess={() => setOpen(false)}
-            className="w-2xl"
-          />
-        ) : (
-          <EditGenericPlanForm
-            name={name}
-            itemUid={itemUid}
-            kwargs={props.kwargs}
-            proposal={userData?.proposal ?? undefined}
-            onSubmitSuccess={() => setOpen(false)}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+    <>
+      <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontalIcon className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="flex flex-col" align="end">
+          <DropdownMenuItem asChild>
+            <Button
+              className="justify-start font-normal"
+              size="sm"
+              variant="ghost"
+              onClick={() => setOpenEditDialog(true)}
+            >
+              Edit Item
+            </Button>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Button
+              className="justify-start font-normal"
+              size="sm"
+              variant="ghost"
+              disabled={move.isPending}
+              onClick={handleMove}
+            >
+              Move to Front
+            </Button>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Button
+              className="justify-start font-normal"
+              size="sm"
+              variant="ghost"
+              disabled={remove.isPending}
+              onClick={handleRemove}
+            >
+              Remove Item
+            </Button>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+        <DialogContent className="w-fit max-w-full flex-col">
+          <DialogHeader>
+            <DialogTitle>Edit Item</DialogTitle>
+            <DialogDescription>
+              Edit the details of the item in the queue.
+            </DialogDescription>
+          </DialogHeader>
+          {item.name === PLAN_NAME ? (
+            <EditRegionEnergyScanForm
+              itemUid={item.itemUid}
+              kwargs={item.kwargs}
+              proposal={userData?.proposal ?? undefined}
+              onSubmitSuccess={() => {
+                setOpenEditDialog(false);
+                setOpen(false);
+              }}
+              className="w-2xl"
+            />
+          ) : (
+            <EditGenericPlanForm
+              name={item.name}
+              itemUid={item.itemUid}
+              kwargs={item.kwargs}
+              proposal={userData?.proposal ?? undefined}
+              onSubmitSuccess={() => {
+                setOpenEditDialog(false);
+                setOpen(false);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
