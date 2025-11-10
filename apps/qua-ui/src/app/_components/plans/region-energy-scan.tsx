@@ -378,15 +378,8 @@ export function MainForm({
     name: "regions",
   });
 
-  // Watch edgeEnergy for k-space conversion logic
-  const edgeEnergy = form.watch("edgeEnergy");
-
   function handleAddNewRegion() {
-    if (isNaN(edgeEnergy)) {
-      toast.error("Please enter a valid edge energy to add a k-space region.");
-      return;
-    }
-    const regions = form.getValues("regions");
+    const regions = fields;
     const lastRegion = regions[regions.length - 1];
     if (!lastRegion) {
       toast.error("Unexpected error: No last region found.");
@@ -412,15 +405,26 @@ export function MainForm({
       // do nothing, we only convert to k-space and not the other way around
       return;
     }
-    const regions = form.getValues("regions");
+    const regions = fields;
     const currentRegion = regions[index];
     if (!currentRegion) {
       toast.error("Unexpected error: No region found at the specified index.");
       return;
     }
 
-    if (!edgeEnergy || isNaN(edgeEnergy)) {
-      toast.error("Please enter a valid edge energy before converting regions");
+    // validate just the edgeEnergy
+    const edgeEnergy = form.getValues("edgeEnergy");
+    const safeEdgeEnergy = baseFormSchema
+      .pick({ edgeEnergy: true })
+      .safeParse(edgeEnergy);
+    if (safeEdgeEnergy.error) {
+      // resetting last region selector
+      update(index, {
+        ...currentRegion,
+        space: "energy-space",
+      });
+      const cause = safeEdgeEnergy.error.message;
+      toast.error(`Failed to validate Edge Energy value: ${cause}`);
       return;
     }
 
@@ -428,10 +432,10 @@ export function MainForm({
     update(index, {
       space: "k-space",
       initial: currentRegion.initial
-        ? EnergyToK(currentRegion.initial, edgeEnergy)
+        ? EnergyToK(currentRegion.initial, safeEdgeEnergy.data.edgeEnergy)
         : 0,
       final: currentRegion.final
-        ? EnergyToK(currentRegion.final, edgeEnergy)
+        ? EnergyToK(currentRegion.final, safeEdgeEnergy.data.edgeEnergy)
         : 0,
       step: 0,
     });
@@ -482,13 +486,7 @@ export function MainForm({
                 <FormItem>
                   <FormLabel>Edge Energy (eV)</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      step="any"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
+                    <Input type="number" {...field} />
                   </FormControl>
                   <ErrorMessageTooltip />
                 </FormItem>
@@ -501,13 +499,7 @@ export function MainForm({
                 <FormItem>
                   <FormLabel>Settle Time (ms)</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      step="any"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
+                    <Input type="number" {...field} />
                   </FormControl>
                   <ErrorMessageTooltip />
                 </FormItem>
@@ -520,13 +512,7 @@ export function MainForm({
                 <FormItem>
                   <FormLabel>Acquisition Time (ms)</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      step="any"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
+                    <Input type="number" {...field} />
                   </FormControl>
                   <ErrorMessageTooltip />
                 </FormItem>
@@ -679,11 +665,6 @@ export function MainForm({
                             placeholder="Initial"
                             className="min-w-[9ch]"
                             {...field}
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                            step="any"
                           />
                         </FormControl>
                         <ErrorMessageTooltip />
@@ -702,11 +683,6 @@ export function MainForm({
                             placeholder="Final"
                             className="min-w-[9ch]"
                             {...field}
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                            step="any"
                           />
                         </FormControl>
                         <ErrorMessageTooltip />
@@ -725,11 +701,6 @@ export function MainForm({
                             placeholder="Step"
                             className="min-w-[9ch]"
                             {...field}
-                            value={field.value}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                            step="any"
                           />
                         </FormControl>
                         <ErrorMessageTooltip />
@@ -792,12 +763,7 @@ export function MainForm({
                 <FormItem className="w-28 flex-shrink-0">
                   <FormLabel>Proposal ID</FormLabel>
                   <FormControl>
-                    <Input
-                      type="text"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value)}
-                    />
+                    <Input type="text" {...field} />
                   </FormControl>
                   <ErrorMessageTooltip />
                 </FormItem>
@@ -811,12 +777,7 @@ export function MainForm({
                 <FormItem className="flex-1">
                   <FormLabel>File Name</FormLabel>
                   <FormControl>
-                    <Input
-                      type="text"
-                      {...field}
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value)}
-                    />
+                    <Input type="text" {...field} />
                   </FormControl>
                   <ErrorMessageTooltip />
                 </FormItem>
@@ -830,12 +791,7 @@ export function MainForm({
                 <FormItem className="w-20 flex-shrink-0">
                   <FormLabel>Repeats</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      {...field}
-                      value={field.value}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
+                    <Input type="number" {...field} />
                   </FormControl>
                   <ErrorMessageTooltip />
                 </FormItem>
@@ -852,8 +808,6 @@ export function MainForm({
               <FormControl>
                 <Textarea
                   {...field}
-                  value={field.value ?? ""}
-                  onChange={(e) => field.onChange(e.target.value)}
                   className="h-32 font-mono"
                   placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
                 />
