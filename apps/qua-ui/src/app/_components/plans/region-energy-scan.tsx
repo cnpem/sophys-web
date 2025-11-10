@@ -224,13 +224,7 @@ function calculatePointsInRegion(region: z.infer<typeof regionObjectSchema>) {
 
 /**
  * Estimate total time in ms for the scan based on the regions, settle time, acquisition time, repeats and upAndDown
- * @param regions
- * @param settleTime
- * @param acquisitionTime
- * @param repeats
- * @param upAndDown
- * @returns
- * { timeInMs: number; errors: string[] } - estimated time in ms and any errors encountered during calculation
+
  */
 function estimateTotalTimeInMs(props: z.infer<typeof watchEstimateTimeSchema>) {
   const parsed = watchEstimateTimeSchema.safeParse(props);
@@ -287,6 +281,7 @@ function convertTotalTimeToReadable(totalMs: number | undefined) {
  * - className: optional class name for styling
  * - proposal: proposal ID to associate with the plan
  * - editItemParams: optional parameters for editing an existing plan
+ * - onSubmitSuccess: optional callback to be triggered on submit success.
  *
  * If editItemParams is provided, the form will be pre-filled with the existing plan data.
  * and submitting the form will update the existing plan instead of creating a new one in the queue.
