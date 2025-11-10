@@ -41,11 +41,6 @@ export function FinishedItemAlertDialog() {
     if (!dialogOpen) return;
     // play sound immediately when dialog opens
     playSound();
-    // then set interval to play sound every 5 seconds
-    const interval = setInterval(() => {
-      playSound();
-    }, 5000); // every 5 seconds
-    return () => clearInterval(interval);
   }, [dialogOpen, playSound]);
 
   useEffect(() => {

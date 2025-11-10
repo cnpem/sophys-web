@@ -165,7 +165,6 @@ function EditItem(props: QueueItemProps) {
         {name === PLAN_NAME ? (
           <EditRegionEnergyScanForm
             itemUid={itemUid}
-            name={name}
             kwargs={props.kwargs}
             proposal={userData?.proposal ?? undefined}
             onSubmitSuccess={() => setOpen(false)}
