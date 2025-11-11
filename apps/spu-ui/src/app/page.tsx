@@ -5,10 +5,13 @@ import { api, HydrateClient } from "@sophys-web/api-client/server";
 import { auth } from "@sophys-web/auth";
 import { PVWSConnectionHandler } from "@sophys-web/pvws-store";
 import { buttonVariants } from "@sophys-web/ui/button";
+import { env } from "~/env";
 import { Dashboard } from "./_components/dashboard/dashboard";
 import { getSamples } from "./actions/samples";
 
 export default async function Page() {
+  // read pvwsURL from the server runtime environment
+  const pvwsUrl = env.NEXT_PUBLIC_PVWS_URL;
   const session = await auth();
 
   if (!session) {
@@ -47,7 +50,7 @@ export default async function Page() {
   return (
     <HydrateClient>
       <Suspense fallback={<div>Loading...</div>}>
-        <PVWSConnectionHandler />
+        <PVWSConnectionHandler url={pvwsUrl} />
         <Dashboard initialData={samples.value} />
       </Suspense>
     </HydrateClient>
