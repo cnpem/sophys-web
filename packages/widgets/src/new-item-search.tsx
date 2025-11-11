@@ -2,35 +2,25 @@
 
 import type { z } from "zod";
 import { useCallback, useMemo, useState } from "react";
-import { ArrowRightIcon, SearchIcon } from "lucide-react";
+import { ArrowRightIcon } from "lucide-react";
 import type { AnySchema } from "@sophys-web/widgets/lib/create-schema";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@sophys-web/ui/dialog";
 import { Input } from "@sophys-web/ui/input";
 import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 
 interface EditItemProps {
-  trigger?: React.ReactNode;
   onSuccessCallback?: () => void;
   onErrorCallback?: (error: string) => void;
 }
+
 export function NewItemSearch(props: EditItemProps) {
-  const { onSuccessCallback, onErrorCallback, trigger } = props;
   const { data: plans, isLoading: isLoadingPlans } =
     api.plans.allowed.useQuery(undefined);
   const { data: devices } = api.devices.allowedNames.useQuery(undefined);
   const { add } = useQueue();
-  const [open, setOpen] = useState(false);
   const [search, setSearch] = useState<string>("");
 
   const filteredPlans = useMemo(() => {
@@ -73,88 +63,66 @@ export function NewItemSearch(props: EditItemProps) {
         },
         {
           onSuccess: () => {
-            onSuccessCallback?.();
-            setOpen(false);
+            props.onSuccessCallback?.();
           },
           onError: (error) => {
             const message = error.message.replace("\n", " ");
-            onErrorCallback?.(message);
+            props.onErrorCallback?.(message);
           },
         },
       );
     },
-    [add, search, onSuccessCallback, onErrorCallback],
+    [add, search, props],
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <Button
-            disabled={add.isPending}
-            variant="ghost"
-            className="font-normal group-has-data-[mutating=true]/actions:pointer-events-none group-has-data-[mutating=true]/actions:opacity-50"
-          >
-            <SearchIcon className="mr-2 h-4 w-4" /> New Item
-          </Button>
-        )}
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>New Item</DialogTitle>
-          <DialogDescription>
-            {!planDetails && "Select a plan to add to the queue."}
-            {planDetails && <span>Adding plan to the queue.</span>}
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      {isLoadingPlans && (
+        <div className="flex items-center justify-center">
+          <span>Loading plans...</span>
+        </div>
+      )}
 
-        {isLoadingPlans && (
-          <div className="flex items-center justify-center">
-            <span>Loading plans...</span>
+      {!isLoadingPlans && plans && (
+        <Input
+          placeholder="Search a plan name"
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
+        />
+      )}
+      <div className="bg-background max-h-48 overflow-y-auto" role="listbox">
+        {filteredPlans.length === 0 && (
+          <div className="text-muted-foreground p-2 text-sm">
+            No plans found.
           </div>
         )}
+        {!planDetails &&
+          filteredPlans.map((plan) => (
+            <Button
+              role="option"
+              key={plan.name}
+              variant={"ghost"}
+              className="w-full justify-start px-3 py-2"
+              onClick={() => {
+                setSearch(plan.name);
+              }}
+            >
+              <ArrowRightIcon className="mr-2 h-4 w-4" />
+              {plan.name}
+            </Button>
+          ))}
+      </div>
 
-        {!isLoadingPlans && plans && (
-          <Input
-            placeholder="Search a plan name"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-            }}
-          />
-        )}
-        <div className="bg-background max-h-48 overflow-y-auto" role="listbox">
-          {filteredPlans.length === 0 && (
-            <div className="text-muted-foreground p-2 text-sm">
-              No plans found.
-            </div>
-          )}
-          {!planDetails &&
-            filteredPlans.map((plan) => (
-              <Button
-                role="option"
-                key={plan.name}
-                variant={"ghost"}
-                className="w-full justify-start px-3 py-2"
-                onClick={() => {
-                  setSearch(plan.name);
-                }}
-              >
-                <ArrowRightIcon className="mr-2 h-4 w-4" />
-                {plan.name}
-              </Button>
-            ))}
-        </div>
-
-        {planDetails && planData && devices && (
-          <AnyForm
-            devices={devices}
-            planData={planData}
-            onSubmit={onSubmit}
-            schema={createSchema(planDetails.parameters)}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+      {planDetails && planData && devices && (
+        <AnyForm
+          devices={devices}
+          planData={planData}
+          onSubmit={onSubmit}
+          schema={createSchema(planDetails.parameters)}
+        />
+      )}
+    </>
   );
 }

@@ -31,8 +31,18 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { SearchIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
+import { Button } from "@sophys-web/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@sophys-web/ui/dialog";
 import { Input } from "@sophys-web/ui/input";
 import {
   Table,
@@ -173,14 +183,7 @@ export function DataTable() {
           className="max-w-sm"
         />
         <AddRegionEnergyScan />
-        <NewItemSearch
-          onSuccessCallback={() => {
-            toast.success("Item added to the queue");
-          }}
-          onErrorCallback={(error) => {
-            toast.error(`Failed to add item to the queue: ${error}`);
-          }}
-        />
+        <NewItemSearchDialog />
         <DataTableViewOptions table={table} />
       </div>
       <div className="rounded-md border">
@@ -239,5 +242,36 @@ export function DataTable() {
       </div>
       <DataTablePagination table={table} />
     </div>
+  );
+}
+
+export function NewItemSearchDialog() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" className="font-normal">
+          <SearchIcon className="mr-2 h-4 w-4" /> New Item
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>New Item</DialogTitle>
+          <DialogDescription>
+            "Select a plan to be added to the queue."
+          </DialogDescription>
+        </DialogHeader>
+        <NewItemSearch
+          onSuccessCallback={() => {
+            toast.success("Item added to the queue");
+            setOpen(false);
+          }}
+          onErrorCallback={(error) => {
+            toast.error(`Failed to add item to the queue: ${error}`);
+          }}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }
