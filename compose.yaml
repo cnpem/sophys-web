@@ -1,13 +1,14 @@
 services:
   app:
-    container_name: ${APP_NAME}:${APP_VERSION}
-    image: ghcr.io/cnpem/sophys-web__${APP_NAME}:${APP_VERSION}
+    container_name: ${APP_NAME}
+    image: ghcr.io/cnpem/${IMAGE_NAME}:${IMAGE_VERSION}
     environment:
       AUTH_SECRET: ${AUTH_SECRET}
       AUTH_TRUST_HOST: 1
       BLUESKY_HTTPSERVER_URL: ${BLUESKY_HTTPSERVER_URL}
-      NEXT_PUBLIC_BASE_PATH: ${NEXT_PUBLIC_BASE_PATH}
-      NEXT_PUBLIC_PVWS_URL: ${NEXT_PUBLIC_PVWS_URL}
+      PVWS_URL: ${PVWS_URL}
     restart: unless-stopped
     expose:
       - "3000"
+    # ports:
+    #   - 3000:3000
