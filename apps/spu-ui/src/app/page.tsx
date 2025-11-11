@@ -1,3 +1,4 @@
+import { env as runtimeEnv } from "node:process";
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -5,13 +6,12 @@ import { api, HydrateClient } from "@sophys-web/api-client/server";
 import { auth } from "@sophys-web/auth";
 import { PVWSConnectionHandler } from "@sophys-web/pvws-store";
 import { buttonVariants } from "@sophys-web/ui/button";
-import { env } from "~/env";
 import { Dashboard } from "./_components/dashboard/dashboard";
 import { getSamples } from "./actions/samples";
 
 export default async function Page() {
   // read pvwsURL from the server runtime environment
-  const pvwsUrl = env.NEXT_PUBLIC_PVWS_URL;
+  const pvwsUrl = runtimeEnv.PVWS_URL;
   const session = await auth();
 
   if (!session) {

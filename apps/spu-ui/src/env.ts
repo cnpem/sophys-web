@@ -23,7 +23,6 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_BASE_PATH: z.string().default(""),
-    NEXT_PUBLIC_PVWS_URL: z.string().url(),
   },
   /**
    * Destructure all variables from `process.env` to make sure they aren't tree-shaken away.
@@ -33,7 +32,6 @@ export const env = createEnv({
     PORT: process.env.PORT,
     COOLIFY_URL: process.env.COOLIFY_URL,
     NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH,
-    NEXT_PUBLIC_PVWS_URL: process.env.NEXT_PUBLIC_PVWS_URL,
   },
   skipValidation:
     Boolean(process.env.CI) || process.env.npm_lifecycle_event === "lint",
