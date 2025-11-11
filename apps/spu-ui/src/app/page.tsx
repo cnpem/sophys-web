@@ -1,3 +1,4 @@
+import { env as runtimeEnv } from "node:process";
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -9,6 +10,8 @@ import { Dashboard } from "./_components/dashboard/dashboard";
 import { getSamples } from "./actions/samples";
 
 export default async function Page() {
+  // read pvwsURL from the server runtime environment
+  const pvwsUrl = runtimeEnv.PVWS_URL;
   const session = await auth();
 
   if (!session) {
@@ -47,7 +50,7 @@ export default async function Page() {
   return (
     <HydrateClient>
       <Suspense fallback={<div>Loading...</div>}>
-        <PVWSConnectionHandler />
+        <PVWSConnectionHandler url={pvwsUrl} />
         <Dashboard initialData={samples.value} />
       </Suspense>
     </HydrateClient>

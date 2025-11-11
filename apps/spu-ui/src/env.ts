@@ -32,7 +32,6 @@ export const env = createEnv({
     PORT: process.env.PORT,
     COOLIFY_URL: process.env.COOLIFY_URL,
     NEXT_PUBLIC_BASE_PATH: process.env.NEXT_PUBLIC_BASE_PATH,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   skipValidation:
     Boolean(process.env.CI) || process.env.npm_lifecycle_event === "lint",
