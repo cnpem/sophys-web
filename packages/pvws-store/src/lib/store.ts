@@ -23,7 +23,7 @@ interface PVWSActions {
   unsubscribePvs: (pvNames: string[]) => void;
   _handleUpdateMessage: (pv: string, data: Partial<PvData>) => void;
   _sendSubscriptionMessage: (
-    type: "subscribe" | "unsubscribe",
+    type: "subscribe" | "clear",
     pvs: string[],
   ) => void;
 }
@@ -106,7 +106,7 @@ export const _usePVWS = createWithEqualityFn<PVWSStore>()(
           console.log(formatLogMessage("Closing WebSocket..."));
           const pvsToUnsubscribe = Array.from(get().pvSubscriberCounts.keys());
           if (pvsToUnsubscribe.length > 0) {
-            get()._sendSubscriptionMessage("unsubscribe", pvsToUnsubscribe);
+            get()._sendSubscriptionMessage("clear", pvsToUnsubscribe);
           }
           currentWs.close(1000, "App Unmount");
           set({ ws: null, isConnected: false });
@@ -142,7 +142,7 @@ export const _usePVWS = createWithEqualityFn<PVWSStore>()(
 
           if (newRefCounts.get(pvName) === 0) {
             newRefCounts.delete(pvName);
-            get()._sendSubscriptionMessage("unsubscribe", [pvName]);
+            get()._sendSubscriptionMessage("clear", [pvName]);
           }
 
           return { pvSubscriberCounts: newRefCounts };
@@ -191,7 +191,7 @@ export const _usePVWS = createWithEqualityFn<PVWSStore>()(
                 `Unsubscribed from PVs: ${unsubscribedPvs.join(", ")}`,
               ),
             );
-            get()._sendSubscriptionMessage("unsubscribe", unsubscribedPvs);
+            get()._sendSubscriptionMessage("clear", unsubscribedPvs);
           }
           return { pvSubscriberCounts: newRefCounts };
         });
@@ -213,7 +213,7 @@ export const _usePVWS = createWithEqualityFn<PVWSStore>()(
       },
 
       _sendSubscriptionMessage: (
-        type: "subscribe" | "unsubscribe",
+        type: "subscribe" | "clear",
         pvs: string[],
       ) => {
         const currentWs = get().ws;
