@@ -5,6 +5,7 @@ import {
   PauseIcon,
   PlayIcon,
   RefreshCcwIcon,
+  SkipForwardIcon,
   SquareIcon,
   StepForwardIcon,
 } from "lucide-react";
@@ -217,19 +218,35 @@ function PlaybackButton() {
       await utils.status.get.invalidate();
     },
   });
+
   const resume = api.runEngine.resume.useMutation({
     onSettled: async () => {
       await utils.status.get.invalidate();
     },
   });
 
-  const handlePause = useCallback(() => {
-    toast.info("Pausing run engine...");
-    pause.mutate(undefined, {
-      onError: () => {
-        toast.error("Failed to pause run engine");
+  const handlePauseNow = useCallback(() => {
+    toast.info("Pausing run engine immedeatly...");
+    pause.mutate(
+      { option: "immediate" },
+      {
+        onError: () => {
+          toast.error("Failed to pause run engine");
+        },
       },
-    });
+    );
+  }, [pause]);
+
+  const handlePauseLater = useCallback(() => {
+    toast.info("Pausing run engine after current task...");
+    pause.mutate(
+      { option: "deferred" },
+      {
+        onError: () => {
+          toast.error("Failed to pause run engine");
+        },
+      },
+    );
   }, [pause]);
 
   const handleResume = useCallback(() => {
@@ -258,23 +275,38 @@ function PlaybackButton() {
       </Tooltip>
     );
   }
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          className="size-8 rounded-full"
-          disabled={reState !== "running"}
-          onClick={handlePause}
-          size="icon"
-          variant="outline"
-        >
-          <PauseIcon className="size-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">Pause</TooltipContent>
-    </Tooltip>
-  );
+  if (reState === "running") {
+    return (
+      <>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="size-8 rounded-full"
+              onClick={handlePauseNow}
+              size="icon"
+              variant="destructive"
+            >
+              <PauseIcon className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Pause Now</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="size-8 rounded-full"
+              onClick={handlePauseLater}
+              size="icon"
+              variant="outline"
+            >
+              <SkipForwardIcon className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Pause Later</TooltipContent>
+        </Tooltip>
+      </>
+    );
+  }
 }
 
 function StopButton() {
@@ -326,30 +358,31 @@ function StopButton() {
       },
     });
   }, [abort]);
-  return (
-    <DropdownMenu>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className="size-8 rounded-full"
-              disabled={reState !== "paused"}
-              size="icon"
-              variant="outline"
-            >
-              <SquareIcon className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Stop Options</TooltipContent>
-      </Tooltip>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={handleStop}>Stop</DropdownMenuItem>
-        <DropdownMenuItem onClick={handleHalt}>Halt</DropdownMenuItem>
-        <DropdownMenuItem onClick={handleAbort}>Abort</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+  if (reState === "paused") {
+    return (
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className="size-8 rounded-full"
+                size="icon"
+                variant="outline"
+              >
+                <SquareIcon className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Stop Options</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={handleStop}>Stop</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleHalt}>Halt</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleAbort}>Abort</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 }
 
 function RE() {
