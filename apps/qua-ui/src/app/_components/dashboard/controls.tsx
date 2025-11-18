@@ -5,6 +5,7 @@ import {
   PauseIcon,
   PlayIcon,
   RefreshCcwIcon,
+  ServerCogIcon,
   SkipForwardIcon,
   SquareIcon,
   StepForwardIcon,
@@ -12,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
+import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
   DropdownMenu,
@@ -93,38 +95,55 @@ function Environment() {
   }, [envUpdate]);
 
   return (
-    <div className="flex items-center gap-2">
+    <DropdownMenu>
       <Tooltip>
         <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="icon"
+              variant="outline"
+              className={cn(
+                "size-8 rounded-full transition-colors",
+                isOpen
+                  ? "bg-green-500 text-white hover:bg-green-600"
+                  : "bg-background hover:bg-muted",
+              )}
+            >
+              <ServerCogIcon className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">Server Options</TooltipContent>
+      </Tooltip>
+
+      <DropdownMenuContent className="w-auto">
+        <DropdownMenuItem className="flex items-center justify-between gap-2">
           <Button
-            className="size-7 rounded-full"
-            disabled={isOpen}
-            onClick={updateEnv}
-            size="icon"
             variant="outline"
+            onClick={updateEnv}
+            disabled={!isOpen}
+            className="flex items-center gap-2 rounded-md px-3 py-1.5"
           >
             <RefreshCcwIcon className="size-4" />
+            <span className="text-muted-foreground text-sm">
+              Reload Environment
+            </span>
           </Button>
-        </TooltipTrigger>
+        </DropdownMenuItem>
 
-        <TooltipContent side="bottom">Update Environment</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger className="flex items-center" asChild>
-          <div className="inline-block">
-            <Switch
-              disabled={status.isPending}
-              checked={isOpen}
-              onClick={isOpen ? closeEnv : openEnv}
-              defaultChecked={!!reState}
-            />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          {isOpen ? "Close Environment" : "Open Environment"}
-        </TooltipContent>
-      </Tooltip>
-    </div>
+        {/* Toggle Environment */}
+        <DropdownMenuItem className="flex items-center justify-between">
+          <span className="text-muted-foreground text-sm">
+            {isOpen ? "Active" : "Inactive"}
+          </span>
+          <Switch
+            disabled={status.isPending}
+            checked={isOpen}
+            onCheckedChange={(checked) => (checked ? openEnv() : closeEnv())}
+          />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
