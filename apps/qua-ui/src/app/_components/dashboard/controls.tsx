@@ -5,12 +5,15 @@ import {
   PauseIcon,
   PlayIcon,
   RefreshCcwIcon,
+  ServerCogIcon,
+  SkipForwardIcon,
   SquareIcon,
   StepForwardIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
+import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
   DropdownMenu,
@@ -92,38 +95,55 @@ function Environment() {
   }, [envUpdate]);
 
   return (
-    <div className="flex items-center gap-2">
+    <DropdownMenu>
       <Tooltip>
         <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="icon"
+              variant="outline"
+              className={cn(
+                "size-8 rounded-full transition-colors",
+                isOpen
+                  ? "bg-green-500 text-white hover:bg-green-600"
+                  : "bg-background hover:bg-muted",
+              )}
+            >
+              <ServerCogIcon className="size-4" />
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">Server Options</TooltipContent>
+      </Tooltip>
+
+      <DropdownMenuContent className="w-auto">
+        <DropdownMenuItem className="flex items-center justify-between gap-2">
           <Button
-            className="size-7 rounded-full"
-            disabled={isOpen}
-            onClick={updateEnv}
-            size="icon"
             variant="outline"
+            onClick={updateEnv}
+            disabled={!isOpen}
+            className="flex items-center gap-2 rounded-md px-3 py-1.5"
           >
             <RefreshCcwIcon className="size-4" />
+            <span className="text-muted-foreground text-sm">
+              Reload Environment
+            </span>
           </Button>
-        </TooltipTrigger>
+        </DropdownMenuItem>
 
-        <TooltipContent side="bottom">Update Environment</TooltipContent>
-      </Tooltip>
-      <Tooltip>
-        <TooltipTrigger className="flex items-center" asChild>
-          <div className="inline-block">
-            <Switch
-              disabled={status.isPending}
-              checked={isOpen}
-              onClick={isOpen ? closeEnv : openEnv}
-              defaultChecked={!!reState}
-            />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">
-          {isOpen ? "Close Environment" : "Open Environment"}
-        </TooltipContent>
-      </Tooltip>
-    </div>
+        {/* Toggle Environment */}
+        <DropdownMenuItem className="flex items-center justify-between">
+          <span className="text-muted-foreground text-sm">
+            {isOpen ? "Active" : "Inactive"}
+          </span>
+          <Switch
+            disabled={status.isPending}
+            checked={isOpen}
+            onCheckedChange={(checked) => (checked ? openEnv() : closeEnv())}
+          />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -217,19 +237,35 @@ function PlaybackButton() {
       await utils.status.get.invalidate();
     },
   });
+
   const resume = api.runEngine.resume.useMutation({
     onSettled: async () => {
       await utils.status.get.invalidate();
     },
   });
 
-  const handlePause = useCallback(() => {
-    toast.info("Pausing run engine...");
-    pause.mutate(undefined, {
-      onError: () => {
-        toast.error("Failed to pause run engine");
+  const handlePauseNow = useCallback(() => {
+    toast.info("Pausing run engine immedeatly...");
+    pause.mutate(
+      { option: "immediate" },
+      {
+        onError: () => {
+          toast.error("Failed to pause run engine");
+        },
       },
-    });
+    );
+  }, [pause]);
+
+  const handlePauseLater = useCallback(() => {
+    toast.info("Pausing run engine after current task...");
+    pause.mutate(
+      { option: "deferred" },
+      {
+        onError: () => {
+          toast.error("Failed to pause run engine");
+        },
+      },
+    );
   }, [pause]);
 
   const handleResume = useCallback(() => {
@@ -258,23 +294,38 @@ function PlaybackButton() {
       </Tooltip>
     );
   }
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          className="size-8 rounded-full"
-          disabled={reState !== "running"}
-          onClick={handlePause}
-          size="icon"
-          variant="outline"
-        >
-          <PauseIcon className="size-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">Pause</TooltipContent>
-    </Tooltip>
-  );
+  if (reState === "running") {
+    return (
+      <>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="size-8 rounded-full"
+              onClick={handlePauseNow}
+              size="icon"
+              variant="destructive"
+            >
+              <PauseIcon className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Pause Now</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              className="size-8 rounded-full"
+              onClick={handlePauseLater}
+              size="icon"
+              variant="outline"
+            >
+              <SkipForwardIcon className="size-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Pause Later</TooltipContent>
+        </Tooltip>
+      </>
+    );
+  }
 }
 
 function StopButton() {
@@ -326,30 +377,31 @@ function StopButton() {
       },
     });
   }, [abort]);
-  return (
-    <DropdownMenu>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DropdownMenuTrigger asChild>
-            <Button
-              className="size-8 rounded-full"
-              disabled={reState !== "paused"}
-              size="icon"
-              variant="outline"
-            >
-              <SquareIcon className="size-4" />
-            </Button>
-          </DropdownMenuTrigger>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Stop Options</TooltipContent>
-      </Tooltip>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={handleStop}>Stop</DropdownMenuItem>
-        <DropdownMenuItem onClick={handleHalt}>Halt</DropdownMenuItem>
-        <DropdownMenuItem onClick={handleAbort}>Abort</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+  if (reState === "paused") {
+    return (
+      <DropdownMenu>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className="size-8 rounded-full"
+                size="icon"
+                variant="outline"
+              >
+                <SquareIcon className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">Stop Options</TooltipContent>
+        </Tooltip>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={handleStop}>Stop</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleHalt}>Halt</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleAbort}>Abort</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 }
 
 function RE() {

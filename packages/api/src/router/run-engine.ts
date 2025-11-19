@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { createZodFetcher } from "zod-fetch";
 import { env } from "../../env";
 import commonSchemas from "../schemas/common";
@@ -14,27 +15,29 @@ import { protectedProcedure } from "../trpc";
 // - GET re/runs/open (not implemented)
 // - GET re/runs/closed (not implemented)
 export const runEngineRouter = {
-  pause: protectedProcedure.mutation(async ({ ctx }) => {
-    const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/re/pause`;
-    const fetchWithZod = createZodFetcher();
-    try {
-      const res = await fetchWithZod(commonSchemas.response, fetchURL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
-        },
-        body: undefined,
-      });
-      return res;
-    } catch (e) {
-      if (e instanceof Error) {
-        console.error(e);
-        throw new Error(e.message);
+  pause: protectedProcedure
+    .input(z.object({ option: z.enum(["deferred", "immediate"]) }).optional())
+    .mutation(async ({ ctx, input }) => {
+      const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/re/pause`;
+      const fetchWithZod = createZodFetcher();
+      try {
+        const res = await fetchWithZod(commonSchemas.response, fetchURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
+          },
+          body: input ? JSON.stringify(input) : undefined,
+        });
+        return res;
+      } catch (e) {
+        if (e instanceof Error) {
+          console.error(e);
+          throw new Error(e.message);
+        }
+        throw new Error("Unknown error");
       }
-      throw new Error("Unknown error");
-    }
-  }),
+    }),
   resume: protectedProcedure.mutation(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/re/resume`;
     const fetchWithZod = createZodFetcher();
