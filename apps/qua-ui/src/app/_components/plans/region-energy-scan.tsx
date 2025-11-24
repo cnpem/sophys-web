@@ -373,25 +373,6 @@ export function MainForm({
     name: "regions",
   });
 
-  function handleAddNewRegion() {
-    const regions = fields;
-    const lastRegion = regions[regions.length - 1];
-    if (!lastRegion) {
-      toast.error("Unexpected error: No last region found.");
-      return;
-    }
-    const lastSpace = lastRegion.space;
-    const lastFinal = lastRegion.final;
-
-    const newRegionData: z.infer<typeof regionObjectSchema> = {
-      space: lastSpace,
-      initial: lastFinal,
-      final: 0,
-      step: 0,
-    };
-    append(newRegionData);
-  }
-
   function handleRegionSpaceChange(
     index: number,
     newSpace: "k-space" | "energy-space",
@@ -454,6 +435,24 @@ export function MainForm({
     control: form.control,
     name: "upAndDown",
   });
+
+  function handleAddNewRegion() {
+    const lastRegion = watchedRegions[watchedRegions.length - 1];
+    if (!lastRegion) {
+      toast.error("Unexpected error: No last region found.");
+      return;
+    }
+    const lastSpace = lastRegion.space;
+    const lastFinal = lastRegion.final;
+
+    const newRegionData: z.infer<typeof regionObjectSchema> = {
+      space: lastSpace,
+      initial: lastFinal,
+      final: 0,
+      step: 0,
+    };
+    append(newRegionData);
+  }
 
   const estimatedTime = estimateTotalTimeInMs({
     regions: watchedRegions,
