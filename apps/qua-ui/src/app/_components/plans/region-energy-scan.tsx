@@ -373,6 +373,47 @@ export function MainForm({
     name: "regions",
   });
 
+  // Watch regions and other relevant fields for time estimation
+  const watchedRegions = useWatch({
+    control: form.control,
+    name: "regions",
+  });
+  const watchedSettleTime = useWatch({
+    control: form.control,
+    name: "settleTime",
+  });
+  const watchedAcquisitionTime = useWatch({
+    control: form.control,
+    name: "acquisitionTime",
+  });
+  const watchedRepeats = useWatch({ control: form.control, name: "repeats" });
+  const watchedUpAndDown = useWatch({
+    control: form.control,
+    name: "upAndDown",
+  });
+  const watchedEdgeEnergy = useWatch({
+    control: form.control,
+    name: "edgeEnergy",
+  });
+
+  function handleAddNewRegion() {
+    const lastRegion = watchedRegions[watchedRegions.length - 1];
+    if (!lastRegion) {
+      toast.error("Unexpected error: No last region found.");
+      return;
+    }
+    const lastSpace = lastRegion.space;
+    const lastFinal = lastRegion.final;
+
+    const newRegionData: z.infer<typeof regionObjectSchema> = {
+      space: lastSpace,
+      initial: lastFinal,
+      final: 0,
+      step: 0,
+    };
+    append(newRegionData);
+  }
+
   function handleRegionSpaceChange(
     index: number,
     newSpace: "k-space" | "energy-space",
@@ -381,18 +422,17 @@ export function MainForm({
       // do nothing, we only convert to k-space and not the other way around
       return;
     }
-    const regions = fields;
-    const currentRegion = regions[index];
+    const currentRegion = watchedRegions[index];
     if (!currentRegion) {
       toast.error("Unexpected error: No region found at the specified index.");
       return;
     }
 
     // validate just the edgeEnergy
-    const edgeEnergy = form.getValues("edgeEnergy");
+    const edgeEnergy = watchedEdgeEnergy;
     const safeEdgeEnergy = baseFormSchema
       .pick({ edgeEnergy: true })
-      .safeParse(edgeEnergy);
+      .safeParse({ edgeEnergy });
     if (safeEdgeEnergy.error) {
       // resetting last region selector
       update(index, {
@@ -415,43 +455,6 @@ export function MainForm({
         : 0,
       step: 0,
     });
-  }
-
-  // Watch regions and other relevant fields for time estimation
-  const watchedRegions = useWatch({
-    control: form.control,
-    name: "regions",
-  });
-  const watchedSettleTime = useWatch({
-    control: form.control,
-    name: "settleTime",
-  });
-  const watchedAcquisitionTime = useWatch({
-    control: form.control,
-    name: "acquisitionTime",
-  });
-  const watchedRepeats = useWatch({ control: form.control, name: "repeats" });
-  const watchedUpAndDown = useWatch({
-    control: form.control,
-    name: "upAndDown",
-  });
-
-  function handleAddNewRegion() {
-    const lastRegion = watchedRegions[watchedRegions.length - 1];
-    if (!lastRegion) {
-      toast.error("Unexpected error: No last region found.");
-      return;
-    }
-    const lastSpace = lastRegion.space;
-    const lastFinal = lastRegion.final;
-
-    const newRegionData: z.infer<typeof regionObjectSchema> = {
-      space: lastSpace,
-      initial: lastFinal,
-      final: 0,
-      step: 0,
-    };
-    append(newRegionData);
   }
 
   const estimatedTime = estimateTotalTimeInMs({
