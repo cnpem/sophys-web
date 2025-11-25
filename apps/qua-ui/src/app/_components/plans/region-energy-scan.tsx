@@ -373,9 +373,31 @@ export function MainForm({
     name: "regions",
   });
 
+  // Watch regions and other relevant fields for time estimation
+  const watchedRegions = useWatch({
+    control: form.control,
+    name: "regions",
+  });
+  const watchedSettleTime = useWatch({
+    control: form.control,
+    name: "settleTime",
+  });
+  const watchedAcquisitionTime = useWatch({
+    control: form.control,
+    name: "acquisitionTime",
+  });
+  const watchedRepeats = useWatch({ control: form.control, name: "repeats" });
+  const watchedUpAndDown = useWatch({
+    control: form.control,
+    name: "upAndDown",
+  });
+  const watchedEdgeEnergy = useWatch({
+    control: form.control,
+    name: "edgeEnergy",
+  });
+
   function handleAddNewRegion() {
-    const regions = fields;
-    const lastRegion = regions[regions.length - 1];
+    const lastRegion = watchedRegions[watchedRegions.length - 1];
     if (!lastRegion) {
       toast.error("Unexpected error: No last region found.");
       return;
@@ -400,18 +422,17 @@ export function MainForm({
       // do nothing, we only convert to k-space and not the other way around
       return;
     }
-    const regions = fields;
-    const currentRegion = regions[index];
+    const currentRegion = watchedRegions[index];
     if (!currentRegion) {
       toast.error("Unexpected error: No region found at the specified index.");
       return;
     }
 
     // validate just the edgeEnergy
-    const edgeEnergy = form.getValues("edgeEnergy");
+    const edgeEnergy = watchedEdgeEnergy;
     const safeEdgeEnergy = baseFormSchema
       .pick({ edgeEnergy: true })
-      .safeParse(edgeEnergy);
+      .safeParse({ edgeEnergy });
     if (safeEdgeEnergy.error) {
       // resetting last region selector
       update(index, {
@@ -435,25 +456,6 @@ export function MainForm({
       step: 0,
     });
   }
-
-  // Watch regions and other relevant fields for time estimation
-  const watchedRegions = useWatch({
-    control: form.control,
-    name: "regions",
-  });
-  const watchedSettleTime = useWatch({
-    control: form.control,
-    name: "settleTime",
-  });
-  const watchedAcquisitionTime = useWatch({
-    control: form.control,
-    name: "acquisitionTime",
-  });
-  const watchedRepeats = useWatch({ control: form.control, name: "repeats" });
-  const watchedUpAndDown = useWatch({
-    control: form.control,
-    name: "upAndDown",
-  });
 
   const estimatedTime = estimateTotalTimeInMs({
     regions: watchedRegions,
