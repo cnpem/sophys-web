@@ -52,7 +52,13 @@ export const PLAN_NAME = "region_energy_scan" as const;
  * Schema for a single region in object format.
  * This is used for form state management.
  */
-const regionObjectSchema = baseRegionObjectSchema;
+const regionObjectSchema = baseRegionObjectSchema.refine(
+  (data) => data.final > data.initial,
+  {
+    message: "Final value must be greater than Initial value",
+    path: ["final"],
+  },
+);
 
 /**
  * Schema for a single region in tuple format.
