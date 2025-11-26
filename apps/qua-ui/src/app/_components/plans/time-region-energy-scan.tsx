@@ -41,6 +41,7 @@ import type { QueueItemProps } from "~/lib/types";
 import {
   baseRegionObjectSchema,
   calculatePointsInRegion,
+  convertTotalTimeToReadable,
   EnergyToK,
   spaceEnum,
 } from "./energy-scan-utils";
