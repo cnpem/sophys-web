@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CameraIcon, Trash2Icon } from "lucide-react";
+import { ChartSplineIcon, Trash2Icon } from "lucide-react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -840,14 +840,14 @@ export function AddRegionEnergyScan({ className }: { className?: string }) {
           className={className}
           disabled={!data?.proposal}
         >
-          <CameraIcon className="mr-2 h-4 w-4" />
-          New Region Energy Scan
+          <ChartSplineIcon className="mr-2 h-4 w-4" />
+          Region Energy Scan
         </Button>
       </DialogTrigger>
 
       <DialogContent className="w-fit max-w-full flex-col">
         <DialogHeader>
-          <DialogTitle>New Region Energy Scan</DialogTitle>
+          <DialogTitle>Region Energy Scan</DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
             Please fill in the details below to submit the plan.
           </DialogDescription>
