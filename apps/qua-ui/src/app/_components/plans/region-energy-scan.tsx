@@ -38,31 +38,21 @@ import {
 import { Textarea } from "@sophys-web/ui/textarea";
 import { ErrorMessageTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 import type { QueueItemProps } from "~/lib/types";
+import {
+  baseRegionObjectSchema,
+  calculatePointsInRegion,
+  convertTotalTimeToReadable,
+  EnergyToK,
+  spaceEnum,
+} from "./energy-scan-utils";
 
 export const PLAN_NAME = "region_energy_scan" as const;
 
-const spaceEnum = z.enum(["energy-space", "k-space"]);
 /**
  * Schema for a single region in object format.
  * This is used for form state management.
  */
-const regionObjectSchema = z
-  .object({
-    space: spaceEnum,
-    initial: z.coerce
-      .number()
-      .gt(0, { message: "Initial value must be greater than 0" }),
-    final: z.coerce
-      .number()
-      .gt(0, { message: "Final value must be greater than 0" }),
-    step: z.coerce
-      .number()
-      .gt(0, { message: "Step value must be greater than 0" }),
-  })
-  .refine((data) => data.final > data.initial, {
-    message: "Final value must be greater than Initial value",
-    path: ["final"],
-  });
+const regionObjectSchema = baseRegionObjectSchema;
 
 /**
  * Schema for a single region in tuple format.
@@ -197,30 +187,9 @@ export function convertRegionTuplesToObjects(
   }));
 }
 
-function EnergyToK(energy: number, edgeEnergy: number) {
-  const value = (energy - edgeEnergy) / 3.81;
-  if (value < 0) {
-    console.warn(
-      `Energy (${energy}) is less than Edge Energy (${edgeEnergy}). Cannot convert to k-space.`,
-    );
-    return 0;
-  }
-  return Math.round(Math.sqrt(value) * 10000) / 10000;
-}
-
 // ========================================================================
 // Estimate total time logic
 // ========================================================================
-
-/**
- * Calculate number of points in a region as int((final - initial) / step)
- * returns 0 for invalid regions (no step, step <= 0, final - initial <= 0)
- * @param region
- * @returns number of points
- */
-function calculatePointsInRegion(region: z.infer<typeof regionObjectSchema>) {
-  return Math.floor((region.final - region.initial) / region.step);
-}
 
 /**
  * Estimate total time in ms for the scan based on the regions, settle time, acquisition time, repeats and upAndDown
@@ -246,28 +215,6 @@ function estimateTotalTimeInMs(props: z.infer<typeof watchEstimateTimeSchema>) {
   return (
     result.points * (settleTime + acquisitionTime) * repeats * upAndDownTimes
   );
-}
-
-/**
- * Convert total time in ms to a readable string in seconds, minutes or hours
- * @param totalMs
- * @returns human readable string representation of estimated time (e.g. "5.0 seconds", "2.5 minutes", "1.0 hours")
- */
-function convertTotalTimeToReadable(totalMs: number | undefined) {
-  const oneSecondMs = 1000;
-  const oneMinuteMs = 60000;
-  const oneHourMs = 3600000;
-  if (!totalMs || totalMs === 0) {
-    return "Unable to estimate";
-  } else if (totalMs < oneSecondMs) {
-    return "Less than a second";
-  } else if (totalMs < oneMinuteMs) {
-    return `${(totalMs / oneSecondMs).toFixed(1)} seconds`;
-  } else if (totalMs < oneHourMs) {
-    return `${(totalMs / oneMinuteMs).toFixed(1)} minutes`;
-  } else {
-    return `${(totalMs / oneHourMs).toFixed(1)} hours`;
-  }
 }
 
 // =========================================================================
