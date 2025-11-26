@@ -1,0 +1,843 @@
+"use client";
+
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ChartNoAxesCombinedIcon, Trash2Icon } from "lucide-react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+import { useQueue } from "@sophys-web/api-client/hooks";
+import { api } from "@sophys-web/api-client/react";
+import { cn } from "@sophys-web/ui";
+import { Button } from "@sophys-web/ui/button";
+import { Checkbox } from "@sophys-web/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@sophys-web/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@sophys-web/ui/form";
+import { Input } from "@sophys-web/ui/input";
+import { ScrollArea } from "@sophys-web/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@sophys-web/ui/select";
+import { Textarea } from "@sophys-web/ui/textarea";
+import { ErrorMessageTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import type { QueueItemProps } from "~/lib/types";
+import {
+  baseRegionObjectSchema,
+  calculatePointsInRegion,
+  EnergyToK,
+  spaceEnum,
+} from "./energy-scan-utils";
+
+export const PLAN_NAME_TIMED = "timed_region_energy_scan" as const;
+
+/**
+ * Schema for a single region in object format.
+ * This is used for form state management.
+ */
+const regionObjectSchema = baseRegionObjectSchema
+  .extend({
+    time: z.coerce
+      .number()
+      .gt(0, { message: "Acquisition time must be greater than 0" }),
+  })
+  .refine((data) => data.final > data.initial, {
+    message: "Final value must be greater than Initial value",
+    path: ["final"],
+  });
+
+/**
+ * Schema for a single region in tuple format.
+ * This is used for API submission and retrieval.
+ */
+export const regionTupleSchema = z.tuple([
+  spaceEnum,
+  z.number(),
+  z.number(),
+  z.number(),
+  z.number(),
+]);
+
+const defaultRegionObject = {
+  space: "energy-space",
+  initial: 1,
+  final: 1,
+  step: 1,
+  time: 1,
+} as const satisfies z.infer<typeof regionObjectSchema>;
+
+/**
+ * Base Schema for form validation
+ */
+export const baseFormSchema = z.object({
+  regions: z.array(regionObjectSchema).min(1, {
+    message: "At least one region is required",
+  }),
+  settleTime: z.coerce
+    .number({
+      description: "Time in ms for the settling phase",
+    })
+    .gt(0, "Settle Time must be a positive number"),
+  fluorescence: z.boolean(),
+  edgeEnergy: z.coerce
+    .number({
+      description:
+        "Edge (E0) energy in eV for converting energy space to k-space",
+    })
+    .gt(0, "Edge Energy must be a positive number"),
+  acquireThermocouple: z.boolean(),
+  fileName: z.string().optional(),
+  metadata: z.string().optional(),
+  repeats: z.coerce
+    .number({
+      description: "Number of repeats for the plan",
+    })
+    .int("Repeats must be an integer")
+    .min(1, "Repeats must be at least 1"),
+  proposal: z
+    .string({
+      description: "Proposal ID",
+    })
+    .min(1, "Proposal ID is required"),
+});
+
+/**
+ * Subset of the form schema to be watched and calculate
+ * dynamically the estimated total time of the plan
+ */
+const watchEstimateTimeSchema = baseFormSchema.pick({
+  regions: true,
+  settleTime: true,
+  repeats: true,
+});
+
+/**
+ *  Schema for submitting the complete form
+ */
+export const formSchema = baseFormSchema.superRefine((data, ctx) => {
+  // `First energy region must start lower than edge energy (e0)
+  if (data.regions[0] && data.regions[0].initial >= data.edgeEnergy) {
+    ctx.addIssue({
+      path: ["regions", 0, "initial"],
+      code: z.ZodIssueCode.custom,
+      message: `First energy region must start lower than edge energy (e0)! Current e0: ${data.edgeEnergy} eV, initial energy: ${data.regions[0].initial} eV`,
+    });
+  }
+});
+
+/**
+ * Default values for the form, using object structure for regions.
+ */
+const formDefaults = {
+  regions: [defaultRegionObject],
+  edgeEnergy: 0,
+  settleTime: 20,
+  fluorescence: false,
+  acquireThermocouple: false,
+  repeats: 1,
+  proposal: "",
+  metadata: "",
+} as z.infer<typeof formSchema>;
+
+/**
+ * Utility to convert an array of region objects to an array of region tuples.
+ * This is used for API submission.
+ */
+function convertRegionObjectsToTuples(
+  regions: z.infer<typeof regionObjectSchema>[],
+): z.infer<typeof regionTupleSchema>[] {
+  return regions.map((region) => [
+    region.space,
+    region.initial,
+    region.final,
+    region.step,
+    region.time,
+  ]);
+}
+
+/**
+ * Utility to convert an array of region tuples to an array of region objects.
+ * This is used for pre-filling the form.
+ */
+export function convertRegionTuplesToObjects(
+  tuples: z.infer<typeof regionTupleSchema>[],
+): z.infer<typeof regionObjectSchema>[] {
+  return tuples.map((tuple) => ({
+    space: tuple[0],
+    initial: tuple[1],
+    final: tuple[2],
+    step: tuple[3],
+    time: tuple[4],
+  }));
+}
+
+// ========================================================================
+// Estimate total time logic
+// ========================================================================
+
+/**
+ * Estimate total time in ms for the scan based on the regions, settle time, acquisition time, repeats and upAndDown
+
+ */
+function estimateTotalTimeInMs(props: z.infer<typeof watchEstimateTimeSchema>) {
+  const parsed = watchEstimateTimeSchema.safeParse(props);
+  if (!parsed.success) {
+    return;
+  }
+  const { regions, settleTime, repeats } = parsed.data;
+
+  const result = regions.reduce(
+    (acc, region) => {
+      const points = calculatePointsInRegion(region);
+      acc.points += points * (region.time + settleTime);
+      return acc;
+    },
+    { points: 0, errors: [] as string[] },
+  );
+  return result.points * repeats;
+}
+
+// =========================================================================
+// MainForm Component
+// =========================================================================
+
+/**
+ * Main form component for the Region Energy Scan plan.
+ * Handles both creation and editing of plans.
+ * Props:
+ * - className: optional class name for styling
+ * - proposal: proposal ID to associate with the plan
+ * - editItemParams: optional parameters for editing an existing plan
+ * - onSubmitSuccess: optional callback to be triggered on submit success.
+ *
+ * If editItemParams is provided, the form will be pre-filled with the existing plan data.
+ * and submitting the form will update the existing plan instead of creating a new one in the queue.
+ */
+export function MainForm({
+  className,
+  proposal,
+  editItemParams,
+  onSubmitSuccess,
+}: {
+  className?: string;
+  proposal: string;
+  editItemParams?: {
+    kwargs: z.infer<typeof formSchema>;
+    itemUid: string;
+  };
+  onSubmitSuccess?: () => void;
+}) {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      ...formDefaults,
+      ...editItemParams?.kwargs,
+      proposal,
+    },
+  });
+
+  const { addBatch: submitPlan, update: editPlan } = useQueue();
+
+  function onSubmit(formData: z.infer<typeof formSchema>) {
+    const apiData = {
+      ...formData,
+      regions: convertRegionObjectsToTuples(formData.regions),
+    };
+
+    if (editItemParams) {
+      editPlan.mutate(
+        {
+          item: {
+            name: PLAN_NAME_TIMED,
+            itemType: "plan",
+            args: [],
+            kwargs: apiData,
+            itemUid: editItemParams.itemUid,
+          },
+        },
+        {
+          onSuccess: () => {
+            if (onSubmitSuccess) onSubmitSuccess();
+          },
+          onError: (error) => {
+            toast.error("Failed to edit plan", {
+              description: error.message,
+              closeButton: true,
+            });
+          },
+        },
+      );
+    } else {
+      submitPlan.mutate(
+        {
+          items: [
+            {
+              name: PLAN_NAME_TIMED,
+              itemType: "plan",
+              args: [],
+              kwargs: apiData,
+            },
+          ],
+          pos: "back",
+        },
+        {
+          onSuccess: () => {
+            if (onSubmitSuccess) onSubmitSuccess();
+          },
+          onError: (error) => {
+            toast.error("Failed to submit", {
+              description: error.message,
+              closeButton: true,
+            });
+          },
+        },
+      );
+    }
+  }
+
+  const { fields, append, remove, update } = useFieldArray({
+    control: form.control,
+    name: "regions",
+  });
+
+  // Watch regions and other relevant fields for time estimation
+  const watchedRegions = useWatch({
+    control: form.control,
+    name: "regions",
+  });
+  const watchedSettleTime = useWatch({
+    control: form.control,
+    name: "settleTime",
+  });
+
+  const watchedRepeats = useWatch({ control: form.control, name: "repeats" });
+
+  const watchedEdgeEnergy = useWatch({
+    control: form.control,
+    name: "edgeEnergy",
+  });
+
+  function handleAddNewRegion() {
+    const lastRegion = watchedRegions[watchedRegions.length - 1];
+    if (!lastRegion) {
+      toast.error("Unexpected error: No last region found.");
+      return;
+    }
+    const lastSpace = lastRegion.space;
+    const lastFinal = lastRegion.final;
+
+    const newRegionData: z.infer<typeof regionObjectSchema> = {
+      space: lastSpace,
+      initial: lastFinal,
+      final: 0,
+      step: 0,
+      time: 0,
+    };
+    append(newRegionData);
+  }
+
+  function handleRegionSpaceChange(
+    index: number,
+    newSpace: "k-space" | "energy-space",
+  ) {
+    if (newSpace !== "k-space") {
+      // do nothing, we only convert to k-space and not the other way around
+      return;
+    }
+    const currentRegion = watchedRegions[index];
+    if (!currentRegion) {
+      toast.error("Unexpected error: No region found at the specified index.");
+      return;
+    }
+
+    // validate just the edgeEnergy
+    const edgeEnergy = watchedEdgeEnergy;
+    const safeEdgeEnergy = baseFormSchema
+      .pick({ edgeEnergy: true })
+      .safeParse({ edgeEnergy });
+    if (safeEdgeEnergy.error) {
+      // resetting last region selector
+      update(index, {
+        ...currentRegion,
+        space: "energy-space",
+      });
+      const cause = safeEdgeEnergy.error.message;
+      toast.error(`Failed to validate Edge Energy value: ${cause}`);
+      return;
+    }
+
+    // Update the region at the specified index with converted values
+    update(index, {
+      space: "k-space",
+      initial: currentRegion.initial
+        ? EnergyToK(currentRegion.initial, safeEdgeEnergy.data.edgeEnergy)
+        : 0,
+      final: currentRegion.final
+        ? EnergyToK(currentRegion.final, safeEdgeEnergy.data.edgeEnergy)
+        : 0,
+      step: 0,
+      time: 0,
+    });
+  }
+
+  const estimatedTime = estimateTotalTimeInMs({
+    regions: watchedRegions,
+    settleTime: watchedSettleTime,
+    repeats: watchedRepeats,
+  });
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className={cn("space-y-8", className)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.preventDefault();
+        }}
+      >
+        <div className="flex flex-col space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="edgeEnergy"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Edge Energy (eV)</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
+                  </FormControl>
+                  <ErrorMessageTooltip />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="settleTime"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Settle Time (ms)</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
+                  </FormControl>
+                  <ErrorMessageTooltip />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fluorescence"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Add Fluorescence?</FormLabel>
+                  </div>
+                  <ErrorMessageTooltip />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="acquireThermocouple"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Acquire Thermocouple?</FormLabel>
+                  </div>
+                  <ErrorMessageTooltip />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <ScrollArea className="h-64 max-h-72 w-full px-1">
+            <div
+              data-error={Object.keys(form.formState.errors).length > 0}
+              className="flex flex-col gap-2 rounded-md border border-dashed p-4 data-[error=true]:border-red-500"
+              role="region-block"
+            >
+              <FormLabel className="col-span-5 text-center text-lg font-semibold">
+                Regions
+              </FormLabel>
+              {fields.map((field, index) => (
+                <div
+                  key={field.id}
+                  className="col-span- grid [grid-template-columns:1.2fr_1fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
+                >
+                  {index === 0 && (
+                    <>
+                      <span className="text-sm font-semibold">Space</span>
+                      <span className="text-sm font-semibold">Initial</span>
+                      <span className="text-sm font-semibold">Final</span>
+                      <span className="text-sm font-semibold">Step</span>
+                      <span className="text-sm font-semibold">
+                        Acquisition Time (ms)
+                      </span>
+                      <span></span>
+                    </>
+                  )}
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.space`}
+                    render={({ field: selectField }) => (
+                      <FormItem className="w-full">
+                        <Select
+                          value={selectField.value}
+                          onValueChange={(
+                            value: "k-space" | "energy-space",
+                          ) => {
+                            selectField.onChange(value); // Update form state FIRST
+                            handleRegionSpaceChange(index, value); // Then trigger custom logic
+                          }}
+                          disabled={
+                            index === 0 ||
+                            index !== fields.length - 1 ||
+                            field.space === "k-space"
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select Region Type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="k-space">K-Space</SelectItem>
+                            <SelectItem value="energy-space">
+                              Energy Space
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <ErrorMessageTooltip />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.initial`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Initial"
+                            className="min-w-[9ch]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <ErrorMessageTooltip />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.final`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Final"
+                            className="min-w-[9ch]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <ErrorMessageTooltip />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.step`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Step"
+                            className="min-w-[9ch]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <ErrorMessageTooltip />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.time`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Time"
+                            className="min-w-[9ch]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <ErrorMessageTooltip />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="flex-shrink-1 p-1"
+                    onClick={() => remove(index)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        remove(index);
+                      }
+                    }}
+                    disabled={
+                      fields.length === 1 || index !== fields.length - 1
+                    }
+                  >
+                    <Trash2Icon className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              ))}
+
+              <p className="text-secondary-foreground col-span-5 mt-1 text-center text-sm italic">
+                Estimated Total Time:{" "}
+                <span
+                  data-error={!estimatedTime}
+                  className="data-[error=true]:text-red-500"
+                >
+                  {convertTotalTimeToReadable(estimatedTime)}
+                </span>
+              </p>
+
+              <Button
+                type="button"
+                variant="default"
+                className="col-span-5"
+                onClick={handleAddNewRegion}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddNewRegion();
+                  }
+                }}
+              >
+                Add Region
+              </Button>
+            </div>
+          </ScrollArea>
+          <div className="flex w-full flex-row items-stretch space-x-4">
+            <FormField
+              control={form.control}
+              name="proposal"
+              render={({ field }) => (
+                <FormItem className="w-28 flex-shrink-0">
+                  <FormLabel>Proposal ID</FormLabel>
+                  <FormControl>
+                    <Input type="text" {...field} />
+                  </FormControl>
+                  <ErrorMessageTooltip />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fileName"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>File Name</FormLabel>
+                  <FormControl>
+                    <Input type="text" {...field} />
+                  </FormControl>
+                  <ErrorMessageTooltip />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="repeats"
+              render={({ field }) => (
+                <FormItem className="w-20 flex-shrink-0">
+                  <FormLabel>Repeats</FormLabel>
+                  <FormControl>
+                    <Input type="number" {...field} />
+                  </FormControl>
+                  <ErrorMessageTooltip />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+        <FormField
+          control={form.control}
+          name="metadata"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Metadata</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  className="h-32 font-mono"
+                  placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={form.formState.isSubmitting}
+        >
+          Submit
+        </Button>
+      </form>
+    </Form>
+  );
+}
+
+// ========================================================================
+// Add New Plan Dialog Component
+// ========================================================================
+
+export function AddTimedRegionEnergyScan({
+  className,
+}: {
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const { data } = api.auth.getUser.useQuery();
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant="ghost"
+          className={className}
+          disabled={!data?.proposal}
+        >
+          <ChartNoAxesCombinedIcon className="mr-2 h-4 w-4" />
+          Timed Energy Scan
+        </Button>
+      </DialogTrigger>
+
+      <DialogContent className="w-fit max-w-full flex-col">
+        <DialogHeader>
+          <DialogTitle>Timed Energy Scan</DialogTitle>
+          <DialogDescription className="flex flex-col gap-2">
+            Please fill in the details below to submit the plan.
+            <br />
+            Energy units are in eV and K units in 1/Å
+          </DialogDescription>
+        </DialogHeader>
+        {data?.proposal && (
+          <MainForm
+            proposal={data.proposal}
+            onSubmitSuccess={() => setOpen(false)}
+            className="w-2xl"
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ========================================================================
+// Edit Form Component and schemas
+// ========================================================================
+
+/**
+ * Schema for parsing queue items into the form inputs with less rigorous validation.
+ */
+const editKwargsSchema = z
+  .object({
+    regions: z.array(regionTupleSchema),
+    settleTime: z.coerce.number(),
+    fluorescence: z.boolean(),
+    edgeEnergy: z.coerce.number(),
+    acquireThermocouple: z.boolean(),
+    fileName: z.string().optional(),
+    metadata: z.string().optional(),
+    repeats: z.coerce.number(),
+    proposal: z.string(),
+  })
+  .transform(
+    (data) =>
+      ({
+        ...data,
+        // convert regions from array of tuples into array of objects
+        regions: convertRegionTuplesToObjects(data.regions),
+      }) as const satisfies z.infer<typeof formSchema>,
+  );
+
+interface EditRegionEnergyScanFormProps
+  extends Pick<QueueItemProps, "itemUid" | "kwargs"> {
+  proposal?: string;
+  onSubmitSuccess?: () => void;
+  className?: string;
+}
+
+export function EditTimedRegionEnergyScanForm(
+  props: EditRegionEnergyScanFormProps,
+) {
+  const initialValues = editKwargsSchema.safeParse({
+    ...props.kwargs,
+    proposal: props.proposal ?? undefined,
+  });
+  if (!initialValues.success) {
+    console.error(
+      "Failed to parse kwargs for EXAFS scan regions plan",
+      initialValues.error,
+    );
+    return <div>Error parsing plan data</div>;
+  }
+  if (!props.proposal) {
+    return <div>Cannot edit plan without a proposal ID</div>;
+  }
+  return (
+    <MainForm
+      editItemParams={{
+        itemUid: props.itemUid,
+        kwargs: initialValues.data,
+      }}
+      proposal={props.proposal}
+      onSubmitSuccess={props.onSubmitSuccess}
+      className={props.className}
+    />
+  );
+}
