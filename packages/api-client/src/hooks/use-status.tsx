@@ -9,7 +9,7 @@ export const useStatus = () => {
   const prevHistoryUid = useRef<string | undefined>(undefined);
 
   const status = api.status.get.useQuery(undefined, {
-    refetchInterval: 5 * 1000,
+    refetchInterval: 2 * 1000,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
   });
