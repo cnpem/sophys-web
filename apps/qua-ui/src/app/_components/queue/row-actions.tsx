@@ -28,6 +28,10 @@ import {
   EditRegionEnergyScanForm,
   PLAN_NAME,
 } from "../plans/region-energy-scan";
+import {
+  EditTimedRegionEnergyScanForm,
+  PLAN_NAME_TIMED,
+} from "../plans/time-region-energy-scan";
 
 export function RowActions({ item }: { item: QueueItemProps }) {
   const { data: userData } = api.auth.getUser.useQuery();
@@ -123,7 +127,18 @@ export function RowActions({ item }: { item: QueueItemProps }) {
               Edit the details of the item in the queue.
             </DialogDescription>
           </DialogHeader>
-          {item.name === PLAN_NAME ? (
+          {item.name === PLAN_NAME_TIMED ? (
+            <EditTimedRegionEnergyScanForm
+              itemUid={item.itemUid}
+              kwargs={item.kwargs}
+              proposal={userData?.proposal ?? undefined}
+              onSubmitSuccess={() => {
+                setOpenEditDialog(false);
+                setOpen(false);
+              }}
+              className="w-2xl"
+            />
+          ) : item.name === PLAN_NAME ? (
             <EditRegionEnergyScanForm
               itemUid={item.itemUid}
               kwargs={item.kwargs}
@@ -136,8 +151,8 @@ export function RowActions({ item }: { item: QueueItemProps }) {
             />
           ) : (
             <EditGenericPlanForm
-              name={item.name}
               itemUid={item.itemUid}
+              name={item.name}
               kwargs={item.kwargs}
               proposal={userData?.proposal ?? undefined}
               onSubmitSuccess={() => {
