@@ -13,6 +13,7 @@ import {
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import { Console } from "@sophys-web/widgets/console";
+import { Controls } from "@sophys-web/widgets/controls";
 import type { Sample } from "../sample";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 import { useSSEData } from "~/app/_hooks/use-sse-data";
@@ -20,7 +21,6 @@ import { trayOptions } from "~/lib/constants";
 import { DataTable as History } from "../history/data-table";
 import { DataTable as Queue } from "../queue/data-table";
 import { LoadingTray, Tray } from "../tray";
-import { Controls } from "./controls";
 import { SampleTemperatureMonitor } from "./sample-temperature";
 
 const [TRAY1, TRAY2] = trayOptions;
