@@ -1,6 +1,7 @@
 "use client";
 
 import type { QueryClient } from "@tanstack/react-query";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -10,6 +11,9 @@ import superJSON from "superjson";
 import type { AppRouter } from "@sophys-web/api";
 import { env } from "./env";
 import { createQueryClient } from "./query-client";
+
+export type RouterInput = inferRouterInputs<AppRouter>;
+export type RouterOutput = inferRouterOutputs<AppRouter>;
 
 let clientQueryClientSingleton: QueryClient | undefined;
 const getQueryClient = () => {
