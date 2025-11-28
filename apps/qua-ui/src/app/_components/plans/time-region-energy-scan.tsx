@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChartSplineIcon, Trash2Icon } from "lucide-react";
+import { ChartNoAxesCombinedIcon, Trash2Icon } from "lucide-react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -46,19 +46,22 @@ import {
   spaceEnum,
 } from "./energy-scan-utils";
 
-export const PLAN_NAME = "region_energy_scan" as const;
+export const PLAN_NAME_TIMED = "timed_region_energy_scan" as const;
 
 /**
  * Schema for a single region in object format.
  * This is used for form state management.
  */
-const regionObjectSchema = baseRegionObjectSchema.refine(
-  (data) => data.final > data.initial,
-  {
+const regionObjectSchema = baseRegionObjectSchema
+  .extend({
+    time: z.coerce
+      .number()
+      .gt(0, { message: "Acquisition time must be greater than 0" }),
+  })
+  .refine((data) => data.final > data.initial, {
     message: "Final value must be greater than Initial value",
     path: ["final"],
-  },
-);
+  });
 
 /**
  * Schema for a single region in tuple format.
@@ -69,6 +72,7 @@ export const regionTupleSchema = z.tuple([
   z.number(),
   z.number(),
   z.number(),
+  z.number(),
 ]);
 
 const defaultRegionObject = {
@@ -76,6 +80,7 @@ const defaultRegionObject = {
   initial: 1,
   final: 1,
   step: 1,
+  time: 1,
 } as const satisfies z.infer<typeof regionObjectSchema>;
 
 /**
@@ -90,11 +95,6 @@ export const baseFormSchema = z.object({
       description: "Time in ms for the settling phase",
     })
     .gt(0, "Settle Time must be a positive number"),
-  acquisitionTime: z.coerce
-    .number({
-      description: "Time in ms for the acquisition phase",
-    })
-    .gt(0, "Acquisition Time must be a positive number"),
   fluorescence: z.boolean(),
   edgeEnergy: z.coerce
     .number({
@@ -103,8 +103,6 @@ export const baseFormSchema = z.object({
     })
     .gt(0, "Edge Energy must be a positive number"),
   acquireThermocouple: z.boolean(),
-  upAndDown: z.boolean(),
-  saveFlyData: z.boolean(),
   fileName: z.string().optional(),
   metadata: z.string().optional(),
   repeats: z.coerce
@@ -127,9 +125,7 @@ export const baseFormSchema = z.object({
 const watchEstimateTimeSchema = baseFormSchema.pick({
   regions: true,
   settleTime: true,
-  acquisitionTime: true,
   repeats: true,
-  upAndDown: true,
 });
 
 /**
@@ -153,11 +149,8 @@ const formDefaults = {
   regions: [defaultRegionObject],
   edgeEnergy: 0,
   settleTime: 20,
-  acquisitionTime: 0,
   fluorescence: false,
   acquireThermocouple: false,
-  upAndDown: false,
-  saveFlyData: false,
   repeats: 1,
   proposal: "",
   metadata: "",
@@ -175,6 +168,7 @@ function convertRegionObjectsToTuples(
     region.initial,
     region.final,
     region.step,
+    region.time,
   ]);
 }
 
@@ -190,6 +184,7 @@ export function convertRegionTuplesToObjects(
     initial: tuple[1],
     final: tuple[2],
     step: tuple[3],
+    time: tuple[4],
   }));
 }
 
@@ -206,21 +201,17 @@ function estimateTotalTimeInMs(props: z.infer<typeof watchEstimateTimeSchema>) {
   if (!parsed.success) {
     return;
   }
-  const { regions, settleTime, acquisitionTime, repeats, upAndDown } =
-    parsed.data;
+  const { regions, settleTime, repeats } = parsed.data;
 
   const result = regions.reduce(
     (acc, region) => {
       const points = calculatePointsInRegion(region);
-      acc.points += points;
+      acc.points += points * (region.time + settleTime);
       return acc;
     },
     { points: 0, errors: [] as string[] },
   );
-  const upAndDownTimes = upAndDown ? 2 : 1;
-  return (
-    result.points * (settleTime + acquisitionTime) * repeats * upAndDownTimes
-  );
+  return result.points * repeats;
 }
 
 // =========================================================================
@@ -274,7 +265,7 @@ export function MainForm({
       editPlan.mutate(
         {
           item: {
-            name: PLAN_NAME,
+            name: PLAN_NAME_TIMED,
             itemType: "plan",
             args: [],
             kwargs: apiData,
@@ -298,7 +289,7 @@ export function MainForm({
         {
           items: [
             {
-              name: PLAN_NAME,
+              name: PLAN_NAME_TIMED,
               itemType: "plan",
               args: [],
               kwargs: apiData,
@@ -335,15 +326,9 @@ export function MainForm({
     control: form.control,
     name: "settleTime",
   });
-  const watchedAcquisitionTime = useWatch({
-    control: form.control,
-    name: "acquisitionTime",
-  });
+
   const watchedRepeats = useWatch({ control: form.control, name: "repeats" });
-  const watchedUpAndDown = useWatch({
-    control: form.control,
-    name: "upAndDown",
-  });
+
   const watchedEdgeEnergy = useWatch({
     control: form.control,
     name: "edgeEnergy",
@@ -363,6 +348,7 @@ export function MainForm({
       initial: lastFinal,
       final: 0,
       step: 0,
+      time: 0,
     };
     append(newRegionData);
   }
@@ -407,15 +393,14 @@ export function MainForm({
         ? EnergyToK(currentRegion.final, safeEdgeEnergy.data.edgeEnergy)
         : 0,
       step: 0,
+      time: 0,
     });
   }
 
   const estimatedTime = estimateTotalTimeInMs({
     regions: watchedRegions,
     settleTime: watchedSettleTime,
-    acquisitionTime: watchedAcquisitionTime,
     repeats: watchedRepeats,
-    upAndDown: watchedUpAndDown,
   });
 
   return (
@@ -428,7 +413,7 @@ export function MainForm({
         }}
       >
         <div className="flex flex-col space-y-4">
-          <div className="flex flex-row items-center space-x-4">
+          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="edgeEnergy"
@@ -455,58 +440,7 @@ export function MainForm({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="acquisitionTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Acquisition Time (ms)</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} />
-                  </FormControl>
-                  <ErrorMessageTooltip />
-                </FormItem>
-              )}
-            />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="upAndDown"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Up and Down Scan?</FormLabel>
-                  </div>
-                  <ErrorMessageTooltip />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="saveFlyData"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Save Fly Data?</FormLabel>
-                  </div>
-                  <ErrorMessageTooltip />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="fluorescence"
@@ -557,7 +491,7 @@ export function MainForm({
               {fields.map((field, index) => (
                 <div
                   key={field.id}
-                  className="col-span-5 grid [grid-template-columns:1.2fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
+                  className="col-span- grid [grid-template-columns:1.2fr_1fr_1fr_1fr_1fr_0.1fr] items-center gap-2"
                 >
                   {index === 0 && (
                     <>
@@ -565,6 +499,9 @@ export function MainForm({
                       <span className="text-sm font-semibold">Initial</span>
                       <span className="text-sm font-semibold">Final</span>
                       <span className="text-sm font-semibold">Step</span>
+                      <span className="text-sm font-semibold">
+                        Acquisition Time (ms)
+                      </span>
                       <span></span>
                     </>
                   )}
@@ -649,6 +586,24 @@ export function MainForm({
                           <Input
                             type="number"
                             placeholder="Step"
+                            className="min-w-[9ch]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <ErrorMessageTooltip />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name={`regions.${index}.time`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="Time"
                             className="min-w-[9ch]"
                             {...field}
                           />
@@ -782,7 +737,11 @@ export function MainForm({
 // Add New Plan Dialog Component
 // ========================================================================
 
-export function AddRegionEnergyScan({ className }: { className?: string }) {
+export function AddTimedRegionEnergyScan({
+  className,
+}: {
+  className?: string;
+}) {
   const [open, setOpen] = useState(false);
   const { data } = api.auth.getUser.useQuery();
   return (
@@ -793,16 +752,18 @@ export function AddRegionEnergyScan({ className }: { className?: string }) {
           className={className}
           disabled={!data?.proposal}
         >
-          <ChartSplineIcon className="mr-2 h-4 w-4" />
-          Region Energy Scan
+          <ChartNoAxesCombinedIcon className="mr-2 h-4 w-4" />
+          Timed Energy Scan
         </Button>
       </DialogTrigger>
 
       <DialogContent className="w-fit max-w-full flex-col">
         <DialogHeader>
-          <DialogTitle>Region Energy Scan</DialogTitle>
+          <DialogTitle>Timed Energy Scan</DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
             Please fill in the details below to submit the plan.
+            <br />
+            Energy units are in eV and K units in 1/Å
           </DialogDescription>
         </DialogHeader>
         {data?.proposal && (
@@ -828,12 +789,9 @@ const editKwargsSchema = z
   .object({
     regions: z.array(regionTupleSchema),
     settleTime: z.coerce.number(),
-    acquisitionTime: z.coerce.number(),
     fluorescence: z.boolean(),
     edgeEnergy: z.coerce.number(),
     acquireThermocouple: z.boolean(),
-    upAndDown: z.boolean(),
-    saveFlyData: z.boolean(),
     fileName: z.string().optional(),
     metadata: z.string().optional(),
     repeats: z.coerce.number(),
@@ -855,7 +813,9 @@ interface EditRegionEnergyScanFormProps
   className?: string;
 }
 
-export function EditRegionEnergyScanForm(props: EditRegionEnergyScanFormProps) {
+export function EditTimedRegionEnergyScanForm(
+  props: EditRegionEnergyScanFormProps,
+) {
   const initialValues = editKwargsSchema.safeParse({
     ...props.kwargs,
     proposal: props.proposal ?? undefined,
