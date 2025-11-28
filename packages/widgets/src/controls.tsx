@@ -55,6 +55,10 @@ const combinedStateToBasicStatusMap: Record<CombinedEnvState, BasicUiStatus> = {
   closed: "offline",
 };
 
+function capitalizeAndFormatState(state: string) {
+  return state.charAt(0).toUpperCase() + state.slice(1).replaceAll("_", " ");
+}
+
 function combineEnvState(
   workerEnvState?: WorkerEnvironmentState,
   managerState?: ManagerState,
@@ -124,13 +128,18 @@ function EnvironmentControls() {
         <p className="text-sm font-semibold">Server status: {combinedState}</p>
         <Separator className="mt-2 mb-2" />
         <p className="text-sm font-semibold">
-          Worker: {status.data?.workerEnvironmentState ?? "unknown"}
+          Worker:{" "}
+          {capitalizeAndFormatState(
+            status.data?.workerEnvironmentState ?? "unknown",
+          )}
         </p>
         <p className="text-sm font-semibold">
-          Manager: {status.data?.managerState ?? "unknown"}
+          Manager:{" "}
+          {capitalizeAndFormatState(status.data?.managerState ?? "unknown")}
         </p>
         <p className="text-sm font-semibold">
-          Run Engine: {status.data?.reState ?? "unknown"}
+          Run Engine:{" "}
+          {capitalizeAndFormatState(status.data?.reState ?? "unknown")}
         </p>
       </TooltipContent>
       <DropdownMenu>
@@ -157,7 +166,7 @@ function EnvironmentControls() {
                 <ServerIcon className="size-4 animate-pulse" />
               )}
               {basicUiStatus === "online" && <ServerIcon className="size-4" />}
-              {combinedState}
+              {capitalizeAndFormatState(combinedState)}
             </Button>
           </TooltipTrigger>
         </DropdownMenuTrigger>
