@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { set } from "date-fns";
 import {
   AudioWaveformIcon,
   ChartNoAxesCombinedIcon,
@@ -14,7 +13,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@sophys-web/ui/dialog";
 import {
   DropdownMenu,
@@ -50,7 +48,7 @@ export function ScanSelector() {
             <Button
               variant="ghost"
               disabled={!userData?.proposal}
-              onClick={setOpenDialogRegion}
+              onClick={() => setOpenDialogRegion(true)}
             >
               <ChartSplineIcon className="mr-2 h-4 w-4" />
               Region Energy Scans
@@ -60,7 +58,7 @@ export function ScanSelector() {
             <Button
               variant="ghost"
               disabled={!userData?.proposal}
-              onClick={setOpenDialogTimed}
+              onClick={() => setOpenDialogTimed(true)}
             >
               <ChartNoAxesCombinedIcon className="mr-2 h-4 w-4" />
               Timed Energy Scans
