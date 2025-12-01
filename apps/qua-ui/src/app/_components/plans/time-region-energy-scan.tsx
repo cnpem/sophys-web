@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChartNoAxesCombinedIcon, Trash2Icon } from "lucide-react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -11,14 +9,6 @@ import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@sophys-web/ui/dialog";
 import {
   Form,
   FormControl,
@@ -37,6 +27,7 @@ import {
 } from "@sophys-web/ui/select";
 import { Textarea } from "@sophys-web/ui/textarea";
 import { ErrorMessageTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import type { AddRegionEnergyScanProps } from "./energy-scan-utils";
 import type { QueueItemProps } from "~/lib/types";
 import {
   baseRegionObjectSchema,
@@ -737,44 +728,14 @@ export function MainForm({
 // Add New Plan Dialog Component
 // ========================================================================
 
-export function AddTimedRegionEnergyScan({
-  className,
-}: {
-  className?: string;
-}) {
-  const [open, setOpen] = useState(false);
+export function AddTimedRegionEnergyScan(props: AddRegionEnergyScanProps) {
   const { data } = api.auth.getUser.useQuery();
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          className={className}
-          disabled={!data?.proposal}
-        >
-          <ChartNoAxesCombinedIcon className="mr-2 h-4 w-4" />
-          Timed Energy Scan
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent className="w-fit max-w-full flex-col">
-        <DialogHeader>
-          <DialogTitle>Timed Energy Scan</DialogTitle>
-          <DialogDescription className="flex flex-col gap-2">
-            Please fill in the details below to submit the plan.
-            <br />
-            Energy units are in eV and K units in 1/Å
-          </DialogDescription>
-        </DialogHeader>
-        {data?.proposal && (
-          <MainForm
-            proposal={data.proposal}
-            onSubmitSuccess={() => setOpen(false)}
-            className="w-2xl"
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+    <MainForm
+      proposal={data?.proposal ?? ""}
+      onSubmitSuccess={props.onSubmitSuccess}
+      className={props.className}
+    />
   );
 }
 
