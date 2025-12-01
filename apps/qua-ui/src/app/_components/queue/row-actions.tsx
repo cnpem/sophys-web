@@ -33,6 +33,57 @@ import {
   PLAN_NAME_TIMED,
 } from "../plans/time-region-energy-scan";
 
+// ========================================================================
+// Edit Item from logic
+// ========================================================================
+
+/**
+ * A function to check which plan the user wants to edit, uses early return
+ * logic to return the correct edit form. New forms should be handled inside
+ * this function.
+ */
+
+function EditItemForm({
+  proposal,
+  item,
+  onSubmitSuccess,
+}: {
+  proposal: string | undefined;
+  item: QueueItemProps;
+  onSubmitSuccess: () => void;
+}) {
+  if (item.name === PLAN_NAME_TIMED)
+    return (
+      <EditTimedRegionEnergyScanForm
+        itemUid={item.itemUid}
+        kwargs={item.kwargs}
+        proposal={proposal}
+        onSubmitSuccess={onSubmitSuccess}
+        className="w-2xl"
+      />
+    );
+  if (item.name === PLAN_NAME)
+    return (
+      <EditRegionEnergyScanForm
+        itemUid={item.itemUid}
+        kwargs={item.kwargs}
+        proposal={proposal}
+        onSubmitSuccess={onSubmitSuccess}
+        className="w-2xl"
+      />
+    );
+  // default
+  return (
+    <EditGenericPlanForm
+      itemUid={item.itemUid}
+      name={item.name}
+      kwargs={item.kwargs}
+      proposal={proposal}
+      onSubmitSuccess={onSubmitSuccess}
+    />
+  );
+}
+
 export function RowActions({ item }: { item: QueueItemProps }) {
   const { data: userData } = api.auth.getUser.useQuery();
   const { move, remove } = useQueue();
@@ -127,40 +178,15 @@ export function RowActions({ item }: { item: QueueItemProps }) {
               Edit the details of the item in the queue.
             </DialogDescription>
           </DialogHeader>
-          {item.name === PLAN_NAME_TIMED ? (
-            <EditTimedRegionEnergyScanForm
-              itemUid={item.itemUid}
-              kwargs={item.kwargs}
-              proposal={userData?.proposal ?? undefined}
-              onSubmitSuccess={() => {
-                setOpenEditDialog(false);
-                setOpen(false);
-              }}
-              className="w-2xl"
-            />
-          ) : item.name === PLAN_NAME ? (
-            <EditRegionEnergyScanForm
-              itemUid={item.itemUid}
-              kwargs={item.kwargs}
-              proposal={userData?.proposal ?? undefined}
-              onSubmitSuccess={() => {
-                setOpenEditDialog(false);
-                setOpen(false);
-              }}
-              className="w-2xl"
-            />
-          ) : (
-            <EditGenericPlanForm
-              itemUid={item.itemUid}
-              name={item.name}
-              kwargs={item.kwargs}
-              proposal={userData?.proposal ?? undefined}
-              onSubmitSuccess={() => {
-                setOpenEditDialog(false);
-                setOpen(false);
-              }}
-            />
-          )}
+
+          <EditItemForm
+            item={item}
+            proposal={userData?.proposal ?? undefined}
+            onSubmitSuccess={() => {
+              setOpenEditDialog(false);
+              setOpen(false);
+            }}
+          />
         </DialogContent>
       </Dialog>
     </>
