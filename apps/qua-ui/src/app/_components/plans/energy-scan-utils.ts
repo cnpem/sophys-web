@@ -59,3 +59,8 @@ export function convertTotalTimeToReadable(totalMs: number | undefined) {
     return `${(totalMs / oneHourMs).toFixed(1)} hours`;
   }
 }
+
+export interface AddRegionEnergyScanProps {
+  className: string;
+  onSubmitSuccess?: () => void;
+}
