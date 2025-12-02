@@ -2,15 +2,15 @@
 
 import { useCallback } from "react";
 import {
-  LoaderCircleIcon,
+  EllipsisIcon,
+  ListVideoIcon,
+  ListXIcon,
+  MilestoneIcon,
   PauseIcon,
-  PlayIcon,
   RefreshCcwIcon,
   ServerIcon,
   ServerOffIcon,
-  SquareIcon,
   StepForwardIcon,
-  TriangleAlertIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { RouterOutput } from "@sophys-web/api-client/react";
@@ -18,6 +18,7 @@ import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
+import { ButtonGroup } from "@sophys-web/ui/button-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import { Separator } from "@sophys-web/ui/separator";
+import { Spinner } from "@sophys-web/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -74,14 +76,16 @@ export function Controls({ className }: { className?: string }) {
     <TooltipProvider>
       <div
         className={cn(
-          "bg-accent animate-in slide-in-from-top fixed inset-x-0 top-1 z-40 mx-auto flex w-fit items-center justify-between gap-2 rounded-full border px-6 py-2 opacity-95 backdrop-blur-lg duration-500",
+          "bg-accent animate-in slide-in-from-top fixed inset-x-0 top-2 z-40 mx-auto flex w-fit items-center justify-between rounded-full border px-4 py-2 opacity-95 backdrop-blur-lg duration-500",
           className,
         )}
       >
-        <EnvironmentControls />
-        <QueueControls />
-        <PauseControls />
-        <StopControls />
+        <ButtonGroup>
+          <EnvironmentControls />
+          <PauseControls />
+          <StopControls />
+          <QueueControls />
+        </ButtonGroup>
       </div>
     </TooltipProvider>
   );
@@ -148,7 +152,7 @@ function EnvironmentControls() {
             <Button
               variant="outline"
               className={cn(
-                "w-72! rounded-full",
+                "h-8 w-72! rounded-full",
                 basicUiStatus === "online" && "text-online hover:text-online",
                 basicUiStatus === "offline" &&
                   "text-offline hover:text-offline",
@@ -156,9 +160,7 @@ function EnvironmentControls() {
                 basicUiStatus === "error" && "text-error hover:text-error",
               )}
             >
-              {basicUiStatus === "busy" && (
-                <LoaderCircleIcon className="size-4 animate-spin" />
-              )}
+              {basicUiStatus === "busy" && <Spinner className="size-4" />}
               {basicUiStatus === "offline" && (
                 <ServerOffIcon className="size-4 animate-pulse" />
               )}
@@ -214,7 +216,7 @@ function QueueControls() {
   const startQueue = useCallback(() => {
     start.mutate(undefined, {
       onSuccess: () => {
-        toast.success("Queue started");
+        toast.success("Starting Queue...");
       },
       onError: () => {
         toast.error("Failed to start queue");
@@ -225,7 +227,7 @@ function QueueControls() {
   const stopQueue = useCallback(() => {
     stop.mutate(undefined, {
       onSuccess: () => {
-        toast.success("Queue stopped");
+        toast.success("Stopping Queue...");
       },
       onError: () => {
         toast.error("Failed to stop queue");
@@ -233,25 +235,21 @@ function QueueControls() {
     });
   }, [stop]);
 
-  if (reState === "paused") {
-    //
-    return;
-  }
-
-  if (reState === "running") {
+  if (reState === "idle" || reState === "unknown") {
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            className="size-8 rounded-full"
-            onClick={stopQueue}
-            size="icon"
+            className="h-8 rounded-full duration-300 ease-in-out"
+            disabled={reState !== "idle" || itemsInQueue === 0}
+            onClick={startQueue}
             variant="default"
           >
-            <SquareIcon className="size-4" />
+            <ListVideoIcon className="size-4" />
+            Start Queue
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">Stop Queue</TooltipContent>
+        <TooltipContent side="bottom">Start Queue</TooltipContent>
       </Tooltip>
     );
   }
@@ -260,16 +258,23 @@ function QueueControls() {
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          className="size-8 rounded-full"
-          disabled={reState !== "idle" || itemsInQueue === 0}
-          onClick={startQueue}
-          size="icon"
+          className="h-8 rounded-full duration-300 ease-in-out"
+          onClick={stopQueue}
           variant="default"
+          disabled={
+            status.data?.managerState !== "executing_queue" ||
+            status.data.queueStopPending
+          }
         >
-          <PlayIcon className="size-4" />
+          {status.data?.queueStopPending ? (
+            <Spinner />
+          ) : (
+            <ListXIcon className="size-4" />
+          )}
+          Stop Queue
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">Start Queue</TooltipContent>
+      <TooltipContent side="bottom">Stop Queue</TooltipContent>
     </Tooltip>
   );
 }
@@ -329,7 +334,7 @@ function PauseControls() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            className="size-8 rounded-full"
+            className="h-8 rounded-full duration-300 ease-in-out"
             size="icon"
             variant="outline"
             onClick={handleResume}
@@ -341,18 +346,38 @@ function PauseControls() {
       </Tooltip>
     );
   }
+
+  if (status.data?.pausePending) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="h-8 rounded-full duration-300 ease-in-out"
+            size="icon"
+            variant="outline"
+            disabled
+          >
+            <Spinner />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">Pausing</TooltipContent>
+      </Tooltip>
+    );
+  }
+
   if (reState === "running") {
     return (
       <>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="size-8 rounded-full"
+              className="h-8 rounded-full duration-300 ease-in-out"
+              variant="outline"
               onClick={handlePauseNow}
               size="icon"
-              variant="destructive"
+              disabled={status.data?.pausePending}
             >
-              <TriangleAlertIcon className="size-4" />
+              <PauseIcon className="size-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">Pause Now</TooltipContent>
@@ -360,15 +385,16 @@ function PauseControls() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="size-8 rounded-full"
+              className="h-8 rounded-full duration-300 ease-in-out"
               onClick={handlePauseLater}
               size="icon"
               variant="outline"
+              disabled={status.data?.pausePending}
             >
-              <PauseIcon className="size-4" />
+              <MilestoneIcon className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Pause Later</TooltipContent>
+          <TooltipContent side="bottom">Pause Next Checkpoint</TooltipContent>
         </Tooltip>
       </>
     );
@@ -429,15 +455,15 @@ function StopControls() {
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <Button
-                className="size-8 rounded-full"
+                className="h-8 rounded-full duration-300 ease-in-out"
                 size="icon"
                 variant="outline"
               >
-                <SquareIcon className="size-4" />
+                <EllipsisIcon className="size-4" />
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Stop Options</TooltipContent>
+          <TooltipContent side="bottom">Cancel Options</TooltipContent>
         </Tooltip>
         <DropdownMenuContent>
           <DropdownMenuItem onClick={handleStop}>Stop</DropdownMenuItem>
