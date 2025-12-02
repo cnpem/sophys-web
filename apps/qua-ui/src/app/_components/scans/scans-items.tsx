@@ -47,6 +47,7 @@ export function ScanSelector() {
           <DropdownMenuItem asChild>
             <Button
               variant="ghost"
+              className="w-full justify-start"
               disabled={!userData?.proposal}
               onClick={() => setOpenDialogRegion(true)}
             >
@@ -57,6 +58,7 @@ export function ScanSelector() {
           <DropdownMenuItem asChild>
             <Button
               variant="ghost"
+              className="w-full justify-start"
               disabled={!userData?.proposal}
               onClick={() => setOpenDialogTimed(true)}
             >
@@ -65,7 +67,7 @@ export function ScanSelector() {
             </Button>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Button variant="ghost" disabled>
+            <Button variant="ghost" className="w-full justify-start" disabled>
               <AudioWaveformIcon />
               Fly-scan
             </Button>
