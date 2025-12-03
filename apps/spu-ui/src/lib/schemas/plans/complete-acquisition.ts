@@ -25,7 +25,7 @@ const tableSchema = z.object({
       message:
         "Sample tag can only contain letters, numbers, dashes, and underscores",
     }),
-  bufferTag: z.string(),
+  bufferTag: z.string().optional(),
   tray: z
     .string()
     .transform((val) => val.trimStart().trimEnd())

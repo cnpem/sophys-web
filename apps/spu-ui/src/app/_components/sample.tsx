@@ -62,9 +62,7 @@ export interface Sample {
 const sampleSchema = z.object({
   sampleType: z.literal("sample"),
   sampleTag: z.string().min(2, { message: "Sample tag is required" }),
-  bufferTag: z
-    .string()
-    .min(2, { message: "Buffer tag is required for non-buffer samples" }),
+  bufferTag: z.string().optional(),
 });
 const bufferSchema = z.object({
   sampleType: z.literal("buffer"),
