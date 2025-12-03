@@ -28,3 +28,4 @@ export const acquireTimeOptions = [
 export const sampleTypeOptions = ["buffer", "sample"] as const;
 export const cleaningDefaults = ["light", "normal", "heavy"] as const;
 export const cleaningAgents = ["Air", "Water", "Agent 1", "Agent 2"] as const;
+export const loadVolumeOptions = ["80", "100"] as const;

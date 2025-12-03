@@ -45,6 +45,7 @@ import type {
   trayOptions,
   trayRows,
 } from "~/lib/constants";
+import { loadVolumeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/load";
 import { getSamples, setSamples } from "../actions/samples";
 
@@ -259,40 +260,61 @@ function SampleForm({
           <DialogTrigger asChild>
             <TooltipTrigger asChild>{children}</TooltipTrigger>
           </DialogTrigger>
-          <TooltipContent align="end">
-            <div className="flex flex-col">
-              <span>{`type: ${sample.type}`}</span>
-              <span>{`name: ${sample.sampleTag}`}</span>
-              {sample.bufferTag && <span>{`buffer: ${sample.bufferTag}`}</span>}
-            </div>
+          <TooltipContent align="end" className="flex flex-col">
+            <span>{`position: ${sample.tray}-${sample.row}${sample.col}`}</span>
+            <span>{`type: ${sample.type}`}</span>
+            <span>{`name: ${sample.sampleTag}`}</span>
+            {sample.bufferTag && <span>{`buffer: ${sample.bufferTag}`}</span>}
           </TooltipContent>
 
-          <DialogContent>
+          <DialogContent className="flex w-fit flex-col items-center">
             <DialogHeader>
               <DialogTitle>Load sample</DialogTitle>
-              <DialogDescription>
-                Please fill in the details below to submit the plan.
+              <DialogDescription className="flex flex-col items-start">
+                <span>{`position: ${sample.tray}-${sample.row}${sample.col}`}</span>
+                <span>{`type: ${sample.type}`}</span>
+                <span>{`name: ${sample.sampleTag}`}</span>
+                {sample.bufferTag && (
+                  <span>{`buffer: ${sample.bufferTag}`}</span>
+                )}
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8"
+                className="w-full space-y-8"
               >
                 <FormField
                   control={form.control}
                   name="volume"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Volume</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Volume" {...field} />
-                      </FormControl>
+                      <FormLabel>Volume (µL)</FormLabel>
+                      <Select onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {loadVolumeOptions.map((option) => {
+                            return (
+                              <SelectItem key={option} value={option}>
+                                {option} µL
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="w-full"
+                >
                   Submit
                 </Button>
               </form>
