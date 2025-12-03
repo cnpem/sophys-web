@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// reference: https://blueskyproject.io/bluesky-queueserver/re_manager_api.html#status
 const workerEnvironmentStateEnum = z.enum([
   "initializing",
   "failed",
@@ -10,6 +11,7 @@ const workerEnvironmentStateEnum = z.enum([
   "closed",
 ]);
 
+// reference: https://blueskyproject.io/bluesky-queueserver/re_manager_api.html#status
 const managerStateEnum = z.enum([
   "initializing",
   "idle",
@@ -20,6 +22,19 @@ const managerStateEnum = z.enum([
   "executing_task",
   "closing_environment",
   "destroying_environment",
+]);
+
+// reference: https://github.com/bluesky/bluesky/blob/main/src/bluesky/run_engine.py#L130
+const reStateEnum = z.enum([
+  "idle",
+  "running",
+  "pausing",
+  "suspending",
+  "paused",
+  "halting",
+  "stopping",
+  "aborting",
+  "panicked",
 ]);
 
 const getResponse = z.object({
@@ -33,7 +48,7 @@ const getResponse = z.object({
   workerEnvironmentExists: z.boolean(),
   workerEnvironmentState: workerEnvironmentStateEnum,
   workerBackgroundTasks: z.number(),
-  reState: z.string().nullable(),
+  reState: reStateEnum.nullable(),
   ipKernelState: z.string().nullable(),
   ipKernelCaptured: z.boolean().nullable(),
   pausePending: z.boolean(),
