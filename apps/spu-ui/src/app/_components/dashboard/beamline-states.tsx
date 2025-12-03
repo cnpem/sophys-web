@@ -13,7 +13,7 @@ import { SampleTemperatureMonitor } from "./sample-temperature";
 
 export function BeamlineStates() {
   return (
-    <Card>
+    <Card className="gap-2 pb-2">
       <CardHeader>
         <CardTitle>Process Variables</CardTitle>
         <CardDescription>Current environmental conditions</CardDescription>

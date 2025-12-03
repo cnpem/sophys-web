@@ -24,7 +24,7 @@ export function CapillaryStateMonitor() {
         <ItemTitle>Capillary State</ItemTitle>
         <ItemDescription
           data-state={capillaryState}
-          className="text-md font-semibold data-[state=clean]:text-emerald-400 data-[state=error]:text-red-400 data-[state=sample]:text-sky-400 data-[state=stale]:text-amber-400"
+          className="text-md flex font-semibold data-[state=clean]:text-emerald-400 data-[state=error]:text-red-400 data-[state=sample]:text-sky-400 data-[state=stale]:text-amber-400"
         >
           {capillaryState}
           {loadedSample && <>: {sampleInfo}</>}
