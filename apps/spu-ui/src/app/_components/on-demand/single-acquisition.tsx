@@ -10,7 +10,6 @@ import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
-import { Checkbox } from "@sophys-web/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +27,7 @@ import {
   FormMessage,
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
+import { Label } from "@sophys-web/ui/label";
 import {
   Select,
   SelectContent,
@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
+import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import { sampleTypeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/single-acquisition";
@@ -64,12 +65,6 @@ export function SingleAcquisition({
           <DialogDescription className="flex flex-col gap-2">
             Please fill in the details below to submit the plan. The sample
             details are pre-filled.
-            <span className="mr-2 font-semibold">Sample:</span>
-            <span>
-              {lastSampleParams?.tray}, {lastSampleParams?.row}-
-              {lastSampleParams?.col}, {lastSampleParams?.sampleTag},{" "}
-              {lastSampleParams?.bufferTag}
-            </span>
           </DialogDescription>
         </DialogHeader>
         <SingleAcquisitionForm
@@ -83,6 +78,20 @@ export function SingleAcquisition({
     </Dialog>
   );
 }
+
+const defaultValues: z.infer<typeof schema> = {
+  proposal: "",
+  sampleType: "sample",
+  sampleTag: "",
+  bufferTag: "",
+  acquireTime: 0.1,
+  numExposures: 1,
+  temperature: 25,
+  setTemperature: false,
+  usePicolo: false,
+  usePimega: false,
+  metadata: {},
+};
 
 function SingleAcquisitionForm({
   lastSampleParams,
@@ -100,17 +109,20 @@ function SingleAcquisitionForm({
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      proposal: proposal,
-      isRef: false,
+      ...defaultValues,
+      ...(proposal && { proposal }),
       ...(lastSampleParams && {
+        tray: lastSampleParams.tray,
+        row: lastSampleParams.row,
+        col: lastSampleParams.col,
+        sampleType: lastSampleParams.sampleType,
+        sampleTag: lastSampleParams.sampleTag,
+        bufferTag: lastSampleParams.bufferTag,
         metadata: {
           row: lastSampleParams.row,
           col: lastSampleParams.col,
           tray: lastSampleParams.tray,
         },
-        sampleType: lastSampleParams.sampleType,
-        sampleTag: lastSampleParams.sampleTag,
-        bufferTag: lastSampleParams.bufferTag,
       }),
     },
   });
@@ -162,19 +174,6 @@ function SingleAcquisitionForm({
         <div className="grid grid-cols-3 gap-8">
           <FormField
             control={form.control}
-            name="proposal"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Proposal</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="sampleType"
             render={({ field }) => (
               <FormItem>
@@ -184,7 +183,7 @@ function SingleAcquisitionForm({
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                   </FormControl>
@@ -233,7 +232,7 @@ function SingleAcquisitionForm({
             name="numExposures"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Number of Exposures</FormLabel>
+                <FormLabel># of Exposures</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
@@ -269,24 +268,95 @@ function SingleAcquisitionForm({
           />
           <FormField
             control={form.control}
-            name="isRef"
+            name="setTemperature"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
-                <FormControl>
-                  <Checkbox
-                    disabled
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Is Reference?</FormLabel>
+              <FormItem>
+                <div className="inline-flex gap-1">
+                  <FormLabel>Set Temperature</FormLabel>
                 </div>
+                <FormControl>
+                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                    <Label className="text-slate-500">
+                      {field.value ? "Yes" : "No"}
+                    </Label>
+                    <Switch
+                      checked={field.value ?? false}
+                      className="ml-auto"
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="usePimega"
+            render={({ field }) => (
+              <FormItem>
+                <div className="inline-flex gap-1">
+                  <FormLabel>Use Pimega</FormLabel>
+                </div>
+                <FormControl>
+                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                    <Label className="text-slate-500">
+                      {field.value ? "Yes" : "No"}
+                    </Label>
+                    <Switch
+                      checked={field.value ?? false}
+                      className="ml-auto"
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="usePicolo"
+            render={({ field }) => (
+              <FormItem>
+                <div className="inline-flex gap-1">
+                  <FormLabel>Use Picolo</FormLabel>
+                </div>
+                <FormControl>
+                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                    <Label className="text-slate-500">
+                      {field.value ? "Yes" : "No"}
+                    </Label>
+                    <Switch
+                      checked={field.value ?? false}
+                      className="ml-auto"
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="proposal"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Proposal</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-full"
+        >
           Submit
         </Button>
       </form>
