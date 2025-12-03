@@ -1,6 +1,6 @@
 "use server";
 
-import type { Sample } from "../_components/sample";
+import type { Sample } from "../_components/sample/sample-item";
 import { env } from "~/env";
 import { trayColumns, trayOptions, trayRows } from "../../lib/constants";
 

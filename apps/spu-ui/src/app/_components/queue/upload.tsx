@@ -37,7 +37,7 @@ import type {
   tableSchema as acquisitionTableSchema,
   cleaningSchema as cleaningKwargsSchema,
 } from "../../../lib/schemas/plans/complete-acquisition";
-import type { Sample } from "../sample";
+import type { Sample } from "../sample/sample-item";
 import { name as cleanCapillaryPlanName } from "../../../lib/schemas/plans/clean-and-acquire";
 import { name as acquisitionPlanName } from "../../../lib/schemas/plans/complete-acquisition";
 import {

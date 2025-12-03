@@ -14,7 +14,7 @@ import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import { Console } from "@sophys-web/widgets/console";
 import { Controls } from "@sophys-web/widgets/controls";
-import type { Sample } from "../sample";
+import type { Sample } from "../sample/sample-item";
 import { useSSEData } from "~/app/_hooks/use-sse-data";
 import { trayOptions } from "~/lib/constants";
 import { DataTable as History } from "../history/data-table";
