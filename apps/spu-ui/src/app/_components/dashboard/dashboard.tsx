@@ -1,7 +1,7 @@
 "use client";
 
 import { JsonEditor, monoLightTheme } from "json-edit-react";
-import { AlertCircleIcon, CylinderIcon } from "lucide-react";
+import { AlertCircleIcon } from "lucide-react";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import {
   Card,
@@ -15,13 +15,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import { Console } from "@sophys-web/widgets/console";
 import { Controls } from "@sophys-web/widgets/controls";
 import type { Sample } from "../sample";
-import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 import { useSSEData } from "~/app/_hooks/use-sse-data";
 import { trayOptions } from "~/lib/constants";
 import { DataTable as History } from "../history/data-table";
 import { DataTable as Queue } from "../queue/data-table";
 import { LoadingTray, Tray } from "../tray";
-import { SampleTemperatureMonitor } from "./sample-temperature";
+import { BeamlineStates } from "./beamline-states";
 
 const [TRAY1, TRAY2] = trayOptions;
 
@@ -56,7 +55,7 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
         </ScrollArea>
         <ScrollArea className="flex flex-col lg:h-svh lg:w-1/3">
           <div className="flex w-full flex-col gap-4">
-            <PV />
+            <BeamlineStates />
             <RunningItem />
             <Trays initialData={initialData} />
             <Console />
@@ -151,35 +150,6 @@ function RunningItem() {
               />
             </div>
           )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function PV() {
-  const { capillaryState } = useCapillaryState();
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Process Variables</CardTitle>
-        <CardDescription>Current environmental conditions</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-4">
-          <SampleTemperatureMonitor />
-          <div className="flex items-center rounded-md border p-3">
-            <CylinderIcon className="mr-3 h-8 w-8 text-blue-500" />
-            <div>
-              <div className="text-muted-foreground text-sm">Capillary</div>
-              <div
-                data-state={capillaryState}
-                className="text-2xl font-semibold data-[state=clean]:text-emerald-400 data-[state=error]:text-red-400 data-[state=sample]:text-sky-400 data-[state=stale]:text-amber-400"
-              >
-                {capillaryState}
-              </div>
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>
