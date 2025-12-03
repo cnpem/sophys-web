@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   EllipsisIcon,
   ListVideoIcon,
@@ -17,12 +17,23 @@ import type { RouterOutput } from "@sophys-web/api-client/react";
 import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@sophys-web/ui/alert-dialog";
 import { Button } from "@sophys-web/ui/button";
 import { ButtonGroup } from "@sophys-web/ui/button-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import { Separator } from "@sophys-web/ui/separator";
@@ -92,13 +103,14 @@ export function Controls({ className }: { className?: string }) {
 }
 
 function EnvironmentControls() {
-  const { envClose, envOpen, envUpdate } = useStatus();
+  const { envClose, envOpen, envUpdate, envDestroy } = useStatus();
   const { status } = useStatus();
   const combinedState = combineEnvState(
     status.data?.workerEnvironmentState,
     status.data?.managerState,
   );
   const basicUiStatus = combinedStateToBasicStatusMap[combinedState];
+  const [destroyDialogOpen, setDestroyDialogOpen] = useState(false);
 
   const openEnv = useCallback(() => {
     toast.info("Opening environment...");
@@ -117,10 +129,24 @@ function EnvironmentControls() {
       },
     });
   }, [envClose]);
+
   const updateEnv = useCallback(() => {
     toast.info("Updating environment...");
-    envUpdate.mutate();
+    envUpdate.mutate(undefined, {
+      onError: () => {
+        toast.error("Failed to update environment");
+      },
+    });
   }, [envUpdate]);
+
+  const destroyEnv = useCallback(() => {
+    toast.info("Destroying environment...");
+    envDestroy.mutate(undefined, {
+      onError: () => {
+        toast.error("Failed to destroy environment");
+      },
+    });
+  }, [envDestroy]);
 
   return (
     <Tooltip>
@@ -146,7 +172,7 @@ function EnvironmentControls() {
           {capitalizeAndFormatState(status.data?.reState ?? "unknown")}
         </p>
       </TooltipContent>
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <TooltipTrigger asChild>
             <Button
@@ -174,6 +200,7 @@ function EnvironmentControls() {
         </DropdownMenuTrigger>
         <DropdownMenuContent
           className="text-sm"
+          align="end"
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <DropdownMenuItem
@@ -201,8 +228,43 @@ function EnvironmentControls() {
             <ServerOffIcon className="size-4" />
             <span>Close Env</span>
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            // onClick={destroyEnv}
+            onClick={() => setDestroyDialogOpen(true)}
+            disabled={basicUiStatus === "offline"}
+            variant="default"
+            className="justify-stretch"
+          >
+            <ServerOffIcon className="size-4" />
+            <span>Destroy Env</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <AlertDialog open={destroyDialogOpen} onOpenChange={setDestroyDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Destroying Environment</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action kills the current worker process as well as running
+              plans or tasks. Are you sure you want to proceed?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={basicUiStatus === "offline"}
+              onClick={() => {
+                destroyEnv();
+                setDestroyDialogOpen(false);
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Tooltip>
   );
 }
