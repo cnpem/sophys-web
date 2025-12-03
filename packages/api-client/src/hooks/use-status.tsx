@@ -32,6 +32,12 @@ export const useStatus = () => {
     },
   });
 
+  const envDestroy = api.environment.destroy.useMutation({
+    onSuccess: async () => {
+      await utils.status.get.invalidate();
+    },
+  });
+
   useEffect(() => {
     if (status.data) {
       const { planQueueUid, planHistoryUid } = status.data;
@@ -48,5 +54,5 @@ export const useStatus = () => {
     }
   }, [status.data, utils.history.get, utils.queue.get]);
 
-  return { status, envUpdate, envOpen, envClose };
+  return { status, envUpdate, envOpen, envClose, envDestroy };
 };
