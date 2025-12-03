@@ -19,6 +19,7 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
+import { CompleteAcquisition } from "./complete-acquisition";
 // import { CleaningDialog } from "./cleaning";
 import { QueueStop } from "./queue-stop";
 import { SingleAcquisition } from "./single-acquisition";
@@ -36,11 +37,17 @@ export function OnDemandSelector() {
             Add
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[150px]">
+        <DropdownMenuContent align="start">
           <DropdownMenuLabel>On demand</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <SingleAcquisition
+              className="w-full justify-start font-normal"
+              lastSampleParams={loadedSample}
+            />
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <CompleteAcquisition
               className="w-full justify-start font-normal"
               lastSampleParams={loadedSample}
             />
