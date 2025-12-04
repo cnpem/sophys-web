@@ -132,6 +132,18 @@ export const formSchema = baseFormSchema.superRefine((data, ctx) => {
       message: `First energy region must start lower than edge energy (e0)! Current e0: ${data.edgeEnergy} eV, initial energy: ${data.regions[0].initial} eV`,
     });
   }
+
+  // Validate if number of points of each step is at least 15 (minimum reequired by hardware)
+  data.regions.forEach((region, index) => {
+    const points = calculatePointsInRegion(region);
+    if (points < 15) {
+      ctx.addIssue({
+        path: ["regions", index, "step"],
+        code: z.ZodIssueCode.custom,
+        message: `Region has only ${points} points. Minimum of 15 points required per region.`,
+      });
+    }
+  });
 });
 
 /**
