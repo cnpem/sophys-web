@@ -43,15 +43,29 @@ import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 export function CompleteAcquisition({
   className,
   lastSampleParams,
+  onClose,
 }: {
-  lastSampleParams: LastSampleParams | undefined;
   className?: string;
+  lastSampleParams: LastSampleParams | undefined;
+  onClose?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const { data } = api.auth.getUser.useQuery();
 
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      onClose?.();
+    }
+  };
+
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onClose?.();
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" className={className}>
           <CameraIcon className="mr-2 h-4 w-4" />
@@ -70,9 +84,7 @@ export function CompleteAcquisition({
         <CompleteAcquisitionForm
           proposal={data?.proposal}
           lastSampleParams={lastSampleParams}
-          onSubmitSuccess={() => {
-            setOpen(false);
-          }}
+          onSubmitSuccess={handleSubmitSuccess}
         />
       </DialogContent>
     </Dialog>
