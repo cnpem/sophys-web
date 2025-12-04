@@ -181,6 +181,7 @@ const formDefaults = {
   fluorescence: false,
   acquireThermocouple: false,
   repeats: 1,
+  fileName: "",
   proposal: "",
   metadata: "",
 } as z.infer<typeof formSchema>;
