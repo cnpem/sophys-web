@@ -1,7 +1,7 @@
 import { z } from "zod";
 import {
   cleaningAgents,
-  cleaningDefaults,
+  cleaningOptions,
   sampleTypeOptions,
   trayColumns,
   trayOptions,
@@ -131,7 +131,7 @@ const schema = z.object({
   expUvTime: z.number(),
   measureUvNumber: z.number(),
   standardOption: z
-    .enum(cleaningDefaults)
+    .enum(cleaningOptions)
     .optional()
     .default("normal")
     .refine((val) => val !== "custom", {

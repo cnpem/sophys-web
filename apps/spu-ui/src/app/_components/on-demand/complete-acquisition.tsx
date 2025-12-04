@@ -37,7 +37,7 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import { cleaningDefaults, sampleTypeOptions } from "~/lib/constants";
+import { sampleTypeOptions, standardCleaningOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
 export function CompleteAcquisition({
@@ -98,10 +98,6 @@ const defaultValues: z.infer<typeof schema> = {
   agentsList: [],
   agentsDuration: [],
 };
-
-const cleaningAvailableOptions = cleaningDefaults.filter(
-  (option) => option !== "custom",
-);
 
 function CompleteAcquisitionForm({
   lastSampleParams,
@@ -302,7 +298,8 @@ function CompleteAcquisitionForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {cleaningAvailableOptions.map((option) => {
+                    {/* Allow only standard cleaning options here */}
+                    {standardCleaningOptions.map((option) => {
                       return (
                         <SelectItem key={option} value={option}>
                           {option}
