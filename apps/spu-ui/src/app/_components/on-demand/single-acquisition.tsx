@@ -104,7 +104,7 @@ function SingleAcquisitionForm({
   className?: string;
   onSubmitSuccess: () => void;
 }) {
-  const { addBatch } = useQueue();
+  const { add } = useQueue();
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -132,23 +132,14 @@ function SingleAcquisitionForm({
     const kwargs = schema.parse({
       ...data,
     });
-    addBatch.mutate(
+    add.mutate(
       {
-        items: [
-          {
-            name: name,
-            itemType: "plan",
-            args: [],
-            kwargs,
-          },
-          {
-            name: "queue_stop",
-            itemType: "instruction",
-            args: [],
-            kwargs: {},
-          },
-        ],
-        pos: "front",
+        item: {
+          name: name,
+          itemType: "plan",
+          args: [],
+          kwargs,
+        },
       },
       {
         onSuccess: () => {

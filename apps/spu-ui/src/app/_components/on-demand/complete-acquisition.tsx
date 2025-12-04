@@ -114,7 +114,7 @@ function CompleteAcquisitionForm({
   className?: string;
   onSubmitSuccess: () => void;
 }) {
-  const { addBatch } = useQueue();
+  const { add } = useQueue();
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -137,17 +137,14 @@ function CompleteAcquisitionForm({
     const kwargs = schema.parse({
       ...data,
     });
-    addBatch.mutate(
+    add.mutate(
       {
-        items: [
-          {
-            name: name,
-            itemType: "plan",
-            args: [],
-            kwargs,
-          },
-        ],
-        pos: "back",
+        item: {
+          name: name,
+          itemType: "plan",
+          args: [],
+          kwargs,
+        },
       },
       {
         onSuccess: () => {

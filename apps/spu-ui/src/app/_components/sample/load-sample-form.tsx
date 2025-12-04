@@ -48,7 +48,7 @@ export function LoadSampleForm({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const { addBatch } = useQueue();
+  const { add } = useQueue();
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -74,23 +74,14 @@ export function LoadSampleForm({
         sampleType: sample.type,
       },
     });
-    addBatch.mutate(
+    add.mutate(
       {
-        items: [
-          {
-            name: name,
-            itemType: "plan",
-            args: [],
-            kwargs,
-          },
-          {
-            name: "queue_stop",
-            itemType: "instruction",
-            args: [],
-            kwargs: {},
-          },
-        ],
-        pos: "front",
+        item: {
+          name: name,
+          itemType: "plan",
+          args: [],
+          kwargs,
+        },
       },
       {
         onSuccess: () => {
