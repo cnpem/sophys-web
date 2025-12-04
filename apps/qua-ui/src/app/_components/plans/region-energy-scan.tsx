@@ -138,13 +138,6 @@ export const formSchema = baseFormSchema.superRefine((data, ctx) => {
         message: `First energy region must start lower than edge energy (e0)! Current e0: ${data.edgeEnergy} eV, initial energy: ${region.initial} eV`,
       });
     }
-    if (index === 0 && region.final <= data.edgeEnergy) {
-      ctx.addIssue({
-        path: ["regions", index, "final"],
-        code: z.ZodIssueCode.custom,
-        message: `Last energy range must be greater than edge energy (e0)! Current e0: ${data.edgeEnergy} eV, final energy: ${region.final} eV`,
-      });
-    }
     // Validate if number of points of each step is at least 15 (minimum reequired by hardware)
     if (points < 15) {
       ctx.addIssue({
