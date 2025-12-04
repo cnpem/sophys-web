@@ -128,18 +128,24 @@ const watchEstimateTimeSchema = baseFormSchema.pick({
  *  Schema for submitting the complete form
  */
 export const formSchema = baseFormSchema.superRefine((data, ctx) => {
-  // `First energy region must start lower than edge energy (e0)
-  if (data.regions[0] && data.regions[0].initial >= data.edgeEnergy) {
-    ctx.addIssue({
-      path: ["regions", 0, "initial"],
-      code: z.ZodIssueCode.custom,
-      message: `First energy region must start lower than edge energy (e0)! Current e0: ${data.edgeEnergy} eV, initial energy: ${data.regions[0].initial} eV`,
-    });
-  }
-
-  // Validate if number of points of each step is at least 15 (minimum reequired by hardware)
   data.regions.forEach((region, index) => {
     const points = calculatePointsInRegion(region);
+    // `First energy region must start lower than edge energy (e0)
+    if (index === 0 && region.initial >= data.edgeEnergy) {
+      ctx.addIssue({
+        path: ["regions", index, "initial"],
+        code: z.ZodIssueCode.custom,
+        message: `First energy region must start lower than edge energy (e0)! Current e0: ${data.edgeEnergy} eV, initial energy: ${region.initial} eV`,
+      });
+    }
+    if (index === 0 && region.final <= data.edgeEnergy) {
+      ctx.addIssue({
+        path: ["regions", index, "final"],
+        code: z.ZodIssueCode.custom,
+        message: `Last energy range must be greater than edge energy (e0)! Current e0: ${data.edgeEnergy} eV, final energy: ${region.final} eV`,
+      });
+    }
+    // Validate if number of points of each step is at least 15 (minimum reequired by hardware)
     if (points < 15) {
       ctx.addIssue({
         path: ["regions", index, "step"],
