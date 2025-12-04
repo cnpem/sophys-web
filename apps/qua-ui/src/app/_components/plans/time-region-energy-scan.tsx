@@ -149,6 +149,32 @@ export const formSchema = baseFormSchema.superRefine((data, ctx) => {
         message: `Region has only ${points} points. Minimum of 15 points required per region.`,
       });
     }
+    // Validate if region i-1 final is equal to region i initial
+    const prevRegion = data.regions[index - 1];
+    const currentRegion = region;
+    if (
+      prevRegion &&
+      prevRegion.space === currentRegion.space &&
+      prevRegion.final > currentRegion.initial
+    ) {
+      ctx.addIssue({
+        path: ["regions", index, "initial"],
+        code: z.ZodIssueCode.custom,
+        message: `Region initial value (${currentRegion.initial} ${currentRegion.space === "energy-space" ? "eV" : "A"}) must be greater than or equal to previous region final value (${prevRegion.final} ${currentRegion.space === "energy-space" ? "eV" : "A"}).`,
+      });
+    }
+    if (
+      prevRegion &&
+      currentRegion.space === "k-space" &&
+      prevRegion.space === "energy-space" &&
+      currentRegion.initial < EnergyToK(prevRegion.final, data.edgeEnergy)
+    ) {
+      ctx.addIssue({
+        path: ["regions", index, "initial"],
+        code: z.ZodIssueCode.custom,
+        message: `Region initial value (${currentRegion.initial} A) must be greater than or equal to previous region final value (${EnergyToK(prevRegion.final, data.edgeEnergy)} A).`,
+      });
+    }
   });
 });
 
