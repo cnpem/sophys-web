@@ -20,10 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { cleaningAgents, cleaningDefaults } from "../../../lib/constants";
+import { cleaningAgents, cleaningOptions } from "../../../lib/constants";
 import { cleaningSchema as cleaningKwargsSchema } from "../../../lib/schemas/plans/complete-acquisition";
-
-const cleaningSelectOptions = [...cleaningDefaults, "custom"] as const;
 
 function formatAgentList(input: string) {
   return input
@@ -99,7 +97,7 @@ export function AcquisitionCleaningForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {cleaningSelectOptions.map((option) => {
+                    {cleaningOptions.map((option) => {
                       return (
                         <SelectItem key={option} value={option}>
                           {option}
