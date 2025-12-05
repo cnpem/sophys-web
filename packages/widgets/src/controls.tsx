@@ -589,10 +589,20 @@ function StopControls() {
           </TooltipTrigger>
           <TooltipContent side="bottom">Cancel Options</TooltipContent>
         </Tooltip>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={handleStop}>Stop</DropdownMenuItem>
-          <DropdownMenuItem onClick={handleHalt}>Halt</DropdownMenuItem>
-          <DropdownMenuItem onClick={handleAbort}>Abort</DropdownMenuItem>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem onClick={handleStop} className="justify-between">
+            Stop item as 'stopped'
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleAbort} className="justify-between">
+            Stop and return item to queue as 'aborted'
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleHalt}
+            variant="destructive"
+            className="justify-between"
+          >
+            Emergency stop and return item to queue as 'halted'
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
