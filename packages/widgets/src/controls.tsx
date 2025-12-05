@@ -1,7 +1,9 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ClockAlertIcon,
   EllipsisIcon,
   ListVideoIcon,
   ListXIcon,
@@ -12,7 +14,9 @@ import {
   ServerOffIcon,
   StepForwardIcon,
 } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import type { RouterOutput } from "@sophys-web/api-client/react";
 import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
@@ -27,7 +31,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@sophys-web/ui/alert-dialog";
-import { Button } from "@sophys-web/ui/button";
+import { Button, buttonVariants } from "@sophys-web/ui/button";
 import { ButtonGroup } from "@sophys-web/ui/button-group";
 import {
   DropdownMenu,
@@ -36,6 +40,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@sophys-web/ui/form";
+import { Input } from "@sophys-web/ui/input";
 import { Separator } from "@sophys-web/ui/separator";
 import { Spinner } from "@sophys-web/ui/spinner";
 import {
@@ -102,6 +116,12 @@ export function Controls({ className }: { className?: string }) {
   );
 }
 
+const envDestroySchema = z.object({
+  confirmation: z.string().refine((val) => val === "destroy", {
+    message: 'You must type "destroy" to confirm.',
+  }),
+});
+
 function EnvironmentControls() {
   const { envClose, envOpen, envUpdate, envDestroy } = useStatus();
   const { status } = useStatus();
@@ -111,6 +131,17 @@ function EnvironmentControls() {
   );
   const basicUiStatus = combinedStateToBasicStatusMap[combinedState];
   const [destroyDialogOpen, setDestroyDialogOpen] = useState(false);
+
+  const combinedStateTxt = capitalizeAndFormatState(combinedState);
+  const reStateTxt = capitalizeAndFormatState(
+    status.data?.reState ?? "unknown",
+  );
+  const workerEnvStateTxt = capitalizeAndFormatState(
+    status.data?.workerEnvironmentState ?? "unknown",
+  );
+  const managerStateTxt = capitalizeAndFormatState(
+    status.data?.managerState ?? "unknown",
+  );
 
   const openEnv = useCallback(() => {
     toast.info("Opening environment...");
@@ -148,6 +179,24 @@ function EnvironmentControls() {
     });
   }, [envDestroy]);
 
+  const form = useForm({
+    resolver: zodResolver(envDestroySchema),
+    defaultValues: {
+      confirmation: "",
+    },
+  });
+
+  function onSubmit() {
+    destroyEnv();
+    form.reset();
+    setDestroyDialogOpen(false);
+  }
+
+  const onCancel = () => {
+    form.reset();
+    setDestroyDialogOpen(false);
+  };
+
   return (
     <Tooltip>
       <TooltipContent
@@ -157,20 +206,9 @@ function EnvironmentControls() {
       >
         <p className="text-sm font-semibold">Server status: {combinedState}</p>
         <Separator className="mt-2 mb-2" />
-        <p className="text-sm font-semibold">
-          Worker:{" "}
-          {capitalizeAndFormatState(
-            status.data?.workerEnvironmentState ?? "unknown",
-          )}
-        </p>
-        <p className="text-sm font-semibold">
-          Manager:{" "}
-          {capitalizeAndFormatState(status.data?.managerState ?? "unknown")}
-        </p>
-        <p className="text-sm font-semibold">
-          Run Engine:{" "}
-          {capitalizeAndFormatState(status.data?.reState ?? "unknown")}
-        </p>
+        <p className="text-sm font-semibold">Worker: {workerEnvStateTxt}</p>
+        <p className="text-sm font-semibold">Manager: {managerStateTxt}</p>
+        <p className="text-sm font-semibold">Run Engine: {reStateTxt}</p>
       </TooltipContent>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
@@ -194,7 +232,7 @@ function EnvironmentControls() {
                 <ServerIcon className="size-4 animate-pulse" />
               )}
               {basicUiStatus === "online" && <ServerIcon className="size-4" />}
-              {capitalizeAndFormatState(combinedState)}
+              {combinedStateTxt}
             </Button>
           </TooltipTrigger>
         </DropdownMenuTrigger>
@@ -231,10 +269,9 @@ function EnvironmentControls() {
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            // onClick={destroyEnv}
             onClick={() => setDestroyDialogOpen(true)}
             disabled={basicUiStatus === "offline"}
-            variant="default"
+            variant="destructive"
             className="justify-stretch"
           >
             <ServerOffIcon className="size-4" />
@@ -252,16 +289,46 @@ function EnvironmentControls() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={basicUiStatus === "offline"}
-              onClick={() => {
-                destroyEnv();
-                setDestroyDialogOpen(false);
-              }}
-            >
-              Continue
-            </AlertDialogAction>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="w-full space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="confirmation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Type "destroy" to confirm this action
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} autoComplete="off" />
+                      </FormControl>
+                      <FormDescription>
+                        This action is irreversible and will stop all running
+                        tasks.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="flex w-full justify-end gap-2">
+                  <AlertDialogCancel onClick={onCancel}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    className={cn(buttonVariants({ variant: "destructive" }))}
+                    type="submit"
+                    disabled={
+                      form.formState.isSubmitting || !form.formState.isValid
+                    }
+                  >
+                    Destroy
+                  </AlertDialogAction>
+                </div>
+              </form>
+            </Form>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -409,37 +476,21 @@ function PauseControls() {
     );
   }
 
-  if (status.data?.pausePending) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            className="h-8 rounded-full duration-300 ease-in-out"
-            size="icon"
-            variant="outline"
-            disabled
-          >
-            <Spinner />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Pausing</TooltipContent>
-      </Tooltip>
-    );
-  }
-
   if (reState === "running") {
     return (
       <>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="h-8 rounded-full duration-300 ease-in-out"
+              className={cn(
+                "text-destructive h-8 w-12 gap-0 duration-300 ease-in-out",
+                status.data?.pausePending && "animate-pulse",
+              )}
               variant="outline"
               onClick={handlePauseNow}
-              size="icon"
-              disabled={status.data?.pausePending}
             >
               <PauseIcon className="size-4" />
+              <ClockAlertIcon className="size-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">Pause Now</TooltipContent>
@@ -447,16 +498,23 @@ function PauseControls() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="h-8 rounded-full duration-300 ease-in-out"
+              className={cn(
+                "h-8 w-12 gap-0 duration-300 ease-in-out disabled:pointer-events-auto",
+                status.data?.pausePending && "animate-pulse",
+              )}
               onClick={handlePauseLater}
-              size="icon"
               variant="outline"
               disabled={status.data?.pausePending}
             >
+              <PauseIcon className="size-4" />
               <MilestoneIcon className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Pause Next Checkpoint</TooltipContent>
+          <TooltipContent side="bottom">
+            {status.data?.pausePending
+              ? "Pause is scheduled..."
+              : "Pause Next Checkpoint"}
+          </TooltipContent>
         </Tooltip>
       </>
     );
@@ -527,10 +585,20 @@ function StopControls() {
           </TooltipTrigger>
           <TooltipContent side="bottom">Cancel Options</TooltipContent>
         </Tooltip>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={handleStop}>Stop</DropdownMenuItem>
-          <DropdownMenuItem onClick={handleHalt}>Halt</DropdownMenuItem>
-          <DropdownMenuItem onClick={handleAbort}>Abort</DropdownMenuItem>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem onClick={handleStop} className="justify-between">
+            Stop item as 'stopped'
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleAbort} className="justify-between">
+            Stop and return item to queue as 'aborted'
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleHalt}
+            variant="destructive"
+            className="justify-between"
+          >
+            Emergency stop and return item to queue as 'halted'
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
