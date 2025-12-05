@@ -135,11 +135,6 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
       },
       {
         type: "add",
-        path: "apps/{{name}}/src/app/_components/dashboard/controls.tsx",
-        templateFile: "templates/app/dashboard/controls.tsx.hbs",
-      },
-      {
-        type: "add",
         path: "apps/{{name}}/src/app/_components/queue/columns.tsx",
         templateFile: "templates/app/queue/columns.tsx.hbs",
       },
