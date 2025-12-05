@@ -37,16 +37,16 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import { sampleTypeOptions } from "~/lib/constants";
-import { name, schema } from "~/lib/schemas/plans/single-acquisition";
+import { sampleTypeOptions, standardCleaningOptions } from "~/lib/constants";
+import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
-export function SingleAcquisition({
+export function CompleteAcquisition({
   className,
   lastSampleParams,
   onClose,
 }: {
-  lastSampleParams: LastSampleParams | undefined;
   className?: string;
+  lastSampleParams: LastSampleParams | undefined;
   onClose?: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -69,18 +69,19 @@ export function SingleAcquisition({
       <DialogTrigger asChild>
         <Button variant="ghost" className={className}>
           <CameraIcon className="mr-2 h-4 w-4" />
-          Acquire
+          Complete Acquisition
         </Button>
       </DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Acquire</DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
-            Please fill in the details below to submit the plan. The sample
-            details are pre-filled.
+            Please fill in the details below to submit the plan. The last loaded
+            sample details are pre-filled.
           </DialogDescription>
         </DialogHeader>
-        <SingleAcquisitionForm
+        <CompleteAcquisitionForm
           proposal={data?.proposal}
           lastSampleParams={lastSampleParams}
           onSubmitSuccess={handleSubmitSuccess}
@@ -95,16 +96,22 @@ const defaultValues: z.infer<typeof schema> = {
   sampleType: "sample",
   sampleTag: "",
   bufferTag: "",
+  tray: "Tray1",
+  row: "A",
+  col: "1",
+  volume: 0,
   acquireTime: 0.1,
   numExposures: 1,
+  expUvTime: 0,
+  measureUvNumber: 0,
   temperature: 25,
   setTemperature: false,
-  usePicolo: false,
-  usePimega: false,
-  metadata: {},
+  standardOption: "normal",
+  agentsList: [],
+  agentsDuration: [],
 };
 
-function SingleAcquisitionForm({
+function CompleteAcquisitionForm({
   lastSampleParams,
   proposal,
   className,
@@ -129,11 +136,6 @@ function SingleAcquisitionForm({
         sampleType: lastSampleParams.sampleType,
         sampleTag: lastSampleParams.sampleTag,
         bufferTag: lastSampleParams.bufferTag,
-        metadata: {
-          row: lastSampleParams.row,
-          col: lastSampleParams.col,
-          tray: lastSampleParams.tray,
-        },
       }),
     },
   });
@@ -294,48 +296,30 @@ function SingleAcquisitionForm({
           />
           <FormField
             control={form.control}
-            name="usePimega"
+            name="standardOption"
             render={({ field }) => (
               <FormItem>
-                <div className="inline-flex gap-1">
-                  <FormLabel>Use Pimega</FormLabel>
-                </div>
-                <FormControl>
-                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
-                    <Label className="text-slate-500">
-                      {field.value ? "Yes" : "No"}
-                    </Label>
-                    <Switch
-                      checked={field.value ?? false}
-                      className="ml-auto"
-                      onCheckedChange={field.onChange}
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="usePicolo"
-            render={({ field }) => (
-              <FormItem>
-                <div className="inline-flex gap-1">
-                  <FormLabel>Use Picolo</FormLabel>
-                </div>
-                <FormControl>
-                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
-                    <Label className="text-slate-500">
-                      {field.value ? "Yes" : "No"}
-                    </Label>
-                    <Switch
-                      checked={field.value ?? false}
-                      className="ml-auto"
-                      onCheckedChange={field.onChange}
-                    />
-                  </div>
-                </FormControl>
+                <FormLabel>Cleaning Option</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {/* Allow only standard cleaning options here */}
+                    {standardCleaningOptions.map((option) => {
+                      return (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

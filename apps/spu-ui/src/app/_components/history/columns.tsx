@@ -6,6 +6,7 @@ import { format, fromUnixTime } from "date-fns";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { DataTableColumnHeader } from "@sophys-web/widgets/data-table/custom-header";
+import { HistoryItemDialog } from "@sophys-web/widgets/history-item-utils";
 import type { HistoryItemProps } from "~/lib/types";
 import { RerunButton } from "./rerun";
 
@@ -73,7 +74,12 @@ const defaultColumns = [
   ),
   columnHelper.display({
     id: "actions",
-    cell: ({ row }) => <RerunButton {...row.original} />,
+    cell: ({ row }) => (
+      <div className="flex flex-row justify-end">
+        <RerunButton {...row.original} />
+        <HistoryItemDialog item={row.original} className="ml-2" />
+      </div>
+    ),
   }),
 ];
 

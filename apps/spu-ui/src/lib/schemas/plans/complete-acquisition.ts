@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   cleaningAgents,
+  cleaningOptions,
   sampleTypeOptions,
   trayColumns,
   trayOptions,
@@ -25,7 +26,7 @@ const tableSchema = z.object({
       message:
         "Sample tag can only contain letters, numbers, dashes, and underscores",
     }),
-  bufferTag: z.string(),
+  bufferTag: z.string().optional(),
   tray: z
     .string()
     .transform((val) => val.trimStart().trimEnd())
@@ -55,6 +56,7 @@ const tableSchema = z.object({
     .min(0.1, "Acquire time (in seconds) must be at least 0.1"),
   volume: z.coerce.number().min(0, "Volume must be a positive number"),
   temperature: z.coerce.number().positive(),
+  setTemperature: z.boolean().optional(),
   numExposures: z.coerce
     .number()
     .min(1, "Number of exposures must be at least 1"),
@@ -128,10 +130,18 @@ const schema = z.object({
   numExposures: z.number(),
   expUvTime: z.number(),
   measureUvNumber: z.number(),
-  standardOption: z.string().optional(),
+  standardOption: z
+    .enum(cleaningOptions)
+    .optional()
+    .default("normal")
+    .refine((val) => val !== "custom", {
+      message: "Custom cleaning option is not supported in this schema",
+    }),
   agentsList: z.array(z.string()).optional(),
   agentsDuration: z.array(z.number()).optional(),
   proposal: z.string(),
+  temperature: z.number().positive(),
+  setTemperature: z.boolean().optional(),
 });
 
 export { name, schema, tableSchema, cleaningSchema };

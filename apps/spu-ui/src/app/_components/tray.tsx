@@ -18,10 +18,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
-import type { Sample } from "./sample";
+import type { Sample } from "./sample/sample-item";
 import { trayColumns, trayRows } from "../../lib/constants";
 import { clearTray } from "../actions/samples";
-import { SampleItem } from "./sample";
+import { SampleItem } from "./sample/sample-item";
 
 interface TrayProps {
   samples: Sample[];

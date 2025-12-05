@@ -35,7 +35,7 @@ const cleaningPlans = [
 
 export interface LastSampleParams {
   sampleTag: string;
-  bufferTag: string;
+  bufferTag: string | undefined;
   sampleType: (typeof sampleTypeOptions)[number];
   row: (typeof trayRows)[number];
   col: (typeof trayColumns)[number];

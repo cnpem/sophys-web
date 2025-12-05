@@ -13,7 +13,6 @@ export function QueueStop({ className }: { className?: string }) {
         args: [],
         kwargs: {},
       },
-      pos: "front",
     });
   };
 
