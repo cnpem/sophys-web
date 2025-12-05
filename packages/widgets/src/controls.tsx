@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  ClockAlertIcon,
   EllipsisIcon,
   ListVideoIcon,
   ListXIcon,
@@ -471,37 +472,21 @@ function PauseControls() {
     );
   }
 
-  if (status.data?.pausePending) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            className="h-8 rounded-full duration-300 ease-in-out"
-            size="icon"
-            variant="outline"
-            disabled
-          >
-            <Spinner />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Pausing</TooltipContent>
-      </Tooltip>
-    );
-  }
-
   if (reState === "running") {
     return (
       <>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="h-8 rounded-full duration-300 ease-in-out"
+              className={cn(
+                "text-destructive h-8 w-12 gap-0 duration-300 ease-in-out",
+                status.data?.pausePending && "animate-pulse",
+              )}
               variant="outline"
               onClick={handlePauseNow}
-              size="icon"
-              disabled={status.data?.pausePending}
             >
               <PauseIcon className="size-4" />
+              <ClockAlertIcon className="size-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">Pause Now</TooltipContent>
@@ -509,16 +494,23 @@ function PauseControls() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              className="h-8 rounded-full duration-300 ease-in-out"
+              className={cn(
+                "h-8 w-12 gap-0 duration-300 ease-in-out disabled:pointer-events-auto",
+                status.data?.pausePending && "animate-pulse",
+              )}
               onClick={handlePauseLater}
-              size="icon"
               variant="outline"
               disabled={status.data?.pausePending}
             >
+              <PauseIcon className="size-4" />
               <MilestoneIcon className="size-4" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Pause Next Checkpoint</TooltipContent>
+          <TooltipContent side="bottom">
+            {status.data?.pausePending
+              ? "Pause is scheduled..."
+              : "Pause Next Checkpoint"}
+          </TooltipContent>
         </Tooltip>
       </>
     );
