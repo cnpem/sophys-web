@@ -188,8 +188,14 @@ function EnvironmentControls() {
 
   function onSubmit() {
     destroyEnv();
+    form.reset();
     setDestroyDialogOpen(false);
   }
+
+  const onCancel = () => {
+    form.reset();
+    setDestroyDialogOpen(false);
+  };
 
   return (
     <Tooltip>
@@ -297,11 +303,7 @@ function EnvironmentControls() {
                         Type "destroy" to confirm this action
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Type "
-                          {...field}
-                          autoComplete="off"
-                        />
+                        <Input {...field} autoComplete="off" />
                       </FormControl>
                       <FormDescription>
                         This action is irreversible and will stop all running
@@ -312,7 +314,9 @@ function EnvironmentControls() {
                   )}
                 />
                 <div className="flex w-full justify-end gap-2">
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel onClick={onCancel}>
+                    Cancel
+                  </AlertDialogCancel>
                   <AlertDialogAction
                     className={cn(buttonVariants({ variant: "destructive" }))}
                     type="submit"
