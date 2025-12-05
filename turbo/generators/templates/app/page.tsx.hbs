@@ -15,6 +15,12 @@ export default async function Page() {
         <p className="text-lg">
           This is the UI for experiments conducted at the {{ name }} beamline.
         </p>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href="/auth/signin"
+        >
+          Sign in
+        </Link>
       </main>
     );
   }
