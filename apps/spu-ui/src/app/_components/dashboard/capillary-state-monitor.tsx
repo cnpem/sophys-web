@@ -12,9 +12,7 @@ import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 
 export function CapillaryStateMonitor() {
   const { capillaryState, loadedSample } = useCapillaryState();
-  const sampleInfo = loadedSample
-    ? `"${loadedSample.sampleTag}" ${loadedSample.tray}-${loadedSample.row}${loadedSample.col}`
-    : undefined;
+
   return (
     <Item>
       <ItemMedia>
@@ -24,10 +22,16 @@ export function CapillaryStateMonitor() {
         <ItemTitle>Capillary State</ItemTitle>
         <ItemDescription
           data-state={capillaryState}
-          className="text-md flex font-semibold data-[state=clean]:text-emerald-400 data-[state=error]:text-red-400 data-[state=sample]:text-sky-400 data-[state=stale]:text-amber-400"
+          className="flex gap-2 text-lg font-semibold data-[state=clean]:text-emerald-400 data-[state=error]:text-red-400 data-[state=sample]:text-sky-400 data-[state=stale]:text-amber-400"
         >
-          {capillaryState}
-          {loadedSample && <>: {sampleInfo}</>}
+          {capillaryState !== "sample" && capillaryState.toUpperCase()}
+          {capillaryState === "sample" && loadedSample && (
+            <>
+              <span>{loadedSample.sampleType.toUpperCase()}</span>
+              <span>{`(${loadedSample.tray}-${loadedSample.row}${loadedSample.col})`}</span>
+              <span>"{loadedSample.sampleTag}"</span>
+            </>
+          )}
         </ItemDescription>
       </ItemContent>
     </Item>

@@ -15,11 +15,11 @@ export function BeamlineStates() {
   return (
     <Card className="gap-2 pb-2">
       <CardHeader>
-        <CardTitle>Process Variables</CardTitle>
+        <CardTitle>Beamline Variables</CardTitle>
         <CardDescription>Current environmental conditions</CardDescription>
       </CardHeader>
       <CardContent>
-        <ItemGroup className="grid grid-cols-2 gap-2">
+        <ItemGroup>
           <SampleTemperatureMonitor />
           <CapillaryStateMonitor />
         </ItemGroup>
