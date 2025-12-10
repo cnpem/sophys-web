@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { EraserIcon, PencilIcon, PipetteIcon, PlusIcon } from "lucide-react";
+import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
   Dialog,
@@ -50,7 +51,7 @@ export function SampleItem({ sample }: { sample: Sample }) {
         <Button
           variant="outline"
           size="icon"
-          className="bg-muted cursor-cell rounded-full text-sm opacity-50 select-none hover:scale-105 hover:ring hover:ring-slate-400"
+          className="cursor-cell rounded-full bg-zinc-100 text-sm opacity-50 select-none hover:scale-105 hover:ring hover:ring-slate-400"
           onClick={() => setOpenRegisterSampleDialog(true)}
         >
           <PlusIcon className="size-4" />
@@ -60,10 +61,15 @@ export function SampleItem({ sample }: { sample: Sample }) {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
-              data-sample-type={sample.sampleType}
               variant="outline"
               size="icon"
-              className="cursor-context-menu rounded-full text-sm select-none hover:scale-105 hover:ring data-[sample-type=buffer]:border-emerald-400 data-[sample-type=buffer]:bg-emerald-200 data-[sample-type=buffer]:text-emerald-800 data-[sample-type=buffer]:hover:bg-emerald-300 data-[sample-type=sample]:border-sky-400 data-[sample-type=sample]:bg-sky-200 data-[sample-type=sample]:text-sky-800 data-[sample-type=sample]:hover:bg-sky-300"
+              className={cn(
+                "cursor-context-menu rounded-full text-sm select-none hover:scale-105 hover:ring",
+                sample.sampleType === "sample" &&
+                  "border-cyan-400 bg-cyan-300 text-cyan-800 hover:bg-cyan-300",
+                sample.sampleType === "buffer" &&
+                  "border-cyan-300 bg-cyan-300/10 text-cyan-600 hover:bg-cyan-300/20",
+              )}
             >
               {sample.sampleType?.charAt(0) ?? "-"}
             </Button>

@@ -109,11 +109,11 @@ export function Tray(props: TrayProps) {
         })}
       </CardContent>
       <CardFooter className="space-x-2 text-xs">
-        <span className="flex size-5 items-center justify-center rounded-full border border-sky-400 bg-sky-200 text-sky-800">
+        <span className="flex size-5 items-center justify-center rounded-full border border-cyan-400 bg-cyan-300 text-cyan-800">
           s
         </span>
         <span>sample</span>
-        <span className="flex size-5 items-center justify-center rounded-full border border-emerald-400 bg-emerald-200 text-emerald-800">
+        <span className="flex size-5 items-center justify-center rounded-full border border-cyan-300 bg-cyan-300/10 text-cyan-600">
           b
         </span>
         <span>buffer</span>
