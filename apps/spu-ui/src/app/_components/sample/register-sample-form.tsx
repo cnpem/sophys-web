@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -71,9 +72,20 @@ export function RegisterSampleForm({
     onSubmitCallback?.();
   }
 
+  const onChangeSampleType = useCallback(
+    (value: string) => {
+      if (value === "buffer") {
+        form.setValue("bufferTag", "");
+      }
+    },
+    [form],
+  );
+
+  const watchSampleType = form.watch("sampleType");
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-96 space-y-8">
         <FormField
           control={form.control}
           name="sampleType"
@@ -83,9 +95,15 @@ export function RegisterSampleForm({
               <FormDescription>
                 Please select the type of sample you are registering.
               </FormDescription>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  onChangeSampleType(value);
+                }}
+                defaultValue={field.value}
+              >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select a sample type" />
                   </SelectTrigger>
                 </FormControl>
@@ -124,13 +142,19 @@ export function RegisterSampleForm({
                 Please enter the buffer tag for this sample.
               </FormDescription>
               <FormControl>
-                <Input placeholder="Buffer tag" {...field} />
+                <Input
+                  placeholder="Buffer tag"
+                  {...field}
+                  disabled={watchSampleType === "buffer"}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="w-full">
+          Submit
+        </Button>
       </form>
     </Form>
   );
