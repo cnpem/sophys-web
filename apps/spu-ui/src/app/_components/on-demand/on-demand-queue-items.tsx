@@ -19,9 +19,11 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
+import { CompleteAcquisition } from "./complete-acquisition";
 // import { CleaningDialog } from "./cleaning";
 import { QueueStop } from "./queue-stop";
 import { SingleAcquisition } from "./single-acquisition";
+import { StandardCleaningDialog } from "./standard-cleaning";
 
 export function OnDemandSelector() {
   const { loadedSample } = useCapillaryState();
@@ -36,13 +38,27 @@ export function OnDemandSelector() {
             Add
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-[150px]">
+        <DropdownMenuContent align="start">
           <DropdownMenuLabel>On demand</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <SingleAcquisition
               className="w-full justify-start font-normal"
               lastSampleParams={loadedSample}
+              onClose={() => setMenuOpen(false)}
+            />
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <CompleteAcquisition
+              className="w-full justify-start font-normal"
+              lastSampleParams={loadedSample}
+              onClose={() => setMenuOpen(false)}
+            />
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <StandardCleaningDialog
+              className="w-full justify-start font-normal"
+              onClose={() => setMenuOpen(false)}
             />
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
@@ -57,9 +73,6 @@ export function OnDemandSelector() {
               <SearchIcon className="mr-2 h-4 w-4" /> Other
             </Button>
           </DropdownMenuItem>
-          {/* <DropdownMenuItem asChild> 
-              <CleaningDialog className="w-full justify-start font-normal" />
-            </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

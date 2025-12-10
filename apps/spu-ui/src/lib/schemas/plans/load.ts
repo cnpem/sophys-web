@@ -16,7 +16,7 @@ const schema = z.object({
     .object({
       sampleType: z.enum(sampleTypeOptions),
       sampleTag: z.string(),
-      bufferTag: z.string(),
+      bufferTag: z.string().optional(),
     })
     .optional(),
 });

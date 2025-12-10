@@ -11,7 +11,7 @@ import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
-import { Button } from "@sophys-web/ui/button";
+import { Button, buttonVariants } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";
 import {
   Dialog,
@@ -37,7 +37,7 @@ import type {
   tableSchema as acquisitionTableSchema,
   cleaningSchema as cleaningKwargsSchema,
 } from "../../../lib/schemas/plans/complete-acquisition";
-import type { Sample } from "../sample";
+import type { Sample } from "../sample/sample-item";
 import { name as cleanCapillaryPlanName } from "../../../lib/schemas/plans/clean-and-acquire";
 import { name as acquisitionPlanName } from "../../../lib/schemas/plans/complete-acquisition";
 import {
@@ -64,17 +64,13 @@ export function UploadQueue() {
         <DialogHeader>
           <DialogTitle>Load Experiment Queue</DialogTitle>
           <DialogDescription>
-            Load a new experiment queue from a CSV file.
-            <Link href={exampleCsvPath} download={"example-input-data.csv"}>
-              <Button
-                asChild
-                variant="link"
-                className="text-xs font-extralight"
-              >
-                <a download="example-input-data.csv" href={exampleCsvPath}>
-                  (Download CSV example)
-                </a>
-              </Button>
+            <p>Load a new experiment queue from a CSV file.</p>
+            <Link
+              href={exampleCsvPath}
+              download={"example-input-data.csv"}
+              className={cn(buttonVariants({ variant: "link" }))}
+            >
+              (Download CSV example)
             </Link>
           </DialogDescription>
         </DialogHeader>
@@ -105,7 +101,6 @@ async function uploadSamples(
     return {
       id: complete,
       relativePosition: relative,
-      type: item.sampleType,
       ...item,
     } as Sample;
   });

@@ -35,14 +35,14 @@ const cleaningPlans = [
 
 export interface LastSampleParams {
   sampleTag: string;
-  bufferTag: string;
+  bufferTag: string | undefined;
   sampleType: (typeof sampleTypeOptions)[number];
   row: (typeof trayRows)[number];
   col: (typeof trayColumns)[number];
   tray: (typeof trayOptions)[number];
 }
 
-type CapillaryState = "sample" | "stale" | "clean" | "error" | "unknown";
+type CapillaryState = "sample" | "stale" | "clean" | "error";
 
 function capillaryStateFromTimes({
   lastSampleTime,
@@ -71,8 +71,7 @@ export const useCapillaryState = () => {
   const [loadedSample, setLoadedSample] = useState<
     LastSampleParams | undefined
   >(undefined);
-  const [capillaryState, setCapillaryState] =
-    useState<CapillaryState>("unknown");
+  const [capillaryState, setCapillaryState] = useState<CapillaryState>("stale");
   // search history for last sample and last cleaning time and store them in state
   useEffect(() => {
     if (!data?.items) {
@@ -125,20 +124,23 @@ export const useCapillaryState = () => {
     setCapillaryState(capillaryState);
     if (capillaryState === "sample") {
       const parsedKwargs = loadSampleKwargs.safeParse(lastSample?.kwargs);
-      if (!parsedKwargs.success) {
-        throw new Error("Failed to parse load sample kwargs");
+      if (parsedKwargs.success && parsedKwargs.data.metadata) {
+        setLoadedSample({
+          sampleTag: parsedKwargs.data.metadata.sampleTag,
+          bufferTag: parsedKwargs.data.metadata.bufferTag,
+          sampleType: parsedKwargs.data.metadata.sampleType,
+          row: parsedKwargs.data.row,
+          col: parsedKwargs.data.col,
+          tray: parsedKwargs.data.tray,
+        });
+      } else {
+        console.error(
+          "Failed to parse load sample kwargs or metadata is missing",
+          lastSample?.kwargs,
+        );
+        setCapillaryState("error");
+        setLoadedSample(undefined);
       }
-      if (!parsedKwargs.data.metadata) {
-        throw new Error("Failed to parse metadata from load sample kwargs");
-      }
-      setLoadedSample({
-        sampleTag: parsedKwargs.data.metadata.sampleTag,
-        bufferTag: parsedKwargs.data.metadata.bufferTag,
-        sampleType: parsedKwargs.data.metadata.sampleType,
-        row: parsedKwargs.data.row,
-        col: parsedKwargs.data.col,
-        tray: parsedKwargs.data.tray,
-      });
     } else {
       setLoadedSample(undefined);
     }

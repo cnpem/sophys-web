@@ -20,10 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { cleaningDefaults } from "../../../lib/constants";
+import { cleaningOptions } from "../../../lib/constants";
 import { schema as cleanCapillaryKwargsSchema } from "../../../lib/schemas/plans/clean-and-acquire";
-
-const cleaningSelectOptions = [...cleaningDefaults, "custom"] as const;
 
 export function CleanCapillaryForm({
   onSubmit,
@@ -153,7 +151,7 @@ export function CleanCapillaryForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {cleaningSelectOptions.map((option) => {
+                    {cleaningOptions.map((option) => {
                       return (
                         <SelectItem key={option} value={option}>
                           {option}

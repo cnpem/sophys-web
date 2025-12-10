@@ -18,10 +18,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
-import type { Sample } from "./sample";
+import type { Sample } from "./sample/sample-item";
 import { trayColumns, trayRows } from "../../lib/constants";
 import { clearTray } from "../actions/samples";
-import { SampleItem } from "./sample";
+import { SampleItem } from "./sample/sample-item";
 
 interface TrayProps {
   samples: Sample[];
@@ -40,6 +40,13 @@ export function Tray(props: TrayProps) {
     await clearTray(trayId);
   }, [trayId]);
 
+  const trayIsEmpty = tray.every(
+    (sample) =>
+      sample.sampleType === undefined &&
+      sample.sampleTag === undefined &&
+      sample.bufferTag === undefined,
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -49,7 +56,7 @@ export function Tray(props: TrayProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  disabled={tray.every((sample) => sample.type === undefined)}
+                  disabled={trayIsEmpty}
                   onClick={clearServerSamples}
                   size="icon"
                   variant="outline"
@@ -102,11 +109,11 @@ export function Tray(props: TrayProps) {
         })}
       </CardContent>
       <CardFooter className="space-x-2 text-xs">
-        <span className="flex size-5 items-center justify-center rounded-full border border-sky-400 bg-sky-200 text-sky-800">
+        <span className="flex size-5 items-center justify-center rounded-full border border-cyan-400 bg-cyan-300 text-cyan-800">
           s
         </span>
         <span>sample</span>
-        <span className="flex size-5 items-center justify-center rounded-full border border-emerald-400 bg-emerald-200 text-emerald-800">
+        <span className="flex size-5 items-center justify-center rounded-full border border-cyan-300 bg-cyan-300/10 text-cyan-600">
           b
         </span>
         <span>buffer</span>
