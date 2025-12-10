@@ -21,7 +21,7 @@ export function DeleteSampleForm({
     relativePosition: sample.relativePosition,
     sampleTag: undefined,
     bufferTag: undefined,
-    type: undefined,
+    sampleType: undefined,
     row: sample.row,
     col: sample.col,
     tray: sample.tray,
@@ -30,9 +30,7 @@ export function DeleteSampleForm({
   async function onSubmit() {
     const samples = await getSamples();
     await setSamples(
-      samples.map((s) =>
-        s.id === sample.id ? ({ ...emptySample } as Sample) : s,
-      ),
+      samples.map((s) => (s.id === sample.id ? emptySample : s)),
     );
     toast.success("Sample deleted!");
     onSubmitCallback?.();
@@ -43,7 +41,7 @@ export function DeleteSampleForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="w-fit space-y-8">
         <p>Deleting sample information:</p>
         <div className="text-sm">
-          <p>{`type: ${sample.type}`}</p>
+          <p>{`type: ${sample.sampleType}`}</p>
           <p>{`name: ${sample.sampleTag}`}</p>
           {sample.bufferTag && <p>{`buffer: ${sample.bufferTag}`}</p>}
         </div>

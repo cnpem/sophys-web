@@ -40,6 +40,13 @@ export function Tray(props: TrayProps) {
     await clearTray(trayId);
   }, [trayId]);
 
+  const trayIsEmpty = tray.every(
+    (sample) =>
+      sample.sampleType === undefined &&
+      sample.sampleTag === undefined &&
+      sample.bufferTag === undefined,
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -49,7 +56,7 @@ export function Tray(props: TrayProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  disabled={tray.every((sample) => sample.type === undefined)}
+                  disabled={trayIsEmpty}
                   onClick={clearServerSamples}
                   size="icon"
                   variant="outline"

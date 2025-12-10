@@ -30,7 +30,7 @@ export interface Sample {
   relativePosition: string;
   sampleTag: string | undefined;
   bufferTag: string | undefined;
-  type: (typeof sampleTypeOptions)[number] | undefined;
+  sampleType: (typeof sampleTypeOptions)[number] | undefined;
   row: (typeof trayRows)[number];
   col: (typeof trayColumns)[number];
   tray: (typeof trayOptions)[number];
@@ -42,7 +42,7 @@ export function SampleItem({ sample }: { sample: Sample }) {
     useState(false);
   const [openDeleteSampleDialog, setOpenDeleteSampleDialog] = useState(false);
 
-  const isRegistered = sample.type !== undefined;
+  const isRegistered = sample.sampleType !== undefined;
 
   return (
     <>
@@ -60,12 +60,12 @@ export function SampleItem({ sample }: { sample: Sample }) {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
-              data-sample-type={sample.type}
+              data-sample-type={sample.sampleType}
               variant="outline"
               size="icon"
               className="cursor-context-menu rounded-full text-sm select-none hover:scale-105 hover:ring data-[sample-type=buffer]:border-emerald-400 data-[sample-type=buffer]:bg-emerald-200 data-[sample-type=buffer]:text-emerald-800 data-[sample-type=buffer]:hover:bg-emerald-300 data-[sample-type=sample]:border-sky-400 data-[sample-type=sample]:bg-sky-200 data-[sample-type=sample]:text-sky-800 data-[sample-type=sample]:hover:bg-sky-300"
             >
-              {sample.type?.charAt(0) ?? "-"}
+              {sample.sampleType?.charAt(0) ?? "-"}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
@@ -74,7 +74,7 @@ export function SampleItem({ sample }: { sample: Sample }) {
               className="flex flex-col items-start gap-1"
             >
               <p>{`${sample.tray}-${sample.row}${sample.col}`}</p>
-              <p>{`type: ${sample.type}`}</p>
+              <p>{`type: ${sample.sampleType}`}</p>
               <p>{`name: ${sample.sampleTag}`}</p>
               {sample.bufferTag && <p>{`buffer: ${sample.bufferTag}`}</p>}
             </DropdownMenuItem>
@@ -103,7 +103,7 @@ export function SampleItem({ sample }: { sample: Sample }) {
             <DialogTitle>Load sample</DialogTitle>
             <DialogDescription className="flex flex-col items-start">
               <span>{`position: ${sample.tray}-${sample.row}${sample.col}`}</span>
-              <span>{`type: ${sample.type}`}</span>
+              <span>{`type: ${sample.sampleType}`}</span>
               <span>{`name: ${sample.sampleTag}`}</span>
               {sample.bufferTag && <span>{`buffer: ${sample.bufferTag}`}</span>}
             </DialogDescription>

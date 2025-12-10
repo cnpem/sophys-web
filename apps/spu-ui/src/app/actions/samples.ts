@@ -13,7 +13,7 @@ function createEmptySamples() {
           id: `${TRAY1}-${column}${row}`,
           tray: TRAY1,
           relativePosition: `${column}${row}`,
-          type: undefined,
+          sampleType: undefined,
           row: row,
           col: column,
           sampleTag: undefined,
@@ -28,7 +28,7 @@ function createEmptySamples() {
           id: `${TRAY2}-${column}${row}`,
           tray: TRAY2,
           relativePosition: `${column}${row}`,
-          type: undefined,
+          sampleType: undefined,
           row: row,
           col: column,
           sampleTag: undefined,
@@ -79,7 +79,12 @@ export async function clearSamples() {
 export async function clearTray(tray: string) {
   store.samples = store.samples.map((sample) => {
     if (sample.tray === tray) {
-      return { ...sample, type: undefined } as Sample;
+      return {
+        ...sample,
+        sampleType: undefined,
+        sampleTag: undefined,
+        bufferTag: undefined,
+      } as Sample;
     }
     return sample;
   });

@@ -51,7 +51,7 @@ export function RegisterSampleForm({
   const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      sampleType: sample.type ?? "sample",
+      sampleType: sample.sampleType ?? "sample",
       sampleTag: sample.sampleTag ?? "",
       bufferTag: sample.bufferTag ?? "",
     },
@@ -63,7 +63,7 @@ export function RegisterSampleForm({
     await setSamples(
       samples.map((s) =>
         s.id === sample.id
-          ? ({ ...s, ...data, type: data.sampleType } as Sample)
+          ? ({ ...s, ...data, sampleType: data.sampleType } as Sample)
           : s,
       ),
     );

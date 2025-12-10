@@ -50,7 +50,7 @@ export function LoadSampleForm({
       metadata: {
         sampleTag: sample.sampleTag,
         bufferTag: sample.bufferTag,
-        sampleType: sample.type,
+        sampleType: sample.sampleType,
       },
     });
     add.mutate(
