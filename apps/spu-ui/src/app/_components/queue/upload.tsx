@@ -105,7 +105,6 @@ async function uploadSamples(
     return {
       id: complete,
       relativePosition: relative,
-      sampleType: item.sampleType,
       ...item,
     } as Sample;
   });
