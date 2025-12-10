@@ -1,6 +1,7 @@
 "use client";
 
 import { CylinderIcon } from "lucide-react";
+import { cn } from "@sophys-web/ui";
 import {
   Item,
   ItemContent,
@@ -21,8 +22,13 @@ export function CapillaryStateMonitor() {
       <ItemContent>
         <ItemTitle>Capillary State</ItemTitle>
         <ItemDescription
-          data-state={capillaryState}
-          className="flex gap-2 text-lg font-semibold data-[state=clean]:text-emerald-400 data-[state=error]:text-red-400 data-[state=sample]:text-sky-400 data-[state=stale]:text-amber-400"
+          className={cn(
+            "flex gap-2 text-lg font-semibold",
+            capillaryState === "clean" && "text-emerald-400",
+            capillaryState === "error" && "text-red-400",
+            capillaryState === "sample" && "text-cyan-400",
+            capillaryState === "stale" && "text-gray-400",
+          )}
         >
           {capillaryState !== "sample" && capillaryState.toUpperCase()}
           {capillaryState === "sample" && loadedSample && (
