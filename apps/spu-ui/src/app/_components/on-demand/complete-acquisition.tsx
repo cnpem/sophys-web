@@ -37,7 +37,7 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import { sampleTypeOptions, standardCleaningOptions } from "~/lib/constants";
+import { cleaningOptions, sampleTypeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
 export function CompleteAcquisition({
@@ -91,26 +91,6 @@ export function CompleteAcquisition({
   );
 }
 
-const defaultValues: z.infer<typeof schema> = {
-  proposal: "",
-  sampleType: "sample",
-  sampleTag: "",
-  bufferTag: "",
-  tray: "Tray1",
-  row: "A",
-  col: "1",
-  volume: 0,
-  acquireTime: 0.1,
-  numExposures: 1,
-  expUvTime: 0,
-  measureUvNumber: 0,
-  temperature: 25,
-  setTemperature: false,
-  standardOption: "normal",
-  agentsList: [],
-  agentsDuration: [],
-};
-
 function CompleteAcquisitionForm({
   lastSampleParams,
   proposal,
@@ -127,7 +107,16 @@ function CompleteAcquisitionForm({
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      ...defaultValues,
+      proposal: "",
+      sampleType: "sample",
+      volume: 0,
+      acquireTime: 0.1,
+      numExposures: 1,
+      expUvTime: 0,
+      measureUvNumber: 0,
+      temperature: 25,
+      setTemperature: false,
+      standardOption: "normal",
       ...(proposal && { proposal }),
       ...(lastSampleParams && {
         tray: lastSampleParams.tray,
@@ -141,7 +130,7 @@ function CompleteAcquisitionForm({
   });
 
   function onSubmit(data: z.infer<typeof schema>) {
-    toast.info("Submitting sample...");
+    toast.info("Submitting complete aquisition...");
     const kwargs = schema.parse({
       ...data,
     });
@@ -310,14 +299,16 @@ function CompleteAcquisitionForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {/* Allow only standard cleaning options here */}
-                    {standardCleaningOptions.map((option) => {
-                      return (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      );
-                    })}
+                    {/* Filter out "custom" cleaning option */}
+                    {cleaningOptions
+                      .filter((option) => option !== "custom")
+                      .map((option) => {
+                        return (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        );
+                      })}
                   </SelectContent>
                 </Select>
                 <FormMessage />
