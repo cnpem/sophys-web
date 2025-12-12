@@ -51,6 +51,7 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
                 <History />
               </CardContent>
             </Card>
+            <Console />
           </div>
         </ScrollArea>
         <ScrollArea className="flex flex-col lg:h-svh lg:w-1/3">
@@ -58,7 +59,6 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
             <BeamlineStates />
             <RunningItem />
             <Trays initialData={initialData} />
-            <Console />
           </div>
         </ScrollArea>
       </div>

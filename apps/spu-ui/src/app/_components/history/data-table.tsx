@@ -76,6 +76,11 @@ export function DataTable() {
       columnVisibility,
       sorting,
     },
+    initialState: {
+      pagination: {
+        pageSize: 3,
+      },
+    },
   });
 
   return (
