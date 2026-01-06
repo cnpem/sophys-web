@@ -101,6 +101,54 @@ export function convertTotalTimeToReadable(totalMs: number | undefined) {
     return `${(totalMs / oneDayMs).toFixed(1)} days`;
   }
 }
+/**
+ * Acceleration calculation based on a sinusoidal amplitude.
+ * Formula: a = |(θ_final - θ_initial) / 2 * (2π / T)^2|
+ * @param initialEnergy initial energy in eV
+ * @param finalEnergy final energy in eV
+ * @param crystal selected crystal for amplitude calculation
+ * @param period period of oscilation
+ * @returns computed acceleration
+ */
+export function calculateAcceleration(
+  initialEnergy: number,
+  finalEnergy: number,
+  crystal: crystalEnum,
+  period: number,
+) {
+  const dSpacing = crystal === crystalEnum.Si111 ? d111 : d311;
+  const thetaInitial = EnergyToTheta(initialEnergy, dSpacing);
+  const thetaFinal = EnergyToTheta(finalEnergy, dSpacing);
+  const angularFrequency = (2 * Math.PI) / period;
+  const acceleration =
+    Math.abs((thetaFinal - thetaInitial) / 2) * Math.pow(angularFrequency, 2);
+  return acceleration;
+}
+
+/**
+ * Function to calculate the maximum frequency of HD-DCM-L,
+ * for mechanical reasons, the (embbeded) acceleration is
+ * capped in 1000 deg/s². This function calculates the approximate
+ * theta amplitude based on the d-spacing of selected crystal.
+ * @param initialEnergy Initial energy in eV
+ * @param finalEnergy  Final energy in eV
+ * @param crystal Selected crystal for frequency amplitude calculation
+ * @returns maximum frequency in Hz for HD-DCM-L models
+ */
+export function calculateMaxFrequency(
+  initialEnergy: number,
+  finalEnergy: number,
+  crystal: crystalEnum,
+) {
+  const dSpacing = crystal === crystalEnum.Si111 ? d111 : d311;
+  const maxAcceleration = 1000; // deg/s²
+  const thetaInitial = EnergyToTheta(initialEnergy, dSpacing);
+  const thetaFinal = EnergyToTheta(finalEnergy, dSpacing);
+  const deltaTheta = Math.abs(thetaFinal - thetaInitial) / 2;
+  const angularFrequency = Math.sqrt(maxAcceleration / deltaTheta);
+  const frequency = angularFrequency / (2 * Math.PI);
+  return frequency;
+}
 
 export interface AddRegionEnergyScanProps {
   className: string;
