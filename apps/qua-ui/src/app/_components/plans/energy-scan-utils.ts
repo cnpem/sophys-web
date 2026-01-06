@@ -86,6 +86,7 @@ export function convertTotalTimeToReadable(totalMs: number | undefined) {
   const oneSecondMs = 1000;
   const oneMinuteMs = 60000;
   const oneHourMs = 3600000;
+  const oneDayMs = 24 * oneHourMs;
   if (!totalMs || totalMs === 0) {
     return "Unable to estimate";
   } else if (totalMs < oneSecondMs) {
@@ -94,8 +95,10 @@ export function convertTotalTimeToReadable(totalMs: number | undefined) {
     return `${(totalMs / oneSecondMs).toFixed(1)} seconds`;
   } else if (totalMs < oneHourMs) {
     return `${(totalMs / oneMinuteMs).toFixed(1)} minutes`;
-  } else {
+  } else if (totalMs < oneDayMs) {
     return `${(totalMs / oneHourMs).toFixed(1)} hours`;
+  } else {
+    return `${(totalMs / oneDayMs).toFixed(1)} days`;
   }
 }
 
