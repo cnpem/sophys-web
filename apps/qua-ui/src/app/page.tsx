@@ -1,9 +1,12 @@
+import { env as runtimeEnv } from "node:process";
 import { redirect } from "next/navigation";
 import { api, HydrateClient } from "@sophys-web/api-client/server";
 import { auth } from "@sophys-web/auth";
+import { PVWSConnectionHandler } from "@sophys-web/pvws-store";
 import { Dashboard } from "./_components/dashboard/dashboard";
 
 export default async function Page() {
+  const pvwsUrl = runtimeEnv.PVWS_URL;
   const session = await auth();
 
   if (!session) {
@@ -29,6 +32,7 @@ export default async function Page() {
 
   return (
     <HydrateClient>
+      <PVWSConnectionHandler url={pvwsUrl} />
       <Dashboard />
     </HydrateClient>
   );

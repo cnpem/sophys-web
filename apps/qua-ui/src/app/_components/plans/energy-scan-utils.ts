@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { useSinglePvData } from "@sophys-web/pvws-store";
 
 export const spaceEnum = z.enum(["energy-space", "k-space"]);
 
@@ -153,4 +154,26 @@ export function calculateMaxFrequency(
 export interface AddRegionEnergyScanProps {
   className: string;
   onSubmitSuccess?: () => void;
+}
+
+/**
+ * Base position PVWS store
+ * @returns human readable current crystal according to granite base position
+ */
+export function BasePosition() {
+  const pvName = "QUA:A:PB01:CS2:m7";
+  const pvData = useSinglePvData(pvName);
+  function format(value: number | "NaN" | undefined): number {
+    if (value === undefined || value === "NaN") {
+      return 0;
+    }
+    return value;
+  }
+  if (format(pvData?.value) < 20) {
+    return "Si311";
+  } else if (format(pvData?.value) > 20) {
+    return "Si111";
+  } else {
+    return "Not defined";
+  }
 }
