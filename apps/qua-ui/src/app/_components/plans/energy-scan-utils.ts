@@ -2,6 +2,17 @@ import { z } from "zod";
 
 export const spaceEnum = z.enum(["energy-space", "k-space"]);
 
+export enum crystalEnum {
+  Si111 = "Si111",
+  Si311 = "Si311",
+}
+
+export const crystalOptions = Object.values(crystalEnum);
+
+export const d111 = 2 * 3.1356; // 2 times Si 111 d spacing
+export const d311 = 2 * 1.6375; // 2 times Si 311 d spacing
+const hc = 12398.41; // Planck's constant times speed of light
+
 export const baseRegionObjectSchema = z.object({
   space: spaceEnum,
   initial: z.coerce
@@ -24,6 +35,34 @@ export function EnergyToK(energy: number, edgeEnergy: number) {
     return 0;
   }
   return Math.round(Math.sqrt(value) * 10000) / 10000;
+}
+/**
+ * Convert energy in eV to theta in degrees for given d-spacing in Angstroms
+ * @param energy
+ * @param dSpacing
+ * @returns
+ */
+export function EnergyToTheta(energy: number, dSpacing: number) {
+  const ratio = hc / (dSpacing * energy);
+  if (ratio > 1) {
+    console.warn(
+      `Ratio (${ratio}) is greater than 1. Cannot compute arcsin for Theta calculation.`,
+    );
+    return 90;
+  }
+  const radians = Math.asin(ratio);
+  return (radians * 180) / Math.PI;
+}
+
+/**
+ * Convert theta in degrees to energy in eV for given d-spacing in Angstroms
+ * @param theta
+ * @param dSpacing
+ * @returns
+ */
+export function ThetaToEnergy(theta: number, dSpacing: number) {
+  const radians = (theta * Math.PI) / 180;
+  return hc / (dSpacing * Math.sin(radians));
 }
 
 /**
