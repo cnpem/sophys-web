@@ -28,7 +28,7 @@ import {
 } from "@sophys-web/ui/select";
 import { Textarea } from "@sophys-web/ui/textarea";
 import { ErrorMessageTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import type { AddRegionEnergyScanProps } from "./energy-scan-utils";
+import type { AddEnergyScanProps } from "./energy-scan-utils";
 import type { QueueItemProps } from "~/lib/types";
 import {
   baseRegionObjectSchema,
@@ -787,7 +787,7 @@ export function MainForm({
 // Add New Plan Dialog Component
 // ========================================================================
 
-export function AddTimedRegionEnergyScan(props: AddRegionEnergyScanProps) {
+export function AddTimedRegionEnergyScan(props: AddEnergyScanProps) {
   const { data } = api.auth.getUser.useQuery();
   return (
     <MainForm

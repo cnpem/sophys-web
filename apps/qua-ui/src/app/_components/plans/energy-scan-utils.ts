@@ -151,7 +151,7 @@ export function calculateMaxFrequency(
   return frequency;
 }
 
-export interface AddRegionEnergyScanProps {
+export interface AddEnergyScanProps {
   className: string;
   onSubmitSuccess?: () => void;
 }
