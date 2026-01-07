@@ -2,6 +2,7 @@ import { z } from "zod";
 import { useSinglePvData } from "@sophys-web/pvws-store";
 
 export const spaceEnum = z.enum(["energy-space", "k-space"]);
+export const MAX_ACCELERATION = 1000 as const;
 
 export enum crystalEnum {
   Si111 = "Si111",
@@ -142,7 +143,7 @@ export function calculateMaxFrequency(
   crystal: crystalEnum,
 ) {
   const dSpacing = crystal === crystalEnum.Si111 ? d111 : d311;
-  const maxAcceleration = 1000; // deg/s²
+  const maxAcceleration = MAX_ACCELERATION; // deg/s²
   const thetaInitial = EnergyToTheta(initialEnergy, dSpacing);
   const thetaFinal = EnergyToTheta(finalEnergy, dSpacing);
   const deltaTheta = Math.abs(thetaFinal - thetaInitial) / 2;
