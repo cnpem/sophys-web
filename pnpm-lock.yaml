@@ -112,6 +112,9 @@ importers:
       '@sophys-web/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@sophys-web/pvws-store':
+        specifier: workspace:*
+        version: link:../../packages/pvws-store
       '@sophys-web/ui':
         specifier: workspace:*
         version: link:../../packages/ui
