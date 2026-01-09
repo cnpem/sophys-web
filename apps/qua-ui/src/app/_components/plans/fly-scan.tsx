@@ -1,5 +1,3 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
@@ -11,6 +9,7 @@ import { Button } from "@sophys-web/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -229,220 +228,204 @@ export function MainForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn("space-y-8", className)}
+        className={cn("grid grid-cols-3 gap-4", className)}
         onKeyDown={(e) => {
           if (e.key === "Enter") e.preventDefault();
         }}
       >
-        <div className="flex flex-col space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="initialEnergy"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Initial Energy (eV)</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} />
-                  </FormControl>
-                  <ErrorMessageTooltip />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="finalEnergy"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Final Energy (eV)</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} />
-                  </FormControl>
-                  <ErrorMessageTooltip />
-                </FormItem>
-              )}
-            />
+        <FormField
+          control={form.control}
+          name="initialEnergy"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Initial Energy (eV)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="finalEnergy"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Final Energy (eV)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="duration"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Duration (s)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
 
-            <div className="flex w-full flex-col">
-              <FormField
-                control={form.control}
-                name="period"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="inline-flex w-full gap-1">
-                      <FormLabel>Period (s)</FormLabel>
-                      <InfoTooltip>
-                        The maximum acceleration is capped at {MAX_ACCELERATION}{" "}
-                        deg/s².
-                      </InfoTooltip>
-                    </div>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <ErrorMessageTooltip />
-                  </FormItem>
-                )}
-              />
-              <p className="text-secondary-foreground mt-1 text-sm italic">
-                Minimum period:{" "}
-                {(
-                  1 /
-                  calculateMaxFrequency(
-                    watchedInitialEnergy,
-                    watchedFinalEnergy,
-                    currentCrystal,
-                  )
-                ).toFixed(5)}{" "}
-                seconds
-              </p>
-            </div>
-            <div className="flex w-full flex-col">
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Duration (s)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <ErrorMessageTooltip />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex w-full flex-col">
-              <FormField
-                control={form.control}
-                name="crystal"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Crystal</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-auto">
-                          <SelectValue placeholder="Select crystal" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Available Crystals</SelectLabel>
-                            {crystalOptions.map((crystal) => (
-                              <SelectItem key={crystal} value={crystal}>
-                                {crystal}
-                              </SelectItem>
-                            ))}
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <ErrorMessageTooltip />
-                  </FormItem>
-                )}
-              />
-              <p className="text-secondary-foreground mt-1 text-sm italic">
-                Current crystal: <BasePosition />
-              </p>
-            </div>
-          </div>
-
-          <div className="max-h-72 w-full px-1">
-            <div
-              className="border-dashedp flex flex-col gap-2 rounded-md border p-4"
-              role="region-block"
-            >
-              <FormLabel className="col-span-5 text-center text-lg font-semibold">
-                Post-Processing parameters
+        <FormField
+          control={form.control}
+          name="period"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Period (s)
+                <InfoTooltip>
+                  The maximum acceleration is capped at {MAX_ACCELERATION}{" "}
+                  deg/s².
+                </InfoTooltip>
               </FormLabel>
-              <div className="flex-col-3 flex gap-4">
-                <FormField
-                  control={form.control}
-                  name="deltaEnergy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Energy step(eV)</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
-                      <ErrorMessageTooltip />
-                    </FormItem>
-                  )}
-                />
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormDescription className="text-secondary-foreground text-sm italic">
+                Minimum period:
+                <span className="ml-1">
+                  {(
+                    1 /
+                    calculateMaxFrequency(
+                      watchedInitialEnergy,
+                      watchedFinalEnergy,
+                      currentCrystal,
+                    )
+                  ).toFixed(5)}
+                  {"s"}
+                </span>
+              </FormDescription>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
 
-                <FormField
-                  control={form.control}
-                  name="filterOrder"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Filter Order</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
-                      <ErrorMessageTooltip />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="filterCutoff"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Filter Cutoff (kHz)</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
-                      <ErrorMessageTooltip />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex w-full flex-row items-stretch space-x-4">
-            <FormField
-              control={form.control}
-              name="proposal"
-              render={({ field }) => (
-                <FormItem className="w-28 flex-shrink-0">
-                  <FormLabel>Proposal ID</FormLabel>
-                  <FormControl>
-                    <Input type="text" {...field} />
-                  </FormControl>
-                  <ErrorMessageTooltip />
-                </FormItem>
-              )}
-            />
+        <FormField
+          control={form.control}
+          name="crystal"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Crystal</FormLabel>
+              <FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  value={field.value}
+                >
+                  <SelectTrigger className="w-auto">
+                    <SelectValue placeholder="Select crystal" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Available Crystals</SelectLabel>
+                      {crystalOptions.map((crystal) => (
+                        <SelectItem key={crystal} value={crystal}>
+                          {crystal}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </FormControl>
+              <FormDescription className="text-secondary-foreground text-sm italic">
+                Current crystal: <BasePosition />
+              </FormDescription>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
 
-            <FormField
-              control={form.control}
-              name="fileName"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel>File Name</FormLabel>
-                  <FormControl>
-                    <Input type="text" {...field} />
-                  </FormControl>
-                  <ErrorMessageTooltip />
-                </FormItem>
-              )}
-            />
-          </div>
-        </div>
+        <FormLabel className="text-md col-span-3 text-center font-semibold">
+          Post-Processing parameters
+        </FormLabel>
+        <FormField
+          control={form.control}
+          name="deltaEnergy"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Energy step(eV)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="filterOrder"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Filter Order</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="filterCutoff"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Filter Cutoff (kHz)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="proposal"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Proposal ID</FormLabel>
+              <FormControl>
+                <Input type="text" {...field} />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="fileName"
+          render={({ field }) => (
+            <FormItem className="col-span-2">
+              <FormLabel>File Name</FormLabel>
+              <FormControl>
+                <Input type="text" {...field} />
+              </FormControl>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="metadata"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="col-span-3">
               <FormLabel>Metadata</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
-                  className="h-32 font-mono"
-                  placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  rows={2}
+                  className="font-mono"
+                  placeholder={
+                    'Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  }
                 />
               </FormControl>
               <ErrorMessageTooltip />
@@ -451,23 +434,21 @@ export function MainForm({
         />
 
         <div
-          className="border-dashedp flex flex-col gap-2 rounded-md border p-4"
+          className="bg-muted text-secondary-foreground col-span-3 flex flex-col gap-1 rounded-md border border-dashed p-4 text-sm italic"
           role="region-block"
         >
-          <FormLabel className="col-span-5 text-lg font-semibold">
+          <FormLabel className="text-md font-semibold not-italic">
             Scan Summary
           </FormLabel>
 
-          <p className="text-secondary-foreground col-span-5 mt-1 text-sm italic">
+          <p>
             Estimated Total Time:{" "}
             {convertTotalTimeToReadable(watchedDuration * 1000)}
           </p>
 
-          <p className="text-secondary-foreground col-span-5 mt-1 text-sm italic">
-            Estimated Frequency: {(1 / watchedPeriod).toFixed(2)} Hz
-          </p>
+          <p>Estimated Frequency: {(1 / watchedPeriod).toFixed(2)} Hz</p>
 
-          <p className="text-secondary-foreground col-span-5 mt-1 text-sm italic">
+          <p>
             Estimated Maximum Acceleration:{" "}
             <span
               data-error={!enableScan}
@@ -485,7 +466,7 @@ export function MainForm({
         </div>
         <Button
           type="submit"
-          className="w-full"
+          className="col-span-3"
           disabled={form.formState.isSubmitting}
         >
           Submit
