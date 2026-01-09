@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
+import { AddFlyScan } from "../plans/fly-scan";
 import { AddRegionEnergyScan } from "../plans/region-energy-scan";
 import { AddTimedRegionEnergyScan } from "../plans/time-region-energy-scan";
 
@@ -29,6 +30,7 @@ export function ScanSelector() {
   const { data: userData } = api.auth.getUser.useQuery();
   const [openDialogRegion, setOpenDialogRegion] = useState(false);
   const [openDialogTimed, setOpenDialogTimed] = useState(false);
+  const [openDialogFly, setOpenDialogFly] = useState(false);
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -67,8 +69,13 @@ export function ScanSelector() {
             </Button>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Button variant="ghost" className="w-full justify-start" disabled>
-              <AudioWaveformIcon />
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              disabled={!userData?.proposal}
+              onClick={() => setOpenDialogFly(true)}
+            >
+              <AudioWaveformIcon className="mr-2 h-4 w-4" />
               Fly-scan
             </Button>
           </DropdownMenuItem>
@@ -104,6 +111,23 @@ export function ScanSelector() {
             onSubmitSuccess={() => {
               setMenuOpen(false);
               setOpenDialogTimed(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={openDialogFly} onOpenChange={setOpenDialogFly}>
+        <DialogContent className="w-fit max-w-full flex-col">
+          <DialogHeader>
+            <DialogTitle>Fly Energy Scan</DialogTitle>
+            <DialogDescription className="flex flex-col gap-2">
+              Please fill in the details below to submit the plan.
+            </DialogDescription>
+          </DialogHeader>
+          <AddFlyScan
+            className="w-2xl"
+            onSubmitSuccess={() => {
+              setMenuOpen(false);
+              setOpenDialogFly(false);
             }}
           />
         </DialogContent>
