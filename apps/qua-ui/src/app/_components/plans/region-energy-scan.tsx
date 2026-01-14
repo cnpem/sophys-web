@@ -94,6 +94,7 @@ export const baseFormSchema = z.object({
         "Edge (E0) energy in eV for converting energy space to k-space",
     })
     .gt(0, "Edge Energy must be a positive number"),
+  potentiostat: z.boolean(),
   acquireThermocouple: z.boolean(),
   upAndDown: z.boolean(),
   saveFlyData: z.boolean(),
@@ -184,6 +185,7 @@ const formDefaults = {
   settleTime: 20,
   acquisitionTime: 100,
   fluorescence: false,
+  potentiostat: false,
   acquireThermocouple: false,
   upAndDown: false,
   saveFlyData: false,
@@ -513,25 +515,7 @@ export function MainForm({
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Up and Down Scan?</FormLabel>
-                  </div>
-                  <ErrorMessageTooltip />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="saveFlyData"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Save Fly Data?</FormLabel>
+                    <FormLabel>Up and Down Scan</FormLabel>
                   </div>
                   <ErrorMessageTooltip />
                 </FormItem>
@@ -549,12 +533,31 @@ export function MainForm({
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Add Fluorescence?</FormLabel>
+                    <FormLabel>Fluorescence</FormLabel>
                   </div>
                   <ErrorMessageTooltip />
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="potentiostat"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Potentiostat</FormLabel>
+                  </div>
+                  <ErrorMessageTooltip />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="acquireThermocouple"
@@ -567,7 +570,7 @@ export function MainForm({
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Acquire Thermocouple?</FormLabel>
+                    <FormLabel>Thermocouple</FormLabel>
                   </div>
                   <ErrorMessageTooltip />
                 </FormItem>
@@ -837,6 +840,7 @@ const editKwargsSchema = z
     acquisitionTime: z.coerce.number(),
     fluorescence: z.boolean(),
     edgeEnergy: z.coerce.number(),
+    potentiostat: z.boolean(),
     acquireThermocouple: z.boolean(),
     upAndDown: z.boolean(),
     saveFlyData: z.boolean(),
