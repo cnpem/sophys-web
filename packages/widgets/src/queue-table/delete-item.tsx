@@ -1,0 +1,68 @@
+"use client";
+
+import { JsonEditor, monoLightTheme } from "json-edit-react";
+import { Trash2Icon } from "lucide-react";
+import { useQueue } from "@sophys-web/api-client/hooks";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@sophys-web/ui/alert-dialog";
+import { Button } from "@sophys-web/ui/button";
+import { Spinner } from "@sophys-web/ui/spinner";
+import type { QueueItemProps } from "./types";
+
+export function DeleteItem({ item }: { item: QueueItemProps }) {
+  const { markItemForDeletion, isItemBeingRemoved, remove } = useQueue();
+  const { mutate, isPending } = remove;
+
+  const handleRemove = () => {
+    // markItemForDeletion(item.itemUid);
+    mutate({ uid: item.itemUid });
+  };
+  // const isRemoving = isItemBeingRemoved(item.itemUid);
+  const isRemoving = isPending;
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="text-destructive size-4"
+          disabled={isRemoving}
+        >
+          {!isRemoving && <Trash2Icon />}
+          {isRemoving && <Spinner />}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure you want to delete?</AlertDialogTitle>
+          <AlertDialogDescription>Deleting {item.name}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <div>
+          <p>Parameters</p>
+          <JsonEditor
+            restrictAdd={true}
+            restrictDelete={true}
+            restrictEdit={true}
+            restrictDrag={true}
+            data={item.kwargs}
+            rootName={"$"}
+            theme={monoLightTheme}
+          />
+        </div>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleRemove}>Continue</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
