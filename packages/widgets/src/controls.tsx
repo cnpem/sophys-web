@@ -96,12 +96,18 @@ function combineEnvState(
   return managerState;
 }
 
-export function Controls({ className }: { className?: string }) {
+export function Controls({
+  className,
+  children,
+}: {
+  className?: string;
+  children?: React.ReactNode;
+}) {
   return (
     <TooltipProvider>
       <div
         className={cn(
-          "bg-accent animate-in slide-in-from-top fixed inset-x-0 top-2 z-40 mx-auto flex w-fit items-center justify-between rounded-full border px-4 py-2 opacity-95 backdrop-blur-lg duration-500",
+          "bg-accent animate-in slide-in-from-top fixed inset-x-0 top-2 z-40 mx-auto flex w-fit items-center justify-between gap-2 rounded-full border px-4 py-2 opacity-95 backdrop-blur-lg duration-500",
           className,
         )}
       >
@@ -111,6 +117,7 @@ export function Controls({ className }: { className?: string }) {
           <StopControls />
           <QueueControls />
         </ButtonGroup>
+        {children}
       </div>
     </TooltipProvider>
   );
@@ -122,7 +129,7 @@ const envDestroySchema = z.object({
   }),
 });
 
-function EnvironmentControls() {
+export function EnvironmentControls({ className }: { className?: string }) {
   const { envClose, envOpen, envUpdate, envDestroy } = useStatus();
   const { status } = useStatus();
   const combinedState = combineEnvState(
@@ -216,7 +223,8 @@ function EnvironmentControls() {
             <Button
               variant="outline"
               className={cn(
-                "h-8 w-72! rounded-full",
+                "h-8 min-w-36! rounded-full",
+                className,
                 basicUiStatus === "online" && "text-online hover:text-online",
                 basicUiStatus === "offline" &&
                   "text-offline hover:text-offline",
@@ -232,7 +240,7 @@ function EnvironmentControls() {
                 <ServerIcon className="size-4 animate-pulse" />
               )}
               {basicUiStatus === "online" && <ServerIcon className="size-4" />}
-              {combinedStateTxt}
+              {combinedStateTxt.replace("environment", "env")}
             </Button>
           </TooltipTrigger>
         </DropdownMenuTrigger>
@@ -336,7 +344,7 @@ function EnvironmentControls() {
   );
 }
 
-function QueueControls() {
+export function QueueControls() {
   const { start, stop } = useQueue();
   const { status } = useStatus();
   const reState = status.data?.reState ?? "unknown";
@@ -408,7 +416,7 @@ function QueueControls() {
   );
 }
 
-function PauseControls() {
+export function PauseControls() {
   const { status } = useStatus();
   const utils = api.useUtils();
   const reState = status.data?.reState ?? "unknown";
@@ -521,7 +529,7 @@ function PauseControls() {
   }
 }
 
-function StopControls() {
+export function StopControls() {
   const { status } = useStatus();
   const utils = api.useUtils();
   const reState = status.data?.reState ?? "unknown";
