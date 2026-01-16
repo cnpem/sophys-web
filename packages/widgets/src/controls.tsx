@@ -117,7 +117,7 @@ export function Controls({
           <StopControls />
           <QueueControls />
         </ButtonGroup>
-        {children}
+        {children && <ButtonGroup>{children}</ButtonGroup>}
       </div>
     </TooltipProvider>
   );
