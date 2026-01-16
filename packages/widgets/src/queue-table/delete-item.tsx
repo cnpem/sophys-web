@@ -1,8 +1,5 @@
-"use client";
-
 import { JsonEditor, monoLightTheme } from "json-edit-react";
 import { Trash2Icon } from "lucide-react";
-import { useQueue } from "@sophys-web/api-client/hooks";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,30 +30,28 @@ export function DeleteItem({
         <Button
           size="icon"
           variant="ghost"
-          className="text-destructive size-4"
+          className="text-destructive size-4 align-middle"
           disabled={isRemoving}
         >
           {!isRemoving && <Trash2Icon />}
           {isRemoving && <Spinner />}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="w-fit">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure you want to delete?</AlertDialogTitle>
           <AlertDialogDescription>Deleting {item.name}</AlertDialogDescription>
         </AlertDialogHeader>
-        <div>
-          <p>Parameters</p>
-          <JsonEditor
-            restrictAdd={true}
-            restrictDelete={true}
-            restrictEdit={true}
-            restrictDrag={true}
-            data={item.kwargs}
-            rootName={"$"}
-            theme={monoLightTheme}
-          />
-        </div>
+        <p>Parameters</p>
+        <JsonEditor
+          restrictAdd={true}
+          restrictDelete={true}
+          restrictEdit={true}
+          restrictDrag={true}
+          data={item.kwargs}
+          rootName={"$"}
+          theme={monoLightTheme}
+        />
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={handleRemove}>Continue</AlertDialogAction>

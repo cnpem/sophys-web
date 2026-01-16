@@ -35,7 +35,7 @@ export function DataTablePagination<TData>({
         onChange={(event) =>
           table.getColumn("name")?.setFilterValue(event.target.value)
         }
-        className="w-32"
+        className="w-44"
       />
       <DataTableViewOptions table={table} />
       <div className="text-muted-foreground flex-1 text-sm">

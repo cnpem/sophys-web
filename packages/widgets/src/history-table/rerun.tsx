@@ -4,7 +4,7 @@ import { RotateCcwIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { Button } from "@sophys-web/ui/button";
-import type { HistoryItemProps } from "~/lib/types";
+import type { HistoryItemProps } from "./types";
 
 export function RerunButton(props: HistoryItemProps) {
   const { add } = useQueue();
