@@ -5,7 +5,7 @@ import type {
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   flexRender,
   getCoreRowModel,
@@ -14,11 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { XIcon } from "lucide-react";
-import { toast } from "sonner";
 import { api } from "@sophys-web/api-client/react";
-import { Button } from "@sophys-web/ui/button";
-import { Input } from "@sophys-web/ui/input";
 import {
   Table,
   TableBody,
@@ -27,24 +23,11 @@ import {
   TableHeader,
   TableRow,
 } from "@sophys-web/ui/table";
-import { DataTableViewOptions } from "@sophys-web/widgets/data-table/column-toggle";
 import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
 import { columns } from "./columns";
 
 export function DataTable() {
   const { data, isPending } = api.history.get.useQuery();
-  const { mutate } = api.history.clear.useMutation();
-
-  const clearHistory = useCallback(() => {
-    mutate(undefined, {
-      onSuccess: () => {
-        toast.success("History cleared");
-      },
-      onError: () => {
-        toast.error("Failed to clear history");
-      },
-    });
-  }, [mutate]);
 
   const tableColumns = useMemo(
     () =>
