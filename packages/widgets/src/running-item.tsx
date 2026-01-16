@@ -5,7 +5,6 @@ import { formatDistanceToNowStrict, fromUnixTime } from "date-fns";
 import { JsonEditor, monoLightTheme } from "json-edit-react";
 import { EllipsisIcon } from "lucide-react";
 import { useQueue } from "@sophys-web/api-client/hooks";
-import { Button } from "@sophys-web/ui/button";
 import {
   HoverCard,
   HoverCardContent,
@@ -46,43 +45,6 @@ export function RunningItem() {
       </Item>
     );
 
-  // return (
-  //   <TooltipProvider>
-  //     <Tooltip>
-  //       <TooltipTrigger asChild>
-  //         <Item variant={"outline"} className="text-busy animate-pulse">
-  //           <ItemMedia>
-  //             <Spinner />
-  //           </ItemMedia>
-  //           <ItemTitle className="line-clamp-1">
-  //             {runningItem.name}
-  //             {" - "}
-  //             <span className="text-muted-foreground">{runningItem.user}</span>
-  //           </ItemTitle>
-  //           <ItemContent className="ml-auto flex-none text-center">
-  //             {elapsedStr}
-  //           </ItemContent>
-  //         </Item>
-  //       </TooltipTrigger>
-  //       <TooltipContent side={"bottom"} className="bg-black">
-  //         {runningItem.kwargs && (
-  //           <div>
-  //             <h3>Parameters</h3>
-  //             <JsonEditor
-  //               restrictAdd={true}
-  //               restrictDelete={true}
-  //               restrictEdit={true}
-  //               restrictDrag={true}
-  //               data={runningItem.kwargs}
-  //               rootName={"kwargs"}
-  //               theme={monoDarkTheme}
-  //             />
-  //           </div>
-  //         )}
-  //       </TooltipContent>
-  //     </Tooltip>
-  //   </TooltipProvider>
-  // );
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
