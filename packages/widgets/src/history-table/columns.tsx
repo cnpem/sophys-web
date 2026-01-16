@@ -17,9 +17,9 @@ const columnHelper = createColumnHelper<HistoryItemProps>();
 const defaultColumns = [
   columnHelper.accessor("name", {
     header: "Name",
-    cell: ({ getValue, row }) => {
+    cell: ({ getValue }) => {
       const name = getValue();
-      return <div>{name.replace(/_/g, " ")}</div>;
+      return <div className="min-w-40">{name.replace(/_/g, " ")}</div>;
     },
   }),
   columnHelper.accessor("user", {
