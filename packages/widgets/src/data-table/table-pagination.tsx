@@ -6,6 +6,7 @@ import {
   ChevronsRightIcon,
 } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
+import { Input } from "@sophys-web/ui/input";
 import {
   Select,
   SelectContent,
@@ -13,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
+import { DataTableViewOptions } from "./column-toggle";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -21,10 +23,23 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  const rows = table.getFilteredRowModel().rows.length;
   return (
-    <div className="mt-auto flex items-center justify-between px-2">
+    <div className="mt-auto flex items-center justify-between gap-2">
+      <Input
+        placeholder="Filter items..."
+        value={
+          (table.getColumn("name")?.getFilterValue() as string | undefined) ??
+          ""
+        }
+        onChange={(event) =>
+          table.getColumn("name")?.setFilterValue(event.target.value)
+        }
+        className="w-32"
+      />
+      <DataTableViewOptions table={table} />
       <div className="text-muted-foreground flex-1 text-sm">
-        {table.getFilteredRowModel().rows.length} row(s) total
+        {rows} {rows === 1 ? "row" : "rows"}
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
@@ -39,7 +54,7 @@ export function DataTablePagination<TData>({
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
+              {[3, 5, 10, 20, 30, 40, 50].map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
                 </SelectItem>
