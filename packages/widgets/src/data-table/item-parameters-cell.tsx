@@ -7,12 +7,18 @@ import {
 } from "@sophys-web/ui/hover-card";
 import type { QueueItemProps } from "../queue-table/types";
 
+/**
+ * Component to display item parameters in a cell with hover details
+ * @param kwargs - The parameters to display
+ * @param preview - Optional list of keys to include in the inline preview
+ * @param maxCharacters - Maximum characters for the inline preview (default: 40)
+ */
 export function ItemParametersCell({
   kwargs,
   preview,
-  maxColumCharacters = 30,
+  maxCharacters = 40,
 }: {
-  maxColumCharacters?: number;
+  maxCharacters?: number;
   kwargs: QueueItemProps["kwargs"];
   preview?: string | string[];
 }) {
@@ -20,22 +26,20 @@ export function ItemParametersCell({
     return <div>{"(No parameters)"}</div>;
 
   const inlineText = Object.entries(kwargs)
-    .filter(([key]) => {
+    .filter(([key, value]) => {
+      if (typeof value === "object") return false;
       if (preview) return preview.includes(key);
-      else {
-        const defaultPreviewKeys = Object.keys(kwargs).slice(0, 3);
-        return defaultPreviewKeys.includes(key);
-      }
+      return true;
     })
     .map(([key, value]) => `${key}:${value}`)
     .join(", ")
-    .substring(0, maxColumCharacters)
+    .substring(0, maxCharacters)
     .trim();
 
   return (
     <HoverCard>
       <HoverCardTrigger asChild>
-        <Button variant="link" className="p-0">
+        <Button variant="link" className="p-0 whitespace-pre-line">
           {inlineText}
           {"..."}
         </Button>
