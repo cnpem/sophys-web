@@ -5,8 +5,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useSortable } from "@dnd-kit/sortable";
 import { createColumnHelper } from "@tanstack/react-table";
 import { GripVerticalIcon } from "lucide-react";
-import { cn } from "@sophys-web/ui";
-import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
 import type { QueueItemProps } from "./types";
 import { ItemParametersCell } from "../data-table/item-parameters-cell";
@@ -24,7 +22,7 @@ function DragHandle({ id }: { id: UniqueIdentifier }) {
       data-dragging={isDragging}
       variant="ghost"
       size="icon"
-      className="cursor-grab data-[dragging=true]:cursor-grabbing"
+      className="w-fit cursor-grab data-[dragging=true]:cursor-grabbing"
     >
       <GripVerticalIcon className="text-muted-foreground size-4" />
       <span className="sr-only">Drag to reorder</span>
@@ -37,21 +35,19 @@ const columnHelper = createColumnHelper<QueueItemProps>();
 const defaultColumns = [
   columnHelper.display({
     id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.itemUid} />,
-  }),
-  columnHelper.display({
-    id: "position",
-    header: "Pos",
-    cell: ({ row }) => <div className="text-muted-foreground">{row.index}</div>,
+    header: () => "Pos",
+    cell: ({ row }) => (
+      <div className="text-muted-foreground flex w-fit flex-row items-center gap-2">
+        <DragHandle id={row.original.itemUid} />
+        <div className="text-muted-foreground text-center">{row.index}</div>
+      </div>
+    ),
   }),
   columnHelper.accessor("name", {
     header: "Name",
     cell: ({ getValue }) => {
       const name = getValue();
-      return (
-        <div style={{ overflow: "hidden" }}>{name.replace(/_/g, " ")}</div>
-      );
+      return <div className="min-w-40">{name.replace(/_/g, " ")}</div>;
     },
   }),
   columnHelper.accessor("user", {
@@ -64,55 +60,12 @@ const defaultColumns = [
       return <ItemParametersCell kwargs={params} />;
     },
   }),
-  columnHelper.accessor(
-    (row) => {
-      const result = row.result;
-      const id = row.itemUid;
-
-      if (id.includes("optimistic")) {
-        return "enqueing";
-      }
-      if (!result) {
-        return "enqueued";
-      }
-      if (result.traceback) {
-        return result.exitStatus ?? "failed";
-      }
-      return result.exitStatus ?? "finished";
-    },
-    {
-      id: "status",
-      header: "Status",
-      cell: ({ getValue }) => {
-        const status = getValue();
-        return (
-          <Badge
-            className={cn("border-none bg-slate-200 text-slate-800", {
-              "bg-red-200 text-red-800": status === "failed",
-              "bg-slate-200 text-slate-800": status === "enqueued",
-              "bg-blue-200 text-blue-800": status === "running",
-              "bg-green-200 text-green-800": status === "completed",
-              "bg-yellow-200 text-yellow-800":
-                status === "aborted" ||
-                status === "halted" ||
-                status === "stopped",
-            })}
-            variant="outline"
-          >
-            {status}
-          </Badge>
-        );
-      },
-    },
-  ),
   columnHelper.display({
-    id: "actions",
-    cell: ({ row }) => (
-      <>
-        <EditItemDialog item={row.original} />
-        <DeleteItem item={row.original} />
-      </>
-    ),
+    id: "edit",
+    cell: ({ row }) => <EditItemDialog item={row.original} />,
+  }),
+  columnHelper.display({
+    id: "delete",
   }),
 ];
 
