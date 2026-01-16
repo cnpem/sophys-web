@@ -5,7 +5,7 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { format, fromUnixTime } from "date-fns";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
-import { Button, buttonVariants } from "@sophys-web/ui/button";
+import { Button } from "@sophys-web/ui/button";
 import type { HistoryItemProps } from "./types";
 import { DataTableColumnHeader } from "../data-table/custom-header";
 import { ItemParametersCell } from "../data-table/item-parameters-cell";
