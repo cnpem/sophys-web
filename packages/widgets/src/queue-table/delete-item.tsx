@@ -18,16 +18,15 @@ import { Button } from "@sophys-web/ui/button";
 import { Spinner } from "@sophys-web/ui/spinner";
 import type { QueueItemProps } from "./types";
 
-export function DeleteItem({ item }: { item: QueueItemProps }) {
-  const { markItemForDeletion, isItemBeingRemoved, remove } = useQueue();
-  const { mutate, isPending } = remove;
-
-  const handleRemove = () => {
-    // markItemForDeletion(item.itemUid);
-    mutate({ uid: item.itemUid });
-  };
-  // const isRemoving = isItemBeingRemoved(item.itemUid);
-  const isRemoving = isPending;
+export function DeleteItem({
+  item,
+  handleRemove,
+  isRemoving,
+}: {
+  item: QueueItemProps;
+  handleRemove: () => void;
+  isRemoving: boolean;
+}) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>

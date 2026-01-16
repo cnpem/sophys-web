@@ -46,6 +46,7 @@ import {
 import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
 import type { QueueItemProps } from "./types";
 import { columns as defaultColumns } from "./columns";
+import { DeleteItem } from "./delete-item";
 
 function DraggableRow({
   row,
@@ -57,6 +58,7 @@ function DraggableRow({
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.itemUid,
   });
+  const { remove } = useQueue();
 
   return (
     <TableRow
@@ -66,6 +68,7 @@ function DraggableRow({
         "transform-gpu transition-all duration-300 ease-in-out",
         isDragging && "z-10 opacity-80",
         moving && "opacity-50",
+        remove.isPending && "opacity-50",
       )}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -78,6 +81,13 @@ function DraggableRow({
           className="transition-all duration-[300ms] ease-in-out"
         >
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          {cell.column.id === "delete" && (
+            <DeleteItem
+              item={row.original}
+              handleRemove={() => remove.mutate({ uid: row.original.itemUid })}
+              isRemoving={remove.isPending}
+            />
+          )}
         </TableCell>
       ))}
     </TableRow>
