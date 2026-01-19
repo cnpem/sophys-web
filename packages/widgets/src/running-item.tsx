@@ -29,6 +29,12 @@ export function RunningItem() {
   }, [runningItem]);
 
   useEffect(() => {
+    // Reset elapsed time when running item changes or on mount
+    tick();
+  }, [runningItem, tick]);
+
+  useEffect(() => {
+    // Update elapsed time every 5 seconds
     const timerID = setInterval(() => tick(), 5 * ONE_SECOND_IN_MS);
     return () => clearInterval(timerID);
   }, [tick]);
