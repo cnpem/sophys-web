@@ -6,7 +6,7 @@ import { format, fromUnixTime } from "date-fns";
 import { cn } from "@sophys-web/ui";
 import { Badge } from "@sophys-web/ui/badge";
 import { Button } from "@sophys-web/ui/button";
-import type { HistoryItemProps } from "./types";
+import type { HistoryItemProps } from "../lib/types";
 import { DataTableColumnHeader } from "../data-table/custom-header";
 import { ItemParametersCell } from "../data-table/item-parameters-cell";
 import { HistoryItemDialog } from "../history-item-utils";
@@ -48,7 +48,7 @@ const defaultColumns = [
         return (
           <HistoryItemDialog
             item={row.original}
-            className="ml-2"
+            className="ml-2 w-fit"
             customTrigger={
               <Badge
                 className={cn("h-fit border-none bg-slate-200 text-slate-800", {

@@ -16,7 +16,7 @@ import {
   DialogTrigger,
 } from "@sophys-web/ui/dialog";
 import type { AnySchema } from "../lib/create-schema";
-import type { QueueItemProps } from "./types";
+import type { QueueItemProps } from "../lib/types";
 import { AnyForm } from "../form";
 import { createSchema } from "../lib/create-schema";
 
