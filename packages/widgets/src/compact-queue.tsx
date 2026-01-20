@@ -14,6 +14,23 @@ import { DataTable as History } from "./history-table/data-table";
 import { DataTable as Queue } from "./queue-table/data-table";
 import { RunningItem } from "./running-item";
 
+/**
+ * Compact queue component displaying the current running item, queue, and history in tabs.
+ * @param runningItem - Optional custom component to display the currently running item.
+ * @param queueTable - Optional custom component to display the queue table.
+ * @param historyTable - Optional custom component to display the history table.
+ *
+ *  You can customize by copying the components from their source and passing them as props:
+ * - { DataTable } from "@sophys-web/widgets/src/queue-table/data-table.tsx";
+ * - { DataTable } from "@sophys-web/widgets/src/history-table/data-table.tsx";
+ * - { RunningItem } from "@sophys-web/widgets/src/running-item.tsx";
+ *
+ * @example
+ * <CompactQueue
+ *  runningItem={<CustomRunningItem />}
+ *  queueTable={<CustomQueueTable />}
+ * />
+ */
 export function CompactQueue({
   runningItem,
   queueTable,
