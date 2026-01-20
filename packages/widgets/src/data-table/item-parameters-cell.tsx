@@ -45,14 +45,13 @@ export function ItemParametersCell({
         </Button>
       </HoverCardTrigger>
       <HoverCardContent className="w-fit text-sm opacity-100">
-        <p>Parameters</p>
         <JsonEditor
           restrictAdd={true}
           restrictDelete={true}
           restrictEdit={true}
           restrictDrag={true}
           data={kwargs}
-          rootName={"kwargs"}
+          rootName={"parameters"}
           theme={monoLightTheme}
           rootFontSize={14}
         />

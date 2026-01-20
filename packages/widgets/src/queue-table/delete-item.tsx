@@ -42,14 +42,13 @@ export function DeleteItem({
           <AlertDialogTitle>Are you sure you want to delete?</AlertDialogTitle>
           <AlertDialogDescription>Deleting {item.name}</AlertDialogDescription>
         </AlertDialogHeader>
-        <p>Parameters</p>
         <JsonEditor
           restrictAdd={true}
           restrictDelete={true}
           restrictEdit={true}
           restrictDrag={true}
           data={item.kwargs}
-          rootName={"$"}
+          rootName={"parameters"}
           theme={monoLightTheme}
         />
         <AlertDialogFooter>
