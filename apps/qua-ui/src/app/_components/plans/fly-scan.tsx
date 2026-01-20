@@ -6,6 +6,7 @@ import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
+import { Checkbox } from "@sophys-web/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -51,11 +52,12 @@ export const baseFormSchema = z.object({
     .number({})
     .gt(4000, "Initial energy must be at leats 4000 eV"),
   finalEnergy: z.coerce.number({}),
-  period: z.coerce.number({}),
+  frequency: z.coerce.number({}),
   duration: z.coerce.number({}),
   fluorescence: z.boolean(),
   crystal: z.nativeEnum(crystalEnum),
   acquireThermocouple: z.boolean(),
+  potentiostat: z.boolean(),
   fileName: z.string().optional(),
   deltaEnergy: z.coerce.number({}),
   filterOrder: z.coerce.number({}),
@@ -73,13 +75,13 @@ const formSchema = baseFormSchema.superRefine((data, ctx) => {
     data.initialEnergy,
     data.finalEnergy,
     data.crystal,
-    data.period,
+    1 / data.frequency,
   );
   if (acceleration > MAX_ACCELERATION) {
     ctx.addIssue({
-      path: ["period"],
+      path: ["frequency"],
       code: z.ZodIssueCode.custom,
-      message: `Acceleration is above maximum limit (${MAX_ACCELERATION} deg/s²).  Current acceleration: ${acceleration.toFixed(2)} deg/s². Increase period or reduce delta energy!`,
+      message: `Acceleration is above maximum limit (${MAX_ACCELERATION} deg/s²).  Current acceleration: ${acceleration.toFixed(2)} deg/s². Reduce delta energy or frequency!`,
     });
   }
 });
@@ -90,11 +92,12 @@ const formSchema = baseFormSchema.superRefine((data, ctx) => {
 const formDefaults = {
   initialEnergy: 7000,
   finalEnergy: 8000,
-  period: 1,
+  frequency: 1,
   duration: 86400, // 24h in seconds
   fluorescence: false,
   crystal: "Si111",
   acquireThermocouple: false,
+  potentiostat: false,
   fileName: "",
   deltaEnergy: 0.2,
   filterOrder: 1,
@@ -147,7 +150,10 @@ export function MainForm({
 
   const { addBatch: submitPlan, update: editPlan } = useQueue();
 
-  const watchedPeriod = useWatch({ control: form.control, name: "period" });
+  const watchedFrequency = useWatch({
+    control: form.control,
+    name: "frequency",
+  });
   const watchedInitialEnergy = useWatch({
     control: form.control,
     name: "initialEnergy",
@@ -165,7 +171,7 @@ export function MainForm({
       watchedInitialEnergy,
       watchedFinalEnergy,
       currentCrystal,
-      watchedPeriod,
+      1 / watchedFrequency,
     ) < MAX_ACCELERATION;
 
   function onSubmit(formData: z.infer<typeof formSchema>) {
@@ -275,11 +281,11 @@ export function MainForm({
 
         <FormField
           control={form.control}
-          name="period"
+          name="frequency"
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                Period (s)
+                Frequency (Hz)
                 <InfoTooltip>
                   The maximum acceleration is capped at {MAX_ACCELERATION}{" "}
                   deg/s².
@@ -289,17 +295,14 @@ export function MainForm({
                 <Input type="number" {...field} />
               </FormControl>
               <FormDescription className="text-secondary-foreground text-sm italic">
-                Minimum period:
+                Maximum frequency:
                 <span className="ml-1">
-                  {(
-                    1 /
-                    calculateMaxFrequency(
-                      watchedInitialEnergy,
-                      watchedFinalEnergy,
-                      currentCrystal,
-                    )
-                  ).toFixed(5)}
-                  {"s"}
+                  {calculateMaxFrequency(
+                    watchedInitialEnergy,
+                    watchedFinalEnergy,
+                    currentCrystal,
+                  ).toFixed(2)}
+                  {"Hz"}
                 </span>
               </FormDescription>
               <ErrorMessageTooltip />
@@ -337,6 +340,46 @@ export function MainForm({
               <FormDescription className="text-secondary-foreground text-sm italic">
                 Current crystal: <BasePosition />
               </FormDescription>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+        <FormLabel className="text-md col-span-3 text-center font-semibold">
+          Sample environment
+        </FormLabel>
+        <FormField
+          control={form.control}
+          name="acquireThermocouple"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Thermocouple</FormLabel>
+              </div>
+              <ErrorMessageTooltip />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="potentiostat"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Potentiostat</FormLabel>
+              </div>
               <ErrorMessageTooltip />
             </FormItem>
           )}
@@ -446,7 +489,7 @@ export function MainForm({
             {convertTotalTimeToReadable(watchedDuration * 1000)}
           </p>
 
-          <p>Estimated Frequency: {(1 / watchedPeriod).toFixed(2)} Hz</p>
+          <p>Estimated Period: {(1 / watchedFrequency).toFixed(2)} s</p>
 
           <p>
             Estimated Maximum Acceleration:{" "}
@@ -458,7 +501,7 @@ export function MainForm({
                 watchedInitialEnergy,
                 watchedFinalEnergy,
                 currentCrystal,
-                watchedPeriod,
+                1 / watchedFrequency,
               ).toFixed(2)}{" "}
               deg / s²
             </span>
@@ -501,10 +544,11 @@ export function AddFlyScan(props: AddEnergyScanProps) {
 const editKwargsSchema = z.object({
   initialEnergy: z.coerce.number({}),
   finalEnergy: z.coerce.number({}),
-  period: z.coerce.number({}),
+  frequency: z.coerce.number({}),
   duration: z.coerce.number({}),
   fluorescence: z.boolean(),
   acquireThermocouple: z.boolean(),
+  potentiostat: z.boolean(),
   fileName: z.string().optional(),
   crystal: z.nativeEnum(crystalEnum),
   deltaEnergy: z.coerce.number({}),
