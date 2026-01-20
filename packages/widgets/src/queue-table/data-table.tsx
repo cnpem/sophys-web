@@ -44,7 +44,7 @@ import {
   TableRow,
 } from "@sophys-web/ui/table";
 import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
-import type { QueueItemProps } from "./types";
+import type { QueueItemProps } from "../lib/types";
 import { columns as defaultColumns } from "./columns";
 import { DeleteItem } from "./delete-item";
 

@@ -5,7 +5,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@sophys-web/ui/hover-card";
-import type { QueueItemProps } from "../queue-table/types";
+import type { QueueItemProps } from "../lib/types";
 
 /**
  * Component to display item parameters in a cell with hover details

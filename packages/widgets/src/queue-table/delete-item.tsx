@@ -13,7 +13,7 @@ import {
 } from "@sophys-web/ui/alert-dialog";
 import { Button } from "@sophys-web/ui/button";
 import { Spinner } from "@sophys-web/ui/spinner";
-import type { QueueItemProps } from "./types";
+import type { QueueItemProps } from "../lib/types";
 
 export function DeleteItem({
   item,

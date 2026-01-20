@@ -6,7 +6,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { createColumnHelper } from "@tanstack/react-table";
 import { GripVerticalIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
-import type { QueueItemProps } from "./types";
+import type { QueueItemProps } from "../lib/types";
 import { ItemParametersCell } from "../data-table/item-parameters-cell";
 import { EditItemDialog } from "./edit-item";
 
