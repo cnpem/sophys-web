@@ -21,21 +21,28 @@ export function RunningItem() {
   const runningItem = queue.data?.runningItem;
 
   const tick = useCallback(() => {
-    const timeStartMs = runningItem?.properties?.timeStart;
+    if (!runningItem) {
+      // Reset elapsed time if no running item
+      setElapsedStr("");
+      return;
+    }
+    const timeStartMs = runningItem.properties?.timeStart;
     if (!timeStartMs) {
+      // If no start time, reset elapsed time
+      setElapsedStr("");
       return;
     }
     setElapsedStr(formatDistanceToNowStrict(fromUnixTime(timeStartMs)));
   }, [runningItem]);
 
   useEffect(() => {
-    // Reset elapsed time when running item changes or on mount
+    // Initial tick on mount or when runningItem changes
     tick();
   }, [runningItem, tick]);
 
   useEffect(() => {
-    // Update elapsed time every 5 seconds
-    const timerID = setInterval(() => tick(), 5 * ONE_SECOND_IN_MS);
+    // Set up interval to update elapsed time every second
+    const timerID = setInterval(() => tick(), ONE_SECOND_IN_MS);
     return () => clearInterval(timerID);
   }, [tick]);
 
