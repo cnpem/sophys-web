@@ -44,7 +44,7 @@ export function EnergyToK(energy: number, edgeEnergy: number) {
  * @param dSpacing
  * @returns
  */
-export function EnergyToTheta(energy: number, dSpacing: number) {
+export function energyToTheta(energy: number, dSpacing: number) {
   const ratio = hc / (dSpacing * energy);
   if (ratio > 1) {
     console.warn(
@@ -62,7 +62,7 @@ export function EnergyToTheta(energy: number, dSpacing: number) {
  * @param dSpacing
  * @returns
  */
-export function ThetaToEnergy(theta: number, dSpacing: number) {
+export function thetaToEnergy(theta: number, dSpacing: number) {
   const radians = (theta * Math.PI) / 180;
   return hc / (dSpacing * Math.sin(radians));
 }
@@ -119,8 +119,8 @@ export function calculateAcceleration(
   period: number,
 ) {
   const dSpacing = crystal === crystalEnum.Si111 ? d111 : d311;
-  const thetaInitial = EnergyToTheta(initialEnergy, dSpacing);
-  const thetaFinal = EnergyToTheta(finalEnergy, dSpacing);
+  const thetaInitial = energyToTheta(initialEnergy, dSpacing);
+  const thetaFinal = energyToTheta(finalEnergy, dSpacing);
   const angularFrequency = (2 * Math.PI) / period;
   const acceleration =
     Math.abs((thetaFinal - thetaInitial) / 2) * Math.pow(angularFrequency, 2);
@@ -144,8 +144,8 @@ export function calculateMaxFrequency(
 ) {
   const dSpacing = crystal === crystalEnum.Si111 ? d111 : d311;
   const maxAcceleration = MAX_ACCELERATION; // deg/s²
-  const thetaInitial = EnergyToTheta(initialEnergy, dSpacing);
-  const thetaFinal = EnergyToTheta(finalEnergy, dSpacing);
+  const thetaInitial = energyToTheta(initialEnergy, dSpacing);
+  const thetaFinal = energyToTheta(finalEnergy, dSpacing);
   const deltaTheta = Math.abs(thetaFinal - thetaInitial) / 2;
   const angularFrequency = Math.sqrt(maxAcceleration / deltaTheta);
   const frequency = angularFrequency / (2 * Math.PI);
