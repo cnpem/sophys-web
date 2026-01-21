@@ -16,7 +16,7 @@ export const CRYSTAL_OPTIONS = ["Si111", "Si311"] as const;
 export type CrystalOption = (typeof CRYSTAL_OPTIONS)[number];
 
 /**
- * 2 times the d-spacing for each crystal in Angtrom
+ * 2 times the d-spacing for each crystal in Angstrom
  *
  */
 const CRYSTAL_SPACINGS: Record<CrystalOption, number> = {
