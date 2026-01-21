@@ -24,6 +24,7 @@ import {
 import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
+import { EditFlyScanForm, PLAN_NAME_FLY } from "../plans/fly-scan";
 import {
   EditRegionEnergyScanForm,
   PLAN_NAME,
@@ -52,6 +53,16 @@ function EditItemForm({
   item: QueueItemProps;
   onSubmitSuccess: () => void;
 }) {
+  if (item.name === PLAN_NAME_FLY)
+    return (
+      <EditFlyScanForm
+        itemUid={item.itemUid}
+        kwargs={item.kwargs}
+        proposal={proposal}
+        onSubmitSuccess={onSubmitSuccess}
+        className="w-2xl"
+      />
+    );
   if (item.name === PLAN_NAME_TIMED)
     return (
       <EditTimedRegionEnergyScanForm

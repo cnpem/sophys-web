@@ -1,6 +1,37 @@
 import { z } from "zod";
+import { useSinglePvData } from "@sophys-web/pvws-store";
 
 export const spaceEnum = z.enum(["energy-space", "k-space"]);
+
+/**
+ * Maximum degrees acceleration of fly-scanning with HD-DCM-L with two goniomemters
+ */
+export const MAX_ACCELERATION = 1000 as const;
+
+/**
+ * Crystal options of HD-DCM-L for Quati BL
+ */
+export const CRYSTAL_OPTIONS = ["Si111", "Si311"] as const;
+
+export type CrystalOption = (typeof CRYSTAL_OPTIONS)[number];
+
+/**
+ * 2 times the d-spacing for each crystal in Angstrom
+ *
+ */
+const CRYSTAL_SPACINGS: Record<CrystalOption, number> = {
+  Si111: 2 * 3.1356,
+  Si311: 2 * 1.6375,
+} as const;
+
+/**
+ * Planck's constant times speed of light
+ */
+const HC_eVA = 12398.41 as const;
+
+export function getCrystalSpacing(crystal: CrystalOption): number {
+  return CRYSTAL_SPACINGS[crystal];
+}
 
 export const baseRegionObjectSchema = z.object({
   space: spaceEnum,
@@ -15,7 +46,7 @@ export const baseRegionObjectSchema = z.object({
     .gt(0, { message: "Step value must be greater than 0" }),
 });
 
-export function EnergyToK(energy: number, edgeEnergy: number) {
+export function energyToK(energy: number, edgeEnergy: number) {
   const value = (energy - edgeEnergy) / 3.81;
   if (value < 0) {
     console.warn(
@@ -25,10 +56,38 @@ export function EnergyToK(energy: number, edgeEnergy: number) {
   }
   return Math.round(Math.sqrt(value) * 10000) / 10000;
 }
+/**
+ * Convert energy in eV to theta in degrees for given d-spacing in Angstroms
+ * @param energy
+ * @param dSpacing
+ * @returns
+ */
+export function energyToTheta(energy: number, dSpacing: number) {
+  const ratio = HC_eVA / (dSpacing * energy);
+  if (ratio > 1) {
+    console.warn(
+      `Ratio (${ratio}) is greater than 1. Cannot compute arcsin for Theta calculation.`,
+    );
+    return 90;
+  }
+  const radians = Math.asin(ratio);
+  return (radians * 180) / Math.PI;
+}
+
+/**
+ * Convert theta in degrees to energy in eV for given d-spacing in Angstroms
+ * @param theta
+ * @param dSpacing
+ * @returns
+ */
+export function thetaToEnergy(theta: number, dSpacing: number) {
+  const radians = (theta * Math.PI) / 180;
+  return HC_eVA / (dSpacing * Math.sin(radians));
+}
 
 /**
  * Calculate number of points in a region as int((final - initial) / step)
- * returns 0 for invalid regions (no step, step <= 0, final - initial <= 0)
+ * returns 0 for invalid regions (no stCrystalOptionep, step <= 0, final - initial <= 0)
  * @param region
  * @returns number of points
  */
@@ -47,6 +106,7 @@ export function convertTotalTimeToReadable(totalMs: number | undefined) {
   const oneSecondMs = 1000;
   const oneMinuteMs = 60000;
   const oneHourMs = 3600000;
+  const oneDayMs = 24 * oneHourMs;
   if (!totalMs || totalMs === 0) {
     return "Unable to estimate";
   } else if (totalMs < oneSecondMs) {
@@ -55,12 +115,84 @@ export function convertTotalTimeToReadable(totalMs: number | undefined) {
     return `${(totalMs / oneSecondMs).toFixed(1)} seconds`;
   } else if (totalMs < oneHourMs) {
     return `${(totalMs / oneMinuteMs).toFixed(1)} minutes`;
-  } else {
+  } else if (totalMs < oneDayMs) {
     return `${(totalMs / oneHourMs).toFixed(1)} hours`;
+  } else {
+    return `${(totalMs / oneDayMs).toFixed(1)} days`;
   }
 }
+/**
+ * Acceleration calculation based on a sinusoidal amplitude.
+ * Formula: a = |(θ_final - θ_initial) / 2 * (2π / T)^2|
+ * @param initialEnergy initial energy in eV
+ * @param finalEnergy final energy in eV
+ * @param crystal selected crystal for amplitude calculation
+ * @param period period of oscilation
+ * @returns computed acceleration
+ */
+export function calculateAcceleration(
+  initialEnergy: number,
+  finalEnergy: number,
+  crystal: CrystalOption,
+  period: number,
+) {
+  const dSpacing = getCrystalSpacing(crystal);
+  const thetaInitial = energyToTheta(initialEnergy, dSpacing);
+  const thetaFinal = energyToTheta(finalEnergy, dSpacing);
+  const angularFrequency = (2 * Math.PI) / period;
+  const acceleration =
+    Math.abs((thetaFinal - thetaInitial) / 2) * Math.pow(angularFrequency, 2);
+  return acceleration;
+}
 
-export interface AddRegionEnergyScanProps {
+/**
+ * Function to calculate the maximum frequency of HD-DCM-L,
+ * for mechanical reasons, the (embbeded) acceleration is
+ * capped in 1000 deg/s². This function calculates the approximate
+ * theta amplitude based on the d-spacing of selected crystal.
+ * @param initialEnergy Initial energy in eV
+ * @param finalEnergy  Final energy in eV
+ * @param crystal Selected crystal for frequency amplitude calculation
+ * @returns maximum frequency in Hz for HD-DCM-L models
+ */
+export function calculateMaxFrequency(
+  initialEnergy: number,
+  finalEnergy: number,
+  crystal: CrystalOption,
+) {
+  const dSpacing = getCrystalSpacing(crystal);
+  const maxAcceleration = MAX_ACCELERATION; // deg/s²
+  const thetaInitial = energyToTheta(initialEnergy, dSpacing);
+  const thetaFinal = energyToTheta(finalEnergy, dSpacing);
+  const deltaTheta = Math.abs(thetaFinal - thetaInitial) / 2;
+  const angularFrequency = Math.sqrt(maxAcceleration / deltaTheta);
+  const frequency = angularFrequency / (2 * Math.PI);
+  return frequency;
+}
+
+export interface AddEnergyScanProps {
   className: string;
   onSubmitSuccess?: () => void;
+}
+
+/**
+ * Base position PVWS store
+ * @returns human readable current crystal according to granite base position
+ */
+export function BasePosition() {
+  const pvName = "QUA:A:PB01:CS2:m7";
+  const pvData = useSinglePvData(pvName);
+  function format(value: number | "NaN" | undefined): number {
+    if (value === undefined || value === "NaN") {
+      return 0;
+    }
+    return value;
+  }
+  if (format(pvData?.value) < 20) {
+    return "Si311";
+  } else if (format(pvData?.value) > 20) {
+    return "Si111";
+  } else {
+    return "Not defined";
+  }
 }
