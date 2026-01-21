@@ -2,8 +2,15 @@ import { z } from "zod";
 import { useSinglePvData } from "@sophys-web/pvws-store";
 
 export const spaceEnum = z.enum(["energy-space", "k-space"]);
+
+/**
+ * Maximum degrees acceleration of fly-scanning with HD-DCM-L with two goniomemters
+ */
 export const MAX_ACCELERATION = 1000 as const;
 
+/**
+ * Crystal options of HD-DCM-L for Quati BL
+ */
 export const CRYSTAL_OPTIONS = ["Si111", "Si311"] as const;
 
 export type CrystalOption = (typeof CRYSTAL_OPTIONS)[number];
@@ -80,7 +87,7 @@ export function thetaToEnergy(theta: number, dSpacing: number) {
 
 /**
  * Calculate number of points in a region as int((final - initial) / step)
- * returns 0 for invalid regions (no step, step <= 0, final - initial <= 0)
+ * returns 0 for invalid regions (no stCrystalOptionep, step <= 0, final - initial <= 0)
  * @param region
  * @returns number of points
  */
