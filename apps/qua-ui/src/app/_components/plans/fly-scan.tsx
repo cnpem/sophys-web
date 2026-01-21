@@ -37,8 +37,7 @@ import {
   calculateAcceleration,
   calculateMaxFrequency,
   convertTotalTimeToReadable,
-  crystalEnum,
-  crystalOptions,
+  CRYSTAL_OPTIONS,
   MAX_ACCELERATION,
 } from "./energy-scan-utils";
 
@@ -55,7 +54,7 @@ export const baseFormSchema = z.object({
   frequency: z.coerce.number({}),
   duration: z.coerce.number({}),
   fluorescence: z.boolean(),
-  crystal: z.nativeEnum(crystalEnum),
+  crystal: z.enum(CRYSTAL_OPTIONS),
   acquireThermocouple: z.boolean(),
   potentiostat: z.boolean(),
   fileName: z.string().optional(),
@@ -164,7 +163,7 @@ export function MainForm({
   });
   const watchedDuration = useWatch({ control: form.control, name: "duration" });
   const watchedCrystal = useWatch({ control: form.control, name: "crystal" });
-  const currentCrystal = watchedCrystal as crystalEnum;
+  const currentCrystal = watchedCrystal;
 
   const enableScan =
     calculateAcceleration(
@@ -328,7 +327,7 @@ export function MainForm({
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Available Crystals</SelectLabel>
-                      {crystalOptions.map((crystal) => (
+                      {CRYSTAL_OPTIONS.map((crystal) => (
                         <SelectItem key={crystal} value={crystal}>
                           {crystal}
                         </SelectItem>
@@ -550,7 +549,7 @@ const editKwargsSchema = z.object({
   acquireThermocouple: z.boolean(),
   potentiostat: z.boolean(),
   fileName: z.string().optional(),
-  crystal: z.nativeEnum(crystalEnum),
+  crystal: z.enum(CRYSTAL_OPTIONS),
   deltaEnergy: z.coerce.number({}),
   filterOrder: z.coerce.number({}),
   filterCutoff: z.coerce.number({}),

@@ -34,7 +34,7 @@ import {
   baseRegionObjectSchema,
   calculatePointsInRegion,
   convertTotalTimeToReadable,
-  EnergyToK,
+  energyToK,
   spaceEnum,
 } from "./energy-scan-utils";
 
@@ -165,12 +165,12 @@ export const formSchema = baseFormSchema.superRefine((data, ctx) => {
       prevRegion &&
       currentRegion.space === "k-space" &&
       prevRegion.space === "energy-space" &&
-      currentRegion.initial < EnergyToK(prevRegion.final, data.edgeEnergy)
+      currentRegion.initial < energyToK(prevRegion.final, data.edgeEnergy)
     ) {
       ctx.addIssue({
         path: ["regions", index, "initial"],
         code: z.ZodIssueCode.custom,
-        message: `Region initial value (${currentRegion.initial} A) must be greater than or equal to previous region final value (${EnergyToK(prevRegion.final, data.edgeEnergy)} A).`,
+        message: `Region initial value (${currentRegion.initial} A) must be greater than or equal to previous region final value (${energyToK(prevRegion.final, data.edgeEnergy)} A).`,
       });
     }
   });
@@ -433,10 +433,10 @@ export function MainForm({
     update(index, {
       space: "k-space",
       initial: currentRegion.initial
-        ? EnergyToK(currentRegion.initial, safeEdgeEnergy.data.edgeEnergy)
+        ? energyToK(currentRegion.initial, safeEdgeEnergy.data.edgeEnergy)
         : 0,
       final: currentRegion.final
-        ? EnergyToK(currentRegion.final, safeEdgeEnergy.data.edgeEnergy)
+        ? energyToK(currentRegion.final, safeEdgeEnergy.data.edgeEnergy)
         : 0,
       step: 0,
     });

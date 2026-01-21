@@ -4,16 +4,27 @@ import { useSinglePvData } from "@sophys-web/pvws-store";
 export const spaceEnum = z.enum(["energy-space", "k-space"]);
 export const MAX_ACCELERATION = 1000 as const;
 
-export enum crystalEnum {
-  Si111 = "Si111",
-  Si311 = "Si311",
+export const CRYSTAL_OPTIONS = ["Si111", "Si311"] as const;
+
+export type CrystalOption = (typeof CRYSTAL_OPTIONS)[number];
+
+/**
+ * 2 times the d-spacing for each crystal in Angtrom
+ *
+ */
+const CRYSTAL_SPACINGS: Record<CrystalOption, number> = {
+  Si111: 2 * 3.1356,
+  Si311: 2 * 1.6375,
+} as const;
+
+/**
+ * Planck's constant times speed of light
+ */
+const HC_eVA = 12398.41 as const;
+
+export function getCrystalSpacing(crystal: CrystalOption): number {
+  return CRYSTAL_SPACINGS[crystal];
 }
-
-export const crystalOptions = Object.values(crystalEnum);
-
-export const d111 = 2 * 3.1356; // 2 times Si 111 d spacing
-export const d311 = 2 * 1.6375; // 2 times Si 311 d spacing
-const hc = 12398.41; // Planck's constant times speed of light
 
 export const baseRegionObjectSchema = z.object({
   space: spaceEnum,
@@ -28,7 +39,7 @@ export const baseRegionObjectSchema = z.object({
     .gt(0, { message: "Step value must be greater than 0" }),
 });
 
-export function EnergyToK(energy: number, edgeEnergy: number) {
+export function energyToK(energy: number, edgeEnergy: number) {
   const value = (energy - edgeEnergy) / 3.81;
   if (value < 0) {
     console.warn(
@@ -45,7 +56,7 @@ export function EnergyToK(energy: number, edgeEnergy: number) {
  * @returns
  */
 export function energyToTheta(energy: number, dSpacing: number) {
-  const ratio = hc / (dSpacing * energy);
+  const ratio = HC_eVA / (dSpacing * energy);
   if (ratio > 1) {
     console.warn(
       `Ratio (${ratio}) is greater than 1. Cannot compute arcsin for Theta calculation.`,
@@ -64,7 +75,7 @@ export function energyToTheta(energy: number, dSpacing: number) {
  */
 export function thetaToEnergy(theta: number, dSpacing: number) {
   const radians = (theta * Math.PI) / 180;
-  return hc / (dSpacing * Math.sin(radians));
+  return HC_eVA / (dSpacing * Math.sin(radians));
 }
 
 /**
@@ -115,10 +126,10 @@ export function convertTotalTimeToReadable(totalMs: number | undefined) {
 export function calculateAcceleration(
   initialEnergy: number,
   finalEnergy: number,
-  crystal: crystalEnum,
+  crystal: CrystalOption,
   period: number,
 ) {
-  const dSpacing = crystal === crystalEnum.Si111 ? d111 : d311;
+  const dSpacing = getCrystalSpacing(crystal);
   const thetaInitial = energyToTheta(initialEnergy, dSpacing);
   const thetaFinal = energyToTheta(finalEnergy, dSpacing);
   const angularFrequency = (2 * Math.PI) / period;
@@ -140,9 +151,9 @@ export function calculateAcceleration(
 export function calculateMaxFrequency(
   initialEnergy: number,
   finalEnergy: number,
-  crystal: crystalEnum,
+  crystal: CrystalOption,
 ) {
-  const dSpacing = crystal === crystalEnum.Si111 ? d111 : d311;
+  const dSpacing = getCrystalSpacing(crystal);
   const maxAcceleration = MAX_ACCELERATION; // deg/s²
   const thetaInitial = energyToTheta(initialEnergy, dSpacing);
   const thetaFinal = energyToTheta(finalEnergy, dSpacing);
