@@ -15,7 +15,7 @@ export function CapillaryStateMonitor() {
   const { capillaryState, loadedSample } = useCapillaryState();
 
   return (
-    <Item>
+    <Item variant={"outline"}>
       <ItemMedia>
         <CylinderIcon className="size-8 text-blue-500" />
       </ItemMedia>

@@ -33,9 +33,9 @@ export function OnDemandSelector() {
     <>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm">
+          <Button variant="outline" size="sm" className="rounded-full">
             <PlusIcon />
-            Add
+            Add Plan
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">

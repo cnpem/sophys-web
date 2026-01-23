@@ -23,7 +23,7 @@ export function SampleTemperatureMonitor() {
   }
 
   return (
-    <Item>
+    <Item variant={"outline"}>
       <ItemMedia>
         <MemoThermometerIcon className="size-8 text-red-500" />
       </ItemMedia>
