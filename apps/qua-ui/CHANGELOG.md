@@ -1,5 +1,22 @@
 # @sophys-web/qua-ui
 
+## 0.3.0
+
+### Minor Changes
+
+- 6b9647e: Add potentiostat support for energy scan plans and create a uniform form
+- 2002e24: Add fly-scanning plan with PVWS store and acceleration calculations
+
+### Patch Changes
+
+- Updated dependencies [b1f6dbc]
+- Updated dependencies [b1f6dbc]
+- Updated dependencies [b1f6dbc]
+  - @sophys-web/widgets@0.3.0
+  - @sophys-web/ui@0.2.0
+  - @sophys-web/api@0.1.2
+  - @sophys-web/api-client@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
