@@ -8,6 +8,7 @@ import { GripVerticalIcon } from "lucide-react";
 import { Button } from "@sophys-web/ui/button";
 import type { QueueItemProps } from "../lib/types";
 import { ItemParametersCell } from "../data-table/item-parameters-cell";
+import { CopyButton } from "./copy-item";
 import { EditItemDialog } from "./edit-item";
 
 function DragHandle({ id }: { id: UniqueIdentifier }) {
@@ -62,6 +63,10 @@ const defaultColumns = [
   columnHelper.display({
     id: "edit",
     cell: ({ row }) => <EditItemDialog item={row.original} />,
+  }),
+  columnHelper.display({
+    id: "copy",
+    cell: ({ row }) => <CopyButton {...row.original} />,
   }),
   columnHelper.display({
     id: "delete",
