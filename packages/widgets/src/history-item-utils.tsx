@@ -186,16 +186,13 @@ export function HistoryItemContent({
           {item.user}
         </li>
         <li>
-          <span className="text-muted-foreground font-semibold">
-            Parameters:
-          </span>
           <JsonEditor
             restrictAdd={true}
             restrictDelete={true}
             restrictEdit={true}
             restrictDrag={true}
             data={item.kwargs}
-            rootName={"kwargs"}
+            rootName={"parameters"}
             theme={monoLightTheme}
             className={cn("!ml-0 !text-sm", className)}
           />

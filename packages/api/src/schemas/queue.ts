@@ -20,7 +20,11 @@ const runningItemObjectSchema = z.object({
     })
     .optional()
     .nullable(),
-  properties: z.object({}).passthrough().optional(),
+  properties: z
+    .object({
+      timeStart: z.number().optional(),
+    })
+    .optional(),
 });
 
 const getResponseSchema = z.object({
