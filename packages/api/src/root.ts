@@ -5,6 +5,7 @@ import { environmentRouter } from "./router/environment";
 import { historyRouter } from "./router/history";
 import { plansRouter } from "./router/plans";
 import { postRouter } from "./router/post";
+import { prefectRouter } from "./router/prefect";
 import { queueRouter } from "./router/queue";
 import { runEngineRouter } from "./router/run-engine";
 import { statusRouter } from "./router/status";
@@ -21,6 +22,7 @@ export const appRouter = createTRPCRouter({
   history: historyRouter,
   runEngine: runEngineRouter,
   auth: authRouter,
+  prefect: prefectRouter,
 });
 
 // export type definition of API

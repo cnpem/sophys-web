@@ -8,9 +8,11 @@ import {
   CardTitle,
 } from "@sophys-web/ui/card";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
+import { CompactQueue } from "@sophys-web/widgets/compact-queue";
 import { Console } from "@sophys-web/widgets/console";
 import { Controls } from "@sophys-web/widgets/controls";
 import { DataTable as History } from "../history/data-table";
+import { PrefectRunsTable } from "../prefect/artifacts";
 import { DataTable as Queue } from "../queue/data-table";
 import { RunningItem } from "./running-item";
 
@@ -23,11 +25,24 @@ export function Dashboard() {
           <div className="flex flex-col gap-4">
             <Card id="queue">
               <CardHeader>
-                <CardTitle>Queue</CardTitle>
+                <CardTitle>Experimental Procedures</CardTitle>
                 <CardDescription>Current tasks in the queue</CardDescription>
               </CardHeader>
               <CardContent>
-                <Queue />
+                <CompactQueue />
+              </CardContent>
+              <CardContent>
+                <Console />
+              </CardContent>
+            </Card>
+
+            <Card id="prefect">
+              <CardHeader>
+                <CardTitle>Post-processing results</CardTitle>
+                <CardDescription>Current preefect flows</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PrefectRunsTable />
               </CardContent>
             </Card>
             <Card id="history">
@@ -37,16 +52,13 @@ export function Dashboard() {
                   Concluded tasks and their results
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <History />
-              </CardContent>
+              <CardContent></CardContent>
             </Card>
           </div>
         </ScrollArea>
         <ScrollArea className="flex flex-col lg:h-svh lg:w-1/3">
           <div className="flex w-full flex-col gap-4">
             <RunningItem />
-            <Console />
           </div>
         </ScrollArea>
       </div>
