@@ -1,5 +1,19 @@
 # @sophys-web/widgets
 
+## 0.3.0
+
+### Minor Changes
+
+- b1f6dbc: Creating a compact queue widget for interacting with queue and history with more features and state feedback for manipulate and visualize items.
+
+### Patch Changes
+
+- Updated dependencies [b1f6dbc]
+- Updated dependencies [b1f6dbc]
+  - @sophys-web/ui@0.2.0
+  - @sophys-web/api@0.1.2
+  - @sophys-web/api-client@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

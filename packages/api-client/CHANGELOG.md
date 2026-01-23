@@ -1,5 +1,12 @@
 # @sophys-web/api-client
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [b1f6dbc]
+  - @sophys-web/api@0.1.2
+
 ## 0.2.0
 
 ### Minor Changes
