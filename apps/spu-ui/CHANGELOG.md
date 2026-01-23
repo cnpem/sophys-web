@@ -1,5 +1,18 @@
 # @sophys-web/spu-ui
 
+## 0.2.1
+
+### Patch Changes
+
+- b6ba075: Fix default values in CompleteAcquisitionForm so there is no defaults for sample selection.
+- Updated dependencies [b1f6dbc]
+- Updated dependencies [b1f6dbc]
+- Updated dependencies [b1f6dbc]
+  - @sophys-web/widgets@0.3.0
+  - @sophys-web/ui@0.2.0
+  - @sophys-web/api@0.1.2
+  - @sophys-web/api-client@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes

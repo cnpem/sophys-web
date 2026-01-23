@@ -1,5 +1,11 @@
 # @sophys-web/ui
 
+## 0.2.0
+
+### Minor Changes
+
+- b1f6dbc: Added hover-card component from shadcn-ui. Created window-card component. Enabled text-wrap in TableCell component.
+
 ## 0.1.1
 
 ### Patch Changes

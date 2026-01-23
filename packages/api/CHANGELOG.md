@@ -1,5 +1,11 @@
 # @sophys-web/api
 
+## 0.1.2
+
+### Patch Changes
+
+- b1f6dbc: Added timeStart optional property in runningItem properties schema.
+
 ## 0.1.1
 
 ### Patch Changes
