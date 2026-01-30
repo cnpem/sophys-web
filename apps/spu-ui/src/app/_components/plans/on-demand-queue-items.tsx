@@ -20,7 +20,6 @@ import {
 import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 import { CompleteAcquisition } from "./complete-acquisition";
-// import { CleaningDialog } from "./cleaning";
 import { QueueStop } from "./queue-stop";
 import { SingleAcquisition } from "./single-acquisition";
 import { StandardCleaningDialog } from "./standard-cleaning";
@@ -33,7 +32,11 @@ export function OnDemandSelector() {
     <>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="rounded-full">
+          <Button
+            variant="outline"
+            size="sm"
+            className="cursor-context-menu rounded-full"
+          >
             <PlusIcon />
             Add Plan
           </Button>
