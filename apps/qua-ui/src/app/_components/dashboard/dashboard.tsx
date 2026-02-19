@@ -12,6 +12,7 @@ import { Console } from "@sophys-web/widgets/console";
 import { Controls } from "@sophys-web/widgets/controls";
 import { DataTable as History } from "../history/data-table";
 import { DataTable as Queue } from "../queue/data-table";
+import { BeamlineStates } from "./beamline-states";
 import { RunningItem } from "./running-item";
 
 export function Dashboard() {
@@ -21,9 +22,10 @@ export function Dashboard() {
       <div className="flex gap-2 p-8 sm:flex-col lg:flex-row">
         <ScrollArea className="lg:h-svh lg:w-2/3">
           <div className="flex flex-col gap-4">
+            <BeamlineStates />
             <Card id="queue">
               <CardHeader>
-                <CardTitle>Queue</CardTitle>
+                <CardTitle>Experimental Procedures</CardTitle>
                 <CardDescription>Current tasks in the queue</CardDescription>
               </CardHeader>
               <CardContent>
