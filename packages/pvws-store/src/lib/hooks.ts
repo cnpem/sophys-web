@@ -6,7 +6,8 @@ import { _usePVWS } from "./store";
 import { comparePvData, compareSelectedPvMaps } from "./utils";
 
 /**
- * Hook to selectively access PVWS data subscription for specific PV names.
+ * Hook to selectively access PVWS data subscription for a list of PV names.
+ * It returns a map of PV names to their corresponding data.
  * Handles subscribing and unsubscribing to PVs automatically.
  *
  * @param pvNames
@@ -93,11 +94,11 @@ export const usePvDataMap = (
  * Example usage:
  *
  * function MyComponent(pvName: string) {
- *   const pvData = useSinglePvData(pvName);
+ *   const pvData = usePvData(pvName);
  *   return <div>{pvData ? pvData.value : "Loading..."}</div>;
  * }
  */
-export const useSinglePvData = (pvName: string): PvData | undefined => {
+export const usePvData = (pvName: string): PvData | undefined => {
   const subscribePvs = _usePVWS((state) => state.subscribePvs);
   const unsubscribePvs = _usePVWS((state) => state.unsubscribePvs);
 
@@ -124,3 +125,11 @@ export const useSinglePvData = (pvName: string): PvData | undefined => {
 
   return pvData;
 };
+
+/********** Deprecated hooks with old naming - to be removed in future **********/
+
+/**
+ * @deprecated Use `usePvData` instead. This is an alias for backward compatibility and will be removed in a future release.
+ */
+export const useSinglePvData = (pvName: string): PvData | undefined =>
+  usePvData(pvName);
