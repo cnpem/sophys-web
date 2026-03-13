@@ -1,5 +1,3 @@
-"use client";
-
 import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -9,20 +7,14 @@ import { Button } from "@sophys-web/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@sophys-web/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@sophys-web/ui/select";
+import { Input } from "@sophys-web/ui/input";
 import type { Sample } from "./sample-item";
-import { loadVolumeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/load";
 
 export function LoadSampleForm({
@@ -39,7 +31,7 @@ export function LoadSampleForm({
       tray: sample.tray,
       row: sample.row,
       col: sample.col,
-      volume: 0,
+      volume: 60, // default load volume to 60 µL
     },
   });
 
@@ -80,29 +72,22 @@ export function LoadSampleForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="max-w-44 space-y-8"
+      >
         <FormField
           control={form.control}
           name="volume"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Volume (µL)</FormLabel>
-              <Select onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {loadVolumeOptions.map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option} µL
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+              <FormDescription className="flex-wrap">
+                Load volume (default: 60).
+              </FormDescription>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
