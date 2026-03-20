@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePvDataMap, useSinglePvData } from "./lib/hooks";
+import { usePvData, usePvDataMap, useSinglePvData } from "./lib/hooks";
 import { _usePVWS } from "./lib/store";
 
 function PVWSConnectionHandler({ url }: { url: string | undefined }) {
@@ -26,4 +26,4 @@ function PVWSConnectionHandler({ url }: { url: string | undefined }) {
   return null; // This component doesn't render anything itself
 }
 
-export { PVWSConnectionHandler, usePvDataMap, useSinglePvData };
+export { PVWSConnectionHandler, usePvDataMap, useSinglePvData, usePvData };
