@@ -3,11 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
+import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,6 +24,7 @@ export function LoadSampleForm({
   sample: Sample;
   onSubmitCallback?: () => void;
 }) {
+  const { data: userData } = api.auth.getUser.useQuery();
   const { add } = useQueue();
   const form = useForm({
     resolver: zodResolver(schema),
@@ -32,6 +33,9 @@ export function LoadSampleForm({
       row: sample.row,
       col: sample.col,
       volume: 60, // default load volume to 60 µL
+      sampleTag: sample.sampleTag,
+      sampleType: sample.sampleType,
+      proposal: userData?.proposal ?? "", // default proposal to user's current proposal
     },
   });
 
@@ -39,11 +43,6 @@ export function LoadSampleForm({
     toast.info("Submitting sample...");
     const kwargs = schema.parse({
       ...data,
-      metadata: {
-        sampleTag: sample.sampleTag,
-        bufferTag: sample.bufferTag,
-        sampleType: sample.sampleType,
-      },
     });
     add.mutate(
       {
@@ -74,7 +73,7 @@ export function LoadSampleForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="max-w-44 space-y-8"
+        className="grid grid-cols-2 gap-4"
       >
         <FormField
           control={form.control}
@@ -82,9 +81,68 @@ export function LoadSampleForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Volume (µL)</FormLabel>
-              <FormDescription className="flex-wrap">
+              {/* <FormDescription className="flex-wrap">
                 Load volume (default: 60).
-              </FormDescription>
+              </FormDescription> */}
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* expUvTime */}
+        <FormField
+          control={form.control}
+          name="expUvTime"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>UV Exposure Time (s)</FormLabel>
+              {/* <FormDescription className="flex-wrap">
+                UV exposure time in seconds.
+              </FormDescription> */}
+              <FormControl>
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  placeholder="Optional"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* measureUvNumber */}
+        <FormField
+          control={form.control}
+          name="measureUvNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Number of UV Measurements</FormLabel>
+              {/* <FormDescription className="flex-wrap">
+                Number of UV measurements to take.
+              </FormDescription> */}
+              <FormControl>
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  placeholder="Optional"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* proposal */}
+        <FormField
+          control={form.control}
+          name="proposal"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Proposal</FormLabel>
+              {/* <FormDescription className="flex-wrap">
+                Proposal name or ID.
+              </FormDescription> */}
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -95,7 +153,7 @@ export function LoadSampleForm({
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}
-          className="w-full"
+          className="col-span-2"
         >
           Submit
         </Button>
