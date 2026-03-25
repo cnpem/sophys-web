@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
+import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -29,21 +30,20 @@ import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
 export function CompleteAcquisitionForm({
   sampleParams,
-  proposal,
   className,
   onSubmitSuccess,
 }: {
   sampleParams: Sample | undefined;
-  proposal?: string;
   className?: string;
   onSubmitSuccess: () => void;
 }) {
   const { add } = useQueue();
+  const { data: userData } = api.auth.getUser.useQuery();
 
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      proposal: "",
+      proposal: userData?.proposal ?? "",
       sampleType: "sample",
       volume: 0,
       acquireTime: 0.1,
@@ -53,7 +53,6 @@ export function CompleteAcquisitionForm({
       temperature: 25,
       setTemperature: false,
       standardOption: "normal",
-      ...(proposal && { proposal }),
       ...(sampleParams && {
         tray: sampleParams.tray,
         row: sampleParams.row,

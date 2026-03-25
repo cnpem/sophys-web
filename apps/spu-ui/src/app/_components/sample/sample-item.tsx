@@ -6,7 +6,6 @@ import {
   PipetteIcon,
   PlusIcon,
 } from "lucide-react";
-import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -264,7 +263,6 @@ function CompleteAcquisitionMenuItem({
   sample: Sample;
   onSubmitCallback?: () => void;
 }) {
-  const { data } = api.auth.getUser.useQuery();
   const [open, setOpen] = useState(false);
   const handleOpen = (e: Event) => {
     e.preventDefault();
@@ -274,7 +272,6 @@ function CompleteAcquisitionMenuItem({
     setOpen(false);
     onSubmitCallback?.();
   };
-  const proposal = data?.proposal;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -292,7 +289,6 @@ function CompleteAcquisitionMenuItem({
           </DialogDescription>
         </DialogHeader>
         <CompleteAcquisitionForm
-          proposal={proposal}
           sampleParams={sample}
           onSubmitSuccess={handleSubmitSuccess}
         />
