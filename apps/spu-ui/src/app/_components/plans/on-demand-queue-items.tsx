@@ -19,7 +19,6 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
-import { CompleteAcquisition } from "./complete-acquisition";
 import { QueueStop } from "./queue-stop";
 import { SingleAcquisition } from "./single-acquisition";
 import { StandardCleaningDialog } from "./standard-cleaning";
@@ -46,13 +45,6 @@ export function OnDemandSelector() {
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <SingleAcquisition
-              className="w-full justify-start font-normal"
-              lastSampleParams={loadedSample}
-              onClose={() => setMenuOpen(false)}
-            />
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <CompleteAcquisition
               className="w-full justify-start font-normal"
               lastSampleParams={loadedSample}
               onClose={() => setMenuOpen(false)}

@@ -1,23 +1,10 @@
-"use client";
-
 import type { z } from "zod";
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CameraIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
-import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@sophys-web/ui/dialog";
 import {
   Form,
   FormControl,
@@ -36,68 +23,17 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
-import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
+import type { Sample } from "./sample-item";
 import { cleaningOptions, sampleTypeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
-export function CompleteAcquisition({
-  className,
-  lastSampleParams,
-  onClose,
-}: {
-  className?: string;
-  lastSampleParams: LastSampleParams | undefined;
-  onClose?: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const { data } = api.auth.getUser.useQuery();
-
-  const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (!isOpen) {
-      onClose?.();
-    }
-  };
-
-  const handleSubmitSuccess = () => {
-    setOpen(false);
-    onClose?.();
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className={className}>
-          <CameraIcon className="mr-2 h-4 w-4" />
-          Complete Acquisition
-        </Button>
-      </DialogTrigger>
-
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Acquire</DialogTitle>
-          <DialogDescription className="flex flex-col gap-2">
-            Please fill in the details below to submit the plan. The last loaded
-            sample details are pre-filled.
-          </DialogDescription>
-        </DialogHeader>
-        <CompleteAcquisitionForm
-          proposal={data?.proposal}
-          lastSampleParams={lastSampleParams}
-          onSubmitSuccess={handleSubmitSuccess}
-        />
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function CompleteAcquisitionForm({
-  lastSampleParams,
+export function CompleteAcquisitionForm({
+  sampleParams,
   proposal,
   className,
   onSubmitSuccess,
 }: {
-  lastSampleParams: LastSampleParams | undefined;
+  sampleParams: Sample | undefined;
   proposal?: string;
   className?: string;
   onSubmitSuccess: () => void;
@@ -118,13 +54,13 @@ function CompleteAcquisitionForm({
       setTemperature: false,
       standardOption: "normal",
       ...(proposal && { proposal }),
-      ...(lastSampleParams && {
-        tray: lastSampleParams.tray,
-        row: lastSampleParams.row,
-        col: lastSampleParams.col,
-        sampleType: lastSampleParams.sampleType,
-        sampleTag: lastSampleParams.sampleTag,
-        bufferTag: lastSampleParams.bufferTag,
+      ...(sampleParams && {
+        tray: sampleParams.tray,
+        row: sampleParams.row,
+        col: sampleParams.col,
+        sampleType: sampleParams.sampleType,
+        sampleTag: sampleParams.sampleTag,
+        bufferTag: sampleParams.bufferTag,
       }),
     },
   });

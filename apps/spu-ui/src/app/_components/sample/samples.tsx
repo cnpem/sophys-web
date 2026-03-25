@@ -26,7 +26,7 @@ import {
   trayRows as ROWS,
 } from "../../../lib/constants";
 import { clearSamples } from "../../actions/samples";
-import { SampleItem } from "./sample-item";
+import { SampleItemMenu } from "./sample-item";
 
 const [TRAY1, TRAY2] = trayOptions;
 
@@ -104,7 +104,7 @@ function TrayContent(props: TrayProps) {
                 {ROWS[index / COLUMNS.length]}
               </div>
             )}
-            <SampleItem key={sample.id} sample={sample} />
+            <SampleItemMenu sample={sample} />
           </React.Fragment>
         );
       })}
