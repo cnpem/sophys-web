@@ -128,7 +128,7 @@ function SingleAcquisitionForm({
         col: lastSampleParams.col,
         sampleType: lastSampleParams.sampleType,
         sampleTag: lastSampleParams.sampleTag,
-        bufferTag: lastSampleParams.bufferTag,
+        bufferTag: "",
         metadata: {
           row: lastSampleParams.row,
           col: lastSampleParams.col,
