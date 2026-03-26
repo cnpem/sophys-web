@@ -37,7 +37,7 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import { sampleTypeOptions } from "~/lib/constants";
+import { picoloChannels, sampleTypeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/single-acquisition";
 
 export function SingleAcquisition({
@@ -94,13 +94,14 @@ const defaultValues: z.infer<typeof schema> = {
   proposal: "",
   sampleType: "sample",
   sampleTag: "",
-  bufferTag: "",
+  bufferTag: undefined,
   acquireTime: 0.1,
   numExposures: 1,
   temperature: 25,
   setTemperature: false,
-  usePicolo: false,
-  usePimega: false,
+  usePicolo: true,
+  usePimega: true,
+  picoloChannel: "channel2",
   metadata: {},
 };
 
@@ -128,7 +129,7 @@ function SingleAcquisitionForm({
         col: lastSampleParams.col,
         sampleType: lastSampleParams.sampleType,
         sampleTag: lastSampleParams.sampleTag,
-        bufferTag: "",
+        bufferTag: undefined,
         metadata: {
           row: lastSampleParams.row,
           col: lastSampleParams.col,
@@ -336,6 +337,36 @@ function SingleAcquisitionForm({
                     />
                   </div>
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="picoloChannel"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Picolo Channel</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={!form.watch("usePicolo")}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {picoloChannels.map((option) => {
+                      return (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

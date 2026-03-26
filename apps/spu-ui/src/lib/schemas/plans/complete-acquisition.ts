@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   cleaningAgents,
   cleaningOptions,
+  picoloChannels,
   sampleTypeOptions,
   trayColumns,
   trayOptions,
@@ -66,6 +67,7 @@ const tableSchema = z.object({
   measureUvNumber: z.coerce.number({
     message: "Measure UV number must be a number",
   }),
+  picoloChannel: z.enum(picoloChannels).optional(),
 });
 
 const cleaningSchema = z
@@ -119,7 +121,7 @@ const cleaningSchema = z
 const schema = z.object({
   sampleType: z.enum(sampleTypeOptions),
   sampleTag: z.string(),
-  bufferTag: z.string(),
+  bufferTag: z.string().optional(),
   tray: z.enum(trayOptions),
   row: z.enum(trayRows),
   col: z.enum(trayColumns),
@@ -142,14 +144,8 @@ const schema = z.object({
   proposal: z.string(),
   temperature: z.number().positive(),
   setTemperature: z.boolean().optional(),
+  picoloChannel: z.enum(picoloChannels).optional(),
 });
 
 export { name, schema, tableSchema, cleaningSchema };
 export type PlanKwargs = z.infer<typeof schema>;
-
-// example csv with order as the first column
-// order;sampleType;sampleTag;bufferTag;tray;row;col;volume;acquireTime;numExposures;expUvTime;measureUvNumber;temperature;
-// 1;buffer;buffer1;;Tray1;A;1;100;1;1;1;1;30;
-// 2;sample;sample1;buffer1;Tray1;A;2;200;1;1;1;1;30;
-// 3;sample;sample2;buffer1;Tray1;A;3;300;1;1;1;1;30;
-// 4;sample;sample3;buffer1;Tray1;A;4;400;1;1;1;1;30;

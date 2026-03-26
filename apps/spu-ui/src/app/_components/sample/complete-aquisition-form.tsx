@@ -25,7 +25,11 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { Sample } from "./sample-item";
-import { cleaningOptions, sampleTypeOptions } from "~/lib/constants";
+import {
+  cleaningOptions,
+  picoloChannels,
+  sampleTypeOptions,
+} from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
 export function CompleteAcquisitionForm({
@@ -45,13 +49,14 @@ export function CompleteAcquisitionForm({
     defaultValues: {
       proposal: userData?.proposal ?? "",
       sampleType: "sample",
-      volume: 0,
+      volume: 60,
       acquireTime: 0.1,
       numExposures: 1,
       expUvTime: 0,
       measureUvNumber: 0,
       temperature: 25,
       setTemperature: false,
+      picoloChannel: "channel2",
       standardOption: "normal",
       ...(sampleParams && {
         tray: sampleParams.tray,
@@ -157,6 +162,19 @@ export function CompleteAcquisitionForm({
           />
           <FormField
             control={form.control}
+            name="volume"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Volume (µL)</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="numExposures"
             render={({ field }) => (
               <FormItem>
@@ -214,6 +232,35 @@ export function CompleteAcquisitionForm({
                     />
                   </div>
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="picoloChannel"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Picolo Channel</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {picoloChannels.map((option) => {
+                      return (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
