@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { useSinglePvData } from "@sophys-web/pvws-store";
+import { usePvData } from "@sophys-web/pvws-store";
 
 export const spaceEnum = z.enum(["energy-space", "k-space"]);
 
@@ -180,8 +180,8 @@ export interface AddEnergyScanProps {
  * @returns human readable current crystal according to granite base position
  */
 export function BasePosition() {
-  const pvName = "QUA:A:PB01:CS2:m7";
-  const pvData = useSinglePvData(pvName);
+  const pvData = usePvData("QUA:A:PB01:CS2:m7");
+
   function format(value: number | "NaN" | undefined): number {
     if (value === undefined || value === "NaN") {
       return 0;
