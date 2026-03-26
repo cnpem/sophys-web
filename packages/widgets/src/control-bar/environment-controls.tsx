@@ -1,25 +1,11 @@
-"use client";
-
 import { useCallback, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ClockAlertIcon,
-  EllipsisIcon,
-  ListVideoIcon,
-  ListXIcon,
-  MilestoneIcon,
-  PauseIcon,
-  RefreshCcwIcon,
-  ServerIcon,
-  ServerOffIcon,
-  StepForwardIcon,
-} from "lucide-react";
+import { RefreshCcwIcon, ServerIcon, ServerOffIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import type { RouterOutput } from "@sophys-web/api-client/react";
-import { useQueue, useStatus } from "@sophys-web/api-client/hooks";
-import { api } from "@sophys-web/api-client/react";
+import { useStatus } from "@sophys-web/api-client/hooks";
 import { cn } from "@sophys-web/ui";
 import {
   AlertDialog,
@@ -32,7 +18,6 @@ import {
   AlertDialogTitle,
 } from "@sophys-web/ui/alert-dialog";
 import { Button, buttonVariants } from "@sophys-web/ui/button";
-import { ButtonGroup } from "@sophys-web/ui/button-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,7 +40,6 @@ import { Spinner } from "@sophys-web/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
 
@@ -94,39 +78,6 @@ function combineEnvState(
   if (!managerState) return "unknown";
   if ("idle" === managerState) return workerEnvState;
   return managerState;
-}
-
-/**
- * @deprecated Component deprecated in favor of providing more flexible and composable components to build custom control bars.
- * The Controls component will be removed in a future release.
- * Please use the individual control components provided in the control-bar directory (EnvironmentControls, QueueControls, RunEngineControls) and compose them in your own layout as needed.
- * This allows for greater flexibility in designing your UI and integrating with other components.
- */
-export function Controls({
-  className,
-  children,
-}: {
-  className?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <TooltipProvider>
-      <div
-        className={cn(
-          "bg-accent animate-in slide-in-from-top fixed inset-x-0 top-2 z-40 mx-auto flex w-fit items-center justify-between gap-2 rounded-full border px-4 py-2 opacity-95 backdrop-blur-lg duration-500",
-          className,
-        )}
-      >
-        <ButtonGroup>
-          <EnvironmentControls />
-          <PauseControls />
-          <StopControls />
-          <QueueControls />
-        </ButtonGroup>
-        {children && <ButtonGroup>{children}</ButtonGroup>}
-      </div>
-    </TooltipProvider>
-  );
 }
 
 const envDestroySchema = z.object({
@@ -261,7 +212,7 @@ export function EnvironmentControls({ className }: { className?: string }) {
             className="text-muted-foreground justify-stretch"
           >
             <RefreshCcwIcon className="size-4" />
-            Reload Env
+            <span>Reload Env</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={openEnv}
@@ -281,7 +232,6 @@ export function EnvironmentControls({ className }: { className?: string }) {
             <span>Close Env</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-
           <DropdownMenuItem
             onClick={() => setDestroyDialogOpen(true)}
             disabled={basicUiStatus === "offline"}
@@ -348,273 +298,4 @@ export function EnvironmentControls({ className }: { className?: string }) {
       </AlertDialog>
     </Tooltip>
   );
-}
-
-export function QueueControls() {
-  const { start, stop } = useQueue();
-  const { status } = useStatus();
-  const reState = status.data?.reState ?? "unknown";
-  const itemsInQueue = status.data?.itemsInQueue;
-
-  const startQueue = useCallback(() => {
-    start.mutate(undefined, {
-      onSuccess: () => {
-        toast.success("Starting Queue...");
-      },
-      onError: () => {
-        toast.error("Failed to start queue");
-      },
-    });
-  }, [start]);
-
-  const stopQueue = useCallback(() => {
-    stop.mutate(undefined, {
-      onSuccess: () => {
-        toast.success("Stopping Queue...");
-      },
-      onError: () => {
-        toast.error("Failed to stop queue");
-      },
-    });
-  }, [stop]);
-
-  if (reState === "idle" || reState === "unknown") {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            className="h-8 rounded-full duration-300 ease-in-out"
-            disabled={reState !== "idle" || itemsInQueue === 0}
-            onClick={startQueue}
-            variant="default"
-          >
-            <ListVideoIcon className="size-4" />
-            Start Queue
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Start Queue</TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          className="h-8 rounded-full duration-300 ease-in-out"
-          onClick={stopQueue}
-          variant="default"
-          disabled={
-            status.data?.managerState !== "executing_queue" ||
-            status.data.queueStopPending
-          }
-        >
-          {status.data?.queueStopPending ? (
-            <Spinner />
-          ) : (
-            <ListXIcon className="size-4" />
-          )}
-          Stop Queue
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">Stop Queue</TooltipContent>
-    </Tooltip>
-  );
-}
-
-export function PauseControls() {
-  const { status } = useStatus();
-  const utils = api.useUtils();
-  const reState = status.data?.reState ?? "unknown";
-
-  const pause = api.runEngine.pause.useMutation({
-    onSettled: async () => {
-      await utils.status.get.invalidate();
-    },
-  });
-
-  const resume = api.runEngine.resume.useMutation({
-    onSettled: async () => {
-      await utils.status.get.invalidate();
-    },
-  });
-
-  const handlePauseNow = useCallback(() => {
-    toast.info("Pausing run engine immedeatly...");
-    pause.mutate(
-      { option: "immediate" },
-      {
-        onError: () => {
-          toast.error("Failed to pause run engine");
-        },
-      },
-    );
-  }, [pause]);
-
-  const handlePauseLater = useCallback(() => {
-    toast.info("Pausing run engine after current task...");
-    pause.mutate(
-      { option: "deferred" },
-      {
-        onError: () => {
-          toast.error("Failed to pause run engine");
-        },
-      },
-    );
-  }, [pause]);
-
-  const handleResume = useCallback(() => {
-    toast.info("Resuming run engine...");
-    resume.mutate(undefined, {
-      onError: () => {
-        toast.error("Failed to resume run engine");
-      },
-    });
-  }, [resume]);
-
-  if (reState === "paused") {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            className="h-8 rounded-full duration-300 ease-in-out"
-            size="icon"
-            variant="outline"
-            onClick={handleResume}
-          >
-            <StepForwardIcon className="size-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom">Resume</TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (reState === "running") {
-    return (
-      <>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              className={cn(
-                "text-destructive h-8 w-12 gap-0 duration-300 ease-in-out",
-                status.data?.pausePending && "animate-pulse",
-              )}
-              variant="outline"
-              onClick={handlePauseNow}
-            >
-              <PauseIcon className="size-4" />
-              <ClockAlertIcon className="size-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Pause Now</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              className={cn(
-                "h-8 w-12 gap-0 duration-300 ease-in-out disabled:pointer-events-auto",
-                status.data?.pausePending && "animate-pulse",
-              )}
-              onClick={handlePauseLater}
-              variant="outline"
-              disabled={status.data?.pausePending}
-            >
-              <PauseIcon className="size-4" />
-              <MilestoneIcon className="size-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">
-            {status.data?.pausePending
-              ? "Pause is scheduled..."
-              : "Pause Next Checkpoint"}
-          </TooltipContent>
-        </Tooltip>
-      </>
-    );
-  }
-}
-
-export function StopControls() {
-  const { status } = useStatus();
-  const utils = api.useUtils();
-  const reState = status.data?.reState ?? "unknown";
-
-  const stop = api.runEngine.stop.useMutation({
-    onSettled: async () => {
-      await utils.status.get.invalidate();
-    },
-  });
-  const halt = api.runEngine.halt.useMutation({
-    onSettled: async () => {
-      await utils.status.get.invalidate();
-    },
-  });
-  const abort = api.runEngine.abort.useMutation({
-    onSettled: async () => {
-      await utils.status.get.invalidate();
-    },
-  });
-
-  const handleStop = useCallback(() => {
-    toast.info("Stopping run engine...");
-    stop.mutate(undefined, {
-      onError: () => {
-        toast.error("Failed to stop run engine");
-      },
-    });
-  }, [stop]);
-
-  const handleHalt = useCallback(() => {
-    toast.info("Halting run engine...");
-    halt.mutate(undefined, {
-      onError: () => {
-        toast.error("Failed to halt run engine");
-      },
-    });
-  }, [halt]);
-
-  const handleAbort = useCallback(() => {
-    toast.info("Aborting run engine...");
-    abort.mutate(undefined, {
-      onError: () => {
-        toast.error("Failed to abort run engine");
-      },
-    });
-  }, [abort]);
-  if (reState === "paused") {
-    return (
-      <DropdownMenu>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <Button
-                className="h-8 rounded-full duration-300 ease-in-out"
-                size="icon"
-                variant="outline"
-              >
-                <EllipsisIcon className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent side="bottom">Cancel Options</TooltipContent>
-        </Tooltip>
-        <DropdownMenuContent align="start">
-          <DropdownMenuItem onClick={handleStop} className="justify-between">
-            Stop item as 'stopped'
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleAbort} className="justify-between">
-            Stop and return item to queue as 'aborted'
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={handleHalt}
-            variant="destructive"
-            className="justify-between"
-          >
-            Emergency stop and return item to queue as 'halted'
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  }
 }
