@@ -12,7 +12,7 @@ import { ItemParametersCell } from "../data-table/item-parameters-cell";
 import { HistoryItemDialog } from "../history-item-utils";
 import { RerunButton } from "./rerun";
 
-const columnHelper = createColumnHelper<HistoryItemProps>();
+export const columnHelper = createColumnHelper<HistoryItemProps>();
 
 const defaultColumns = [
   columnHelper.accessor("name", {
@@ -94,4 +94,29 @@ const defaultColumns = [
   }),
 ];
 
-export const columns = defaultColumns as ColumnDef<HistoryItemProps>[];
+export type HistoryTableColumns = ColumnDef<HistoryItemProps>[];
+
+/**
+ * Default columns for the HistoryTable component.
+ * Can be extended:
+ * @example
+ * ```typescript
+ * import { columnHelper, columns } from "@sophys-web/widgets/history-table/columns";
+ * import { DataTable as HistoryTable } from "@sophys-web/widgets/history-table/data-table";
+ * import type { HistoryTableColumns } from "@sophys-web/widgets/history-table/columns";
+ *
+ * const customColumns = [
+ *   ...columns.filter((col) => col.id !== "status"),
+ *   columnHelper.display({
+ *     id: "status",
+ *     header: "Status",
+ *     cell: ({ getValue }) => <CustomStatus status={getValue()} />,
+ *   }),
+ * ] as HistoryTableColumns;
+ *
+ * function CustomHistoryTable() {
+ *   return <HistoryTable columns={customColumns} />;
+ * }
+ * ```
+ */
+export const columns = defaultColumns as HistoryTableColumns;
