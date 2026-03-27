@@ -28,6 +28,9 @@ export const createSchema = (parameters: Parameter[]) => {
         .refine((val) => valueArray.includes(val), {
           message: `Value must be one of: ${valueArray.join(", ")}`,
         });
+      if (param.default !== undefined) {
+        schemaFields[camelName] = schemaFields[camelName].optional();
+      }
       return;
     }
 
@@ -221,6 +224,11 @@ export const createSchema = (parameters: Parameter[]) => {
         break;
       default:
         schemaFields[camelName] = z.string().optional();
+    }
+    // check if exists a default value for the parameter and if so
+    // set the field as optional
+    if (param.default !== undefined) {
+      schemaFields[camelName] = schemaFields[camelName].optional();
     }
   });
   return z.object(schemaFields);
