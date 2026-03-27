@@ -1,9 +1,11 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   ClockAlertIcon,
   EllipsisIcon,
   MilestoneIcon,
+  OctagonXIcon,
   PauseIcon,
+  SquareIcon,
   StepForwardIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -303,4 +305,206 @@ export function RunEngineControls(options: RunEngineControlsProps) {
   }
 
   return null;
+}
+
+/**
+ * CancelRunningItemButton works like a single action pause-now-and-stop button.
+ * It should be the default option for stopping the running item when the user wants to signal a cancel action.
+ *
+ * It renders a button that composes the actions of the pause (now) and abort.
+ * On click, it triggers the pause mutation with "immediate" option and shows appropriate toast notifications based on success or failure of the action.
+ * It also watches for changes in the run engine state and triggers the abort mutation when the run engine is paused as a result of the pause action triggered by this button.
+ */
+export function CancelRunningItemButton({
+  className,
+  variant = "default",
+}: {
+  className?: string;
+  variant?: ButtonProps["variant"];
+}) {
+  const pauseClickedRef = useRef(false);
+  const { status } = useStatus();
+  const reState = status.data?.reState ?? "unknown";
+  const utils = api.useUtils();
+  const pause = api.runEngine.pause.useMutation({
+    onSettled: async () => {
+      await utils.status.get.invalidate();
+    },
+  });
+  const abort = api.runEngine.abort.useMutation({
+    onSettled: async () => {
+      await utils.status.get.invalidate();
+    },
+  });
+  // Handle click based on current state of the run engine
+  const handleClick = useCallback(() => {
+    if (reState === "running") {
+      toast.info("Pausing run engine immediately...");
+      pauseClickedRef.current = true;
+      pause.mutate(
+        { option: "immediate" },
+        {
+          onError: () => {
+            toast.error("Failed to pause run engine");
+            pauseClickedRef.current = false;
+          },
+        },
+      );
+    } else if (reState === "paused") {
+      toast.info("Aborting current item...");
+      abort.mutate(undefined, {
+        onError: () => {
+          toast.error("Failed to abort current item");
+        },
+        onSuccess: () => {
+          toast.success(
+            "Run engine is paused and current item has been aborted successfully",
+          );
+        },
+      });
+    }
+  }, [reState, pause, abort]);
+
+  // Watch for reState changes and trigger abort when paused
+  useEffect(() => {
+    if (pauseClickedRef.current && reState === "paused") {
+      pauseClickedRef.current = false;
+      toast.info("Aborting current item...");
+      abort.mutate(undefined, {
+        onError: () => {
+          toast.error("Failed to abort current item");
+        },
+        onSuccess: () => {
+          toast.success(
+            "Run engine is paused and current item has been aborted successfully",
+          );
+        },
+      });
+    }
+  }, [reState, abort]);
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant={variant}
+          className={cn(
+            "h-8 w-12 rounded-full",
+            ["pausing", "halting"].includes(reState) && "animate-pulse",
+            className,
+          )}
+          onClick={handleClick}
+          disabled={!["running", "paused"].includes(reState)}
+        >
+          {!["pausing", "aborting"].includes(reState) && (
+            <SquareIcon className="size-4" />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        Cancel the running item. It will be stopped immediately and returned to
+        the queue as 'aborted'.
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+/**
+ * EmergencyStopButton pauses the run engine immediately and halts the current item.
+ * It renders a button that composes the actions of the pause (now) and halt.
+ * On click, it triggers the pause mutation with "immediate" option and shows appropriate toast notifications based on success or failure of the action.
+ * It also watches for changes in the run engine state and triggers the halt mutation when the run engine is paused as a result of the pause action triggered by this button.
+ */
+export function EmergencyStopButton({
+  className,
+  variant = "destructive",
+}: {
+  className?: string;
+  variant?: ButtonProps["variant"];
+}) {
+  const pauseClickedRef = useRef(false);
+  const { status } = useStatus();
+  const reState = status.data?.reState ?? "unknown";
+  const utils = api.useUtils();
+  const pause = api.runEngine.pause.useMutation({
+    onSettled: async () => {
+      await utils.status.get.invalidate();
+    },
+  });
+  const halt = api.runEngine.halt.useMutation({
+    onSettled: async () => {
+      await utils.status.get.invalidate();
+    },
+  });
+  // Handle click based on current state of the run engine
+  const handleClick = useCallback(() => {
+    if (reState === "running") {
+      toast.info("Pausing run engine immediately...");
+      pauseClickedRef.current = true;
+      pause.mutate(
+        { option: "immediate" },
+        {
+          onError: () => {
+            toast.error("Failed to pause run engine");
+            pauseClickedRef.current = false;
+          },
+        },
+      );
+    } else if (reState === "paused") {
+      toast.info("Halting current item...");
+      halt.mutate(undefined, {
+        onError: () => {
+          toast.error("Failed to halt current item");
+        },
+        onSuccess: () => {
+          toast.success(
+            "Run engine is paused and current item has been halted successfully",
+          );
+        },
+      });
+    }
+  }, [reState, pause, halt]);
+
+  // Watch for reState changes and trigger halt when paused
+  useEffect(() => {
+    if (pauseClickedRef.current && reState === "paused") {
+      pauseClickedRef.current = false;
+      toast.info("Halting current item...");
+      halt.mutate(undefined, {
+        onError: () => {
+          toast.error("Failed to halt current item");
+        },
+        onSuccess: () => {
+          toast.success(
+            "Run engine is paused and current item has been halted successfully",
+          );
+        },
+      });
+    }
+  }, [reState, halt]);
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant={variant}
+          className={cn(
+            "h-8 w-12 rounded-full",
+            ["pausing", "halting"].includes(reState) && "animate-pulse",
+            className,
+          )}
+          onClick={handleClick}
+          disabled={!["running", "paused"].includes(reState)}
+        >
+          {!["pausing", "halting"].includes(reState) && (
+            <OctagonXIcon className="size-4" />
+          )}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        Emergency stop for the running item. It will be stopped immediately and
+        returned to the queue as 'halted'.
+      </TooltipContent>
+    </Tooltip>
+  );
 }
