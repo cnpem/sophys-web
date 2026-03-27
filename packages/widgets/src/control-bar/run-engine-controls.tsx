@@ -508,3 +508,86 @@ export function EmergencyStopButton({
     </Tooltip>
   );
 }
+
+/**
+ * PauseAndPauseImmediateButton renders a single button that combines the actions of pausing the run engine as "deferred" (after current checkpoint) in the first click
+ * and pausing the run engine as "immediate" in the second (or n-th) click.
+ * This allows the user to have a single button for pausing the run engine with different levels of urgency based on the current state of the run engine and the number of clicks.
+ * The button shows different tooltip content based on whether the pause is already scheduled or not, and also shows a pulsing animation and the pause icon is red when the pause is pending.
+ */
+export function PauseAndPauseImmediateButton({
+  className,
+  variant = "outline",
+}: {
+  className?: string;
+  variant?: ButtonProps["variant"];
+}) {
+  const { status } = useStatus();
+  const pausePending = status.data?.pausePending ?? false;
+  const reState = status.data?.reState ?? "unknown";
+  const utils = api.useUtils();
+  const { mutate, isPending: requestPending } = api.runEngine.pause.useMutation(
+    {
+      onSettled: async () => {
+        await utils.status.get.invalidate();
+      },
+    },
+  );
+
+  const handleClick = useCallback(() => {
+    if (reState !== "running") {
+      toast.info(
+        "The run engine is not currently running. Pause action is not applicable.",
+      );
+      return;
+    }
+    if (pausePending) {
+      toast.info("Pausing run engine immediately...");
+      mutate(
+        { option: "immediate" },
+        {
+          onError: () => {
+            toast.error("Failed to pause run engine");
+          },
+        },
+      );
+      return;
+    }
+    toast.info("Pausing run engine after current task...");
+    mutate(
+      { option: "deferred" },
+      {
+        onError: () => {
+          toast.error("Failed to pause run engine");
+        },
+      },
+    );
+  }, [reState, pausePending, mutate]);
+
+  const isAnimating =
+    ["pausing", "halting"].includes(reState) || pausePending || requestPending;
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant={variant}
+          className={cn(
+            "h-8 w-12 rounded-full",
+            isAnimating && "animate-pulse",
+            pausePending && "text-destructive",
+            className,
+          )}
+          onClick={handleClick}
+          disabled={!["running", "pausing"].includes(reState) || requestPending}
+        >
+          <PauseIcon className="size-4" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom">
+        {pausePending && "Pause is scheduled... Click to pause immediately"}
+        {!pausePending && "Pause the run engine."}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
