@@ -344,7 +344,7 @@ export function CancelRunningItemButton({
   // Handle click based on current state of the run engine
   const handleClick = useCallback(() => {
     if (reState === "running") {
-      toast.info("Pausing run engine immediately...");
+      toast.info("Canceling running item...");
       pauseClickedRef.current = true;
       pause.mutate(
         { option: "immediate" },
@@ -356,14 +356,14 @@ export function CancelRunningItemButton({
         },
       );
     } else if (reState === "paused") {
-      toast.info("Aborting current item...");
+      toast.info("Canceling current item...");
       abort.mutate(undefined, {
         onError: () => {
           toast.error("Failed to abort current item");
         },
         onSuccess: () => {
           toast.success(
-            "Run engine is paused and current item has been aborted successfully",
+            "Running item succesfully aborted and returned to queue.",
           );
         },
       });
@@ -381,7 +381,7 @@ export function CancelRunningItemButton({
         },
         onSuccess: () => {
           toast.success(
-            "Run engine is paused and current item has been aborted successfully",
+            "Running item succesfully aborted and returned to queue.",
           );
         },
       });
@@ -396,6 +396,7 @@ export function CancelRunningItemButton({
           className={cn(
             "h-8 w-12 rounded-full",
             ["pausing", "halting"].includes(reState) && "animate-pulse",
+            pauseClickedRef.current && "animate-pulse",
             className,
           )}
           onClick={handleClick}
