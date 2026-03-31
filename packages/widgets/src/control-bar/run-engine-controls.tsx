@@ -445,7 +445,7 @@ export function EmergencyStopButton({
   // Handle click based on current state of the run engine
   const handleClick = useCallback(() => {
     if (reState === "running") {
-      toast.info("Pausing run engine immediately...");
+      toast.warning("Triggering emergency stop for the run engine.");
       pauseClickedRef.current = true;
       pause.mutate(
         { option: "immediate" },
@@ -457,7 +457,7 @@ export function EmergencyStopButton({
         },
       );
     } else if (reState === "paused") {
-      toast.info("Halting current item...");
+      toast.warning("Triggering emergency stop for the current item...");
       halt.mutate(undefined, {
         onError: () => {
           toast.error("Failed to halt current item");
@@ -475,14 +475,17 @@ export function EmergencyStopButton({
   useEffect(() => {
     if (pauseClickedRef.current && reState === "paused") {
       pauseClickedRef.current = false;
-      toast.info("Halting current item...");
       halt.mutate(undefined, {
         onError: () => {
           toast.error("Failed to halt current item");
         },
         onSuccess: () => {
-          toast.success(
-            "Running item has been halted. This could mean that some cleanup actions may not have been executed. Pleanse check with the beamline staff or verify the state of the system before starting new items.",
+          toast.warning(
+            "Running item has been halted. This could mean that some cleanup actions may not have been executed. Please check with the beamline staff or verify the state of the system before starting new items.",
+            {
+              duration: 20_000,
+              closeButton: true,
+            },
           );
         },
       });
@@ -497,6 +500,7 @@ export function EmergencyStopButton({
           className={cn(
             "h-8 w-12 rounded-full",
             ["pausing", "halting"].includes(reState) && "animate-pulse",
+            pauseClickedRef.current && "animate-pulse",
             className,
           )}
           onClick={handleClick}
