@@ -600,3 +600,25 @@ export function PauseAndPauseImmediateButton({
     </Tooltip>
   );
 }
+
+/**
+ * PauseAndResumeButton renders a button that toggles between pausing and resuming the run engine based on its current state.
+ */
+export function PauseAndResumeButton({
+  className,
+  variant = "outline",
+}: {
+  className?: string;
+  variant?: ButtonProps["variant"];
+}) {
+  const { status } = useStatus();
+  const reState = status.data?.reState ?? "unknown";
+
+  if (reState === "paused") {
+    return <ResumeButton className={className} variant={variant} />;
+  }
+
+  return (
+    <PauseAndPauseImmediateButton className={className} variant={variant} />
+  );
+}
