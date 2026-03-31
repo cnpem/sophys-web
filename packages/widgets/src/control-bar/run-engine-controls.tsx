@@ -163,7 +163,12 @@ export function ResumeButton({
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
-          className={cn("h-8 rounded-full duration-300 ease-in-out", className)}
+          className={cn(
+            "h-8 rounded-full duration-300 ease-in-out",
+            resume.isPending && "animate-pulse",
+            className,
+          )}
+          disabled={resume.isPending}
           variant={variant}
           onClick={onClick}
         >
