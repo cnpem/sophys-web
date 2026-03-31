@@ -476,7 +476,7 @@ export function EmergencyStopButton({
         },
         onSuccess: () => {
           toast.success(
-            "Run engine is paused and current item has been halted successfully",
+            "Running item has been halted. This could mean that some cleanup actions may not have been executed. Pleanse check with the beamline staff or verify the state of the system before starting new items.",
           );
         },
       });
@@ -502,8 +502,7 @@ export function EmergencyStopButton({
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        Emergency stop for the running item. It will be stopped immediately and
-        returned to the queue as 'halted'.
+        Emergency stop for the running item. May cause incomplete cleanup.
       </TooltipContent>
     </Tooltip>
   );
