@@ -28,13 +28,27 @@ export const compareSelectedPvMaps =
   };
 
 // Helper function for deep equality of PvData objects (needed for memoization)
+/**
+ * Compares two PvData objects for deep equality.
+ * @param a The first PvData object.
+ * @param b The second PvData object.
+ * @returns True if the objects are equal according to PVWS docs:
+ * "Note how the web socket sends the complete meta data (units etc.)
+ * just once. The following updates then only contain the changed "value",
+ * timestamp "seconds" and "nanos", and maybe alarm "severity""
+ */
 export const comparePvData = (
   a: PvData | undefined,
   b: PvData | undefined,
 ): boolean => {
   if (a === b) return true;
   if (!a || !b) return false;
-  return a.value === b.value && a.seconds === b.seconds;
+  return (
+    a.value === b.value &&
+    a.seconds === b.seconds &&
+    a.severity === b.severity &&
+    a.nanos == b.nanos
+  );
 };
 
 export function mergePvDataUpdate(
