@@ -11,6 +11,16 @@ export { RunEngineControls } from "./run-engine-controls";
  *
  * @example Default control bar with all controls visible and a third group for custom controls
  * ```tsx
+ * import {
+ *   ControlBar,
+ *   EnvironmentControls,
+ *   QueueControls,
+ *   RunEngineControls,
+ * } from "@sophys-web/widgets/control-bar/control-bar";
+ * import { ButtonGroup } from "@sophys-web/ui/button-group";
+ *
+ * ...
+ *
  * <ControlBar>
  *  <ButtonGroup>
  *   <EnvironmentControls />
@@ -28,6 +38,16 @@ export { RunEngineControls } from "./run-engine-controls";
  *
  * @example Custom control bar hiding the pause and next checkpoint buttons in the Run Engine Controls
  * ```tsx
+ * import {
+ *   ControlBar,
+ *   EnvironmentControls,
+ *   QueueControls,
+ *   RunEngineControls,
+ * } from "@sophys-web/widgets/control-bar/control-bar";
+ * import { ButtonGroup } from "@sophys-web/ui/button-group";
+ *
+ * ...
+ *
  * <ControlBar>
  *  <ButtonGroup>
  *   <EnvironmentControls />
