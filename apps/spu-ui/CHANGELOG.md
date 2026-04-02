@@ -1,5 +1,21 @@
 # @sophys-web/spu-ui
 
+## 0.3.0
+
+### Minor Changes
+
+- 0e4d727: Setup1: Add the "complete aquisition" form as an option for the sample item menu on the tray so the users can set up a complete aquisition for the selected sample item.
+- d42a0db: Update load sample form to include fields for the updated plan that performs sample load and positioning.
+- 35c1222: Introduce a compact view for running item, queue and history with more responsive queue items and better previews.
+
+### Patch Changes
+
+- 35c1222: Fixed complete aquisition form with missing parameters and added it to the sample menu so a complece acquisition can be submitted for a specific sample.
+
+- Added missing ("use picolo" and "picolo channel") parameters to the acquisition forms.
+
+- Fixed load sample volume parameter validation to allow inputs between 0 and 100 uL and default to 60 uL in the form.
+
 ## 0.2.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @sophys-web/ui
 
+## 0.3.0
+
+### Minor Changes
+
+- 48e54ea: add shadcn chart component
+
 ## 0.2.0
 
 ### Minor Changes

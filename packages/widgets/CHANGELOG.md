@@ -1,5 +1,23 @@
 # @sophys-web/widgets
 
+## 0.4.0
+
+### Minor Changes
+
+- edf1991: Added CancelRunningItemButton and EmergencyStopButton components for single click pause-and-stop actions.
+- 088ff3f: Export columnHelper creator and add docs on how to customize and extend queue and history table columns.
+- 320226d: Add a combined pause and pause immediate actions in the same pause button that triggers the "immediate" action if there is a pause action already scheduled (i.e. second click).
+- 3e04678: Created independent composable components based on the former Controls widget providing independent and customizable control bar, environment, queue and run engine controls.
+
+- Deprecated the former Controls widget block. Its original composition is available in the new ControlBar component docs.
+
+- 09b5927: Set proposal field with login data in generic form (used for editing or generatign forms for any plan).
+- 2499079: Updated schema generation for generic forms for checking if the field is optional by looking for a default value in the plan parameter annotation.
+
+### Patch Changes
+
+- 35c1222: Fixed schema generation to generate optional fields based also on the existence of a default value.
+
 ## 0.3.0
 
 ### Minor Changes
