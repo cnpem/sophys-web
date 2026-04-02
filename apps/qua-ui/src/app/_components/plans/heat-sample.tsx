@@ -202,6 +202,62 @@ export function convertRegionTuplesToObjects(
   }));
 }
 
+/**
+ * Generate chart data points from the watched regions.
+ * @param watchedRegions - Array of region objects representing the current state of the form regions.
+ * @returns Array of chart data points with time and temperature.
+ */
+export function generateChartDataFromRegions(
+  watchedRegions: z.infer<typeof baseRegionObjectSchema>[],
+) {
+  let time = 0;
+  let currentTemp = 20;
+
+  /**
+   * Add first point at time 0 with initial temperature (assumed to be 20ºC ~ room temperature)
+   * We are assuming that this plan will be used for heating up samples from room temperature,
+   * so we start the plot at 20ºC. This also allows to visualize the initial ramp up from room temperature
+   * to the first target temperature.
+   */
+  const data: { time: number; temperature: number }[] = [
+    { time: time, temperature: currentTemp },
+  ];
+
+  watchedRegions.forEach((region) => {
+    const rate = region.rate;
+    const targetTemp = region.temperature;
+    const duration = region.duration;
+
+    if (region.ramp === "ramp") {
+      if (rate > 0) {
+        const deltaT = targetTemp - currentTemp;
+        const rampTimeMin = Math.abs(deltaT / rate);
+
+        time += rampTimeMin;
+        currentTemp = targetTemp;
+
+        data.push({
+          time,
+          temperature: currentTemp,
+        });
+      }
+    }
+
+    if (region.ramp === "dwell") {
+      const dwellTimeMin = duration;
+
+      time += Number(dwellTimeMin);
+
+      data.push({
+        time,
+        temperature: currentTemp,
+      });
+    }
+  });
+
+  return data;
+}
+
 // =========================================================================
 // MainForm Component
 // =========================================================================
@@ -335,54 +391,10 @@ export function MainForm({
    * the time is simply increased by the dwell duration while keeping the temperature constant.
    */
 
-  const chartData = useMemo(() => {
-    let time = 0;
-    let currentTemp = 20;
-
-    /**
-     * Add first point at time 0 with initial temperature (assumed to be 20ºC ~ room temperature)
-     * We are assuming that this plan will be used for heating up samples from room temperature,
-     * so we start the plot at 20ºC. This also allows to visualize the initial ramp up from room temperature
-     * to the first target temperature.
-     */
-    const data: { time: number; temperature: number }[] = [
-      { time: time, temperature: currentTemp },
-    ];
-
-    watchedRegions.forEach((region) => {
-      const rate = region.rate;
-      const targetTemp = region.temperature;
-      const duration = region.duration;
-
-      if (region.ramp === "ramp") {
-        if (rate > 0) {
-          const deltaT = targetTemp - currentTemp;
-          const rampTimeMin = Math.abs(deltaT / rate);
-
-          time += rampTimeMin;
-          currentTemp = targetTemp;
-
-          data.push({
-            time,
-            temperature: currentTemp,
-          });
-        }
-      }
-
-      if (region.ramp === "dwell") {
-        const dwellTimeMin = duration;
-
-        time += Number(dwellTimeMin);
-
-        data.push({
-          time,
-          temperature: currentTemp,
-        });
-      }
-    });
-
-    return data;
-  }, [watchedRegions]);
+  const chartData = useMemo(
+    () => generateChartDataFromRegions(watchedRegions),
+    [watchedRegions],
+  );
 
   const chartConfig = {
     temperature: {
