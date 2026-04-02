@@ -55,16 +55,16 @@ export function UploadQueue() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="ghost">
+        <Button size="sm" variant="outline" className="rounded-full">
           <UploadIcon className="size-4" />
-          Upload
+          Upload CSV
         </Button>
       </DialogTrigger>
       <DialogContent className="min-w-xl">
         <DialogHeader>
           <DialogTitle>Load Experiment Queue</DialogTitle>
           <DialogDescription>
-            <p>Load a new experiment queue from a CSV file.</p>
+            <span>Load a new exspaneriment queue from a CSV file.</span>
             <Link
               href={exampleCsvPath}
               download={"example-input-data.csv"}

@@ -1,10 +1,9 @@
-"use client";
-
 import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
+import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
 import {
   Form,
@@ -14,15 +13,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@sophys-web/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@sophys-web/ui/select";
+import { Input } from "@sophys-web/ui/input";
 import type { Sample } from "./sample-item";
-import { loadVolumeOptions } from "~/lib/constants";
 import { name, schema } from "~/lib/schemas/plans/load";
 
 export function LoadSampleForm({
@@ -32,6 +24,7 @@ export function LoadSampleForm({
   sample: Sample;
   onSubmitCallback?: () => void;
 }) {
+  const { data: userData } = api.auth.getUser.useQuery();
   const { add } = useQueue();
   const form = useForm({
     resolver: zodResolver(schema),
@@ -39,7 +32,10 @@ export function LoadSampleForm({
       tray: sample.tray,
       row: sample.row,
       col: sample.col,
-      volume: 0,
+      volume: 60, // default load volume to 60 µL
+      sampleTag: sample.sampleTag,
+      sampleType: sample.sampleType,
+      proposal: userData?.proposal ?? "", // default proposal to user's current proposal
     },
   });
 
@@ -47,11 +43,6 @@ export function LoadSampleForm({
     toast.info("Submitting sample...");
     const kwargs = schema.parse({
       ...data,
-      metadata: {
-        sampleTag: sample.sampleTag,
-        bufferTag: sample.bufferTag,
-        sampleType: sample.sampleType,
-      },
     });
     add.mutate(
       {
@@ -80,29 +71,81 @@ export function LoadSampleForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="grid grid-cols-2 gap-4"
+      >
         <FormField
           control={form.control}
           name="volume"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Volume (µL)</FormLabel>
-              <Select onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {loadVolumeOptions.map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option} µL
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+              {/* <FormDescription className="flex-wrap">
+                Load volume (default: 60).
+              </FormDescription> */}
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* expUvTime */}
+        <FormField
+          control={form.control}
+          name="expUvTime"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>UV Exposure Time (s)</FormLabel>
+              {/* <FormDescription className="flex-wrap">
+                UV exposure time in seconds.
+              </FormDescription> */}
+              <FormControl>
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  placeholder="Optional"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* measureUvNumber */}
+        <FormField
+          control={form.control}
+          name="measureUvNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Number of UV Measurements</FormLabel>
+              {/* <FormDescription className="flex-wrap">
+                Number of UV measurements to take.
+              </FormDescription> */}
+              <FormControl>
+                <Input
+                  {...field}
+                  value={field.value ?? ""}
+                  placeholder="Optional"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* proposal */}
+        <FormField
+          control={form.control}
+          name="proposal"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Proposal</FormLabel>
+              {/* <FormDescription className="flex-wrap">
+                Proposal name or ID.
+              </FormDescription> */}
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -110,7 +153,7 @@ export function LoadSampleForm({
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}
-          className="w-full"
+          className="col-span-2"
         >
           Submit
         </Button>

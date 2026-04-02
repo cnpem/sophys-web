@@ -1,23 +1,11 @@
-"use client";
-
 import type { z } from "zod";
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CameraIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@sophys-web/ui/dialog";
 import {
   Form,
   FormControl,
@@ -36,110 +24,53 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
-import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import { sampleTypeOptions } from "~/lib/constants";
-import { name, schema } from "~/lib/schemas/plans/single-acquisition";
+import type { Sample } from "./sample-item";
+import {
+  cleaningOptions,
+  picoloChannels,
+  sampleTypeOptions,
+} from "~/lib/constants";
+import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
-export function SingleAcquisition({
-  className,
-  lastSampleParams,
-  onClose,
-}: {
-  lastSampleParams: LastSampleParams | undefined;
-  className?: string;
-  onClose?: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const { data } = api.auth.getUser.useQuery();
-
-  const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (!isOpen) {
-      onClose?.();
-    }
-  };
-
-  const handleSubmitSuccess = () => {
-    setOpen(false);
-    onClose?.();
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" className={className}>
-          <CameraIcon className="mr-2 h-4 w-4" />
-          Acquire
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Acquire</DialogTitle>
-          <DialogDescription className="flex flex-col gap-2">
-            Please fill in the details below to submit the plan. The sample
-            details are pre-filled.
-          </DialogDescription>
-        </DialogHeader>
-        <SingleAcquisitionForm
-          proposal={data?.proposal}
-          lastSampleParams={lastSampleParams}
-          onSubmitSuccess={handleSubmitSuccess}
-        />
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-const defaultValues: z.infer<typeof schema> = {
-  proposal: "",
-  sampleType: "sample",
-  sampleTag: "",
-  bufferTag: "",
-  acquireTime: 0.1,
-  numExposures: 1,
-  temperature: 25,
-  setTemperature: false,
-  usePicolo: false,
-  usePimega: false,
-  metadata: {},
-};
-
-function SingleAcquisitionForm({
-  lastSampleParams,
-  proposal,
+export function CompleteAcquisitionForm({
+  sampleParams,
   className,
   onSubmitSuccess,
 }: {
-  lastSampleParams: LastSampleParams | undefined;
-  proposal?: string;
+  sampleParams: Sample | undefined;
   className?: string;
   onSubmitSuccess: () => void;
 }) {
   const { add } = useQueue();
+  const { data: userData } = api.auth.getUser.useQuery();
 
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      ...defaultValues,
-      ...(proposal && { proposal }),
-      ...(lastSampleParams && {
-        tray: lastSampleParams.tray,
-        row: lastSampleParams.row,
-        col: lastSampleParams.col,
-        sampleType: lastSampleParams.sampleType,
-        sampleTag: lastSampleParams.sampleTag,
-        bufferTag: lastSampleParams.bufferTag,
-        metadata: {
-          row: lastSampleParams.row,
-          col: lastSampleParams.col,
-          tray: lastSampleParams.tray,
-        },
+      proposal: userData?.proposal ?? "",
+      sampleType: "sample",
+      volume: 60,
+      acquireTime: 0.1,
+      numExposures: 1,
+      expUvTime: 0,
+      measureUvNumber: 0,
+      temperature: 25,
+      setTemperature: false,
+      picoloChannel: "channel2",
+      standardOption: "normal",
+      ...(sampleParams && {
+        tray: sampleParams.tray,
+        row: sampleParams.row,
+        col: sampleParams.col,
+        sampleType: sampleParams.sampleType,
+        sampleTag: sampleParams.sampleTag,
+        bufferTag: sampleParams.bufferTag,
       }),
     },
   });
 
   function onSubmit(data: z.infer<typeof schema>) {
-    toast.info("Submitting sample...");
+    toast.info("Submitting complete aquisition...");
     const kwargs = schema.parse({
       ...data,
     });
@@ -231,6 +162,19 @@ function SingleAcquisitionForm({
           />
           <FormField
             control={form.control}
+            name="volume"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Volume (µL)</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="numExposures"
             render={({ field }) => (
               <FormItem>
@@ -294,48 +238,61 @@ function SingleAcquisitionForm({
           />
           <FormField
             control={form.control}
-            name="usePimega"
+            name="picoloChannel"
             render={({ field }) => (
               <FormItem>
-                <div className="inline-flex gap-1">
-                  <FormLabel>Use Pimega</FormLabel>
-                </div>
-                <FormControl>
-                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
-                    <Label className="text-slate-500">
-                      {field.value ? "Yes" : "No"}
-                    </Label>
-                    <Switch
-                      checked={field.value ?? false}
-                      className="ml-auto"
-                      onCheckedChange={field.onChange}
-                    />
-                  </div>
-                </FormControl>
+                <FormLabel>Picolo Channel</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {picoloChannels.map((option) => {
+                      return (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
             control={form.control}
-            name="usePicolo"
+            name="standardOption"
             render={({ field }) => (
               <FormItem>
-                <div className="inline-flex gap-1">
-                  <FormLabel>Use Picolo</FormLabel>
-                </div>
-                <FormControl>
-                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
-                    <Label className="text-slate-500">
-                      {field.value ? "Yes" : "No"}
-                    </Label>
-                    <Switch
-                      checked={field.value ?? false}
-                      className="ml-auto"
-                      onCheckedChange={field.onChange}
-                    />
-                  </div>
-                </FormControl>
+                <FormLabel>Cleaning Option</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {/* Filter out "custom" cleaning option */}
+                    {cleaningOptions
+                      .filter((option) => option !== "custom")
+                      .map((option) => {
+                        return (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        );
+                      })}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

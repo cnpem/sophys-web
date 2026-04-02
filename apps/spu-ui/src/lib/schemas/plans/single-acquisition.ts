@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { sampleTypeOptions } from "../../constants";
+import { picoloChannels, sampleTypeOptions } from "../../constants";
 
 const name = "setup1_acquisition";
 const schema = z.object({
@@ -18,6 +18,7 @@ const schema = z.object({
   isRef: z.boolean().optional(),
   usePimega: z.boolean().optional(),
   usePicolo: z.boolean().optional(),
+  picoloChannel: z.enum(picoloChannels).optional(), // this should only be required if usePicolo is true (or better, only one kwarg that is either picolo ch1, ch2, or none)
   metadata: z.record(z.string()).optional(),
 });
 export { name, schema };

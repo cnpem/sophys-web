@@ -37,16 +37,16 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import { cleaningOptions, sampleTypeOptions } from "~/lib/constants";
-import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
+import { picoloChannels, sampleTypeOptions } from "~/lib/constants";
+import { name, schema } from "~/lib/schemas/plans/single-acquisition";
 
-export function CompleteAcquisition({
+export function SingleAcquisition({
   className,
   lastSampleParams,
   onClose,
 }: {
-  className?: string;
   lastSampleParams: LastSampleParams | undefined;
+  className?: string;
   onClose?: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -69,19 +69,18 @@ export function CompleteAcquisition({
       <DialogTrigger asChild>
         <Button variant="ghost" className={className}>
           <CameraIcon className="mr-2 h-4 w-4" />
-          Complete Acquisition
+          Acquire
         </Button>
       </DialogTrigger>
-
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Acquire</DialogTitle>
           <DialogDescription className="flex flex-col gap-2">
-            Please fill in the details below to submit the plan. The last loaded
-            sample details are pre-filled.
+            Please fill in the details below to submit the plan. The sample
+            details are pre-filled.
           </DialogDescription>
         </DialogHeader>
-        <CompleteAcquisitionForm
+        <SingleAcquisitionForm
           proposal={data?.proposal}
           lastSampleParams={lastSampleParams}
           onSubmitSuccess={handleSubmitSuccess}
@@ -91,7 +90,22 @@ export function CompleteAcquisition({
   );
 }
 
-function CompleteAcquisitionForm({
+const defaultValues: z.infer<typeof schema> = {
+  proposal: "",
+  sampleType: "sample",
+  sampleTag: "",
+  bufferTag: undefined,
+  acquireTime: 0.1,
+  numExposures: 1,
+  temperature: 25,
+  setTemperature: false,
+  usePicolo: true,
+  usePimega: true,
+  picoloChannel: "channel2",
+  metadata: {},
+};
+
+function SingleAcquisitionForm({
   lastSampleParams,
   proposal,
   className,
@@ -107,16 +121,7 @@ function CompleteAcquisitionForm({
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      proposal: "",
-      sampleType: "sample",
-      volume: 0,
-      acquireTime: 0.1,
-      numExposures: 1,
-      expUvTime: 0,
-      measureUvNumber: 0,
-      temperature: 25,
-      setTemperature: false,
-      standardOption: "normal",
+      ...defaultValues,
       ...(proposal && { proposal }),
       ...(lastSampleParams && {
         tray: lastSampleParams.tray,
@@ -124,13 +129,18 @@ function CompleteAcquisitionForm({
         col: lastSampleParams.col,
         sampleType: lastSampleParams.sampleType,
         sampleTag: lastSampleParams.sampleTag,
-        bufferTag: lastSampleParams.bufferTag,
+        bufferTag: undefined,
+        metadata: {
+          row: lastSampleParams.row,
+          col: lastSampleParams.col,
+          tray: lastSampleParams.tray,
+        },
       }),
     },
   });
 
   function onSubmit(data: z.infer<typeof schema>) {
-    toast.info("Submitting complete aquisition...");
+    toast.info("Submitting sample...");
     const kwargs = schema.parse({
       ...data,
     });
@@ -285,13 +295,62 @@ function CompleteAcquisitionForm({
           />
           <FormField
             control={form.control}
-            name="standardOption"
+            name="usePimega"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cleaning Option</FormLabel>
+                <div className="inline-flex gap-1">
+                  <FormLabel>Use Pimega</FormLabel>
+                </div>
+                <FormControl>
+                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                    <Label className="text-slate-500">
+                      {field.value ? "Yes" : "No"}
+                    </Label>
+                    <Switch
+                      checked={field.value ?? false}
+                      className="ml-auto"
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="usePicolo"
+            render={({ field }) => (
+              <FormItem>
+                <div className="inline-flex gap-1">
+                  <FormLabel>Use Picolo</FormLabel>
+                </div>
+                <FormControl>
+                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                    <Label className="text-slate-500">
+                      {field.value ? "Yes" : "No"}
+                    </Label>
+                    <Switch
+                      checked={field.value ?? false}
+                      className="ml-auto"
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="picoloChannel"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Picolo Channel</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  disabled={!form.watch("usePicolo")}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
@@ -299,16 +358,13 @@ function CompleteAcquisitionForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {/* Filter out "custom" cleaning option */}
-                    {cleaningOptions
-                      .filter((option) => option !== "custom")
-                      .map((option) => {
-                        return (
-                          <SelectItem key={option} value={option}>
-                            {option}
-                          </SelectItem>
-                        );
-                      })}
+                    {picoloChannels.map((option) => {
+                      return (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
                 <FormMessage />

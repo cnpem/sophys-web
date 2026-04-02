@@ -35,7 +35,6 @@ const cleaningPlans = [
 
 export interface LastSampleParams {
   sampleTag: string;
-  bufferTag: string | undefined;
   sampleType: (typeof sampleTypeOptions)[number];
   row: (typeof trayRows)[number];
   col: (typeof trayColumns)[number];
@@ -124,11 +123,10 @@ export const useCapillaryState = () => {
     setCapillaryState(capillaryState);
     if (capillaryState === "sample") {
       const parsedKwargs = loadSampleKwargs.safeParse(lastSample?.kwargs);
-      if (parsedKwargs.success && parsedKwargs.data.metadata) {
+      if (parsedKwargs.success) {
         setLoadedSample({
-          sampleTag: parsedKwargs.data.metadata.sampleTag,
-          bufferTag: parsedKwargs.data.metadata.bufferTag,
-          sampleType: parsedKwargs.data.metadata.sampleType,
+          sampleTag: parsedKwargs.data.sampleTag,
+          sampleType: parsedKwargs.data.sampleType,
           row: parsedKwargs.data.row,
           col: parsedKwargs.data.col,
           tray: parsedKwargs.data.tray,
