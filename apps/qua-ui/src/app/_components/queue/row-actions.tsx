@@ -25,6 +25,7 @@ import { AnyForm } from "@sophys-web/widgets/form";
 import { createSchema } from "@sophys-web/widgets/lib/create-schema";
 import type { QueueItemProps } from "~/lib/types";
 import { EditFlyScanForm, PLAN_NAME_FLY } from "../plans/fly-scan";
+import { EditHeatForm, PLAN_NAME_HEAT } from "../plans/heat-sample";
 import {
   EditRegionEnergyScanForm,
   PLAN_NAME,
@@ -83,6 +84,17 @@ function EditItemForm({
         className="w-2xl"
       />
     );
+  if (item.name === PLAN_NAME_HEAT) {
+    return (
+      <EditHeatForm
+        itemUid={item.itemUid}
+        kwargs={item.kwargs}
+        proposal={proposal}
+        onSubmitSuccess={onSubmitSuccess}
+        className="w-2xl"
+      />
+    );
+  }
   // default
   return (
     <EditGenericPlanForm
