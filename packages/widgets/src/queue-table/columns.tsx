@@ -30,7 +30,7 @@ function DragHandle({ id }: { id: UniqueIdentifier }) {
   );
 }
 
-const columnHelper = createColumnHelper<QueueItemProps>();
+export const columnHelper = createColumnHelper<QueueItemProps>();
 
 const defaultColumns = [
   columnHelper.display({
@@ -73,4 +73,28 @@ const defaultColumns = [
   }),
 ];
 
-export const columns = defaultColumns as ColumnDef<QueueItemProps>[];
+export type QueueTableColumns = ColumnDef<QueueItemProps>[];
+
+/**
+ * Default columns for the QueueTable component.
+ * Can be extended:
+ * @example
+ * ```typescript
+ * import { columnHelper, columns } from "@sophys-web/widgets/queue-table/columns";
+ * import { DataTable as QueueTable } from "@sophys-web/widgets/queue-table/data-table";
+ * import type { QueueTableColumns } from "@sophys-web/widgets/queue-table/columns";
+ *
+ * const customColumns = [
+ *   ...columns.filter((col) => col.id !== "edit"),
+ *   columnHelper.display({
+ *     id: "edit",
+ *     cell: ({ row }) => <CustomEditItemDialog item={row.original} />,
+ *   }),
+ * ] as QueueTableColumns;
+ *
+ * function CustomQueueTable() {
+ *   return <QueueTable columns={customColumns} />;
+ * }
+ * ```
+ */
+export const columns = defaultColumns as QueueTableColumns;

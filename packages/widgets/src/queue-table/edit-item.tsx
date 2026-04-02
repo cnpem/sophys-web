@@ -58,7 +58,7 @@ interface EditGenericPlanFormProps
   onSubmitSuccess?: () => void;
 }
 
-function EditGenericPlanForm({
+export function EditGenericPlanForm({
   name,
   itemUid,
   kwargs,
