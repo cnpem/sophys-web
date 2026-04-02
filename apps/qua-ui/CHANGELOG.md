@@ -1,5 +1,12 @@
 # @sophys-web/qua-ui
 
+## 0.4.0
+
+### Minor Changes
+
+- 48e54ea: Add a "heat" plan form for Quati beamline and add shadcn chart component
+- c2cb0f1: Add multiple experiment related PVs to the main dashboard, also change the Queue name to Experimental Procedures
+
 ## 0.3.0
 
 ### Minor Changes
