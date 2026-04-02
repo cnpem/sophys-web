@@ -56,6 +56,7 @@ import { DataTableViewOptions } from "@sophys-web/widgets/data-table/column-togg
 import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
 import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
 import type { QueueItemProps } from "~/lib/types";
+import { InSituSelector } from "../insitu/insitu-items";
 import { ScanSelector } from "../scans/scans-items";
 import { columns } from "./columns";
 
@@ -184,6 +185,7 @@ export function DataTable() {
         />
 
         <ScanSelector />
+        <InSituSelector />
 
         <NewItemSearchDialog />
         <DataTableViewOptions table={table} />
