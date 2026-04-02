@@ -54,7 +54,7 @@ export function RegisterSampleForm({
     defaultValues: {
       sampleType: sample.sampleType ?? "sample",
       sampleTag: sample.sampleTag ?? "",
-      bufferTag: sample.bufferTag ?? "",
+      bufferTag: sample.bufferTag,
     },
   });
 
@@ -75,7 +75,7 @@ export function RegisterSampleForm({
   const onChangeSampleType = useCallback(
     (value: string) => {
       if (value === "buffer") {
-        form.setValue("bufferTag", "");
+        form.setValue("bufferTag", undefined);
       }
     },
     [form],
