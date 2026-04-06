@@ -9,6 +9,8 @@ export const env = createEnv({
         : z.string().min(1).optional(),
     NODE_ENV: z.enum(["development", "production"]).optional(),
     BLUESKY_HTTPSERVER_URL: z.string().url(),
+    REDIS_URL: z.string().url().optional(),
+    REDIS_STORE_PREFIX: z.string().optional(),
   },
   client: {},
   experimental__runtimeEnv: {},
