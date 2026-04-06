@@ -1,7 +1,7 @@
 import { createZodFetcher } from "zod-fetch";
-import { env } from "../../env";
-import commonSchemas from "../schemas/common";
-import { protectedProcedure } from "../trpc";
+import { env } from "../../../env";
+import commonSchemas from "../../schemas/common";
+import { protectedProcedure } from "../../trpc";
 
 export const environmentRouter = {
   open: protectedProcedure.mutation(async ({ ctx }) => {

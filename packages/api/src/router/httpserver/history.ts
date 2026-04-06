@@ -1,8 +1,8 @@
-import { env } from "../../env";
-import commonSchemas from "../schemas/common";
-import history from "../schemas/history";
-import { protectedProcedure } from "../trpc";
-import { zodSnakeFetcher } from "../utils";
+import { env } from "../../../env";
+import commonSchemas from "../../schemas/common";
+import history from "../../schemas/history";
+import { protectedProcedure } from "../../trpc";
+import { zodSnakeFetcher } from "../../utils";
 
 export const historyRouter = {
   get: protectedProcedure.query(async ({ ctx }) => {

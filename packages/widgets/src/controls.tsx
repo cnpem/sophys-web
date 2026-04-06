@@ -61,8 +61,8 @@ import {
 
 type BasicUiStatus = "online" | "offline" | "busy" | "error";
 type WorkerEnvironmentState =
-  RouterOutput["status"]["get"]["workerEnvironmentState"];
-type ManagerState = RouterOutput["status"]["get"]["managerState"];
+  RouterOutput["httpserver"]["status"]["get"]["workerEnvironmentState"];
+type ManagerState = RouterOutput["httpserver"]["status"]["get"]["managerState"];
 type CombinedEnvState = "unknown" | WorkerEnvironmentState | ManagerState;
 
 const combinedStateToBasicStatusMap: Record<CombinedEnvState, BasicUiStatus> = {
@@ -427,15 +427,15 @@ export function PauseControls() {
   const utils = api.useUtils();
   const reState = status.data?.reState ?? "unknown";
 
-  const pause = api.runEngine.pause.useMutation({
+  const pause = api.httpserver.runEngine.pause.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
-  const resume = api.runEngine.resume.useMutation({
+  const resume = api.httpserver.runEngine.resume.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
@@ -540,19 +540,19 @@ export function StopControls() {
   const utils = api.useUtils();
   const reState = status.data?.reState ?? "unknown";
 
-  const stop = api.runEngine.stop.useMutation({
+  const stop = api.httpserver.runEngine.stop.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
-  const halt = api.runEngine.halt.useMutation({
+  const halt = api.httpserver.runEngine.halt.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
-  const abort = api.runEngine.abort.useMutation({
+  const abort = api.httpserver.runEngine.abort.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 

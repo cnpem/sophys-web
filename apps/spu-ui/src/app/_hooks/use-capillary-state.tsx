@@ -66,7 +66,7 @@ function capillaryStateFromTimes({
 }
 
 export const useCapillaryState = () => {
-  const { data } = api.history.get.useQuery();
+  const { data } = api.httpserver.history.get.useQuery();
   const [loadedSample, setLoadedSample] = useState<
     LastSampleParams | undefined
   >(undefined);

@@ -18,8 +18,9 @@ interface EditItemProps {
 
 export function NewItemSearch(props: EditItemProps) {
   const { data: plans, isLoading: isLoadingPlans } =
-    api.plans.allowed.useQuery(undefined);
-  const { data: devices } = api.devices.allowedNames.useQuery(undefined);
+    api.httpserver.plans.allowed.useQuery(undefined);
+  const { data: devices } =
+    api.httpserver.devices.allowedNames.useQuery(undefined);
   const { add } = useQueue();
   const [search, setSearch] = useState<string>("");
 

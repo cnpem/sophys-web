@@ -1,7 +1,7 @@
-import { env } from "../../env";
-import devicesSchema from "../schemas/devices";
-import { protectedProcedure } from "../trpc";
-import { camelToSnakeCase, zodSnakeFetcher } from "../utils";
+import { env } from "../../../env";
+import devicesSchema from "../../schemas/devices";
+import { protectedProcedure } from "../../trpc";
+import { camelToSnakeCase, zodSnakeFetcher } from "../../utils";
 
 export interface AllowedNames {
   flyables: string[];

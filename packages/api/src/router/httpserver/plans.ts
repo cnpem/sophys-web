@@ -1,8 +1,8 @@
 // import { createZodFetcher } from "zod-fetch";
-import { env } from "../../env";
-import schemas from "../schemas/plans";
-import { protectedProcedure } from "../trpc";
-import { zodSnakeFetcher } from "../utils";
+import { env } from "../../../env";
+import schemas from "../../schemas/plans";
+import { protectedProcedure } from "../../trpc";
+import { zodSnakeFetcher } from "../../utils";
 
 export const plansRouter = {
   allowed: protectedProcedure.query(async ({ ctx }) => {

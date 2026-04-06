@@ -30,9 +30,9 @@ export default async function Page() {
   }
 
   await Promise.allSettled([
-    api.queue.get.prefetch(),
-    api.history.get.prefetch(),
-    api.status.get.prefetch(),
+    api.httpserver.queue.get.prefetch(),
+    api.httpserver.history.get.prefetch(),
+    api.httpserver.status.get.prefetch(),
   ]);
 
   return (
