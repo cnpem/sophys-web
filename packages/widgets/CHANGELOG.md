@@ -1,5 +1,12 @@
 # @sophys-web/widgets
 
+## 0.4.1
+
+### Patch Changes
+
+- 9a48ca7: Docs: add import statements to the control bar examples.
+- 9ec4be0: Add basic usage docs in README.
+
 ## 0.4.0
 
 ### Minor Changes
