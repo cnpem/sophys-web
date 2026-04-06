@@ -7,6 +7,7 @@ import { plansRouter } from "./router/httpserver/plans";
 import { queueRouter } from "./router/httpserver/queue";
 import { runEngineRouter } from "./router/httpserver/run-engine";
 import { statusRouter } from "./router/httpserver/status";
+import { redisHashStore } from "./router/redisHashStore";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
@@ -22,6 +23,7 @@ export const appRouter = createTRPCRouter({
     auth: authRouter,
   } as const,
   auth: authRouter,
+  store: redisHashStore,
 });
 
 // export type definition of API

@@ -11,6 +11,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 import type { Session } from "@sophys-web/auth";
 import { auth } from "@sophys-web/auth";
+import { redisClient } from "./lib/redis";
 
 /**
  * 1. CONTEXT
@@ -35,6 +36,7 @@ export const createTRPCContext = async (opts: {
 
   return {
     session,
+    redisClient,
   };
 };
 
