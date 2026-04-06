@@ -33,8 +33,8 @@ import { columns } from "./columns";
 import { FinishedItemAlertDialog } from "./finished-item-alert-dialog";
 
 export function DataTable() {
-  const { data, isPending } = api.history.get.useQuery();
-  const { mutate } = api.history.clear.useMutation();
+  const { data, isPending } = api.httpserver.history.get.useQuery();
+  const { mutate } = api.httpserver.history.clear.useMutation();
 
   const clearHistory = useCallback(() => {
     mutate(undefined, {

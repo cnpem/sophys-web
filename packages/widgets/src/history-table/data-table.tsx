@@ -27,7 +27,7 @@ import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagina
 import { columns } from "./columns";
 
 export function DataTable() {
-  const { data, isPending } = api.history.get.useQuery();
+  const { data, isPending } = api.httpserver.history.get.useQuery();
 
   const tableColumns = useMemo(
     () =>
