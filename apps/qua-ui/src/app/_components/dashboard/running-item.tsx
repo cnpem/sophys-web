@@ -15,7 +15,7 @@ export function RunningItem() {
     isLoading,
     isError,
     error,
-  } = api.queue.get.useQuery(undefined, {
+  } = api.httpserver.queue.get.useQuery(undefined, {
     select: (data) => data.runningItem,
   });
 

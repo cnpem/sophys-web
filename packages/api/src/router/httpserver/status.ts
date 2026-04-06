@@ -1,7 +1,7 @@
-import { env } from "../../env";
-import schemas from "../schemas/status";
-import { protectedProcedure } from "../trpc";
-import { zodSnakeFetcher } from "../utils";
+import { env } from "../../../env";
+import schemas from "../../schemas/status";
+import { protectedProcedure } from "../../trpc";
+import { zodSnakeFetcher } from "../../utils";
 
 export const statusRouter = {
   get: protectedProcedure.query(async ({ ctx }) => {

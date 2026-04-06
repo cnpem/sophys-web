@@ -14,17 +14,17 @@ export const useQueue = () => {
   const utils = api.useUtils();
 
   const onSettled = async () => {
-    await utils.queue.get.invalidate();
+    await utils.httpserver.queue.get.invalidate();
   };
 
-  const queue = api.queue.get.useQuery();
+  const queue = api.httpserver.queue.get.useQuery();
 
-  const add = api.queue.item.add.useMutation({
+  const add = api.httpserver.queue.item.add.useMutation({
     onMutate: async (plan) => {
       // cancel any outgoing fetches
-      await utils.queue.get.cancel();
+      await utils.httpserver.queue.get.cancel();
       // snapshot the current value
-      const previousValue = utils.queue.get.getData();
+      const previousValue = utils.httpserver.queue.get.getData();
       // simulate item response object based on the item passed in
       const newItemResponse: QueueItemProps = {
         ...plan.item,
@@ -33,13 +33,18 @@ export const useQueue = () => {
         itemUid: `optimistic-${nanoid()}`,
         result: null,
       };
+
       // optimistically update the cache
-      utils.queue.get.setData(
+      utils.httpserver.queue.get.setData(
         undefined,
         previousValue
           ? {
               ...previousValue,
-              items: [newItemResponse, ...previousValue.items],
+              // create new items list based on the plan.pos (if provided) or add to the end of the list
+              items:
+                plan.pos === "front"
+                  ? [newItemResponse, ...previousValue.items]
+                  : [...previousValue.items, newItemResponse],
             }
           : undefined,
       );
@@ -47,27 +52,31 @@ export const useQueue = () => {
     },
     onError: (error, _variables, context) => {
       // rollback to the previous value
-      utils.queue.get.setData(undefined, context?.previousValue);
+      utils.httpserver.queue.get.setData(undefined, context?.previousValue);
       throw new Error(error.message.trim().replace(/\n/g, " "));
     },
     onSettled,
   });
 
-  const addBatch = api.queue.item.addBatch.useMutation({ onSettled });
+  const addBatch = api.httpserver.queue.item.addBatch.useMutation({
+    onSettled,
+  });
 
-  const execute = api.queue.item.execute.useMutation({ onSettled });
+  const execute = api.httpserver.queue.item.execute.useMutation({ onSettled });
 
-  const remove = api.queue.item.remove.useMutation({ onSettled });
+  const remove = api.httpserver.queue.item.remove.useMutation({ onSettled });
 
-  const clear = api.queue.clear.useMutation({ onSettled });
+  const clear = api.httpserver.queue.clear.useMutation({ onSettled });
 
-  const start = api.queue.start.useMutation({ onSettled });
+  const start = api.httpserver.queue.start.useMutation({ onSettled });
 
-  const stop = api.queue.stop.useMutation({ onSettled });
+  const stop = api.httpserver.queue.stop.useMutation({ onSettled });
 
-  const update = api.queue.item.update.useMutation({ onSettled });
+  const update = api.httpserver.queue.item.update.useMutation({ onSettled });
 
-  const move = api.queue.item.move.useMutation({ onSettled });
+  const move = api.httpserver.queue.item.move.useMutation({
+    onSettled,
+  });
 
   return {
     queue,

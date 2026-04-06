@@ -45,8 +45,8 @@ import {
 
 type BasicUiStatus = "online" | "offline" | "busy" | "error";
 type WorkerEnvironmentState =
-  RouterOutput["status"]["get"]["workerEnvironmentState"];
-type ManagerState = RouterOutput["status"]["get"]["managerState"];
+  RouterOutput["httpserver"]["status"]["get"]["workerEnvironmentState"];
+type ManagerState = RouterOutput["httpserver"]["status"]["get"]["managerState"];
 type CombinedEnvState = "unknown" | WorkerEnvironmentState | ManagerState;
 
 const combinedStateToBasicStatusMap: Record<CombinedEnvState, BasicUiStatus> = {

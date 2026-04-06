@@ -64,8 +64,9 @@ export function EditGenericPlanForm({
   kwargs,
   onSubmitSuccess,
 }: EditGenericPlanFormProps) {
-  const { data: plans } = api.plans.allowed.useQuery(undefined);
-  const { data: devices } = api.devices.allowedNames.useQuery(undefined);
+  const { data: plans } = api.httpserver.plans.allowed.useQuery(undefined);
+  const { data: devices } =
+    api.httpserver.devices.allowedNames.useQuery(undefined);
   const { data: userData } = api.auth.getUser.useQuery();
   const { update } = useQueue();
   const planDetails = useMemo(() => {

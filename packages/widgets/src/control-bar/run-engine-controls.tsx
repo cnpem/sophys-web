@@ -38,9 +38,9 @@ export function PauseNowButton({
 }) {
   const { status } = useStatus();
   const utils = api.useUtils();
-  const pause = api.runEngine.pause.useMutation({
+  const pause = api.httpserver.runEngine.pause.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
@@ -89,9 +89,9 @@ export function PauseNextCheckpointButton({
 }) {
   const { status } = useStatus();
   const utils = api.useUtils();
-  const pause = api.runEngine.pause.useMutation({
+  const pause = api.httpserver.runEngine.pause.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
@@ -144,9 +144,9 @@ export function ResumeButton({
   variant?: ButtonProps["variant"];
 }) {
   const utils = api.useUtils();
-  const resume = api.runEngine.resume.useMutation({
+  const resume = api.httpserver.runEngine.resume.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
@@ -192,19 +192,19 @@ export function StopRunEngineOptions({
 }) {
   const utils = api.useUtils();
 
-  const stop = api.runEngine.stop.useMutation({
+  const stop = api.httpserver.runEngine.stop.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
-  const halt = api.runEngine.halt.useMutation({
+  const halt = api.httpserver.runEngine.halt.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
-  const abort = api.runEngine.abort.useMutation({
+  const abort = api.httpserver.runEngine.abort.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
@@ -331,14 +331,14 @@ export function CancelRunningItemButton({
   const { status } = useStatus();
   const reState = status.data?.reState ?? "unknown";
   const utils = api.useUtils();
-  const pause = api.runEngine.pause.useMutation({
+  const pause = api.httpserver.runEngine.pause.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
-  const abort = api.runEngine.abort.useMutation({
+  const abort = api.httpserver.runEngine.abort.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
   // Handle click based on current state of the run engine
@@ -432,14 +432,14 @@ export function EmergencyStopButton({
   const { status } = useStatus();
   const reState = status.data?.reState ?? "unknown";
   const utils = api.useUtils();
-  const pause = api.runEngine.pause.useMutation({
+  const pause = api.httpserver.runEngine.pause.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
-  const halt = api.runEngine.halt.useMutation({
+  const halt = api.httpserver.runEngine.halt.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
   // Handle click based on current state of the run engine
@@ -535,13 +535,12 @@ export function PauseAndPauseImmediateButton({
   const pausePending = status.data?.pausePending ?? false;
   const reState = status.data?.reState ?? "unknown";
   const utils = api.useUtils();
-  const { mutate, isPending: requestPending } = api.runEngine.pause.useMutation(
-    {
+  const { mutate, isPending: requestPending } =
+    api.httpserver.runEngine.pause.useMutation({
       onSettled: async () => {
-        await utils.status.get.invalidate();
+        await utils.httpserver.status.get.invalidate();
       },
-    },
-  );
+    });
 
   const handleClick = useCallback(() => {
     if (reState !== "running") {

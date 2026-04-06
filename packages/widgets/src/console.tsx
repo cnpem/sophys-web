@@ -19,7 +19,8 @@ import {
 } from "@sophys-web/ui/tooltip";
 
 export function Console() {
-  const { data: messages, refetch } = api.consoleOutput.stream.useQuery();
+  const { data: messages, refetch } =
+    api.httpserver.consoleOutput.stream.useQuery();
   const utils = api.useUtils();
   const ref = useRef<HTMLDivElement>(null);
   const handleExport = () => {
@@ -47,7 +48,7 @@ export function Console() {
     <div className="h-fit w-full overflow-hidden rounded-lg border">
       <TopBar
         onRefetch={refetch}
-        onClear={() => utils.consoleOutput.stream.reset()}
+        onClear={() => utils.httpserver.consoleOutput.stream.reset()}
         onExport={handleExport}
       />
 
