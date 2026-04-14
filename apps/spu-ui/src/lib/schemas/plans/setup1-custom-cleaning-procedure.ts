@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { cleaningAgents } from "../../constants";
+import { cleaningAgents } from "../../../app/_components/store/setup1/constants";
 
 const name = "setup1_custom_cleaning_procedure";
 const schema = z

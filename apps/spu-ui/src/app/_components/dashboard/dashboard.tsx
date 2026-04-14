@@ -6,14 +6,14 @@ import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { CompactQueue } from "@sophys-web/widgets/compact-queue";
 import { Console } from "@sophys-web/widgets/console";
 import { Controls } from "@sophys-web/widgets/controls";
-import type { Sample } from "../sample/sample-item";
 import { OnDemandSelector } from "../plans/on-demand-queue-items";
 import { UploadQueue } from "../plans/upload";
-import { Samples } from "../sample/samples";
+import { Samples as Samples1 } from "../store/setup1/sample-store";
+// import { Samples as Samples2 } from "../store/setup2/sample-store";
 import { CapillaryStateMonitor } from "./capillary-state-monitor";
 import { SampleTemperatureMonitor } from "./sample-temperature";
 
-export function Dashboard({ initialData }: { initialData: Sample[] }) {
+export function Dashboard() {
   return (
     <>
       <Controls>
@@ -35,7 +35,8 @@ export function Dashboard({ initialData }: { initialData: Sample[] }) {
               <SampleTemperatureMonitor />
               <CapillaryStateMonitor />
             </ItemGroup>
-            <Samples initialData={initialData} />
+            <Samples1 />
+            {/* <Samples2 /> */}
           </div>
         </ScrollArea>
       </div>

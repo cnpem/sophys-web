@@ -7,7 +7,7 @@ import {
   trayColumns,
   trayOptions,
   trayRows,
-} from "../../constants";
+} from "../../../app/_components/store/setup1/constants";
 
 const name = "setup1_complete_standard_acquisition";
 
@@ -141,7 +141,7 @@ const schema = z.object({
     }),
   agentsList: z.array(z.string()).optional(),
   agentsDuration: z.array(z.number()).optional(),
-  proposal: z.string(),
+  proposal: z.string().min(1, "Proposal is required"),
   temperature: z.number().positive(),
   setTemperature: z.boolean().optional(),
   picoloChannel: z.enum(picoloChannels).optional(),
