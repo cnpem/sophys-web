@@ -40,8 +40,8 @@
     "react": "catalog:react19"
   },
   "devDependencies": {
-    "@sophys-web/prettier-config": "workspace:*",
     "@sophys-web/eslint-config": "workspace:*",
+    "@sophys-web/prettier-config": "workspace:*",
     "@sophys-web/tailwind-config": "workspace:*",
     "@sophys-web/typescript-config": "workspace:*",
     "@types/react": "catalog:react19",
@@ -62,6 +62,7 @@
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "server-only": "^0.0.1",
+    "sonner": "^2.0.3",
     "superjson": "2.2.1",
     "zod": "catalog:"
   },
