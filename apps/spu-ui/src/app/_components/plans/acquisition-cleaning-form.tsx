@@ -20,8 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { cleaningAgents, cleaningOptions } from "../../../lib/constants";
 import { cleaningSchema as cleaningKwargsSchema } from "../../../lib/schemas/plans/complete-acquisition";
+import { cleaningAgents, cleaningOptions } from "../store/setup1/constants";
 
 function formatAgentList(input: string) {
   return input

@@ -5,7 +5,7 @@ import type {
   trayColumns,
   trayOptions,
   trayRows,
-} from "../../lib/constants";
+} from "../_components/store/setup1/constants";
 import { name as cleanAndCheckPlan } from "../../lib/schemas/plans/clean-and-acquire";
 import { name as completeAcquisitionWithCleaningPlan } from "../../lib/schemas/plans/complete-acquisition";
 import {

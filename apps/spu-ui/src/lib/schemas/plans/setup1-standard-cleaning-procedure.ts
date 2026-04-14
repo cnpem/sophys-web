@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { standardCleaningOptions } from "~/lib/constants";
+import { standardCleaningOptions } from "~/app/_components/store/setup1/constants";
 
 const name = "setup1_standard_cleaning_procedure";
 const schema = z.object({

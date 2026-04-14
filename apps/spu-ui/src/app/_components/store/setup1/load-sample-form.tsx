@@ -14,8 +14,9 @@ import {
   FormMessage,
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
-import type { Sample } from "./sample-item";
+import type { Sample } from "./use-sample-store";
 import { name, schema } from "~/lib/schemas/plans/load";
+import { useSampleStore } from "./use-sample-store";
 
 export function LoadSampleForm({
   sample,
@@ -26,6 +27,7 @@ export function LoadSampleForm({
 }) {
   const { data: userData } = api.auth.getUser.useQuery();
   const { add } = useQueue();
+  const { storeData, setSample } = useSampleStore();
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -39,34 +41,46 @@ export function LoadSampleForm({
     },
   });
 
-  function onSubmit(data: z.infer<typeof schema>) {
-    toast.info("Submitting sample...");
-    const kwargs = schema.parse({
-      ...data,
-    });
-    add.mutate(
-      {
+  async function onSubmit(data: z.infer<typeof schema>) {
+    try {
+      toast.info("Submitting sample...");
+
+      const kwargs = schema.parse(data);
+
+      await add.mutateAsync({
         item: {
-          name: name,
+          name,
           itemType: "plan",
           args: [],
           kwargs,
         },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Sample submitted!");
-          form.reset();
-        },
-        onError: (error) => {
-          toast.error("Failed to submit sample", {
-            description: error.message,
-            closeButton: true,
-          });
-        },
-      },
-    );
-    onSubmitCallback?.();
+      });
+
+      const currentSample = storeData?.[sample.id];
+      if (!currentSample) {
+        toast.error("Sample not found in store");
+        return;
+      }
+
+      const volumeAfter = currentSample.volume - data.volume;
+      if (volumeAfter < 0) {
+        toast.error("Loaded volume exceeds available sample volume");
+        return;
+      }
+
+      await setSample(sample.id, {
+        ...currentSample,
+        volume: volumeAfter,
+      });
+
+      toast.success("Sample submitted!");
+      onSubmitCallback?.();
+    } catch (error) {
+      toast.error("Failed to submit sample", {
+        description: error instanceof Error ? error.message : String(error),
+        closeButton: true,
+      });
+    }
   }
 
   return (
@@ -81,9 +95,6 @@ export function LoadSampleForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Volume (µL)</FormLabel>
-              {/* <FormDescription className="flex-wrap">
-                Load volume (default: 60).
-              </FormDescription> */}
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -91,16 +102,12 @@ export function LoadSampleForm({
             </FormItem>
           )}
         />
-        {/* expUvTime */}
         <FormField
           control={form.control}
           name="expUvTime"
           render={({ field }) => (
             <FormItem>
               <FormLabel>UV Exposure Time (s)</FormLabel>
-              {/* <FormDescription className="flex-wrap">
-                UV exposure time in seconds.
-              </FormDescription> */}
               <FormControl>
                 <Input
                   {...field}
@@ -112,16 +119,12 @@ export function LoadSampleForm({
             </FormItem>
           )}
         />
-        {/* measureUvNumber */}
         <FormField
           control={form.control}
           name="measureUvNumber"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Number of UV Measurements</FormLabel>
-              {/* <FormDescription className="flex-wrap">
-                Number of UV measurements to take.
-              </FormDescription> */}
               <FormControl>
                 <Input
                   {...field}
@@ -140,9 +143,6 @@ export function LoadSampleForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Proposal</FormLabel>
-              {/* <FormDescription className="flex-wrap">
-                Proposal name or ID.
-              </FormDescription> */}
               <FormControl>
                 <Input {...field} />
               </FormControl>
