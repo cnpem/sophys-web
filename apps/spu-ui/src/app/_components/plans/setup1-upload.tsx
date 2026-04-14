@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useCallback, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,21 +30,21 @@ import {
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
-import type { schema as cleanCapillaryKwargsSchema } from "../../../lib/schemas/plans/clean-and-acquire";
+import type { Sample } from "../store/setup1/use-sample-store";
+import type { schema as cleanCapillaryKwargsSchema } from "./schemas/setup1-clean-and-acquire";
 import type {
   tableSchema as acquisitionTableSchema,
   cleaningSchema as cleaningKwargsSchema,
-} from "../../../lib/schemas/plans/complete-acquisition";
-import type { Sample } from "../store/setup1/use-sample-store";
-import { name as cleanCapillaryPlanName } from "../../../lib/schemas/plans/clean-and-acquire";
-import { name as acquisitionPlanName } from "../../../lib/schemas/plans/complete-acquisition";
+} from "./schemas/setup1-complete-acquisition";
 import {
   sampleIdFromPosition,
   useSampleStore,
 } from "../store/setup1/use-sample-store";
-import { AcquisitionCleaningForm } from "./acquisition-cleaning-form";
-import { AcquisitionTableForm } from "./acquisition-table-form";
-import { CleanCapillaryForm } from "./capillary-form";
+import { name as cleanCapillaryPlanName } from "./schemas/setup1-clean-and-acquire";
+import { name as acquisitionPlanName } from "./schemas/setup1-complete-acquisition";
+import { AcquisitionCleaningForm } from "./setup1-acquisition-cleaning-form";
+import { AcquisitionTableForm } from "./setup1-acquisition-table-form";
+import { CleanCapillaryForm } from "./setup1-capillary-form";
 
 const exampleCsvPath = "/example-input-data.csv";
 

@@ -20,8 +20,8 @@ import {
 import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
 import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 import { QueueStop } from "./queue-stop";
-import { SingleAcquisition } from "./single-acquisition";
-import { StandardCleaningDialog } from "./standard-cleaning";
+import { SingleAcquisition } from "./setup1-single-acquisition";
+import { StandardCleaningDialog } from "./setup1-standard-cleaning";
 
 export function OnDemandSelector() {
   const { loadedSample } = useCapillaryState();

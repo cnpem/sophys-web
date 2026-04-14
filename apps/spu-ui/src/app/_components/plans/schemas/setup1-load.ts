@@ -4,7 +4,7 @@ import {
   trayColumns,
   trayOptions,
   trayRows,
-} from "../../../app/_components/store/setup1/constants";
+} from "../../store/setup1/constants";
 
 const name = "setup1_load_procedure";
 

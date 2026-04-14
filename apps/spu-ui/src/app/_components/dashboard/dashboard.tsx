@@ -7,9 +7,9 @@ import { CompactQueue } from "@sophys-web/widgets/compact-queue";
 import { Console } from "@sophys-web/widgets/console";
 import { Controls } from "@sophys-web/widgets/controls";
 import { OnDemandSelector } from "../plans/on-demand-queue-items";
-import { UploadQueue } from "../plans/upload";
+import { UploadQueue } from "../plans/setup1-upload";
 import { Samples as Samples1 } from "../store/setup1/sample-store";
-// import { Samples as Samples2 } from "../store/setup2/sample-store";
+import { Samples as Samples2 } from "../store/setup2/sample-store";
 import { CapillaryStateMonitor } from "./capillary-state-monitor";
 import { SampleTemperatureMonitor } from "./sample-temperature";
 
@@ -36,7 +36,7 @@ export function Dashboard() {
               <CapillaryStateMonitor />
             </ItemGroup>
             <Samples1 />
-            {/* <Samples2 /> */}
+            <Samples2 />
           </div>
         </ScrollArea>
       </div>
