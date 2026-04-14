@@ -6,14 +6,14 @@ import type {
   trayOptions,
   trayRows,
 } from "../_components/store/setup1/constants";
-import { name as cleanAndCheckPlan } from "../../lib/schemas/plans/clean-and-acquire";
-import { name as completeAcquisitionWithCleaningPlan } from "../../lib/schemas/plans/complete-acquisition";
+import { name as cleanAndCheckPlan } from "../_components/plans/schemas/setup1-clean-and-acquire";
+import { name as completeAcquisitionWithCleaningPlan } from "../_components/plans/schemas/setup1-complete-acquisition";
+import { name as setup1CustomCleaningProcedure } from "../_components/plans/schemas/setup1-custom-cleaning-procedure";
 import {
   schema as loadSampleKwargs,
   name as loadSamplePlan,
-} from "../../lib/schemas/plans/load";
-import { name as setup1CustomCleaningProcedure } from "../../lib/schemas/plans/setup1-custom-cleaning-procedure";
-import { name as setup1StandardCleaningProcedure } from "../../lib/schemas/plans/setup1-standard-cleaning-procedure";
+} from "../_components/plans/schemas/setup1-load";
+import { name as setup1StandardCleaningProcedure } from "../_components/plans/schemas/setup1-standard-cleaning-procedure";
 
 const STALE_TIME_IN_SECONDS = 15 * 60; // 15 minutes
 

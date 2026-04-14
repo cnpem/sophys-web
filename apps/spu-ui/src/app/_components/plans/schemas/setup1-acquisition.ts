@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   picoloChannels,
   sampleTypeOptions,
-} from "../../../app/_components/store/setup1/constants";
+} from "../../store/setup1/constants";
 
 const name = "setup1_acquisition";
 const schema = z.object({

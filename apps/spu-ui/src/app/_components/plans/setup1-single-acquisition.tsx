@@ -1,5 +1,3 @@
-"use client";
-
 import type { z } from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,10 +36,13 @@ import {
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import {
+  name,
+  schema,
+} from "~/app/_components/plans/schemas/setup1-acquisition";
+import {
   picoloChannels,
   sampleTypeOptions,
 } from "~/app/_components/store/setup1/constants";
-import { name, schema } from "~/lib/schemas/plans/single-acquisition";
 
 export function SingleAcquisition({
   className,

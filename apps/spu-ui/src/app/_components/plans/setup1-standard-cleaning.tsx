@@ -1,5 +1,3 @@
-"use client";
-
 import type { z } from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,11 +30,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { standardCleaningOptions } from "~/app/_components/store/setup1/constants";
 import {
   name,
   schema,
-} from "~/lib/schemas/plans/setup1-standard-cleaning-procedure";
+} from "~/app/_components/plans/schemas/setup1-standard-cleaning-procedure";
+import { standardCleaningOptions } from "~/app/_components/store/setup1/constants";
 
 export function StandardCleaningDialog({
   className,

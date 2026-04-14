@@ -193,14 +193,20 @@ function LoadSampleDialog({
   onCloseDialog?: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  // const handleClose = () => {
-  //   setOpen(false);
-  //   if (onCloseDialog) {
-  //     onCloseDialog();
-  //   }
-  // };
+  const handleClose = () => {
+    setOpen(false);
+    if (onCloseDialog) {
+      onCloseDialog();
+    }
+  };
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      handleClose();
+    }
+  };
   return (
-    <Dialog onOpenChange={setOpen} open={open}>
+    <Dialog onOpenChange={handleOpenChange} open={open}>
       {!trigger && (
         <DialogTrigger asChild onClick={() => setOpen(true)}>
           <Button variant="outline" size="icon">

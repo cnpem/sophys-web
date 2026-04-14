@@ -26,11 +26,14 @@ import {
 import { Switch } from "@sophys-web/ui/switch";
 import type { Sample } from "../store/setup1/use-sample-store";
 import {
+  name,
+  schema,
+} from "~/app/_components/plans/schemas/setup1-complete-acquisition";
+import {
   cleaningOptions,
   picoloChannels,
   sampleTypeOptions,
 } from "~/app/_components/store/setup1/constants";
-import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
 export function CompleteAcquisitionForm({
   sampleParams,

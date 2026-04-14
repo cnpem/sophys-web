@@ -15,7 +15,7 @@ import {
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
 import type { Sample } from "./use-sample-store";
-import { name, schema } from "~/lib/schemas/plans/load";
+import { name, schema } from "~/app/_components/plans/schemas/setup1-load";
 import { useSampleStore } from "./use-sample-store";
 
 export function LoadSampleForm({
