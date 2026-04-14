@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { JsonEditor, monoLightTheme } from "json-edit-react";
@@ -37,13 +37,13 @@ import type {
   tableSchema as acquisitionTableSchema,
   cleaningSchema as cleaningKwargsSchema,
 } from "../../../lib/schemas/plans/complete-acquisition";
-import type { Sample } from "../sample/sample-item";
+import type { Sample } from "../store/setup1/use-sample-store";
 import { name as cleanCapillaryPlanName } from "../../../lib/schemas/plans/clean-and-acquire";
 import { name as acquisitionPlanName } from "../../../lib/schemas/plans/complete-acquisition";
 import {
-  getSamples as getServerSamples,
-  setSamples as setServerSamples,
-} from "../../actions/samples";
+  sampleIdFromPosition,
+  useSampleStore,
+} from "../store/setup1/use-sample-store";
 import { AcquisitionCleaningForm } from "./acquisition-cleaning-form";
 import { AcquisitionTableForm } from "./acquisition-table-form";
 import { CleanCapillaryForm } from "./capillary-form";
@@ -79,40 +79,6 @@ export function UploadQueue() {
       </DialogContent>
     </Dialog>
   );
-}
-
-function samplePosition(row: string, col: string, tray: string) {
-  return {
-    complete: `${tray}-${col}${row}`,
-    relative: `${col}${row}`,
-  };
-}
-
-async function uploadSamples(
-  tableItems: z.infer<typeof acquisitionTableSchema>[],
-  prevSamples: Sample[] | undefined,
-) {
-  const newSamples = tableItems.map((item) => {
-    const { complete, relative } = samplePosition(
-      item.row,
-      item.col,
-      item.tray,
-    );
-    return {
-      id: complete,
-      relativePosition: relative,
-      ...item,
-    } as Sample;
-  });
-  if (prevSamples === undefined) {
-    await setServerSamples(newSamples);
-    return;
-  }
-  const updatedSamples = prevSamples.map((prevSample) => {
-    const newSample = newSamples.find((sample) => sample.id === prevSample.id);
-    return newSample ?? prevSample;
-  });
-  await setServerSamples(updatedSamples);
 }
 
 const errorResultsArray = z.array(
@@ -246,6 +212,7 @@ const stepsMap = [
 
 function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
   const { data: user } = api.auth.getUser.useQuery();
+  const { setMultipleSamples } = useSampleStore();
 
   const { addBatch } = useQueue();
 
@@ -308,6 +275,23 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
     </>,
   ]);
 
+  const onSubmitSamples = useCallback(
+    async (tableItems: z.infer<typeof acquisitionTableSchema>[]) => {
+      const newSamples: Record<string, Sample> = {};
+      tableItems.forEach((item) => {
+        const id = sampleIdFromPosition(item.tray, item.row, item.col);
+        const relativePosition = `${item.col}${item.row}`;
+        newSamples[id] = {
+          id,
+          relativePosition,
+          ...item,
+        } as Sample;
+      });
+      await setMultipleSamples(newSamples);
+    },
+    [setMultipleSamples],
+  );
+
   function onSubmitProposal(data: z.infer<typeof proposalSchema>) {
     setFormProposal(data.proposal);
     setUseCapillary(data.useCapillary);
@@ -337,8 +321,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
     if (!acquisitionParams) {
       return;
     }
-    const prevSamples = await getServerSamples();
-    await uploadSamples(acquisitionParams, prevSamples);
+    await onSubmitSamples(acquisitionParams);
     toast.success("Samples uploaded");
     const items = acquisitionParams.map((params) => ({
       name: acquisitionPlanName,

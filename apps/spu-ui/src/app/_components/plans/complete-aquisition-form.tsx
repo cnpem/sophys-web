@@ -24,12 +24,12 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
-import type { Sample } from "./sample-item";
+import type { Sample } from "../sample/sample-item";
 import {
   cleaningOptions,
   picoloChannels,
   sampleTypeOptions,
-} from "~/lib/constants";
+} from "~/app/_components/store/setup1/constants";
 import { name, schema } from "~/lib/schemas/plans/complete-acquisition";
 
 export function CompleteAcquisitionForm({

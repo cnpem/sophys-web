@@ -1,5 +1,3 @@
-"use client";
-
 import { useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,18 +21,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import type { Sample } from "./sample-item";
-import { getSamples, setSamples } from "../../actions/samples";
+import type { trayColumns, trayOptions, trayRows } from "./constants";
+import type { Sample } from "./use-sample-store";
+import { initialVolume } from "./constants";
+import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
 const sampleSchema = z.object({
   sampleType: z.literal("sample"),
   sampleTag: z.string().min(2, { message: "Sample tag is required" }),
   bufferTag: z.string().optional(),
+  volume: z.coerce.number().min(0),
 });
 const bufferSchema = z.object({
   sampleType: z.literal("buffer"),
   sampleTag: z.string().min(2, { message: "Sample tag is required" }),
   bufferTag: z.string().optional(),
+  volume: z.coerce.number().min(0),
 });
 
 const registerSchema = z.discriminatedUnion("sampleType", [
@@ -43,39 +45,58 @@ const registerSchema = z.discriminatedUnion("sampleType", [
 ]);
 
 export function RegisterSampleForm({
-  sample,
+  tray,
+  row,
+  column,
+  sampleTag,
+  bufferTag,
+  sampleType,
+  volume = initialVolume,
   onSubmitCallback,
 }: {
-  sample: Sample;
+  tray: (typeof trayOptions)[number];
+  row: (typeof trayRows)[number];
+  column: (typeof trayColumns)[number];
+  sampleTag?: string;
+  bufferTag?: string;
+  sampleType?: "sample" | "buffer";
+  volume?: number;
   onSubmitCallback?: () => void;
 }) {
+  const { setSample } = useSampleStore();
   const form = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      sampleType: sample.sampleType ?? "sample",
-      sampleTag: sample.sampleTag ?? "",
-      bufferTag: sample.bufferTag,
+      sampleType: sampleType ?? "sample",
+      sampleTag: sampleTag ?? "",
+      bufferTag: bufferTag ?? "",
+      volume: volume,
     },
   });
 
   async function onSubmit(data: z.infer<typeof registerSchema>) {
     toast.info("Registering sample...");
-    const samples = await getSamples();
-    await setSamples(
-      samples.map((s) =>
-        s.id === sample.id
-          ? ({ ...s, ...data, sampleType: data.sampleType } as Sample)
-          : s,
-      ),
-    );
-    toast.success("Sample registered!");
-    onSubmitCallback?.();
+    const sampleId = sampleIdFromPosition(tray, row, column);
+    const sample = {
+      id: sampleId,
+      relativePosition: `${row}${column}`,
+      tray,
+      row,
+      col: column,
+      ...data,
+      bufferTag: data.bufferTag ?? "",
+    } satisfies Sample;
+    await setSample(sampleId, sample).then(() => {
+      toast.success("Sample registered!");
+      form.reset();
+      onSubmitCallback?.();
+    });
   }
 
   const onChangeSampleType = useCallback(
     (value: string) => {
       if (value === "buffer") {
-        form.setValue("bufferTag", undefined);
+        form.setValue("bufferTag", "");
       }
     },
     [form],
@@ -147,6 +168,22 @@ export function RegisterSampleForm({
                   {...field}
                   disabled={watchSampleType === "buffer"}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="volume"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Volume (µL)</FormLabel>
+              <FormDescription>
+                Please set the volume for this sample in microliters.
+              </FormDescription>
+              <FormControl>
+                <Input type="number" placeholder="Volume in µL" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

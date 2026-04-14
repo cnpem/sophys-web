@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { picoloChannels, sampleTypeOptions } from "../../constants";
+import {
+  picoloChannels,
+  sampleTypeOptions,
+} from "../../../app/_components/store/setup1/constants";
 
 const name = "setup1_acquisition";
 const schema = z.object({
@@ -9,7 +12,7 @@ const schema = z.object({
   numExposures: z.coerce
     .number()
     .min(1, "Number of exposures must be at least 1"),
-  proposal: z.string(),
+  proposal: z.string().length(8),
   sampleType: z.enum(sampleTypeOptions),
   sampleTag: z.string(),
   bufferTag: z.string().optional(),

@@ -32,7 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { standardCleaningOptions } from "~/lib/constants";
+import { standardCleaningOptions } from "~/app/_components/store/setup1/constants";
 import {
   name,
   schema,

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { sampleTypeOptions } from "~/lib/constants";
+import { sampleTypeOptions } from "~/app/_components/store/setup1/constants";
 
 const name = "setup1_clean_and_acquire";
 
@@ -16,7 +16,7 @@ const schema = z.object({
       }),
     ),
   numExposures: z.coerce.number(),
-  proposal: z.string(),
+  proposal: z.string().length(8),
   sampleTag: z.string(),
   standardOption: z.string().optional(),
   agentsList: z.array(z.string()).optional(),

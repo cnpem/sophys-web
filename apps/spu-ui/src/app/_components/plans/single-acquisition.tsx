@@ -37,7 +37,10 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import { picoloChannels, sampleTypeOptions } from "~/lib/constants";
+import {
+  picoloChannels,
+  sampleTypeOptions,
+} from "~/app/_components/store/setup1/constants";
 import { name, schema } from "~/lib/schemas/plans/single-acquisition";
 
 export function SingleAcquisition({
