@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
-import type { Sample } from "../sample/sample-item";
+import type { Sample } from "../store/setup1/use-sample-store";
 import {
   cleaningOptions,
   picoloChannels,
