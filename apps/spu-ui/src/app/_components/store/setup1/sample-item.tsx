@@ -25,9 +25,8 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import { Field, FieldLabel } from "@sophys-web/ui/field";
-import { Progress } from "@sophys-web/ui/progress";
 import type { Sample } from "./use-sample-store";
-import { CompleteAcquisitionForm } from "../../plans/complete-aquisition-form";
+import { CompleteAcquisitionForm } from "../../plans/setup1-complete-aquisition-form";
 import { initialVolume, trayColumns, trayOptions, trayRows } from "./constants";
 import { DeleteSampleForm } from "./delete-sample-form";
 import { LoadSampleForm } from "./load-sample-form";

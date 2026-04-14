@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
-import { tableSchema as acquisitionTableSchema } from "../../../lib/schemas/plans/complete-acquisition";
+import { tableSchema as acquisitionTableSchema } from "./schemas/setup1-complete-acquisition";
 
 const TABLE_DATA_SKIP_INDEX = 2;
 interface TableLineError {

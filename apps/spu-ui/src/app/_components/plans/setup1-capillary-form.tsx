@@ -20,8 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { schema as cleanCapillaryKwargsSchema } from "../../../lib/schemas/plans/clean-and-acquire";
 import { cleaningOptions } from "../store/setup1/constants";
+import { schema as cleanCapillaryKwargsSchema } from "./schemas/setup1-clean-and-acquire";
 
 export function CleanCapillaryForm({
   onSubmit,
