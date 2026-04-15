@@ -144,7 +144,7 @@ export const redisHashStore = {
           etag: nanoid(), // update etag on every set
           [input.fieldKey]: input.value,
         });
-        return { success: true };
+        return true; // returns true if field was set successfully
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
@@ -196,7 +196,7 @@ export const redisHashStore = {
             {} as Record<string, string>,
           ),
         });
-        return { success: true };
+        return true; // returns true if fields were set successfully
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
@@ -281,7 +281,13 @@ export const redisHashStore = {
           throw new Error("Redis client is not connected");
         }
         const result = await client.del(fullRedisKey);
-        return result === 1; // returns true if a key was deleted
+        if (result === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `Store instance not found`,
+          });
+        }
+        return true;
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
