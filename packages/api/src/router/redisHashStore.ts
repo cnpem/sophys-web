@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { env } from "../../env";
@@ -30,26 +31,48 @@ export const redisHashStore = {
         if (!client.isOpen) {
           throw new Error("Redis client is not connected");
         }
-        const result = await client.hGetAll(fullRedisKey);
+        const { etag, ...result } = await client.hGetAll(fullRedisKey);
         if (Object.keys(result).length === 0) {
           return { etag: nanoid() }; // return empty store if not found, with new etag
         }
+        // if there is no etag, create a new one to ensure we always return an etag for versioning
+        if (!etag) {
+          console.warn(
+            `ETag not found for ${input.storeInstanceName}. Generating new ETag.`,
+          );
+          const newEtag = nanoid();
+          const setResult = await client.hSet(fullRedisKey, "etag", newEtag);
+          if (setResult === 0) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: `Failed to set new ETag for store instance`,
+            });
+          }
+          return { etag: newEtag, ...result };
+        }
         // return object as is, but ensure it has an etag field
         return {
-          etag: result.etag ?? nanoid(),
+          etag: etag,
           ...result,
         };
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
-          throw new Error(`Failed to get store: ${e.message}`);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to get store: ${e.message}`,
+          });
         }
-        throw new Error("Unknown error");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unknown error",
+        });
       }
     }),
 
   /**
    * getStoreField gets a specific field in the HASH store instance
+   * Returns the field value and the current ETag of the store for versioning purposes
    */
   getStoreField: protectedProcedure
     .input(
@@ -66,19 +89,32 @@ export const redisHashStore = {
         if (!client.isOpen) {
           throw new Error("Redis client is not connected");
         }
-        const result = await client.hGet(fullRedisKey, input.fieldKey);
-        if (!result) {
-          throw new Error(
-            `field ${input.fieldKey} not found in ${input.storeInstanceName}`,
+        const [etag, value] = await client.hmGet(fullRedisKey, [
+          "etag",
+          input.fieldKey,
+        ]);
+        // if there is no etag, create a new one to ensure we always return an etag for versioning
+        if (!etag) {
+          console.warn(
+            `ETag not found for ${input.storeInstanceName}, field ${input.fieldKey}. Generating new ETag.`,
           );
+          const newEtag = nanoid();
+          await client.hSet(fullRedisKey, "etag", newEtag);
+          return { etag: newEtag, value: value };
         }
-        return result;
+        return { etag: etag, value: value };
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
-          throw new Error(`Failed to get store field: ${e.message}`);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to get store field: ${e.message}`,
+          });
         }
-        throw new Error("Unknown error");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unknown error",
+        });
       }
     }),
 
@@ -112,9 +148,15 @@ export const redisHashStore = {
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
-          throw new Error(`Failed to set store field: ${e.message}`);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to set store field: ${e.message}`,
+          });
         }
-        throw new Error("Unknown error");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unknown error",
+        });
       }
     }),
 
@@ -158,9 +200,15 @@ export const redisHashStore = {
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
-          throw new Error(`Failed to set store fields: ${e.message}`);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to set store fields: ${e.message}`,
+          });
         }
-        throw new Error("Unknown error");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unknown error",
+        });
       }
     }),
 
@@ -182,17 +230,36 @@ export const redisHashStore = {
         if (!client.isOpen) {
           throw new Error("Redis client is not connected");
         }
-        const multi = client.multi();
-        multi.hDel(fullRedisKey, input.fieldKey);
-        multi.hSet(fullRedisKey, "etag", nanoid());
-        await multi.exec();
-        return { success: true };
+        const multi = client
+          .multi()
+          .hDel(fullRedisKey, input.fieldKey)
+          .hSet(fullRedisKey, "etag", nanoid());
+        const [delResult, setResult] = await multi.execTyped();
+        if (delResult === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: `Field not found in store instance`,
+          });
+        }
+        if (setResult === 0) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to update ETag after deleting field`,
+          });
+        }
+        return true; // returns true if a field was deleted
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
-          throw new Error(`Failed to delete store field: ${e.message}`);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to delete store field: ${e.message}`,
+          });
         }
-        throw new Error("Unknown error");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unknown error",
+        });
       }
     }),
 
@@ -213,14 +280,20 @@ export const redisHashStore = {
         if (!client.isOpen) {
           throw new Error("Redis client is not connected");
         }
-        await client.del(fullRedisKey);
-        return { success: true };
+        const result = await client.del(fullRedisKey);
+        return result === 1; // returns true if a key was deleted
       } catch (e) {
         if (e instanceof Error) {
           console.error(e);
-          throw new Error(`Failed to delete store instance: ${e.message}`);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Failed to delete store instance: ${e.message}`,
+          });
         }
-        throw new Error("Unknown error");
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Unknown error",
+        });
       }
     }),
 } as const;
