@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { EraserIcon, PencilIcon, PipetteIcon, PlusIcon } from "lucide-react";
+import {
+  CameraIcon,
+  EraserIcon,
+  PencilIcon,
+  PipetteIcon,
+  PlusIcon,
+} from "lucide-react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -18,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import type { Sample } from "./use-sample-store";
+import { CompleteAcquisitionForm } from "../../plans/setup2-complete-acquisition-form";
 import { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import { DeleteSampleForm } from "./delete-sample-form";
 // import { LoadSampleForm } from "./load-sample-form";
@@ -131,151 +138,218 @@ function SampleInfo({
   );
 }
 
-function EditSampleDialog({
-  sample,
-  trigger,
-  onCloseDialog,
-}: {
-  sample: Sample;
-  trigger?: React.ReactNode;
-  onCloseDialog?: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const handleClose = () => {
-    setOpen(false);
-    if (onCloseDialog) {
-      onCloseDialog();
-    }
-  };
-  return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      {!trigger && (
-        <DialogTrigger asChild onClick={() => setOpen(true)}>
-          <Button variant="outline" size="icon">
-            <PencilIcon className="size-4" />
-          </Button>
-        </DialogTrigger>
-      )}
-      {trigger && (
-        <DialogTrigger asChild onClick={() => setOpen(true)}>
-          {trigger}
-        </DialogTrigger>
-      )}
-      <DialogContent className="flex w-fit flex-col items-center">
-        <DialogHeader>
-          <DialogTitle>Register sample</DialogTitle>
-          <DialogDescription className="flex flex-col items-start">
-            <span>{`position: ${sample.cardIndex}-${sample.row}${sample.column}`}</span>
-          </DialogDescription>
-        </DialogHeader>
-        <RegisterSampleForm
-          cardIndex={sample.cardIndex}
-          row={sample.row}
-          column={sample.column}
-          sampleTag={sample.sampleTag}
-          samplePositionX={sample.samplePositionX}
-          samplePositionY={sample.samplePositionY}
-          meta={sample.meta}
-          onSubmitCallback={handleClose}
-        />
-      </DialogContent>
-    </Dialog>
-  );
-}
+// function EditSampleDialog({
+//   sample,
+//   trigger,
+//   onCloseDialog,
+// }: {
+//   sample: Sample;
+//   trigger?: React.ReactNode;
+//   onCloseDialog?: () => void;
+// }) {
+//   const [open, setOpen] = useState(false);
+//   const handleClose = () => {
+//     setOpen(false);
+//     if (onCloseDialog) {
+//       onCloseDialog();
+//     }
+//   };
+//   return (
+//     <Dialog onOpenChange={setOpen} open={open}>
+//       {!trigger && (
+//         <DialogTrigger asChild onClick={() => setOpen(true)}>
+//           <Button variant="outline" size="icon">
+//             <PencilIcon className="size-4" />
+//           </Button>
+//         </DialogTrigger>
+//       )}
+//       {trigger && (
+//         <DialogTrigger asChild onClick={() => setOpen(true)}>
+//           {trigger}
+//         </DialogTrigger>
+//       )}
+//       <DialogContent className="flex w-fit flex-col items-center">
+//         <DialogHeader>
+//           <DialogTitle>Register sample</DialogTitle>
+//           <DialogDescription className="flex flex-col items-start">
+//             <span>{`position: ${sample.cardIndex}-${sample.row}${sample.column}`}</span>
+//           </DialogDescription>
+//         </DialogHeader>
+//         <RegisterSampleForm
+//           cardIndex={sample.cardIndex}
+//           row={sample.row}
+//           column={sample.column}
+//           sampleTag={sample.sampleTag}
+//           samplePositionX={sample.samplePositionX}
+//           samplePositionY={sample.samplePositionY}
+//           meta={sample.meta}
+//           onSubmitCallback={handleClose}
+//         />
+//       </DialogContent>
+//     </Dialog>
+//   );
+// }
 
-function LoadSampleDialog({
-  sample,
-  trigger,
-  onCloseDialog,
-}: {
-  sample: Sample;
-  trigger?: React.ReactNode;
-  onCloseDialog?: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const handleClose = () => {
-    setOpen(false);
-    if (onCloseDialog) {
-      onCloseDialog();
-    }
-  };
-  const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
-    if (!isOpen) {
-      handleClose();
-    }
-  };
-  return (
-    <Dialog onOpenChange={handleOpenChange} open={open}>
-      {!trigger && (
-        <DialogTrigger asChild onClick={() => setOpen(true)}>
-          <Button variant="outline" size="icon">
-            <PipetteIcon className="size-4" />
-          </Button>
-        </DialogTrigger>
-      )}
-      {trigger && (
-        <DialogTrigger asChild onClick={() => setOpen(true)}>
-          {trigger}
-        </DialogTrigger>
-      )}
-      <DialogContent className="flex w-fit flex-col items-center">
-        <DialogHeader>
-          <DialogTitle>Load sample</DialogTitle>
-          <DialogDescription className="flex flex-col items-start">
-            <span>{`position: ${sample.cardIndex}-${sample.row}${sample.column}`}</span>
-            <span>{`name: ${sample.sampleTag}`}</span>
-          </DialogDescription>
-        </DialogHeader>
-        {/* <LoadSampleForm sample={sample} onSubmitCallback={handleClose} /> */}
-      </DialogContent>
-    </Dialog>
-  );
-}
+// function LoadSampleDialog({
+//   sample,
+//   trigger,
+//   onCloseDialog,
+// }: {
+//   sample: Sample;
+//   trigger?: React.ReactNode;
+//   onCloseDialog?: () => void;
+// }) {
+//   const [open, setOpen] = useState(false);
+//   const handleClose = () => {
+//     setOpen(false);
+//     if (onCloseDialog) {
+//       onCloseDialog();
+//     }
+//   };
+//   const handleOpenChange = (isOpen: boolean) => {
+//     setOpen(isOpen);
+//     if (!isOpen) {
+//       handleClose();
+//     }
+//   };
+//   return (
+//     <Dialog onOpenChange={handleOpenChange} open={open}>
+//       {!trigger && (
+//         <DialogTrigger asChild onClick={() => setOpen(true)}>
+//           <Button variant="outline" size="icon">
+//             <PipetteIcon className="size-4" />
+//           </Button>
+//         </DialogTrigger>
+//       )}
+//       {trigger && (
+//         <DialogTrigger asChild onClick={() => setOpen(true)}>
+//           {trigger}
+//         </DialogTrigger>
+//       )}
+//       <DialogContent className="flex w-fit flex-col items-center">
+//         <DialogHeader>
+//           <DialogTitle>Load sample</DialogTitle>
+//           <DialogDescription className="flex flex-col items-start">
+//             <span>{`position: ${sample.cardIndex}-${sample.row}${sample.column}`}</span>
+//             <span>{`name: ${sample.sampleTag}`}</span>
+//           </DialogDescription>
+//         </DialogHeader>
+//         {/* <LoadSampleForm sample={sample} onSubmitCallback={handleClose} /> */}
+//       </DialogContent>
+//     </Dialog>
+//   );
+// }
 
-function DeleteSampleDialog({
-  sample,
-  trigger,
-  onCloseDialog,
-}: {
-  sample: Sample;
-  trigger?: React.ReactNode;
-  onCloseDialog?: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const handleClose = () => {
-    setOpen(false);
-    if (onCloseDialog) {
-      onCloseDialog();
-    }
-  };
-  return (
-    <Dialog onOpenChange={setOpen} open={open}>
-      {!trigger && (
-        <DialogTrigger asChild onClick={() => setOpen(true)}>
-          <Button variant="outline" size="icon">
-            <EraserIcon className="size-4" />
-          </Button>
-        </DialogTrigger>
-      )}
-      {trigger && (
-        <DialogTrigger asChild onClick={() => setOpen(true)}>
-          {trigger}
-        </DialogTrigger>
-      )}
-      <DialogContent className="flex w-fit flex-col items-center">
-        <DialogHeader>
-          <DialogTitle>Delete sample</DialogTitle>
-          <DialogDescription className="flex flex-col items-start">
-            Deleting sample
-          </DialogDescription>
-        </DialogHeader>
-        <SampleInfo sample={sample} />
-        <DeleteSampleForm sample={sample} onSubmitCallback={handleClose} />
-      </DialogContent>
-    </Dialog>
-  );
-}
+// function DeleteSampleDialog({
+//   sample,
+//   trigger,
+//   onCloseDialog,
+// }: {
+//   sample: Sample;
+//   trigger?: React.ReactNode;
+//   onCloseDialog?: () => void;
+// }) {
+//   const [open, setOpen] = useState(false);
+//   const handleClose = () => {
+//     setOpen(false);
+//     if (onCloseDialog) {
+//       onCloseDialog();
+//     }
+//   };
+//   return (
+//     <Dialog onOpenChange={setOpen} open={open}>
+//       {!trigger && (
+//         <DialogTrigger asChild onClick={() => setOpen(true)}>
+//           <Button variant="outline" size="icon">
+//             <EraserIcon className="size-4" />
+//           </Button>
+//         </DialogTrigger>
+//       )}
+//       {trigger && (
+//         <DialogTrigger asChild onClick={() => setOpen(true)}>
+//           {trigger}
+//         </DialogTrigger>
+//       )}
+//       <DialogContent className="flex w-fit flex-col items-center">
+//         <DialogHeader>
+//           <DialogTitle>Delete sample</DialogTitle>
+//           <DialogDescription className="flex flex-col items-start">
+//             Deleting sample
+//           </DialogDescription>
+//         </DialogHeader>
+//         <SampleInfo sample={sample} />
+//         <DeleteSampleForm sample={sample} onSubmitCallback={handleClose} />
+//       </DialogContent>
+//     </Dialog>
+//   );
+// }
+
+// export const defaultSampleStyle =
+//   "border border-gray-300 bg-orange-300 text-gray-800 hover:bg-gray-100";
+
+// function SampleDropdownTrigger({ sample }: { sample: Sample }) {
+//   return (
+//     <DropdownMenuTrigger asChild>
+//       <Button
+//         variant="outline"
+//         size="icon"
+//         className={cn(
+//           "cursor-context-menu rounded-full text-sm select-none hover:scale-105 hover:ring",
+//           defaultSampleStyle,
+//         )}
+//       >
+//         {`${sample.row}${sample.column}`}
+//       </Button>
+//     </DropdownMenuTrigger>
+//   );
+// }
+
+// function SampleDropdownMenu({ sample }: { sample: Sample }) {
+//   const [open, setOpen] = useState(false);
+//   return (
+//     <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
+//       <SampleDropdownTrigger sample={sample} />
+//       <DropdownMenuContent>
+//         <DropdownMenuItem disabled className="flex flex-col items-start gap-1">
+//           <SampleInfo sample={sample} />
+//         </DropdownMenuItem>
+//         <DropdownMenuSeparator />
+//         <LoadSampleDialog
+//           sample={sample}
+//           trigger={
+//             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+//               <PipetteIcon className="mr-2 size-4" />
+//               Load
+//             </DropdownMenuItem>
+//           }
+//           onCloseDialog={() => setOpen(false)}
+//         />
+//         <EditSampleDialog
+//           sample={sample}
+//           trigger={
+//             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+//               <PencilIcon className="mr-2 size-4" />
+//               Edit
+//             </DropdownMenuItem>
+//           }
+//           onCloseDialog={() => setOpen(false)}
+//         />
+//         <DeleteSampleDialog
+//           sample={sample}
+//           trigger={
+//             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+//               <EraserIcon className="mr-2 size-4" />
+//               Delete
+//             </DropdownMenuItem>
+//           }
+//           onCloseDialog={() => setOpen(false)}
+//         />
+//       </DropdownMenuContent>
+//     </DropdownMenu>
+//   );
+// }
+
+// new ------------------------------------------
 
 export const defaultSampleStyle =
   "border border-gray-300 bg-orange-300 text-gray-800 hover:bg-gray-100";
@@ -307,37 +381,192 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
           <SampleInfo sample={sample} />
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <LoadSampleDialog
+        <EditSampleMenuItem
           sample={sample}
-          trigger={
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <PipetteIcon className="mr-2 size-4" />
-              Load
-            </DropdownMenuItem>
-          }
-          onCloseDialog={() => setOpen(false)}
+          onSubmitCallback={() => setOpen(false)}
         />
-        <EditSampleDialog
+        <DeleteSampleMenuItem
           sample={sample}
-          trigger={
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <PencilIcon className="mr-2 size-4" />
-              Edit
-            </DropdownMenuItem>
-          }
-          onCloseDialog={() => setOpen(false)}
+          onSubmitCallback={() => setOpen(false)}
         />
-        <DeleteSampleDialog
+        <DropdownMenuSeparator />
+        <LoadSampleMenuItem
           sample={sample}
-          trigger={
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <EraserIcon className="mr-2 size-4" />
-              Delete
-            </DropdownMenuItem>
-          }
-          onCloseDialog={() => setOpen(false)}
+          onSubmitCallback={() => setOpen(false)}
+        />
+        <CompleteAcquisitionMenuItem
+          sample={sample}
+          onSubmitCallback={() => setOpen(false)}
         />
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function EditSampleMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <PencilIcon className="mr-2 size-4" />
+          Edit
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent className="flex w-fit flex-col items-center">
+        <DialogHeader>
+          <DialogTitle>Register sample</DialogTitle>
+          <DialogDescription className="flex flex-col items-start">
+            <span>{`position: ${sample.cardIndex}-${sample.row}${sample.column}`}</span>
+          </DialogDescription>
+        </DialogHeader>
+        <RegisterSampleForm
+          cardIndex={sample.cardIndex}
+          row={sample.row}
+          column={sample.column}
+          sampleTag={sample.sampleTag}
+          samplePositionX={sample.samplePositionX}
+          samplePositionY={sample.samplePositionY}
+          meta={sample.meta}
+          onSubmitCallback={handleSubmitSuccess}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteSampleMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <EraserIcon className="mr-2 size-4" />
+          Delete
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent className="flex w-fit flex-col items-center">
+        <DialogHeader>
+          <DialogTitle>Deleting sample</DialogTitle>
+          <DialogDescription className="flex flex-col items-start"></DialogDescription>
+        </DialogHeader>
+        <SampleInfo sample={sample} />
+        <DeleteSampleForm
+          sample={sample}
+          onSubmitCallback={handleSubmitSuccess}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function LoadSampleMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <PipetteIcon className="mr-2 size-4" />
+          Load
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent className="flex w-fit flex-col items-center">
+        <DialogHeader>
+          <DialogTitle>Load sample</DialogTitle>
+          <DialogDescription className="flex flex-col items-start">
+            <span>{`position: ${sample.cardIndex}-${sample.row}${sample.column}`}</span>
+            <span>{`name: ${sample.sampleTag}`}</span>
+          </DialogDescription>
+        </DialogHeader>
+        {/* <LoadSampleForm
+          sample={sample}
+          onSubmitCallback={handleSubmitSuccess}
+        /> */}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CompleteAcquisitionMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <CameraIcon className="mr-2 h-4 w-4" />
+          Complete Acquisition
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Complete Acquisition</DialogTitle>
+          <DialogDescription className="flex flex-col items-center">
+            Complete acquisition for sample {sample.sampleTag} at position{" "}
+            {`${sample.cardIndex}-${sample.row}${sample.column}`}
+          </DialogDescription>
+        </DialogHeader>
+        <CompleteAcquisitionForm
+          sampleParams={sample}
+          onSubmitSuccess={handleSubmitSuccess}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }
