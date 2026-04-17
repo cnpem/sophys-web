@@ -23,68 +23,85 @@ import {
   WindowCardTitle,
 } from "@sophys-web/ui/window-card";
 import { cardColumns, cardIndexOptions, cardRows } from "./constants";
+import { DeleteSamplesDialog } from "./delete-samples";
 import { SampleItem } from "./sample-item";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
 export function Samples({ className }: { className?: string }) {
-  const { storeData, clearStore, error, parseError, isLoading, isPending } =
-    useSampleStore();
+  const { error, parseError, isLoading, isPending } = useSampleStore();
 
-  const clearAllSamples = useCallback(async () => {
-    toast.info("Clearing samples");
-    await clearStore();
-  }, [clearStore]);
-
-  const isEmpty = storeData === undefined;
   const isError = !!error || !!parseError;
   const isDisabled = isLoading || isPending || isError;
 
   return (
-    <WindowCard className={className}>
-      <WindowCardHeader>
-        <WindowCardTitle>
-          <GlassWaterIcon className="mx-1 size-4" />
-          Samples Setup 2
-        </WindowCardTitle>
-        <WindowCardAction>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  disabled={isDisabled || isEmpty}
-                  onClick={clearAllSamples}
-                  size="icon"
-                  variant="outline"
-                  className="mb-0.5"
-                >
-                  <Trash2Icon className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="font-normal">
-                Clear Samples
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </WindowCardAction>
-      </WindowCardHeader>
-      <WindowCardContent className={cn({ "opacity-50": isDisabled })}>
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full rounded-md border"
-        >
-          {cardIndexOptions.map((cardIndex) => (
-            <SampleCardAccordionItem key={cardIndex} cardIndex={cardIndex} />
-          ))}
-        </Accordion>
-        {isError && (
-          <div className="text-destructive mt-4 rounded-md bg-red-100 p-3 text-sm">
-            {error && "Error loading samples: " + error.message}
-            {parseError && "Error parsing samples: " + parseError.message}
-          </div>
-        )}
-      </WindowCardContent>
-    </WindowCard>
+    <div className={cn("flex min-w-64 flex-col gap-4", className)}>
+      <div className="align-center flex flex-row justify-around gap-4">
+        <p className="text-muted-foreground mb-2 flex items-center text-sm font-normal">
+          Setup 2 Store
+        </p>
+        <DeleteSamplesDialog />
+      </div>
+      <Accordion
+        type="single"
+        collapsible
+        className={cn({ "w-full opacity-50": isDisabled })}
+      >
+        {cardIndexOptions.map((cardIndex) => (
+          <SampleCardAccordionItem key={cardIndex} cardIndex={cardIndex} />
+        ))}
+      </Accordion>
+      {isError && (
+        <div className="text-destructive mt-4 rounded-md bg-red-100 p-3 text-sm">
+          {error && "Error loading samples: " + error.message}
+          {parseError && "Error parsing samples: " + parseError.message}
+        </div>
+      )}
+    </div>
+    // <WindowCard className={className}>
+    //   <WindowCardHeader>
+    //     <WindowCardTitle>
+    //       <GlassWaterIcon className="mx-1 size-4" />
+    //       Samples Setup 2
+    //     </WindowCardTitle>
+    //     <WindowCardAction>
+    //       <TooltipProvider>
+    //         <Tooltip>
+    //           <TooltipTrigger asChild>
+    //             <Button
+    //               disabled={isDisabled || isEmpty}
+    //               onClick={clearAllSamples}
+    //               size="icon"
+    //               variant="outline"
+    //               className="mb-0.5"
+    //             >
+    //               <Trash2Icon className="size-4" />
+    //             </Button>
+    //           </TooltipTrigger>
+    //           <TooltipContent className="font-normal">
+    //             Clear Samples
+    //           </TooltipContent>
+    //         </Tooltip>
+    //       </TooltipProvider>
+    //     </WindowCardAction>
+    //   </WindowCardHeader>
+    //   <WindowCardContent className={cn({ "opacity-50": isDisabled })}>
+    //     <Accordion
+    //       type="single"
+    //       collapsible
+    //       className="w-full rounded-md border"
+    //     >
+    //       {cardIndexOptions.map((cardIndex) => (
+    //         <SampleCardAccordionItem key={cardIndex} cardIndex={cardIndex} />
+    //       ))}
+    //     </Accordion>
+    //     {isError && (
+    //       <div className="text-destructive mt-4 rounded-md bg-red-100 p-3 text-sm">
+    //         {error && "Error loading samples: " + error.message}
+    //         {parseError && "Error parsing samples: " + parseError.message}
+    //       </div>
+    //     )}
+    //   </WindowCardContent>
+    // </WindowCard>
   );
 }
 
