@@ -1,6 +1,4 @@
-import React, { useCallback } from "react";
-import { GlassWaterIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
+import React from "react";
 import { cn } from "@sophys-web/ui";
 import {
   Accordion,
@@ -8,20 +6,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@sophys-web/ui/accordion";
-import { Button } from "@sophys-web/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@sophys-web/ui/tooltip";
-import {
-  WindowCard,
-  WindowCardAction,
-  WindowCardContent,
-  WindowCardHeader,
-  WindowCardTitle,
-} from "@sophys-web/ui/window-card";
 import { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import { DeleteSamplesDialog } from "./delete-samples";
 import { SampleItem } from "./sample-item";
@@ -57,51 +41,6 @@ export function Samples({ className }: { className?: string }) {
         </div>
       )}
     </div>
-    // <WindowCard className={className}>
-    //   <WindowCardHeader>
-    //     <WindowCardTitle>
-    //       <GlassWaterIcon className="mx-1 size-4" />
-    //       Samples Setup 2
-    //     </WindowCardTitle>
-    //     <WindowCardAction>
-    //       <TooltipProvider>
-    //         <Tooltip>
-    //           <TooltipTrigger asChild>
-    //             <Button
-    //               disabled={isDisabled || isEmpty}
-    //               onClick={clearAllSamples}
-    //               size="icon"
-    //               variant="outline"
-    //               className="mb-0.5"
-    //             >
-    //               <Trash2Icon className="size-4" />
-    //             </Button>
-    //           </TooltipTrigger>
-    //           <TooltipContent className="font-normal">
-    //             Clear Samples
-    //           </TooltipContent>
-    //         </Tooltip>
-    //       </TooltipProvider>
-    //     </WindowCardAction>
-    //   </WindowCardHeader>
-    //   <WindowCardContent className={cn({ "opacity-50": isDisabled })}>
-    //     <Accordion
-    //       type="single"
-    //       collapsible
-    //       className="w-full rounded-md border"
-    //     >
-    //       {cardIndexOptions.map((cardIndex) => (
-    //         <SampleCardAccordionItem key={cardIndex} cardIndex={cardIndex} />
-    //       ))}
-    //     </Accordion>
-    //     {isError && (
-    //       <div className="text-destructive mt-4 rounded-md bg-red-100 p-3 text-sm">
-    //         {error && "Error loading samples: " + error.message}
-    //         {parseError && "Error parsing samples: " + parseError.message}
-    //       </div>
-    //     )}
-    //   </WindowCardContent>
-    // </WindowCard>
   );
 }
 
