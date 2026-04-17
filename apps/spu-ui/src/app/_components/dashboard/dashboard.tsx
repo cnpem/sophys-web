@@ -5,26 +5,35 @@ import { ItemGroup } from "@sophys-web/ui/item";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { CompactQueue } from "@sophys-web/widgets/compact-queue";
 import { Console } from "@sophys-web/widgets/console";
-import { Controls } from "@sophys-web/widgets/controls";
+import {
+  ControlBar,
+  EnvironmentControls,
+  QueueControls,
+} from "@sophys-web/widgets/control-bar/control-bar";
 import { OnDemandSelector } from "../plans/on-demand-queue-items";
 import { UploadQueue } from "../plans/setup1-upload";
 import { CapillaryStateMonitor } from "./capillary-state-monitor";
+import { CustomRunningItem } from "./custom-running-item";
 import { SampleStores } from "./sample-stores";
 import { SampleTemperatureMonitor } from "./sample-temperature";
 
 export function Dashboard() {
   return (
     <>
-      <Controls>
+      <ControlBar>
+        <ButtonGroup>
+          <EnvironmentControls />
+          <QueueControls />
+        </ButtonGroup>
         <ButtonGroup>
           <UploadQueue />
           <OnDemandSelector />
         </ButtonGroup>
-      </Controls>
+      </ControlBar>
       <div className="flex gap-2 p-2 pt-16 sm:flex-col lg:flex-row">
         <ScrollArea className="w-full lg:h-svh lg:min-w-2/3">
           <div className="flex flex-col gap-2">
-            <CompactQueue />
+            <CompactQueue runningItem={<CustomRunningItem />} />
             <Console />
           </div>
         </ScrollArea>
