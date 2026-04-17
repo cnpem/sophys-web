@@ -11,23 +11,20 @@ const redisClientFactory = async (): Promise<RedisClientType> => {
 
   const client = createClient({
     url: redisUrl,
-  });
+  }) as RedisClientType;
 
   client.on("error", (err) => console.error("Redis Client Error", err));
 
   await client.connect();
 
-  return client as RedisClientType;
+  return client;
 };
 
-const globalForRedis = globalThis as unknown as {
-  redisClient: RedisClientType | null;
+let redisClientPromise: Promise<RedisClientType> | null = null;
+
+const getRedisClient = async (): Promise<RedisClientType> => {
+  redisClientPromise ??= redisClientFactory();
+  return redisClientPromise;
 };
 
-const redisClient = globalForRedis.redisClient ?? (await redisClientFactory());
-
-if (process.env.NODE_ENV !== "production") {
-  globalForRedis.redisClient = redisClient;
-}
-
-export { redisClient };
+export { getRedisClient };
