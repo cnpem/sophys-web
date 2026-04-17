@@ -1,13 +1,10 @@
 import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { z } from "zod";
-import { env } from "../../env";
 import { protectedProcedure } from "../trpc";
 
-const redisStorePrefix = env.REDIS_STORE_PREFIX ?? "appstore";
-
 const getAppStoreRedisKey = (storeInstanceName: string) => {
-  return `${redisStorePrefix}:${storeInstanceName}`;
+  return `sophys-web-store:${storeInstanceName}`;
 };
 
 /**
