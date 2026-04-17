@@ -1,22 +1,6 @@
-import React, { useCallback } from "react";
-import { GlassWaterIcon, Trash2Icon } from "lucide-react";
-import { toast } from "sonner";
+import React from "react";
 import { cn } from "@sophys-web/ui";
-import { Button } from "@sophys-web/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@sophys-web/ui/tooltip";
-import {
-  WindowCard,
-  WindowCardAction,
-  WindowCardContent,
-  WindowCardHeader,
-  WindowCardTitle,
-} from "@sophys-web/ui/window-card";
 import type { SampleStore } from "./use-sample-store";
 import {
   trayColumns as COLUMNS,
