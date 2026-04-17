@@ -23,6 +23,7 @@ import {
   trayRows as ROWS,
   trayOptions,
 } from "./constants";
+import { DeleteSamplesDialog } from "./delete-samples";
 import { SampleItem, sampleTypeVariants } from "./sample-item";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
@@ -107,71 +108,36 @@ function SampleTypeLegend() {
 }
 
 export function Samples({ className }: { className?: string }) {
-  const { storeData, clearStore, error, parseError, isLoading, isPending } =
-    useSampleStore();
+  const { storeData, error, parseError } = useSampleStore();
 
-  const clearAllSamples = useCallback(async () => {
-    toast.info("Clearing samples");
-    await clearStore();
-  }, [clearStore]);
-
-  const isEmpty = storeData === undefined;
   const isError = !!error || !!parseError;
-  const isDisabled = isLoading || isPending || isError;
-
-  console.log("[Samples Component] Rendered with store data:", storeData);
 
   return (
-    <WindowCard className={className}>
-      <WindowCardHeader>
-        <WindowCardTitle>
-          <GlassWaterIcon className="mx-1 size-4" />
-          Samples Setup 1
-        </WindowCardTitle>
-        <WindowCardAction>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  disabled={isDisabled || isEmpty}
-                  onClick={clearAllSamples}
-                  size="icon"
-                  variant="outline"
-                  className="mb-0.5"
-                >
-                  <Trash2Icon className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="font-normal">
-                Clear Samples
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </WindowCardAction>
-      </WindowCardHeader>
-      <WindowCardContent className={cn({ "opacity-50": isDisabled })}>
-        <Tabs className="space-y-2" defaultValue={"tray1"}>
-          <div className="flex flex-row items-center justify-between">
-            <SampleTypeLegend />
+    <div className={cn("flex min-w-64 flex-col gap-4", className)}>
+      <Tabs className="space-y-2" defaultValue={"tray1"}>
+        <div className="flex flex-row items-center justify-between">
+          <div className="flex flex-row items-center gap-2">
             <TabsList>
               <TabsTrigger value="tray1">Tray 1</TabsTrigger>
               <TabsTrigger value="tray2">Tray 2</TabsTrigger>
             </TabsList>
+            <DeleteSamplesDialog />
           </div>
-          <TabsContent value="tray1">
-            <TrayContent store={storeData} tray={TRAY1} />
-          </TabsContent>
-          <TabsContent value="tray2">
-            <TrayContent store={storeData} tray={TRAY2} />
-          </TabsContent>
-        </Tabs>
-        {isError && (
-          <div className="text-destructive mt-4 rounded-md bg-red-100 p-3 text-sm">
-            {error && "Error loading samples: " + error.message}
-            {parseError && "Error parsing samples: " + parseError.message}
-          </div>
-        )}
-      </WindowCardContent>
-    </WindowCard>
+          <SampleTypeLegend />
+        </div>
+        <TabsContent value="tray1">
+          <TrayContent store={storeData} tray={TRAY1} />
+        </TabsContent>
+        <TabsContent value="tray2">
+          <TrayContent store={storeData} tray={TRAY2} />
+        </TabsContent>
+      </Tabs>
+      {isError && (
+        <div className="text-destructive mt-4 rounded-md bg-red-100 p-3 text-sm">
+          {error && "Error loading samples: " + error.message}
+          {parseError && "Error parsing samples: " + parseError.message}
+        </div>
+      )}
+    </div>
   );
 }
