@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  CameraIcon,
-  EraserIcon,
-  PencilIcon,
-  PipetteIcon,
-  PlusIcon,
-} from "lucide-react";
+import { CameraIcon, EraserIcon, PencilIcon, PlusIcon } from "lucide-react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -177,10 +171,6 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
           onSubmitCallback={() => setOpen(false)}
         />
         <DropdownMenuSeparator />
-        <LoadSampleMenuItem
-          sample={sample}
-          onSubmitCallback={() => setOpen(false)}
-        />
         <CompleteAcquisitionMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
@@ -270,47 +260,6 @@ function DeleteSampleMenuItem({
           sample={sample}
           onSubmitCallback={handleSubmitSuccess}
         />
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function LoadSampleMenuItem({
-  sample,
-  onSubmitCallback,
-}: {
-  sample: Sample;
-  onSubmitCallback?: () => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const handleOpen = (e: Event) => {
-    e.preventDefault();
-    setOpen(true);
-  };
-  // const handleSubmitSuccess = () => {
-  //   setOpen(false);
-  //   onSubmitCallback?.();
-  // };
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem onSelect={handleOpen} disabled>
-          <PipetteIcon className="mr-2 size-4" />
-          Load
-        </DropdownMenuItem>
-      </DialogTrigger>
-      <DialogContent className="flex w-fit flex-col items-center">
-        <DialogHeader>
-          <DialogTitle>Load sample</DialogTitle>
-          <DialogDescription className="flex flex-col items-start">
-            <span>{`position: ${sample.cardIndex}-${sample.row}${sample.column}`}</span>
-            <span>{`name: ${sample.sampleTag}`}</span>
-          </DialogDescription>
-        </DialogHeader>
-        {/* <LoadSampleForm
-          sample={sample}
-          onSubmitCallback={handleSubmitSuccess}
-        /> */}
       </DialogContent>
     </Dialog>
   );
