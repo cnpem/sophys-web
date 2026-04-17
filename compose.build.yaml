@@ -11,6 +11,7 @@ services:
       AUTH_TRUST_HOST: 1
       BLUESKY_HTTPSERVER_URL: ${BLUESKY_HTTPSERVER_URL}
       PVWS_URL: ${PVWS_URL}
+      REDIS_URL: ${REDIS_URL}
     restart: unless-stopped
     expose:
       - "3000"
