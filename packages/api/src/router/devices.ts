@@ -54,7 +54,11 @@ export const devicesRouter = {
         },
         { flyables: [], movables: [], readables: [] },
       );
-      return response;
+      return {
+        flyables: response.flyables.sort(),
+        movables: response.movables.sort(),
+        readables: response.readables.sort(),
+      };
     } catch (e) {
       if (e instanceof Error) {
         throw new Error(e.message);
