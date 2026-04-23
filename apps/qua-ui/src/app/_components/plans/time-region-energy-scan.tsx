@@ -829,7 +829,6 @@ const editKwargsSchema = z
 
 interface EditRegionEnergyScanFormProps
   extends Pick<QueueItemProps, "itemUid" | "kwargs"> {
-  proposal?: string;
   onSubmitSuccess?: () => void;
   className?: string;
 }
@@ -837,9 +836,11 @@ interface EditRegionEnergyScanFormProps
 export function EditTimedRegionEnergyScanForm(
   props: EditRegionEnergyScanFormProps,
 ) {
+  const { data: userData } = api.auth.getUser.useQuery();
+  const userProposal = userData?.proposal;
   const initialValues = editKwargsSchema.safeParse({
     ...props.kwargs,
-    proposal: props.proposal ?? undefined,
+    proposal: userProposal,
   });
   if (!initialValues.success) {
     console.error(
@@ -848,7 +849,7 @@ export function EditTimedRegionEnergyScanForm(
     );
     return <div>Error parsing plan data</div>;
   }
-  if (!props.proposal) {
+  if (!userProposal) {
     return <div>Cannot edit plan without a proposal ID</div>;
   }
   return (
@@ -857,7 +858,7 @@ export function EditTimedRegionEnergyScanForm(
         itemUid: props.itemUid,
         kwargs: initialValues.data,
       }}
-      proposal={props.proposal}
+      proposal={userProposal}
       onSubmitSuccess={props.onSubmitSuccess}
       className={props.className}
     />

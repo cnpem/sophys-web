@@ -563,15 +563,16 @@ const editKwargsSchema = z.object({
 
 interface EditFlyScanFormProps
   extends Pick<QueueItemProps, "itemUid" | "kwargs"> {
-  proposal?: string;
   onSubmitSuccess?: () => void;
   className?: string;
 }
 
 export function EditFlyScanForm(props: EditFlyScanFormProps) {
+  const { data: userData } = api.auth.getUser.useQuery();
+  const userProposal = userData?.proposal;
   const initialValues = editKwargsSchema.safeParse({
     ...props.kwargs,
-    proposal: props.proposal ?? undefined,
+    proposal: userProposal,
   });
   if (!initialValues.success) {
     console.error(
@@ -580,7 +581,7 @@ export function EditFlyScanForm(props: EditFlyScanFormProps) {
     );
     return <div>Error parsing plan data</div>;
   }
-  if (!props.proposal) {
+  if (!userProposal) {
     return <div>Cannot edit plan without a proposal ID</div>;
   }
   return (
@@ -589,7 +590,7 @@ export function EditFlyScanForm(props: EditFlyScanFormProps) {
         itemUid: props.itemUid,
         kwargs: initialValues.data,
       }}
-      proposal={props.proposal}
+      proposal={userProposal}
       onSubmitSuccess={props.onSubmitSuccess}
       className={props.className}
     />
