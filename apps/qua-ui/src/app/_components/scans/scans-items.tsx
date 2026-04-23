@@ -38,7 +38,7 @@ export function ScanSelector() {
     <>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm">
+          <Button variant="outline" className="rounded-full" size="sm">
             <PlusIcon />
             Energy Scans
           </Button>

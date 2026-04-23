@@ -20,7 +20,7 @@ export function BeamlineStates() {
         <CardDescription>Current environmental conditions</CardDescription>
       </CardHeader>
       <CardContent>
-        <ItemGroup className="grid grid-cols-4 items-center">
+        <ItemGroup className="grid grid-cols-2 items-center">
           <MonochromatorEnergy />
           <MachineInfo />
           <SampleInfo />
