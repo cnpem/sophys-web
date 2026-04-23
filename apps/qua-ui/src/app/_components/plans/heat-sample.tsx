@@ -728,9 +728,13 @@ export function MainForm({
               <FormLabel>Metadata</FormLabel>
               <FormControl>
                 <Textarea
+                  disabled // Metadata is currently not supported in the backend, so we disable the input for now to avoid confusion. It can be enabled once the backend supports it.
                   {...field}
-                  className="h-12 font-mono"
-                  placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  rows={2}
+                  className="font-mono"
+                  placeholder={
+                    'Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  }
                 />
               </FormControl>
               <ErrorMessageTooltip />
