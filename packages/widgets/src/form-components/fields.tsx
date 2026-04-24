@@ -20,6 +20,7 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { AnySchema, Parameter } from "../lib/create-schema";
+import { parseLiteralList } from "../lib/create-schema";
 import { InfoTooltip } from "./info-tooltip";
 import { MultiSelectDialog } from "./multi-select";
 
@@ -49,27 +50,6 @@ function snakeToTitleCase(str: string) {
         first !== undefined && first.toUpperCase() + rest.join(""),
     )
     .join(" ");
-}
-
-// this might be useful in other parts too
-function parseLiteralTypes(type: string): string[] {
-  // match Literal[...] inside possibly prefix with regex
-  const literalMatch = /Literal\[(.*)\]/.exec(type);
-  if (!literalMatch?.[1]) {
-    return [];
-  }
-  const inside = literalMatch[1];
-  // remove extra [ or ] with global tag
-  const cleaned = inside.replace(/\[|\]/g, "");
-  // split with comma and trim and remove only wrapping ' if present
-  return cleaned
-    .split(/\s*,\s*/)
-    .map((opt) => {
-      const trimmed = opt.trim();
-      // remove surrounding single or double quotes, if they exist
-      return trimmed.replace(/^'(.*)'$/, "$1").replace(/^"(.*)"$/, "$1");
-    })
-    .filter((opt) => opt.length > 0);
 }
 
 interface Devices {
@@ -203,7 +183,7 @@ function CallableField({ param, form }: TypedFieldProps) {
 }
 
 function LiteralField({ param, type, form }: TypedFieldProps) {
-  const options = parseLiteralTypes(type);
+  const options = parseLiteralList(type);
   return (
     <FormField
       control={form.control}
@@ -239,7 +219,7 @@ function LiteralField({ param, type, form }: TypedFieldProps) {
 }
 
 function MultiLiteralField({ param, type, form }: TypedFieldProps) {
-  const options = parseLiteralTypes(type);
+  const options = parseLiteralList(type);
   if (options.length === 0) {
     console.warn(`MultiLiteralField: There is no options for type "${type}"`);
   }
