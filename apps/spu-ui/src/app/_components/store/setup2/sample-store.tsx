@@ -50,6 +50,9 @@ function SampleCardGrid({
   cardIndex: (typeof cardIndexOptions)[number];
 }) {
   const { storeData } = useSampleStore();
+  const reverseSortedColumns = [...cardColumns].sort((a, b) =>
+    b.localeCompare(a),
+  );
   return (
     <div
       className={cn(
@@ -60,7 +63,7 @@ function SampleCardGrid({
     >
       {/* fill first row with column headers*/}
       <div className="flex items-center justify-center text-sm font-normal md:text-base" />
-      {cardColumns.map((col) => (
+      {reverseSortedColumns.map((col) => (
         <div
           className="flex items-center justify-center text-sm font-normal md:text-base"
           key={`header-${col}`}
@@ -77,13 +80,19 @@ function SampleCardGrid({
           >
             {row}
           </div>
-          {/* fill the rest of the row with sample items */}
-          {cardColumns.map((column) => {
+          {/* fill the rest of the row with sample items
+          with the cardColumns sorted in reverse order to match the visual layout of the card 
+          */}
+          {reverseSortedColumns.map((column) => {
             const sampleId = sampleIdFromPosition({
               cardIndex,
               row,
               column,
             });
+            // do not show row 6 column D since it is not used in the actual card layout
+            if (row === "6" && column === "D") {
+              return <div key={sampleId} />;
+            }
             const sample = storeData?.[sampleId];
             return (
               <SampleItem key={sampleId} sampleId={sampleId} sample={sample} />
