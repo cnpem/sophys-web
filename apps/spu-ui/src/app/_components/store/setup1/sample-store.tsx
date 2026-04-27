@@ -1,7 +1,9 @@
 import React from "react";
 import { cn } from "@sophys-web/ui";
+import { ItemGroup } from "@sophys-web/ui/item";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@sophys-web/ui/tabs";
 import type { SampleStore } from "./use-sample-store";
+import { CapillaryStateMonitor } from "./capillary-state-monitor";
 import {
   trayColumns as COLUMNS,
   trayRows as ROWS,
@@ -9,6 +11,7 @@ import {
 } from "./constants";
 import { DeleteSamplesDialog } from "./delete-samples";
 import { SampleItem, sampleTypeVariants } from "./sample-item";
+import { SampleTemperatureMonitor } from "./sample-temperature";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
 const [TRAY1, TRAY2] = trayOptions;
@@ -98,6 +101,10 @@ export function Samples({ className }: { className?: string }) {
 
   return (
     <div className={cn("flex min-w-64 flex-col gap-4", className)}>
+      <ItemGroup className="gap-2">
+        <SampleTemperatureMonitor />
+        <CapillaryStateMonitor />
+      </ItemGroup>
       <Tabs className="space-y-2" defaultValue={"tray1"}>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-2">
@@ -105,7 +112,6 @@ export function Samples({ className }: { className?: string }) {
               <TabsTrigger value="tray1">Tray 1</TabsTrigger>
               <TabsTrigger value="tray2">Tray 2</TabsTrigger>
             </TabsList>
-            <DeleteSamplesDialog />
           </div>
           <SampleTypeLegend />
         </div>
@@ -116,6 +122,9 @@ export function Samples({ className }: { className?: string }) {
           <TrayContent store={storeData} tray={TRAY2} />
         </TabsContent>
       </Tabs>
+      <div className="mt-2 flex items-center justify-end">
+        <DeleteSamplesDialog />
+      </div>
       {isError && (
         <div className="text-destructive mt-4 rounded-md bg-red-100 p-3 text-sm">
           {error && "Error loading samples: " + error.message}

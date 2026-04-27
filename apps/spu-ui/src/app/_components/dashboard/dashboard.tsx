@@ -1,7 +1,6 @@
 "use client";
 
 import { ButtonGroup } from "@sophys-web/ui/button-group";
-import { ItemGroup } from "@sophys-web/ui/item";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { CompactQueue } from "@sophys-web/widgets/compact-queue";
 import { Console } from "@sophys-web/widgets/console";
@@ -12,10 +11,8 @@ import {
 } from "@sophys-web/widgets/control-bar/control-bar";
 import { OnDemandSelector } from "../plans/on-demand-queue-items";
 import { UploadQueue } from "../plans/setup1-upload";
-import { CapillaryStateMonitor } from "./capillary-state-monitor";
 import { CustomRunningItem } from "./custom-running-item";
-import { SampleStores } from "./sample-stores";
-import { SampleTemperatureMonitor } from "./sample-temperature";
+import { ExperimentalEnvironment } from "./experimental-environment";
 
 export function Dashboard() {
   return (
@@ -38,13 +35,7 @@ export function Dashboard() {
           </div>
         </ScrollArea>
         <ScrollArea className="flex w-fit flex-col">
-          <div className="flex w-full flex-col gap-2">
-            <ItemGroup className="gap-2">
-              <SampleTemperatureMonitor />
-              <CapillaryStateMonitor />
-            </ItemGroup>
-            <SampleStores />
-          </div>
+          <ExperimentalEnvironment />
         </ScrollArea>
       </div>
     </>
