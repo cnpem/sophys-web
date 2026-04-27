@@ -1,4 +1,5 @@
 import React from "react";
+import { usePvData } from "node_modules/@sophys-web/pvws-store/src/lib/hooks";
 import { cn } from "@sophys-web/ui";
 import {
   Accordion,
@@ -8,6 +9,11 @@ import {
 } from "@sophys-web/ui/accordion";
 import { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import { DeleteSamplesDialog } from "./delete-samples";
+import { DetectSampleCardsButtonForm } from "./detect-sample-cards-button";
+import { ErrorsCheckoutButtonForm } from "./errors-checkout-button";
+import { PickCardButtonForm } from "./pick-card-button";
+import { RetrieveCardButtonForm } from "./retrieve-card-button";
+import { SampleCardState } from "./sample-card-state";
 import { SampleItem } from "./sample-item";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
@@ -19,11 +25,23 @@ export function Samples({ className }: { className?: string }) {
 
   return (
     <div className={cn("flex min-w-64 flex-col gap-4", className)}>
-      <div className="align-center flex flex-row justify-around gap-4">
-        <p className="text-muted-foreground mb-2 flex items-center text-sm font-normal">
-          Setup 2 Store
-        </p>
-        <DeleteSamplesDialog />
+      <SampleCardState />
+      <div className="flex flex-col gap-1">
+        <ErrorsCheckoutButtonForm
+          className="w-full"
+          size="sm"
+          variant="outline"
+        />
+        <DetectSampleCardsButtonForm
+          className="w-full"
+          size="sm"
+          variant="outline"
+        />
+        <RetrieveCardButtonForm
+          className="w-full"
+          size="sm"
+          variant="outline"
+        />
       </div>
       <Accordion
         type="single"
@@ -34,6 +52,9 @@ export function Samples({ className }: { className?: string }) {
           <SampleCardAccordionItem key={cardIndex} cardIndex={cardIndex} />
         ))}
       </Accordion>
+      <div className="mt-2 flex items-center justify-end">
+        <DeleteSamplesDialog />
+      </div>
       {isError && (
         <div className="text-destructive mt-4 rounded-md bg-red-100 p-3 text-sm">
           {error && "Error loading samples: " + error.message}
@@ -109,11 +130,9 @@ function SampleCardAccordionItem({
 }: {
   cardIndex: (typeof cardIndexOptions)[number];
 }) {
-  const { storeData } = useSampleStore();
-  const isEmpty =
-    !storeData ||
-    Object.values(storeData).filter((s) => s.cardIndex === cardIndex).length ===
-      0;
+  const pvName = `SPU:B:YASKAWA01:Card${cardIndex}_RBV`;
+  const pvData = usePvData(pvName);
+  const notFound = !pvData?.text;
 
   return (
     <AccordionItem
@@ -121,10 +140,15 @@ function SampleCardAccordionItem({
       className="border-b px-2 pt-2 last:border-0"
     >
       <AccordionTrigger
-        // disabled={isEmpty}
-        className={cn(isEmpty && "opacity-50")}
+        disabled={notFound}
       >{`Card ${cardIndex}`}</AccordionTrigger>
-      <AccordionContent className="gap-4 p-4">
+      <AccordionContent className="flex flex-col justify-center gap-4 p-4">
+        <div className="flex flex-row items-center justify-between">
+          <span className="text-muted-foreground text-sm">
+            {pvData?.text ?? "-"}
+          </span>
+          <PickCardButtonForm index={cardIndex} size="sm" variant={"outline"} />
+        </div>
         <SampleCardGrid cardIndex={cardIndex} />
       </AccordionContent>
     </AccordionItem>

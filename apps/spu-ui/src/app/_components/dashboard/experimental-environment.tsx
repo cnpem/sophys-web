@@ -17,7 +17,7 @@ import {
 import { Samples as Setup1Samples } from "../store/setup1/sample-store";
 import { Samples as Setup2Samples } from "../store/setup2/sample-store";
 
-export function SampleStores() {
+export function ExperimentalEnvironment() {
   const [selectedStore, setSelectedStore] = useState<"setup1" | "setup2">(
     "setup1",
   );
@@ -26,7 +26,7 @@ export function SampleStores() {
       <WindowCardHeader>
         <WindowCardTitle>
           <GlassWaterIcon className="mx-1 size-4" />
-          Samples
+          Experimental Environment
         </WindowCardTitle>
         <WindowCardAction>
           <Select
@@ -35,7 +35,7 @@ export function SampleStores() {
               setSelectedStore(value as "setup1" | "setup2")
             }
           >
-            <SelectTrigger className="mb-0.5 bg-white">
+            <SelectTrigger className="mb-0.5 bg-white text-sm">
               <SelectValue placeholder="Select Sample Store" />
             </SelectTrigger>
             <SelectContent>

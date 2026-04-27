@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { ThermometerIcon } from "lucide-react";
-import { useSinglePvData } from "@sophys-web/pvws-store";
+import { usePvData } from "@sophys-web/pvws-store";
 import {
   Item,
   ItemContent,
@@ -13,7 +13,7 @@ const MemoThermometerIcon = memo(ThermometerIcon);
 
 export function SampleTemperatureMonitor() {
   const pvName = "SPU:B:XENOCS:SAMPLE_TEMP_RBV";
-  const pvData = useSinglePvData(pvName);
+  const pvData = usePvData(pvName);
 
   function format(value: number | "NaN" | undefined): string {
     if (value === undefined || value === "NaN") {
@@ -23,13 +23,13 @@ export function SampleTemperatureMonitor() {
   }
 
   return (
-    <Item variant={"outline"}>
+    <Item variant={"muted"} size="sm">
       <ItemMedia>
-        <MemoThermometerIcon className="size-8 text-red-500" />
+        <MemoThermometerIcon className="size-4 text-sm text-red-500" />
       </ItemMedia>
       <ItemContent>
         <ItemTitle>Sample Temperature</ItemTitle>
-        <ItemDescription className="text-2xl font-semibold">
+        <ItemDescription className="text-sm font-semibold">
           {format(pvData?.value)} °C
         </ItemDescription>
       </ItemContent>
