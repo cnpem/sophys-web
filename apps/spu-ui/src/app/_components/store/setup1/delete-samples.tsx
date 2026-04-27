@@ -14,6 +14,11 @@ import {
 } from "@sophys-web/ui/alert-dialog";
 import { Button } from "@sophys-web/ui/button";
 import { Spinner } from "@sophys-web/ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@sophys-web/ui/tooltip";
 import { useSampleStore } from "./use-sample-store";
 
 export function DeleteSamplesDialog() {
@@ -29,24 +34,29 @@ export function DeleteSamplesDialog() {
   const waitingForResponse = isLoading || isPending;
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="text-destructive size-4 align-middle"
-          disabled={
-            isPending || isLoading || isEmpty || !!error || !!parseError
-          }
-        >
-          {!waitingForResponse && <Trash2Icon />}
-          {waitingForResponse && <Spinner />}
-        </Button>
-      </AlertDialogTrigger>
+      <Tooltip>
+        <TooltipTrigger>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="text-destructive size-4 align-middle"
+              disabled={
+                isPending || isLoading || isEmpty || !!error || !!parseError
+              }
+            >
+              {!waitingForResponse && <Trash2Icon />}
+              {waitingForResponse && <Spinner />}
+            </Button>
+          </AlertDialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>Delete samples information</TooltipContent>
+      </Tooltip>
       <AlertDialogContent className="w-fit">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure you want to delete?</AlertDialogTitle>
           <AlertDialogDescription>
-            Deleting Setup 1 Tray data
+            Deleting Setup 2 Tray data
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

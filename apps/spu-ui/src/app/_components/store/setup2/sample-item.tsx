@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { CameraIcon, EraserIcon, PencilIcon, PlusIcon } from "lucide-react";
+import {
+  CameraIcon,
+  CircleArrowRightIcon,
+  CircleDotIcon,
+  EraserIcon,
+  PencilIcon,
+  PlusIcon,
+} from "lucide-react";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
@@ -19,6 +26,8 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 import type { Sample } from "./use-sample-store";
 import { CompleteAcquisitionForm } from "../../plans/setup2-complete-acquisition-form";
+import { MoveInsideSampleForm } from "../../plans/setup2-move-inside-sample-form";
+import { MoveToSampleForm } from "../../plans/setup2-move-to-sample-form";
 import { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import { DeleteSampleForm } from "./delete-sample-form";
 // import { LoadSampleForm } from "./load-sample-form";
@@ -175,6 +184,14 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
         />
+        <MoveToSampleMenuItem
+          sample={sample}
+          onSubmitCallback={() => setOpen(false)}
+        />
+        <MoveInsideSampleMenuItem
+          sample={sample}
+          onSubmitCallback={() => setOpen(false)}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -300,6 +317,92 @@ function CompleteAcquisitionMenuItem({
         </DialogHeader>
         <CompleteAcquisitionForm
           sampleParams={sample}
+          onSubmitSuccess={handleSubmitSuccess}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MoveToSampleMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <CircleArrowRightIcon className="mr-2 size-4" />
+          Move to Sample
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Move to Sample</DialogTitle>
+          <DialogDescription className="flex flex-col items-center">
+            Move to sample {sample.sampleTag} at position{" "}
+            {`${sample.cardIndex}-${sample.row}${sample.column}`}
+          </DialogDescription>
+        </DialogHeader>
+        <MoveToSampleForm
+          row={sample.row}
+          col={sample.column}
+          onSubmitSuccess={handleSubmitSuccess}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MoveInsideSampleMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <CircleDotIcon className="mr-2 size-4" />
+          Move Inside Sample
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Move Inside Sample</DialogTitle>
+          <DialogDescription className="flex flex-col items-center">
+            Move inside sample {sample.sampleTag} at position{" "}
+            {`${sample.cardIndex}-${sample.row}${sample.column}`}
+          </DialogDescription>
+        </DialogHeader>
+        <MoveInsideSampleForm
+          x={sample.samplePositionX}
+          y={sample.samplePositionY}
           onSubmitSuccess={handleSubmitSuccess}
         />
       </DialogContent>
