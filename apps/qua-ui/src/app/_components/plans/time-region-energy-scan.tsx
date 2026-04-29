@@ -96,7 +96,13 @@ export const baseFormSchema = z.object({
     .gt(0, "Edge Energy must be a positive number"),
   potentiostat: z.boolean(),
   acquireThermocouple: z.boolean(),
-  fileName: z.string().optional(),
+  fileName: z
+    .string()
+    .regex(/[A-Za-z0-9][A-Za-z0-9_-]{0,254}$/, {
+      message:
+        "File name must start with a letter or number and can only contain letters, numbers, underscores, and hyphens.",
+    })
+    .optional(),
   metadata: z.string().optional(),
   repeats: z.coerce
     .number({
