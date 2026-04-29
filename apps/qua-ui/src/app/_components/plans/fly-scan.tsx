@@ -57,7 +57,15 @@ export const baseFormSchema = z.object({
   crystal: z.enum(CRYSTAL_OPTIONS),
   acquireThermocouple: z.boolean(),
   potentiostat: z.boolean(),
-  fileName: z.string().optional(),
+  fileName: z
+    .string()
+    .min(1)
+    .max(30)
+    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]$/, {
+      message:
+        "File name must start with a letter or number and can only contain letters, numbers, underscores, and hyphens.",
+    })
+    .optional(),
   deltaEnergy: z.coerce.number({}),
   filterOrder: z.coerce.number({}),
   filterCutoff: z.coerce.number({}),
