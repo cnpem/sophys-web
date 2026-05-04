@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SquareMousePointerIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import type { ButtonProps } from "@sophys-web/ui/button";
@@ -8,13 +9,14 @@ import { useQueue } from "@sophys-web/api-client/hooks";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@sophys-web/ui/form";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@sophys-web/ui/dialog";
+import { Field, FieldGroup, FieldLabel } from "@sophys-web/ui/field";
 import {
   Select,
   SelectContent,
@@ -22,12 +24,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { cardIndexOptions } from "../store/setup2/constants";
+import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import { cardIndexOptions, cardModes } from "../store/setup2/constants";
 
 export const planName = "setup2_pick_card_by_index";
 
 export const planSchema = z.object({
   index: z.enum(cardIndexOptions),
+  cardMode: z.enum(cardModes).optional().default("standard"),
 });
 
 export function PickCardForm({
@@ -44,6 +48,7 @@ export function PickCardForm({
     resolver: zodResolver(planSchema),
     defaultValues: {
       index: index ?? cardIndexOptions[0],
+      cardMode: "standard",
     },
   });
 
@@ -75,27 +80,27 @@ export function PickCardForm({
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className={cn("w-full space-y-8", className)}
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className={cn("flex w-full flex-col space-y-2", className)}
+    >
+      <FieldGroup
+        className={cn("grid w-full grid-flow-row grid-cols-2 gap-2", className)}
       >
-        <FormField
-          control={form.control}
+        <Controller
           name="index"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Card Index</FormLabel>
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>Card Index</FieldLabel>
               <Select
                 onValueChange={field.onChange}
                 value={field.value}
                 name={field.name}
               >
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                </FormControl>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
                 <SelectContent>
                   {cardIndexOptions.map((option) => {
                     return (
@@ -106,25 +111,62 @@ export function PickCardForm({
                   })}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
+              {fieldState.invalid && (
+                <InfoTooltip variant={"destructive"}>
+                  {fieldState.error?.message}
+                </InfoTooltip>
+              )}
+            </Field>
           )}
         />
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="w-full"
-        >
-          Submit
-        </Button>
-      </form>
-    </Form>
+        <Controller
+          name="cardMode"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>Card Mode</FieldLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+                name={field.name}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  {cardModes.map((option) => {
+                    return (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              {fieldState.invalid && (
+                <InfoTooltip variant={"destructive"}>
+                  {fieldState.error?.message}
+                </InfoTooltip>
+              )}
+            </Field>
+          )}
+        />
+      </FieldGroup>
+      <Button
+        type="submit"
+        disabled={form.formState.isSubmitting}
+        className="w-full"
+      >
+        <SquareMousePointerIcon className="size-4" /> Pick card
+      </Button>
+    </form>
   );
 }
 
 type PickCardButtonFormProps = Omit<ButtonProps, "type"> & {
   onSubmitSuccess?: () => void;
   index: z.infer<typeof planSchema>["index"];
+  cardMode?: z.infer<typeof planSchema>["cardMode"];
 };
 
 export function PickCardButtonForm({
@@ -134,6 +176,7 @@ export function PickCardButtonForm({
   className,
   onSubmitSuccess,
   index,
+  cardMode,
   disabled,
   ...props
 }: PickCardButtonFormProps) {
@@ -142,6 +185,7 @@ export function PickCardButtonForm({
     resolver: zodResolver(planSchema),
     defaultValues: {
       index: index,
+      cardMode: cardMode ?? "standard",
     },
   });
 
@@ -173,20 +217,62 @@ export function PickCardButtonForm({
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting || disabled}
-          className={className}
-          variant={variant}
-          size={size}
-          asChild={asChild}
-          {...props}
-        >
-          <SquareMousePointerIcon className="size-4" /> Pick card {index}
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <Button
+        type="submit"
+        disabled={form.formState.isSubmitting || disabled}
+        className={className}
+        variant={variant}
+        size={size}
+        asChild={asChild}
+        {...props}
+      >
+        <SquareMousePointerIcon className="size-4" /> Pick card {index}
+      </Button>
+    </form>
+  );
+}
+
+interface Setup2PickCardByIndexDialogProps extends Omit<ButtonProps, "type"> {
+  onClose?: () => void;
+}
+export function Setup2PickCardByIndexDialog({
+  variant,
+  size,
+  className,
+  onClose,
+  ...props
+}: Setup2PickCardByIndexDialogProps) {
+  const [open, setOpen] = useState(false);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      onClose?.();
+    }
+  };
+
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onClose?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant={variant} className={className} size={size} {...props}>
+          <SquareMousePointerIcon className="size-4" /> Pick card by index
         </Button>
-      </form>
-    </Form>
+      </DialogTrigger>
+      <DialogContent className="w-80">
+        <DialogHeader>
+          <DialogTitle>Pick Card by Index</DialogTitle>
+          <DialogDescription className="flex flex-col gap-2">
+            Select a card to pick and move to the experiment position.
+          </DialogDescription>
+        </DialogHeader>
+        <PickCardForm onSubmitSuccess={handleSubmitSuccess} />
+      </DialogContent>
+    </Dialog>
   );
 }
