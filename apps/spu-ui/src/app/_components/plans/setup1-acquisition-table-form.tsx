@@ -15,29 +15,15 @@ import {
   FormMessage,
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
-import { standardCleaningOptions } from "~/app/_components/store/setup1/constants";
 import { planSchema } from "./setup1-complete-acquisition-form";
 
 // modified schema from setup1-complete-aquisition-form without custom cleaning fields
-export const acquisitionTableSchema = planSchema
-  .omit({
-    agentsDuration: true,
-    agentsList: true,
-    standardOption: true,
-  })
-  .extend({
-    standardOption: z
-      .string()
-      .trim()
-      .optional()
-      .pipe(
-        z.enum(standardCleaningOptions, {
-          message: `Standard option must be one of the following: ${standardCleaningOptions.join(
-            ", ",
-          )}`,
-        }),
-      ),
-  });
+export const acquisitionTableSchema = planSchema.omit({
+  agentsDuration: true,
+  agentsList: true,
+  standardOption: true,
+  proposal: true,
+});
 
 const TABLE_DATA_SKIP_INDEX = 2;
 interface TableLineError {

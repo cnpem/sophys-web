@@ -41,7 +41,10 @@ export function OnDemandSelector() {
           <DropdownMenuLabel>Setup 4</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Setup4XpcsAquisitionDialog onClose={() => setMenuOpen(false)} />
+            <Setup4XpcsAquisitionDialog
+              className="font-normal"
+              onClose={() => setMenuOpen(false)}
+            />
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuLabel>Instructions</DropdownMenuLabel>
@@ -55,7 +58,7 @@ export function OnDemandSelector() {
               className="w-full justify-start font-normal"
               onClick={() => setDialogOpen(true)}
             >
-              <SearchIcon className="mr-2 h-4 w-4" /> Other
+              <SearchIcon className="mr-2 h-4 w-4" /> Search by Plan Name
             </Button>
           </DropdownMenuItem>
         </DropdownMenuContent>

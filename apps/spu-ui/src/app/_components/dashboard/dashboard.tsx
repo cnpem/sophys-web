@@ -10,7 +10,6 @@ import {
   QueueControls,
 } from "@sophys-web/widgets/control-bar/control-bar";
 import { OnDemandSelector } from "../plans/on-demand-queue-items";
-import { UploadQueue } from "../plans/setup1-upload";
 import { CustomRunningItem } from "./custom-running-item";
 import { ExperimentalEnvironment } from "./experimental-environment";
 
@@ -23,7 +22,6 @@ export function Dashboard() {
           <QueueControls />
         </ButtonGroup>
         <ButtonGroup>
-          <UploadQueue />
           <OnDemandSelector />
         </ButtonGroup>
       </ControlBar>

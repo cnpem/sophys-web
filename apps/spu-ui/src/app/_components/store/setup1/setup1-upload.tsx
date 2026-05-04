@@ -30,21 +30,18 @@ import {
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
-import type { Sample } from "../store/setup1/use-sample-store";
-import type { cleaningKwargsSchema } from "./setup1-acquisition-cleaning-form";
-import type { acquisitionTableSchema } from "./setup1-acquisition-table-form";
-import type { planSchema as cleanCapillaryKwargsSchema } from "./setup1-capillary-form";
-import {
-  sampleIdFromPosition,
-  useSampleStore,
-} from "../store/setup1/use-sample-store";
-import { AcquisitionCleaningForm } from "./setup1-acquisition-cleaning-form";
-import { AcquisitionTableForm } from "./setup1-acquisition-table-form";
+import type { cleaningKwargsSchema } from "../../plans/setup1-acquisition-cleaning-form";
+import type { acquisitionTableSchema } from "../../plans/setup1-acquisition-table-form";
+import type { planSchema as cleanCapillaryKwargsSchema } from "../../plans/setup1-capillary-form";
+import type { Sample } from "./use-sample-store";
+import { AcquisitionCleaningForm } from "../../plans/setup1-acquisition-cleaning-form";
+import { AcquisitionTableForm } from "../../plans/setup1-acquisition-table-form";
 import {
   CleanCapillaryForm,
   planName as cleanCapillaryPlanName,
-} from "./setup1-capillary-form";
-import { planName as acquisitionPlanName } from "./setup1-complete-acquisition-form";
+} from "../../plans/setup1-capillary-form";
+import { planName as acquisitionPlanName } from "../../plans/setup1-complete-acquisition-form";
+import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
 const exampleCsvPath = "/example-input-data.csv";
 
@@ -53,7 +50,7 @@ export function UploadQueue() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="rounded-full">
+        <Button size="sm" variant="outline">
           <UploadIcon className="size-4" />
           Upload CSV
         </Button>

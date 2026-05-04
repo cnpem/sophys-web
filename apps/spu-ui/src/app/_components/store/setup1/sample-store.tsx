@@ -13,6 +13,7 @@ import { DeleteSamplesDialog } from "./delete-samples";
 import { OnDemandActions } from "./on-demand-actions-dropdown";
 import { SampleItem, sampleTypeVariants } from "./sample-item";
 import { SampleTemperatureMonitor } from "./sample-temperature";
+import { UploadQueue } from "./setup1-upload";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
 const [TRAY1, TRAY2] = trayOptions;
@@ -106,7 +107,10 @@ export function SampleStoreSetup1({ className }: { className?: string }) {
         <SampleTemperatureMonitor />
         <CapillaryStateMonitor />
       </ItemGroup>
-      <OnDemandActions />
+      <div className="flex w-full flex-col gap-2">
+        <UploadQueue />
+        <OnDemandActions />
+      </div>
       <Tabs className="space-y-2" defaultValue={"tray1"}>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-2">
