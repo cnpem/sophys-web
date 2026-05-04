@@ -35,6 +35,7 @@ export const name = "setup4_xpcs_acquisition";
 export const schema = z.object({
   acquirePeriod: z.coerce.number().int().positive(),
   numExposures: z.coerce.number().int().positive(),
+  detReadout: z.coerce.number().int().positive().optional(),
   proposal: proposalSchema,
   sampleTag: z.string().min(1),
 });
@@ -55,6 +56,7 @@ export function Setup4XpcsAquisitionForm({
     defaultValues: {
       acquirePeriod: params?.acquirePeriod ?? 1,
       numExposures: params?.numExposures ?? 1,
+      detReadout: params?.detReadout ?? 0.001,
       proposal: params?.proposal ?? userData?.proposal ?? "",
       sampleTag: params?.sampleTag ?? "",
     },
@@ -153,6 +155,42 @@ export function Setup4XpcsAquisitionForm({
                   aria-invalid={fieldState.invalid}
                 />
                 <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
+        <Controller
+          name="detReadout"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field
+              data-invalid={fieldState.invalid}
+              className="whitespace-nowrap"
+            >
+              <FieldLabel htmlFor={field.name}>
+                Detector Readout Time
+                <InfoTooltip>
+                  <FieldDescription>
+                    The time for the readout of the detector in seconds.
+                  </FieldDescription>
+                </InfoTooltip>
+              </FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  type={"number"}
+                  step={0.001}
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align={"inline-end"}>seconds</InputGroupAddon>
                 {fieldState.invalid && (
                   <InputGroupAddon align={"inline-end"}>
                     <InfoTooltip variant={"destructive"}>
