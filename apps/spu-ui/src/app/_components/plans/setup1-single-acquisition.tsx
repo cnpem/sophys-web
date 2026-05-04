@@ -1,9 +1,9 @@
-import type { z } from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CameraIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
@@ -36,13 +36,32 @@ import {
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import {
-  name,
-  schema,
-} from "~/app/_components/plans/schemas/setup1-acquisition";
-import {
   picoloChannels,
   sampleTypeOptions,
 } from "~/app/_components/store/setup1/constants";
+import { proposalSchema } from "./schemas/common";
+
+const planName = "setup1_acquisition";
+const planSchema = z.object({
+  acquireTime: z.coerce
+    .number()
+    .min(0.1, "Acquire time (in seconds) must be at least 0.1"),
+  numExposures: z.coerce
+    .number()
+    .min(1, "Number of exposures must be at least 1"),
+  motionSpeed: z.coerce.number().positive().optional(),
+  proposal: proposalSchema,
+  sampleType: z.enum(sampleTypeOptions),
+  sampleTag: z.string(),
+  bufferTag: z.string().optional(),
+  temperature: z.coerce.number().positive().optional(),
+  setTemperature: z.boolean().optional(),
+  isRef: z.boolean().optional(),
+  usePimega: z.boolean().optional(),
+  usePicolo: z.boolean().optional(),
+  picoloChannel: z.enum(picoloChannels).optional(), // this should only be required if usePicolo is true (or better, only one kwarg that is either picolo ch1, ch2, or none)
+  metadata: z.record(z.string()).optional(),
+});
 
 export function SingleAcquisition({
   className,
@@ -94,7 +113,7 @@ export function SingleAcquisition({
   );
 }
 
-const defaultValues: z.infer<typeof schema> = {
+const defaultValues: z.infer<typeof planSchema> = {
   proposal: "",
   sampleType: "sample",
   sampleTag: "",
@@ -123,7 +142,7 @@ function SingleAcquisitionForm({
   const { add } = useQueue();
 
   const form = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(planSchema),
     defaultValues: {
       ...defaultValues,
       ...(proposal && { proposal }),
@@ -143,15 +162,15 @@ function SingleAcquisitionForm({
     },
   });
 
-  function onSubmit(data: z.infer<typeof schema>) {
+  function onSubmit(data: z.infer<typeof planSchema>) {
     toast.info("Submitting sample...");
-    const kwargs = schema.parse({
+    const kwargs = planSchema.parse({
       ...data,
     });
     add.mutate(
       {
         item: {
-          name: name,
+          name: planName,
           itemType: "plan",
           args: [],
           kwargs,

@@ -35,7 +35,7 @@ export function DeleteSamplesDialog() {
   return (
     <AlertDialog>
       <Tooltip>
-        <TooltipTrigger>
+        <TooltipTrigger asChild>
           <AlertDialogTrigger asChild>
             <Button
               size="icon"

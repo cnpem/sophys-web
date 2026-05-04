@@ -7,7 +7,12 @@ import type { ButtonProps } from "@sophys-web/ui/button";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { Button } from "@sophys-web/ui/button";
 import { Form } from "@sophys-web/ui/form";
-import { useSampleCardStatus } from "./sample-card-state";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@sophys-web/ui/tooltip";
+import { useSampleCardAtExperiment } from "./sample-card-state";
 
 export const name = "setup2_retrieve_card";
 
@@ -25,7 +30,7 @@ export function RetrieveCardButtonForm({
   onSubmitSuccess,
   ...props
 }: RetrieveCardButtonFormProps) {
-  const { status } = useSampleCardStatus();
+  const { status, cardAtExperiment } = useSampleCardAtExperiment();
   const { add } = useQueue();
   const form = useForm({
     resolver: zodResolver(schema),
@@ -46,7 +51,7 @@ export function RetrieveCardButtonForm({
       },
       {
         onSuccess: () => {
-          toast.success("Sample card retrieval added to the queue");
+          toast.success(`Retrieval of card submitted to the queue.`);
           onSubmitSuccess?.();
         },
         onError: (error) => {
@@ -62,17 +67,37 @@ export function RetrieveCardButtonForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting || status !== "loaded"}
-          className={className}
-          variant={variant}
-          size={size}
-          asChild={asChild}
-          {...props}
-        >
-          <SquareArrowDownIcon className="size-4" /> Retrieve Card
-        </Button>
+        <Tooltip>
+          <TooltipContent className="gap-1">
+            {cardAtExperiment && (
+              <span>
+                Current card: <strong>{cardAtExperiment}</strong>
+              </span>
+            )}
+            {status === "error" && (
+              <span className="text-error">Error reading card position</span>
+            )}
+            {status === "no card" && (
+              <span className="text-online">No card.</span>
+            )}
+            <span>
+              Submit a task to retrieve the card at the experiment position.
+            </span>
+          </TooltipContent>
+          <TooltipTrigger asChild>
+            <Button
+              type="submit"
+              disabled={form.formState.isSubmitting}
+              className={className}
+              variant={variant}
+              size={size}
+              asChild={asChild}
+              {...props}
+            >
+              <SquareArrowDownIcon className="size-4" /> Retrieve Card
+            </Button>
+          </TooltipTrigger>
+        </Tooltip>
       </form>
     </Form>
   );

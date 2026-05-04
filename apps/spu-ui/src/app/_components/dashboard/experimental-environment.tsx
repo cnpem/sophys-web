@@ -14,8 +14,8 @@ import {
   WindowCardHeader,
   WindowCardTitle,
 } from "@sophys-web/ui/window-card";
-import { Samples as Setup1Samples } from "../store/setup1/sample-store";
-import { Samples as Setup2Samples } from "../store/setup2/sample-store";
+import { SampleStoreSetup1 } from "../store/setup1/sample-store";
+import { SampleStoreSetup2 } from "../store/setup2/sample-store";
 
 export function ExperimentalEnvironment() {
   const [selectedStore, setSelectedStore] = useState<"setup1" | "setup2">(
@@ -46,8 +46,8 @@ export function ExperimentalEnvironment() {
         </WindowCardAction>
       </WindowCardHeader>
       <WindowCardContent>
-        {selectedStore === "setup1" && <Setup1Samples />}
-        {selectedStore === "setup2" && <Setup2Samples />}
+        {selectedStore === "setup1" && <SampleStoreSetup1 />}
+        {selectedStore === "setup2" && <SampleStoreSetup2 />}
       </WindowCardContent>
     </WindowCard>
   );

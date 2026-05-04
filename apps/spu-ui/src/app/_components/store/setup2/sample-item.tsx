@@ -26,12 +26,15 @@ import {
 } from "@sophys-web/ui/dropdown-menu";
 import type { Sample } from "./use-sample-store";
 import { CompleteAcquisitionForm } from "../../plans/setup2-complete-acquisition-form";
+import { Setup2FindSampleHorizontalScanForm } from "../../plans/setup2-find-sample-horizontal-scan";
+import { Setup2FindSampleVerticalScanForm } from "../../plans/setup2-find-sample-vertical-scan";
 import { MoveInsideSampleForm } from "../../plans/setup2-move-inside-sample-form";
 import { MoveToSampleForm } from "../../plans/setup2-move-to-sample-form";
 import { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import { DeleteSampleForm } from "./delete-sample-form";
 // import { LoadSampleForm } from "./load-sample-form";
 import { RegisterSampleForm } from "./register-sample-form";
+import { useSampleCardName } from "./sample-store";
 import { positionFromSampleId, useSampleStore } from "./use-sample-store";
 
 /**
@@ -192,6 +195,14 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
         />
+        <FindSampleVerticalMenuItem
+          sample={sample}
+          onSubmitCallback={() => setOpen(false)}
+        />
+        <FindSampleHorizontalMenuItem
+          sample={sample}
+          onSubmitCallback={() => setOpen(false)}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -298,6 +309,7 @@ function CompleteAcquisitionMenuItem({
     setOpen(false);
     onSubmitCallback?.();
   };
+  const { cardName } = useSampleCardName(sample.cardIndex);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -317,6 +329,7 @@ function CompleteAcquisitionMenuItem({
         </DialogHeader>
         <CompleteAcquisitionForm
           sampleParams={sample}
+          cardName={cardName ?? undefined}
           onSubmitSuccess={handleSubmitSuccess}
         />
       </DialogContent>
@@ -404,6 +417,92 @@ function MoveInsideSampleMenuItem({
           x={sample.samplePositionX}
           y={sample.samplePositionY}
           onSubmitSuccess={handleSubmitSuccess}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function FindSampleVerticalMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <CameraIcon className="mr-2 h-4 w-4" />
+          Find Sample (Vertical Scan)
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent className="w-fit">
+        <DialogHeader>
+          <DialogTitle>Setup 2 Find Sample (Vertical Scan)</DialogTitle>
+          <DialogDescription className="flex flex-col gap-2">
+            This plan runs a vertical scan inside the card hole in order to find
+            the sample.
+          </DialogDescription>
+        </DialogHeader>
+        <Setup2FindSampleVerticalScanForm
+          onSubmitSuccess={handleSubmitSuccess}
+          sampleTag={sample.sampleTag}
+          posX={sample.samplePositionX}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function FindSampleHorizontalMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <CameraIcon className="mr-2 h-4 w-4" />
+          Find Sample (Horizontal Scan)
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent className="w-fit">
+        <DialogHeader>
+          <DialogTitle>Setup 2 Find Sample (Horizontal Scan)</DialogTitle>
+          <DialogDescription className="flex flex-col gap-2">
+            This plan runs a horizontal scan inside the card hole in order to
+            find the sample.
+          </DialogDescription>
+        </DialogHeader>
+        <Setup2FindSampleHorizontalScanForm
+          onSubmitSuccess={handleSubmitSuccess}
+          sampleTag={sample.sampleTag}
+          posY={sample.samplePositionY}
         />
       </DialogContent>
     </Dialog>

@@ -1,7 +1,7 @@
-import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MoveRightIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "@sophys-web/ui/button";
 import { Checkbox } from "@sophys-web/ui/checkbox";
 import {
@@ -20,24 +20,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import { cleaningOptions } from "../store/setup1/constants";
-import { schema as cleanCapillaryKwargsSchema } from "./schemas/setup1-clean-and-acquire";
+import { cleaningOptions, sampleTypeOptions } from "../store/setup1/constants";
+
+export const planName = "setup1_clean_and_acquire";
+
+export const planSchema = z.object({
+  acquireTime: z.coerce
+    .number()
+    .min(0.1, "Acquire time (in seconds) must be at least 0.1"),
+  sampleType: z
+    .string()
+    .transform((val) => val.trimStart().trimEnd())
+    .pipe(
+      z.enum(sampleTypeOptions, {
+        message: "Sample type must be either 'buffer' or 'sample'",
+      }),
+    ),
+  numExposures: z.coerce.number(),
+  proposal: z.string().length(8),
+  sampleTag: z.string(),
+  standardOption: z.string().optional(),
+  agentsList: z.array(z.string()).optional(),
+  agentsDuration: z.array(z.number()).optional(),
+  isRef: z.boolean(),
+});
 
 export function CleanCapillaryForm({
   onSubmit,
   initialValues,
 }: {
-  onSubmit: (data: z.infer<typeof cleanCapillaryKwargsSchema>) => void;
-  initialValues?: Partial<z.infer<typeof cleanCapillaryKwargsSchema>>;
+  onSubmit: (data: z.infer<typeof planSchema>) => void;
+  initialValues?: Partial<z.infer<typeof planSchema>>;
 }) {
   const form = useForm({
-    resolver: zodResolver(cleanCapillaryKwargsSchema),
+    resolver: zodResolver(planSchema),
     defaultValues: { ...initialValues },
   });
 
-  const handleSubmitDiscriminated = (
-    data: z.infer<typeof cleanCapillaryKwargsSchema>,
-  ) => {
+  const handleSubmitDiscriminated = (data: z.infer<typeof planSchema>) => {
     if (data.standardOption === "custom") {
       if (!data.agentsList || !data.agentsDuration) {
         return;

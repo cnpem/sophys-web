@@ -21,7 +21,13 @@ import {
   SelectValue,
 } from "@sophys-web/ui/select";
 import { cleaningAgents, cleaningOptions } from "../store/setup1/constants";
-import { cleaningSchema as cleaningKwargsSchema } from "./schemas/setup1-complete-acquisition";
+import { planSchema as acquisitionPlanSchema } from "./setup1-complete-acquisition-form";
+
+export const cleaningKwargsSchema = acquisitionPlanSchema.pick({
+  agentsDuration: true,
+  agentsList: true,
+  standardOption: true,
+});
 
 function formatAgentList(input: string) {
   return input
