@@ -1,9 +1,9 @@
-import type { z } from "zod";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BubblesIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
@@ -30,11 +30,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
-import {
-  name,
-  schema,
-} from "~/app/_components/plans/schemas/setup1-standard-cleaning-procedure";
 import { standardCleaningOptions } from "~/app/_components/store/setup1/constants";
+
+export const planName = "setup1_standard_cleaning_procedure";
+export const planSchema = z.object({
+  standardOption: z.enum(standardCleaningOptions, {
+    message: "Standard option must be one of 'light', 'normal', or 'heavy'",
+  }),
+});
 
 export function StandardCleaningDialog({
   className,
@@ -88,19 +91,19 @@ export function StandardCleaningForm({
 }) {
   const { add } = useQueue();
   const form = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(planSchema),
     defaultValues: {
       standardOption: "normal" as const,
     },
   });
 
-  function onSubmit(data: z.infer<typeof schema>) {
+  function onSubmit(data: z.infer<typeof planSchema>) {
     toast.info("Submitting sample...");
-    const kwargs = schema.parse(data);
+    const kwargs = planSchema.parse(data);
     add.mutate(
       {
         item: {
-          name: name,
+          name: planName,
           itemType: "plan",
           args: [],
           kwargs,

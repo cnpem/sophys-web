@@ -31,20 +31,20 @@ import {
 import { Input } from "@sophys-web/ui/input";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import type { Sample } from "../store/setup1/use-sample-store";
-import type { schema as cleanCapillaryKwargsSchema } from "./schemas/setup1-clean-and-acquire";
-import type {
-  tableSchema as acquisitionTableSchema,
-  cleaningSchema as cleaningKwargsSchema,
-} from "./schemas/setup1-complete-acquisition";
+import type { cleaningKwargsSchema } from "./setup1-acquisition-cleaning-form";
+import type { acquisitionTableSchema } from "./setup1-acquisition-table-form";
+import type { planSchema as cleanCapillaryKwargsSchema } from "./setup1-capillary-form";
 import {
   sampleIdFromPosition,
   useSampleStore,
 } from "../store/setup1/use-sample-store";
-import { name as cleanCapillaryPlanName } from "./schemas/setup1-clean-and-acquire";
-import { name as acquisitionPlanName } from "./schemas/setup1-complete-acquisition";
 import { AcquisitionCleaningForm } from "./setup1-acquisition-cleaning-form";
 import { AcquisitionTableForm } from "./setup1-acquisition-table-form";
-import { CleanCapillaryForm } from "./setup1-capillary-form";
+import {
+  CleanCapillaryForm,
+  planName as cleanCapillaryPlanName,
+} from "./setup1-capillary-form";
+import { planName as acquisitionPlanName } from "./setup1-complete-acquisition-form";
 
 const exampleCsvPath = "/example-input-data.csv";
 

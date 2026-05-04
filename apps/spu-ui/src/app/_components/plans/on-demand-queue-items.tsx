@@ -18,13 +18,10 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import { NewItemSearch } from "@sophys-web/widgets/new-item-search";
-import { useCapillaryState } from "~/app/_hooks/use-capillary-state";
 import { QueueStop } from "./queue-stop";
-import { SingleAcquisition } from "./setup1-single-acquisition";
-import { StandardCleaningDialog } from "./setup1-standard-cleaning";
+import { Setup4XpcsAquisitionDialog } from "./setup4-xps-acquisition";
 
 export function OnDemandSelector() {
-  const { loadedSample } = useCapillaryState();
   const [menuOpen, setMenuOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   return (
@@ -37,28 +34,21 @@ export function OnDemandSelector() {
             className="cursor-context-menu rounded-full"
           >
             <PlusIcon />
-            Add Plan
+            Other Plans
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
-          <DropdownMenuLabel>On demand</DropdownMenuLabel>
+          <DropdownMenuLabel>Setup 4</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <SingleAcquisition
-              className="w-full justify-start font-normal"
-              lastSampleParams={loadedSample}
-              onClose={() => setMenuOpen(false)}
-            />
+            <Setup4XpcsAquisitionDialog onClose={() => setMenuOpen(false)} />
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <StandardCleaningDialog
-              className="w-full justify-start font-normal"
-              onClose={() => setMenuOpen(false)}
-            />
-          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Instructions</DropdownMenuLabel>
           <DropdownMenuItem asChild>
             <QueueStop className="w-full justify-start font-normal" />
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Button
               variant="ghost"

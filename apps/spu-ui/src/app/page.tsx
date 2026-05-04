@@ -34,6 +34,7 @@ export default async function Page() {
     redirect("/auth/signin");
   }
   await Promise.allSettled([
+    api.auth.getUser.prefetch(),
     api.httpserver.queue.get.prefetch(),
     api.httpserver.history.get.prefetch(),
     api.httpserver.status.get.prefetch(),

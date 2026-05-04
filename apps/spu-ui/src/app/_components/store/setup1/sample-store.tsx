@@ -10,6 +10,7 @@ import {
   trayOptions,
 } from "./constants";
 import { DeleteSamplesDialog } from "./delete-samples";
+import { OnDemandActions } from "./on-demand-actions-dropdown";
 import { SampleItem, sampleTypeVariants } from "./sample-item";
 import { SampleTemperatureMonitor } from "./sample-temperature";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
@@ -94,7 +95,7 @@ function SampleTypeLegend() {
   );
 }
 
-export function Samples({ className }: { className?: string }) {
+export function SampleStoreSetup1({ className }: { className?: string }) {
   const { storeData, error, parseError } = useSampleStore();
 
   const isError = !!error || !!parseError;
@@ -105,6 +106,7 @@ export function Samples({ className }: { className?: string }) {
         <SampleTemperatureMonitor />
         <CapillaryStateMonitor />
       </ItemGroup>
+      <OnDemandActions />
       <Tabs className="space-y-2" defaultValue={"tray1"}>
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center gap-2">

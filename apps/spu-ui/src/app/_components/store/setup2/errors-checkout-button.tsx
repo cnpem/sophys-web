@@ -7,7 +7,6 @@ import type { ButtonProps } from "@sophys-web/ui/button";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { Button } from "@sophys-web/ui/button";
 import { Form } from "@sophys-web/ui/form";
-import { useSampleCardStatus } from "./sample-card-state";
 
 export const name = "setup2_errors_checkout";
 
@@ -25,7 +24,6 @@ export function ErrorsCheckoutButtonForm({
   onSubmitSuccess,
   ...props
 }: ErrorsCheckoutButtonFormProps) {
-  const { status } = useSampleCardStatus();
   const { add } = useQueue();
   const form = useForm({
     resolver: zodResolver(schema),
@@ -57,9 +55,6 @@ export function ErrorsCheckoutButtonForm({
         },
       },
     );
-  }
-  if (status !== "error") {
-    return null; // Don't render the button if the status is not "error"
   }
 
   return (

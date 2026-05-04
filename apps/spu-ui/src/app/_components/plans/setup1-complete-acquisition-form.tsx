@@ -1,7 +1,7 @@
-import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
@@ -26,14 +26,75 @@ import {
 import { Switch } from "@sophys-web/ui/switch";
 import type { Sample } from "../store/setup1/use-sample-store";
 import {
-  name,
-  schema,
-} from "~/app/_components/plans/schemas/setup1-complete-acquisition";
-import {
   cleaningOptions,
   picoloChannels,
   sampleTypeOptions,
+  trayColumns,
+  trayOptions,
+  trayRows,
 } from "~/app/_components/store/setup1/constants";
+import { proposalSchema } from "./schemas/common";
+
+export const planName = "setup1_complete_standard_acquisition";
+
+export const planSchema = z.object({
+  acquireTime: z.coerce.number().positive(),
+  numExposures: z.coerce.number().int().positive(),
+  row: z
+    .string()
+    .transform((val) => val.trimStart().trimEnd())
+    .pipe(
+      z.enum(trayRows, {
+        message: `Row must be one of the following options ${trayRows.join(", ")}`,
+      }),
+    ),
+  col: z.coerce
+    .string()
+    .transform((val) => val.trimStart().trimEnd())
+    .pipe(
+      z.enum(trayColumns, {
+        message: `Column must be one of the following options ${trayColumns.join(", ")}`,
+      }),
+    ),
+  tray: z
+    .string()
+    .transform((val) => val.trimStart().trimEnd())
+    .pipe(
+      z.enum(trayOptions, {
+        message: `Tray must be one of the following options ${trayOptions.join(", ")}`,
+      }),
+    ),
+  volume: z.coerce.number().positive(),
+  proposal: proposalSchema,
+  sampleTag: z
+    .string()
+    .min(1, "Sample name or other form of identification is required"),
+  sampleType: z
+    .string()
+    .transform((val) => val.trimStart().trimEnd())
+    .pipe(
+      z.enum(sampleTypeOptions, {
+        message: "Sample type must be either 'buffer' or 'sample'",
+      }),
+    ),
+  expUvTime: z.coerce.number().positive().optional(),
+  measureUvNumber: z.coerce.number().int().positive().optional(),
+  temperature: z.coerce.number().positive().optional(),
+  setTemperature: z.boolean().optional(),
+  bufferTag: z.string().optional(),
+  standardOption: z.enum(cleaningOptions).optional(),
+  agentsList: z.array(z.string()).optional(),
+  agentsDuration: z.array(z.coerce.number().positive()).optional(),
+  picoloChannel: z
+    .string()
+    .transform((val) => val.trimStart().trimEnd())
+    .pipe(
+      z.enum(picoloChannels, {
+        message: `Picolo channel must be one of the following options ${picoloChannels.join(", ")}`,
+      }),
+    ),
+  motionSpeed: z.coerce.number().positive().optional(),
+});
 
 export function CompleteAcquisitionForm({
   sampleParams,
@@ -48,7 +109,7 @@ export function CompleteAcquisitionForm({
   const { data: userData } = api.auth.getUser.useQuery();
 
   const form = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(planSchema),
     defaultValues: {
       proposal: userData?.proposal ?? "",
       sampleType: "sample",
@@ -61,6 +122,7 @@ export function CompleteAcquisitionForm({
       setTemperature: false,
       picoloChannel: "channel2",
       standardOption: "normal",
+      motionSpeed: 0,
       ...(sampleParams && {
         tray: sampleParams.tray,
         row: sampleParams.row,
@@ -72,15 +134,15 @@ export function CompleteAcquisitionForm({
     },
   });
 
-  function onSubmit(data: z.infer<typeof schema>) {
+  function onSubmit(data: z.infer<typeof planSchema>) {
     toast.info("Submitting complete aquisition...");
-    const kwargs = schema.parse({
+    const kwargs = planSchema.parse({
       ...data,
     });
     add.mutate(
       {
         item: {
-          name: name,
+          name: planName,
           itemType: "plan",
           args: [],
           kwargs,
@@ -195,6 +257,19 @@ export function CompleteAcquisitionForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Acquire Time</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="motionSpeed"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Motion Speed</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>

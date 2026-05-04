@@ -1,5 +1,6 @@
-import { memo } from "react";
-import { InfoIcon, SquareMousePointerIcon } from "lucide-react";
+import { memo, useEffect, useState } from "react";
+import { SquareMousePointerIcon } from "lucide-react";
+import { z } from "zod";
 import { usePvData } from "@sophys-web/pvws-store";
 import { cn } from "@sophys-web/ui";
 import {
@@ -9,82 +10,62 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@sophys-web/ui/item";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@sophys-web/ui/tooltip";
+import { cardIndexOptions } from "./constants";
 
 const MemoIcon = memo(SquareMousePointerIcon);
 
-const sampleCardStateMessageMap = {
-  "-1": "Routine error",
-  "-2": "Hutch Interlock error",
-  "-3": "Hutch Opened + error",
-  "-10": "Taxi sensor error",
-  "-11": "Jaw occupied error",
-  "-12": "Unable to return home error",
-  "-13": "Robot EPS permission error",
-  "-14": "Aborted by user",
-  "0": "Not Initialized",
-  "1": "No card/Idle",
-  "2": "Loaded",
-} as const;
+const cardPvName = "SPU:B:YASKAWA01:CardAtExperiment_RBV";
 
-type SampleCardStatus =
-  | "undefined"
-  | "error"
-  | "not initialized"
-  | "no card/idle"
-  | "loaded";
+const cardAtExperimentValueSchema = z.coerce.string().pipe(
+  z.enum([...cardIndexOptions, "-1"], {
+    message: `Value must be one of ${cardIndexOptions.join(", ")} or -1 for 'no card'`,
+  }),
+);
 
-const pvName = "SPU:B:YASKAWA01:MasterSM_RBV";
+type CardAtExperimentValue = (typeof cardIndexOptions)[number] | undefined;
 
 /**
- * Hook to get the interpreted status of the sample card based on the Yaskawa PV data.
- * @returns An object containing the interpreted status, the raw PV value, and an optional message for error states.
- * The status can be one of "undefined", "error", "not initialized", "no card/idle", or "loaded".
- * The message provides additional information for error states based on the PV value.
+ * Hook to read the state of the sample card at the experiment (aquisition) position.
  */
-export const useSampleCardStatus = () => {
-  const pvData = usePvData(pvName);
+export const useSampleCardAtExperiment = () => {
+  const [cardAtExperiment, setCardAtExperiment] = useState<
+    CardAtExperimentValue | undefined
+  >(undefined);
+  const [status, setStatus] = useState<
+    "error" | "no card" | "loaded" | undefined
+  >(undefined);
+  const pvData = usePvData(cardPvName);
 
-  function format(value: number | "NaN" | undefined): SampleCardStatus {
-    if (value === undefined || value === "NaN") {
-      return "undefined";
+  useEffect(() => {
+    if (!pvData) {
+      setStatus("error");
+      setCardAtExperiment(undefined);
+      return;
     }
-    if (value < 0) {
-      // error states
-      return "error";
+    const parsed = cardAtExperimentValueSchema.safeParse(pvData.value);
+    if (!parsed.success) {
+      setStatus("error");
+      setCardAtExperiment(undefined);
+      return;
     }
-    if (value === 0) {
-      return "not initialized";
-    }
-    if (value === 1) {
-      return "no card/idle";
-    }
-    if (value === 2) {
-      return "loaded";
-    }
-    return "undefined"; // default case, should not happen if all cases are handled
-  }
 
-  const status = format(pvData?.value);
-  const message = pvData
-    ? sampleCardStateMessageMap[
-        pvData.value as keyof typeof sampleCardStateMessageMap
-      ]
-    : undefined;
+    if (parsed.data === "-1") {
+      setStatus("no card");
+      setCardAtExperiment(undefined);
+    } else {
+      setStatus("loaded");
+      setCardAtExperiment(parsed.data);
+    }
+  }, [pvData]);
 
   return {
+    cardAtExperiment,
     status,
-    rawValue: pvData?.value,
-    message,
   };
 };
 
 export function SampleCardState() {
-  const { status, message } = useSampleCardStatus();
+  const { cardAtExperiment, status } = useSampleCardAtExperiment();
   return (
     <Item variant={"muted"} size="sm">
       <ItemMedia>
@@ -95,20 +76,15 @@ export function SampleCardState() {
         <ItemDescription
           className={cn(
             "text-offline space-x-2 text-sm font-semibold",
+            // isError && "text-error",
             status === "error" && "text-error",
-            status === "no card/idle" && "text-online",
+            status === "no card" && "text-online",
             status === "loaded" && "text-busy",
           )}
         >
-          <span className="capitalize">{status.toUpperCase()}</span>
-          {message && (
-            <Tooltip>
-              <TooltipTrigger>
-                <InfoIcon className="text-muted-foreground hover:text-foreground size-3" />
-              </TooltipTrigger>
-              <TooltipContent>{message}</TooltipContent>
-            </Tooltip>
-          )}
+          {status === "error" && "Error reading card state"}
+          {status === "no card" && "No card at experiment"}
+          {status === "loaded" && `Card ${cardAtExperiment} at experiment`}
         </ItemDescription>
       </ItemContent>
     </Item>

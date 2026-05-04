@@ -7,17 +7,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@sophys-web/ui/accordion";
+import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import { PickCardButtonForm } from "../../plans/setup2-pick-card-by-index-form";
 import { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import { DeleteSamplesDialog } from "./delete-samples";
-import { DetectSampleCardsButtonForm } from "./detect-sample-cards-button";
-import { ErrorsCheckoutButtonForm } from "./errors-checkout-button";
-import { PickCardButtonForm } from "./pick-card-button";
-import { RetrieveCardButtonForm } from "./retrieve-card-button";
+import { OnDemandActions } from "./on-demand-actions-dropdown";
 import { SampleCardState } from "./sample-card-state";
 import { SampleItem } from "./sample-item";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
-export function Samples({ className }: { className?: string }) {
+export function SampleStoreSetup2({ className }: { className?: string }) {
   const { error, parseError, isLoading, isPending } = useSampleStore();
 
   const isError = !!error || !!parseError;
@@ -26,30 +25,14 @@ export function Samples({ className }: { className?: string }) {
   return (
     <div className={cn("flex min-w-64 flex-col gap-4", className)}>
       <SampleCardState />
-      <div className="flex flex-col gap-1">
-        <ErrorsCheckoutButtonForm
-          className="w-full"
-          size="sm"
-          variant="outline"
-        />
-        <DetectSampleCardsButtonForm
-          className="w-full"
-          size="sm"
-          variant="outline"
-        />
-        <RetrieveCardButtonForm
-          className="w-full"
-          size="sm"
-          variant="outline"
-        />
-      </div>
+      <OnDemandActions />
       <Accordion
         type="single"
         collapsible
         className={cn({ "w-full opacity-50": isDisabled })}
       >
         {cardIndexOptions.map((cardIndex) => (
-          <SampleCardAccordionItem key={cardIndex} cardIndex={cardIndex} />
+          <SampleCardAccordionItem key={cardIndex} value={cardIndex} />
         ))}
       </Accordion>
       <div className="mt-2 flex items-center justify-end">
@@ -65,21 +48,22 @@ export function Samples({ className }: { className?: string }) {
   );
 }
 
+const reverseSortedColumns = [...cardColumns].sort((a, b) =>
+  b.localeCompare(a),
+);
+
 function SampleCardGrid({
   cardIndex,
 }: {
   cardIndex: (typeof cardIndexOptions)[number];
 }) {
   const { storeData } = useSampleStore();
-  const reverseSortedColumns = [...cardColumns].sort((a, b) =>
-    b.localeCompare(a),
-  );
   return (
     <div
       className={cn(
         "grid grid-flow-row justify-items-center gap-2",
-        `grid-cols-5`, // cardColumns + 1
-        `grid-rows-7`, // cardRows + 1
+        `grid-cols-5`,
+        `grid-rows-7`,
       )}
     >
       {/* fill first row with column headers*/}
@@ -125,30 +109,92 @@ function SampleCardGrid({
   );
 }
 
-function SampleCardAccordionItem({
-  cardIndex,
-}: {
-  cardIndex: (typeof cardIndexOptions)[number];
-}) {
+/**
+ * Determines the status of a card based on its name value.
+ * @param cardName
+ * @returns
+ */
+function getCardNameStatus(
+  cardName: string | null | undefined,
+): "CardNotFound" | "NameNotFound" | "Identified" {
+  if (!cardName) {
+    return "CardNotFound";
+  }
+  if (cardName === "Not Identified by Robot") {
+    return "CardNotFound";
+  }
+  if (cardName === "Not Identified by Cam") {
+    return "NameNotFound";
+  }
+  return "Identified";
+}
+
+/**
+ * Custom hook to get the name and status of a sample card based on its index.
+ * It uses the usePvData hook to subscribe to the corresponding PV for the card name
+ * and interprets the status based on the PV value.
+ */
+export const useSampleCardName = (
+  cardIndex: (typeof cardIndexOptions)[number],
+) => {
   const pvName = `SPU:B:YASKAWA01:Card${cardIndex}_RBV`;
   const pvData = usePvData(pvName);
-  const notFound = !pvData?.text;
+  const cardName = pvData?.text;
+  const status = getCardNameStatus(cardName);
+  return {
+    cardName: status === "Identified" ? cardName : undefined,
+    status: status,
+  };
+};
+
+interface SampleCardAccordionItemProps
+  extends React.ComponentProps<typeof AccordionItem> {
+  value: (typeof cardIndexOptions)[number];
+}
+
+function SampleCardAccordionItem({ ...props }: SampleCardAccordionItemProps) {
+  const cardIndex = props.value;
+  const { cardName, status } = useSampleCardName(cardIndex);
 
   return (
-    <AccordionItem
-      value={cardIndex}
-      className="border-b px-2 pt-2 last:border-0"
-    >
+    <AccordionItem className="max-w-60 border-b" {...props}>
       <AccordionTrigger
-        disabled={notFound}
-      >{`Card ${cardIndex}`}</AccordionTrigger>
-      <AccordionContent className="flex flex-col justify-center gap-4 p-4">
-        <div className="flex flex-row items-center justify-between">
-          <span className="text-muted-foreground text-sm">
-            {pvData?.text ?? "-"}
-          </span>
-          <PickCardButtonForm index={cardIndex} size="sm" variant={"outline"} />
-        </div>
+        className={cn(
+          "truncate",
+          status === "CardNotFound" && "text-muted-foreground",
+        )}
+      >
+        {`Card ${cardIndex}: `}
+        <span>
+          {status === "CardNotFound" && "Card not found"}
+          {status === "NameNotFound" && "Not identified"}
+          {status === "Identified" && cardName}
+        </span>
+      </AccordionTrigger>
+      <AccordionContent className="my-2 flex w-full flex-col space-y-2">
+        <PickCardButtonForm
+          index={cardIndex}
+          className="w-full"
+          variant={"outline"}
+          disabled={status === "CardNotFound"}
+        />
+        {status === "CardNotFound" && (
+          <InfoTooltip variant={"destructive"}>
+            <p className="w-40 text-sm">
+              Card not found. Please run 'Detect Cards' to update the card hotel
+              information.
+            </p>
+          </InfoTooltip>
+        )}
+        {status === "NameNotFound" && (
+          <InfoTooltip variant={"subtle"}>
+            <p className="w-40 text-sm">
+              Card detected but not identified. Please check if the card is
+              properly placed in the hotel and if the qr code is not damaged.
+            </p>
+          </InfoTooltip>
+        )}
+        {status === "Identified" && <span className="text-sm">{cardName}</span>}
         <SampleCardGrid cardIndex={cardIndex} />
       </AccordionContent>
     </AccordionItem>
