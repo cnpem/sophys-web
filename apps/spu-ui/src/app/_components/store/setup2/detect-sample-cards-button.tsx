@@ -7,9 +7,8 @@ import type { ButtonProps } from "@sophys-web/ui/button";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { Button } from "@sophys-web/ui/button";
 import { Form } from "@sophys-web/ui/form";
-import { useSampleCardStatus } from "./sample-card-state";
 
-export const name = "detect_sample_cards";
+export const name = "setup2_detect_sample_cards";
 
 export const schema = z.object({});
 
@@ -25,7 +24,6 @@ export function DetectSampleCardsButtonForm({
   onSubmitSuccess,
   ...props
 }: DetectSampleCardsButtonFormProps) {
-  const { status } = useSampleCardStatus();
   const { add } = useQueue();
   const form = useForm({
     resolver: zodResolver(schema),
@@ -64,7 +62,7 @@ export function DetectSampleCardsButtonForm({
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <Button
           type="submit"
-          disabled={form.formState.isSubmitting || status !== "not initialized"}
+          disabled={form.formState.isSubmitting}
           className={className}
           variant={variant}
           size={size}

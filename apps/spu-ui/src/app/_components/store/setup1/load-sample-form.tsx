@@ -1,7 +1,7 @@
-import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { Button } from "@sophys-web/ui/button";
@@ -15,8 +15,32 @@ import {
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
 import type { Sample } from "./use-sample-store";
-import { name, schema } from "~/app/_components/plans/schemas/setup1-load";
+import {
+  sampleTypeOptions,
+  trayColumns,
+  trayOptions,
+  trayRows,
+} from "../../store/setup1/constants";
+import { proposalSchema } from "./../../plans/schemas/common";
 import { useSampleStore } from "./use-sample-store";
+
+export const planName = "setup1_load_procedure";
+
+export const planSchema = z.object({
+  row: z.enum(trayRows),
+  col: z.enum(trayColumns),
+  tray: z.enum(trayOptions),
+  volume: z.coerce
+    .number()
+    .positive()
+    .max(100, "Volume must be between 0 and 100 µL"),
+  proposal: proposalSchema,
+  sampleTag: z.string(),
+  sampleType: z.enum(sampleTypeOptions),
+  expUvTime: z.coerce.number().nonnegative().optional(),
+  measureUvNumber: z.coerce.number().int().nonnegative().optional(),
+  motionSpeed: z.coerce.number().positive().optional(),
+});
 
 export function LoadSampleForm({
   sample,
@@ -29,7 +53,7 @@ export function LoadSampleForm({
   const { add } = useQueue();
   const { storeData, setSample } = useSampleStore();
   const form = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(planSchema),
     defaultValues: {
       tray: sample.tray,
       row: sample.row,
@@ -41,15 +65,15 @@ export function LoadSampleForm({
     },
   });
 
-  async function onSubmit(data: z.infer<typeof schema>) {
+  async function onSubmit(data: z.infer<typeof planSchema>) {
     try {
       toast.info("Submitting sample...");
 
-      const kwargs = schema.parse(data);
+      const kwargs = planSchema.parse(data);
 
       await add.mutateAsync({
         item: {
-          name,
+          name: planName,
           itemType: "plan",
           args: [],
           kwargs,
