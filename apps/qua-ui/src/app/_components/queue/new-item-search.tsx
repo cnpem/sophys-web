@@ -29,7 +29,7 @@ export function NewItemSearchDialog() {
         <DialogHeader>
           <DialogTitle>New Item</DialogTitle>
           <DialogDescription>
-            "Select a plan to be added to the queue."
+            Select a plan to be added to the queue.
           </DialogDescription>
         </DialogHeader>
         <NewItemSearch
