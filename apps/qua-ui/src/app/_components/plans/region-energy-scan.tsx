@@ -791,8 +791,11 @@ export function MainForm({
               <FormControl>
                 <Textarea
                   {...field}
-                  className="h-32 font-mono"
-                  placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  rows={2}
+                  className="font-mono"
+                  placeholder={
+                    'Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  }
                 />
               </FormControl>
               <ErrorMessageTooltip />
