@@ -113,12 +113,8 @@ export function CustomRunningItem() {
       setElapsedStr("");
       return;
     }
-    if (reState === "paused") {
-      // If paused, show "Paused" instead of elapsed time
-      return;
-    }
     setElapsedStr(formatDistanceToNowStrict(fromUnixTime(timeStartMs)));
-  }, [reState, runningItem]);
+  }, [runningItem]);
 
   useEffect(() => {
     // Initial tick on mount or when runningItem changes
@@ -156,7 +152,7 @@ export function CustomRunningItem() {
             <span className="text-muted-foreground">{runningItem.user}</span>
           </ItemTitle>
           <ItemContent className="ml-auto flex-none text-center">
-            {elapsedStr} {reState === "paused" && " (Paused)"}
+            {elapsedStr} {reState === "paused" && "(Paused)"}
           </ItemContent>
           <ButtonGroup>
             <PauseAndResumeButton />
