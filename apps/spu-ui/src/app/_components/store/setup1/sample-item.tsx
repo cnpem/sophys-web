@@ -369,7 +369,8 @@ function CompleteAcquisitionMenuItem({
         <DialogHeader>
           <DialogTitle>Complete Acquisition</DialogTitle>
           <DialogDescription className="flex flex-col items-center">
-            <span>{`position: ${sample.tray}-${sample.row}${sample.col}`}</span>
+            Start a multi step acquisition process that includes loading sample,
+            acquiring data and cleaning up.
           </DialogDescription>
         </DialogHeader>
         <CompleteAcquisitionForm
