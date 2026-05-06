@@ -89,12 +89,11 @@ export function LoadSampleForm({
       const volumeAfter = currentSample.volume - data.volume;
       if (volumeAfter < 0) {
         toast.error("Loaded volume exceeds available sample volume");
-        return;
       }
 
       await setSample(sample.id, {
         ...currentSample,
-        volume: volumeAfter,
+        volume: volumeAfter > 0 ? volumeAfter : 0,
       });
 
       toast.success("Sample submitted!");
