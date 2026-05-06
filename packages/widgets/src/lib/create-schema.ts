@@ -2,6 +2,33 @@ import camelCase from "camelcase";
 import { z } from "zod";
 import type { schemas } from "@sophys-web/api";
 
+/**
+ * Helper function to parse a Literal type annotation and extract the possible values as an array of strings.
+ * It handles cases where the Literal is wrapped in Optional and/or list annotations.
+ * For example, it can parse the following type annotations:
+ * - typing.Optional[typing.Literal['option1', 'option2']]
+ * - typing.Literal['option1', 'option2']
+ * - Optional[Literal['option1', 'option2']]
+ * - typing.Optional[list[typing.Literal['option1', 'option2']]]
+ *
+ *
+ * @param type The type annotation string to parse.
+ * @returns An array of possible values as strings extracted from the Literal annotation.
+ */
+export function parseLiteralList(type: string): string[] {
+  const valuesStr = type
+    .replaceAll("typing.", "")
+    .replace("Optional", "")
+    .replace("Literal", "")
+    .replace("list", "")
+    .replaceAll("]", "")
+    .replaceAll("[", "")
+    .replace(/'/g, "")
+    .trim();
+
+  return valuesStr.split(",").map((v) => v.trim());
+}
+
 export type Parameter = z.infer<
   typeof schemas.plans.plan
 >["parameters"][number];
@@ -18,13 +45,10 @@ export const createSchema = (parameters: Parameter[]) => {
       type.includes("Literal") &&
       !(type.includes("list") || type.includes("Sequence"))
     ) {
-      const valuesStr = type
-        .replace("typing.", "")
-        .replace("Literal[", "")
-        .replace("]", "");
-      const valueArray = valuesStr.split(", ").map((v) => v.replace(/'/g, ""));
+      const valueArray = parseLiteralList(type);
       schemaFields[camelName] = z.coerce
         .string()
+        .trim()
         .refine((val) => valueArray.includes(val), {
           message: `Value must be one of: ${valueArray.join(", ")}`,
         });
