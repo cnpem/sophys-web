@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
+import { Setup2AquisitionDialog } from "../../plans/setup2-acquisition";
 import { Setup2PickCardByIndexDialog } from "../../plans/setup2-pick-card-by-index-form";
 import { DetectSampleCardsButtonForm } from "./detect-sample-cards-button";
 import { ErrorsCheckoutButtonForm } from "./errors-checkout-button";
@@ -43,6 +44,13 @@ export function OnDemandActions() {
         </DropdownMenuItem>
         <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
           <Setup2PickCardByIndexDialog
+            className="w-full justify-start"
+            variant="ghost"
+            onClose={() => setMenuOpen(false)}
+          />
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild onSelect={(e) => e.preventDefault()}>
+          <Setup2AquisitionDialog
             className="w-full justify-start"
             variant="ghost"
             onClose={() => setMenuOpen(false)}
