@@ -32,69 +32,94 @@ function DragHandle({ id }: { id: UniqueIdentifier }) {
 
 export const columnHelper = createColumnHelper<QueueItemProps>();
 
-const defaultColumns = [
-  columnHelper.display({
-    id: "drag",
-    header: () => "Pos",
-    cell: ({ row }) => (
-      <div className="text-muted-foreground flex w-fit flex-row items-center gap-2">
-        <DragHandle id={row.original.itemUid} />
-        <div className="text-muted-foreground text-center">{row.index}</div>
-      </div>
-    ),
-  }),
-  columnHelper.accessor("name", {
-    header: "Name",
-    cell: ({ getValue }) => {
-      const name = getValue();
-      return <div className="min-w-40">{name.replace(/_/g, " ")}</div>;
-    },
-  }),
-  columnHelper.accessor("user", {
-    header: "User",
-  }),
-  columnHelper.accessor("kwargs", {
-    header: "Params",
-    cell: ({ getValue }) => {
-      const params = getValue();
-      return <ItemParametersCell kwargs={params} />;
-    },
-  }),
-  columnHelper.display({
-    id: "edit",
-    cell: ({ row }) => <EditItemDialog item={row.original} />,
-  }),
-  columnHelper.display({
-    id: "copy",
-    cell: ({ row }) => <CopyButton {...row.original} />,
-  }),
-  columnHelper.display({
-    id: "delete",
-  }),
-];
+const dragHandleColumn = columnHelper.display({
+  id: "drag",
+  header: () => "Pos",
+  cell: ({ row }) => (
+    <div className="text-muted-foreground flex w-fit flex-row items-center gap-2">
+      <DragHandle id={row.original.itemUid} />
+      <div className="text-muted-foreground text-center">{row.index}</div>
+    </div>
+  ),
+});
+
+const nameColumn = columnHelper.accessor("name", {
+  header: "Name",
+  cell: ({ getValue }) => {
+    const name = getValue();
+    return <div className="min-w-40">{name.replace(/_/g, " ")}</div>;
+  },
+});
+
+const userColumn = columnHelper.accessor("user", {
+  header: "User",
+});
+
+const paramsColumn = columnHelper.accessor("kwargs", {
+  header: "Params",
+  cell: ({ getValue }) => {
+    const params = getValue();
+    return <ItemParametersCell kwargs={params} />;
+  },
+});
+
+const editColumn = columnHelper.display({
+  id: "edit",
+  cell: ({ row }) => <EditItemDialog item={row.original} />,
+});
+
+const copyColumn = columnHelper.display({
+  id: "copy",
+  cell: ({ row }) => <CopyButton {...row.original} />,
+});
+
+const deleteColumn = columnHelper.display({
+  id: "delete",
+});
 
 export type QueueTableColumns = ColumnDef<QueueItemProps>[];
 
+export const defaultColumns = [
+  dragHandleColumn,
+  nameColumn,
+  userColumn,
+  paramsColumn,
+  editColumn,
+  copyColumn,
+  deleteColumn,
+] as QueueTableColumns;
+
 /**
- * Default columns for the QueueTable component.
- * Can be extended:
+ * A mapping of default columns by their IDs for easy access and extension.
+ * This can be used to easily reference and extend specific columns when customizing the table.
  * @example
  * ```typescript
- * import { columnHelper, columns } from "@sophys-web/widgets/queue-table/columns";
+ * import { defaultColumnsMap } from "@sophys-web/widgets/queue-table/columns";
  * import { DataTable as QueueTable } from "@sophys-web/widgets/queue-table/data-table";
  * import type { QueueTableColumns } from "@sophys-web/widgets/queue-table/columns";
  *
  * const customColumns = [
- *   ...columns.filter((col) => col.id !== "edit"),
- *   columnHelper.display({
- *     id: "edit",
- *     cell: ({ row }) => <CustomEditItemDialog item={row.original} />,
- *   }),
+ *   defaultColumnsMap.drag,
+ *   defaultColumnsMap.name,
+ *   // ... other columns
+ *   {
+ *    columnHelper.display({
+ *      id: "edit",
+ *      cell: ({ row }) => <CustomEditItemDialog item={row.original} />,
+ *    }),
+ *   },
  * ] as QueueTableColumns;
  *
  * function CustomQueueTable() {
  *   return <QueueTable columns={customColumns} />;
  * }
- * ```
  */
-export const columns = defaultColumns as QueueTableColumns;
+export const defaultColumnsMap = {
+  drag: dragHandleColumn,
+  name: nameColumn,
+  user: userColumn,
+  params: paramsColumn,
+  edit: editColumn,
+  copy: copyColumn,
+  delete: deleteColumn,
+};
