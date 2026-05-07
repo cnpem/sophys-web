@@ -1,7 +1,7 @@
 FROM node:22-alpine AS base
 RUN corepack enable
 ENV PNPM_HOME="/root/.local/share/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+ENV PATH="$PNPM_HOME/bin:$PATH"
 RUN apk add --no-cache libc6-compat
 
 FROM base AS builder
@@ -9,11 +9,11 @@ RUN apk update
 RUN apk add --no-cache libc6-compat
 # Set working directory
 WORKDIR /app
-RUN pnpm add turbo --global
+RUN pnpm add -D turbo 
 COPY . .
 
 # Generate a partial monorepo with a pruned lockfile for a target workspace.
-RUN turbo prune @sophys-web/qua-ui --docker
+RUN pnpm exec turbo prune @sophys-web/qua-ui --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
@@ -37,7 +37,7 @@ ARG BLUESKY_HTTPSERVER_URL
 
 # Build the project
 COPY --from=builder /app/out/full/ .
-RUN CI=1 pnpm turbo run build
+RUN CI=1 pnpm exec turbo run build
 
 FROM base AS runner
 WORKDIR /app
