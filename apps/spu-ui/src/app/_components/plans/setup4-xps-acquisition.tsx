@@ -33,9 +33,9 @@ import { proposalSchema } from "./schemas/common";
 export const name = "setup4_xpcs_acquisition";
 
 export const schema = z.object({
-  acquirePeriod: z.coerce.number().int().positive(),
+  acquirePeriod: z.coerce.number().positive(),
   numExposures: z.coerce.number().int().positive(),
-  detReadout: z.coerce.number().int().positive().optional(),
+  detReadout: z.coerce.number().min(0.001).positive().optional(),
   proposal: proposalSchema,
   sampleTag: z.string().min(1),
 });
