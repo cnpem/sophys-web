@@ -1,0 +1,49 @@
+# Adapted workflow for building and pushing Docker images (and replacing if already exists)
+# using a tag format with a 'pr' prefix (e.g., 'qua-ui__pr123' or 'spu-ui__pr456')
+# and setting the .env variable NEXT_PUBLIC_BASE_PATH to '/pr123' so that the temporary deployment can be accessed at https://<app-host>/pr123.
+name: build_and_push_pr
+
+on:
+  push:
+    tags:
+      - "qua-ui__pr*"
+      - "spu-ui__pr*"
+    branches:
+      - main
+
+jobs:
+  build-and-push-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up variables
+        id: vars
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          APP="${TAG%%__*}"
+          VERSION="${TAG#*__}"
+          PR_NUMBER="${TAG#*__pr}"
+          NEXT_PUBLIC_BASE_PATH="/pr${PR_NUMBER}"
+          echo "app=$APP" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "next_public_base_path=$NEXT_PUBLIC_BASE_PATH" >> $GITHUB_OUTPUT
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io/${{ github.repository_owner }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -f apps/${{ steps.vars.outputs.app }}/Dockerfile \
+            --build-arg NEXT_PUBLIC_BASE_PATH=${{ steps.vars.outputs.next_public_base_path }} \
+            -t ghcr.io/${{ github.repository }}__${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }} .
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}__${{ steps.vars.outputs.app }}:${{ steps.vars.outputs.version }}
