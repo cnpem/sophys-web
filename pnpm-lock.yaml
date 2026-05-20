@@ -405,9 +405,6 @@ importers:
       '@sophys-web/auth':
         specifier: workspace:*
         version: link:../auth
-      '@sophys-web/httpserver-client':
-        specifier: workspace:*
-        version: link:../httpserver-client
       '@t3-oss/env-nextjs':
         specifier: ^0.10.1
         version: 0.10.1(typescript@5.8.3)(zod@3.24.2)

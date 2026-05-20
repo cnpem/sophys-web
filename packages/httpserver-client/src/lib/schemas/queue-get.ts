@@ -52,7 +52,7 @@ const response = z.object({
 
 const body = z.object({});
 
-export const schemas = {
+export default {
   response,
   body,
 };
