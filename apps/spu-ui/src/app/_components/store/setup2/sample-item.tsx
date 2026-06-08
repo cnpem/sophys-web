@@ -34,7 +34,10 @@ import { MoveToSampleForm } from "../../plans/setup2-move-to-sample-form";
 import { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import { DeleteSampleForm } from "./delete-sample-form";
 // import { LoadSampleForm } from "./load-sample-form";
-import { RegisterSampleForm } from "./register-sample-form";
+import {
+  RegisterNewSampleForm,
+  RegisterSampleForm,
+} from "./register-sample-form";
 import { useSampleCardName } from "./sample-store";
 import { positionFromSampleId, useSampleStore } from "./use-sample-store";
 
@@ -100,12 +103,12 @@ function EmptySampleSlotDialog({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="flex w-fit flex-col items-center">
         <DialogHeader>
-          <DialogTitle>Register sample</DialogTitle>
+          <DialogTitle>Register new sample</DialogTitle>
           <DialogDescription className="flex flex-col items-start">
             <span>{`position: ${cardIndex}-${row}${column}`}</span>
           </DialogDescription>
         </DialogHeader>
-        <RegisterSampleForm
+        <RegisterNewSampleForm
           cardIndex={cardIndex as (typeof cardIndexOptions)[number]}
           row={row as (typeof cardRows)[number]}
           column={column as (typeof cardColumns)[number]}
