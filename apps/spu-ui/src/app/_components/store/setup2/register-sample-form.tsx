@@ -147,3 +147,91 @@ export function RegisterSampleForm({
     </Form>
   );
 }
+
+export function RegisterNewSampleForm({
+  cardIndex,
+  row,
+  column,
+  sampleTag,
+  meta = "",
+  onSubmitCallback,
+}: {
+  cardIndex: (typeof cardIndexOptions)[number];
+  row: (typeof cardRows)[number];
+  column: (typeof cardColumns)[number];
+  sampleTag?: string;
+  samplePositionX?: number;
+  samplePositionY?: number;
+  meta?: string;
+  onSubmitCallback?: () => void;
+}) {
+  const { setSample } = useSampleStore();
+  const form = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      sampleTag: sampleTag ?? "",
+      row,
+      column,
+      cardIndex,
+      samplePositionX: 0,
+      samplePositionY: 0,
+      meta,
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof registerSchema>) {
+    toast.info("Registering sample...");
+    const sampleId = sampleIdFromPosition({ cardIndex, row, column });
+    const sample = {
+      id: sampleId,
+      ...data,
+    } satisfies Sample;
+    await setSample(sampleId, sample).then(() => {
+      toast.success("Sample registered!");
+      form.reset();
+      onSubmitCallback?.();
+    });
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-96 space-y-8">
+        <FormField
+          control={form.control}
+          name="sampleTag"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Sample Tag</FormLabel>
+              <FormDescription>
+                Please enter the sample tag for this sample.
+              </FormDescription>
+              <FormControl>
+                <Input placeholder="Sample tag" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="meta"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Meta</FormLabel>
+              <FormDescription>
+                Please enter any additional metadata for this sample.
+              </FormDescription>
+              <FormControl>
+                <Input placeholder="Meta" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full">
+          Submit
+        </Button>
+      </form>
+    </Form>
+  );
+}
