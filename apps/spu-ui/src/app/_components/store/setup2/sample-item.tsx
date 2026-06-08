@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import type { Sample } from "./use-sample-store";
+import { Setup2AquisitionForm } from "../../plans/setup2-acquisition";
 import { CompleteAcquisitionForm } from "../../plans/setup2-complete-acquisition-form";
 import { Setup2FindSampleHorizontalScanForm } from "../../plans/setup2-find-sample-horizontal-scan";
 import { Setup2FindSampleVerticalScanForm } from "../../plans/setup2-find-sample-vertical-scan";
@@ -183,7 +184,11 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
           onSubmitCallback={() => setOpen(false)}
         />
         <DropdownMenuSeparator />
-        <CompleteAcquisitionMenuItem
+        {/* <CompleteAcquisitionMenuItem
+          sample={sample}
+          onSubmitCallback={() => setOpen(false)}
+        /> */}
+        <AcquisitionMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
         />
@@ -200,6 +205,11 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
           onSubmitCallback={() => setOpen(false)}
         />
         <FindSampleHorizontalMenuItem
+          sample={sample}
+          onSubmitCallback={() => setOpen(false)}
+        />
+        <DropdownMenuSeparator />
+        <CompleteAcquisitionMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
         />
@@ -330,6 +340,49 @@ function CompleteAcquisitionMenuItem({
         <CompleteAcquisitionForm
           sampleParams={sample}
           cardName={cardName ?? undefined}
+          onSubmitSuccess={handleSubmitSuccess}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AcquisitionMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <CameraIcon className="mr-2 h-4 w-4" />
+          Acquisition
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Acquisition</DialogTitle>
+          <DialogDescription className="flex flex-col items-center">
+            Acquisition for sample {sample.sampleTag}.
+          </DialogDescription>
+        </DialogHeader>
+        <Setup2AquisitionForm
+          params={{
+            sampleTag: sample.sampleTag,
+          }}
           onSubmitSuccess={handleSubmitSuccess}
         />
       </DialogContent>

@@ -54,7 +54,7 @@ export function Setup2AquisitionForm({
 }: {
   className?: string;
   onSubmitSuccess?: () => void;
-  params?: z.infer<typeof schema>;
+  params?: Partial<z.infer<typeof schema>>;
 }) {
   const { add } = useQueue();
   const { data: userData } = api.auth.getUser.useQuery();
