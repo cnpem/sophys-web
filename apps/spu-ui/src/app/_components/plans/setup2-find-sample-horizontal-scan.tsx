@@ -27,7 +27,7 @@ export const schema = z.object({
   sampleTag: z.string().min(1),
   minX: z.coerce.number(),
   maxX: z.coerce.number(),
-  stepX: z.coerce.number().positive().default(1),
+  xStepSize: z.coerce.number().positive().default(1),
   posY: z.coerce.number().default(0),
 });
 
