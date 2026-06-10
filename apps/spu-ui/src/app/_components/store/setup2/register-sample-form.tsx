@@ -1,29 +1,43 @@
 import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@sophys-web/ui/button";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@sophys-web/ui/form";
-import { Input } from "@sophys-web/ui/input";
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@sophys-web/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@sophys-web/ui/input-group";
+import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 import type { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import type { Sample } from "./use-sample-store";
+import { cardSlotRadius, isValidCardPosition } from "./constants";
 import {
   sampleIdFromPosition,
   sampleSchema,
   useSampleStore,
 } from "./use-sample-store";
 
-const registerSchema = sampleSchema.omit({
-  id: true,
-});
+const registerSchema = sampleSchema
+  .omit({
+    id: true,
+  })
+  .refine(
+    (data) =>
+      isValidCardPosition({ x: data.samplePositionX, y: data.samplePositionY }),
+    (data) => ({
+      message: `Sample position must be within a circle of radius ${cardSlotRadius}. 
+      Position for (${data.samplePositionX},${data.samplePositionY}): ${Math.sqrt(data.samplePositionX ** 2 + data.samplePositionY ** 2).toFixed(2)}`,
+      path: ["samplePositionX"],
+    }),
+  );
 
 export function RegisterSampleForm({
   cardIndex,
@@ -73,78 +87,139 @@ export function RegisterSampleForm({
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-96 space-y-8">
-        <FormField
-          control={form.control}
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <FieldGroup className="mb-4 w-96 space-y-2">
+        <Controller
           name="sampleTag"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sample Tag</FormLabel>
-              <FormDescription>
-                Please enter the sample tag for this sample.
-              </FormDescription>
-              <FormControl>
-                <Input placeholder="Sample tag" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel htmlFor="sampleTag">
+                Sample Tag
+                <InfoTooltip>
+                  <FieldDescription>
+                    Tag to identify the sample.
+                  </FieldDescription>
+                </InfoTooltip>
+              </FieldLabel>
+              <InputGroup>
+                <InputGroupInput {...field} />
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
           )}
         />
-        {/* sample position */}
-        <FormField
-          control={form.control}
-          name="samplePositionX"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sample Position X</FormLabel>
-              <FormDescription>
-                Please enter the sample position X for this sample.
-              </FormDescription>
-              <FormControl>
-                <Input placeholder="Sample position X" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="samplePositionY"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sample Position Y</FormLabel>
-              <FormDescription>
-                Please enter the sample position Y for this sample.
-              </FormDescription>
-              <FormControl>
-                <Input placeholder="Sample position Y" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
+        {/* sample position div*/}
+        <FieldSet>
+          <FieldLabel>Sample Position in the Slot</FieldLabel>
+          <FieldGroup className="grid grid-cols-2 gap-4">
+            <Controller
+              name="samplePositionX"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>
+                    Sample X
+                    <InfoTooltip>
+                      <FieldDescription>
+                        Position X of the sample on the card slot. Must be
+                        within a circle of radius {cardSlotRadius}mm.
+                      </FieldDescription>
+                    </InfoTooltip>
+                  </FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      type="number"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e.target.value);
+                      }}
+                    />
+                    <InputGroupAddon align={"inline-end"}>mm</InputGroupAddon>
+                    {fieldState.invalid && (
+                      <InputGroupAddon align={"inline-end"}>
+                        <InfoTooltip variant={"destructive"}>
+                          {fieldState.error?.message}
+                        </InfoTooltip>
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
+                </Field>
+              )}
+            />
+            <Controller
+              name="samplePositionY"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>
+                    Sample Y
+                    <InfoTooltip>
+                      <FieldDescription>
+                        Position Y of the sample on the card slot. Must be
+                        within a circle of radius {cardSlotRadius}mm.
+                      </FieldDescription>
+                    </InfoTooltip>
+                  </FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      type="number"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e.target.value);
+                      }}
+                    />
+                    <InputGroupAddon align={"inline-end"}>mm</InputGroupAddon>
+                    {fieldState.invalid && (
+                      <InputGroupAddon align={"inline-end"}>
+                        <InfoTooltip variant={"destructive"}>
+                          {fieldState.error?.message}
+                        </InfoTooltip>
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </FieldSet>
+        <Controller
           name="meta"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Meta</FormLabel>
-              <FormDescription>
-                Please enter any additional metadata for this sample.
-              </FormDescription>
-              <FormControl>
-                <Input placeholder="Meta" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel htmlFor="meta">
+                Metadata
+                <InfoTooltip>
+                  <FieldDescription>
+                    Additional metadata for this sample.
+                  </FieldDescription>
+                </InfoTooltip>
+              </FieldLabel>
+              <InputGroup>
+                <InputGroupInput {...field} />
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
           )}
         />
-        <Button type="submit" className="w-full">
-          Submit
-        </Button>
-      </form>
-    </Form>
+      </FieldGroup>
+      <Button type="submit" className="w-full">
+        Submit
+      </Button>
+    </form>
   );
 }
 
@@ -194,44 +269,64 @@ export function RegisterNewSampleForm({
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-96 space-y-8">
-        <FormField
-          control={form.control}
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <FieldGroup className="mb-4 w-96 space-y-2">
+        <Controller
           name="sampleTag"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sample Tag</FormLabel>
-              <FormDescription>
-                Please enter the sample tag for this sample.
-              </FormDescription>
-              <FormControl>
-                <Input placeholder="Sample tag" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
           control={form.control}
-          name="meta"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Meta</FormLabel>
-              <FormDescription>
-                Please enter any additional metadata for this sample.
-              </FormDescription>
-              <FormControl>
-                <Input placeholder="Meta" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel htmlFor="sampleTag">
+                Sample Tag
+                <InfoTooltip>
+                  <FieldDescription>
+                    Tag to identify the sample.
+                  </FieldDescription>
+                </InfoTooltip>
+              </FieldLabel>
+              <InputGroup>
+                <InputGroupInput {...field} />
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
           )}
         />
-        <Button type="submit" className="w-full">
-          Submit
-        </Button>
-      </form>
-    </Form>
+        <Controller
+          name="meta"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel htmlFor="meta">
+                Metadata
+                <InfoTooltip>
+                  <FieldDescription>
+                    Additional metadata for this sample.
+                  </FieldDescription>
+                </InfoTooltip>
+              </FieldLabel>
+              <InputGroup>
+                <InputGroupInput {...field} />
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
+      </FieldGroup>
+      <Button type="submit" className="w-full">
+        Submit
+      </Button>
+    </form>
   );
 }
