@@ -1,26 +1,41 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@sophys-web/ui/form";
-import { Input } from "@sophys-web/ui/input";
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+  FieldSet,
+} from "@sophys-web/ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@sophys-web/ui/input-group";
+import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import { cardSlotRadius, isValidCardPosition } from "../store/setup2/constants";
 
 const name = "setup2_move_inside_sample";
 
 const schema = z.object({
-  x: z.number(),
-  y: z.number(),
+  x: z.coerce.number(),
+  y: z.coerce.number(),
 });
+
+const schemaRefined = schema.refine(
+  (data) => isValidCardPosition({ x: data.x, y: data.y }),
+  (data) => ({
+    message: `Coordinates must be within a circle of radius ${cardSlotRadius}mm. 
+    Radius for (${data.x},${data.y}): ${Math.sqrt(data.x ** 2 + data.y ** 2).toFixed(2)}`,
+    path: ["x"],
+  }),
+);
+
 export { name, schema };
 
 export function MoveInsideSampleForm({
@@ -36,16 +51,16 @@ export function MoveInsideSampleForm({
 }) {
   const { add } = useQueue();
   const form = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schemaRefined),
     defaultValues: {
       x: x ?? 0,
       y: y ?? 0,
     },
   });
 
-  function onSubmit(data: z.infer<typeof schema>) {
+  function onSubmit(data: z.infer<typeof schemaRefined>) {
     toast.info("Submitting sample...");
-    const kwargs = schema.parse(data);
+    const kwargs = schemaRefined.parse(data);
     add.mutate(
       {
         item: {
@@ -71,55 +86,90 @@ export function MoveInsideSampleForm({
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className={cn("w-full space-y-8", className)}
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className={cn("w-full", className)}
+    >
+      <FieldSet className="gap-2">
+        <FieldLabel>Sample Position in the Slot</FieldLabel>
+        <FieldGroup className="grid grid-cols-2 gap-2">
+          <Controller
+            name="x"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>
+                  Sample X
+                  <InfoTooltip>
+                    <FieldDescription>
+                      Position X of the sample on the card slot. Must be within
+                      a circle of radius {cardSlotRadius}mm.
+                    </FieldDescription>
+                  </InfoTooltip>
+                </FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    type="number"
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                    }}
+                  />
+                  <InputGroupAddon align={"inline-end"}>mm</InputGroupAddon>
+                  {fieldState.invalid && (
+                    <InputGroupAddon align={"inline-end"}>
+                      <InfoTooltip variant={"destructive"}>
+                        {fieldState.error?.message}
+                      </InfoTooltip>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              </Field>
+            )}
+          />
+          <Controller
+            name="y"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>
+                  Sample Y
+                  <InfoTooltip>
+                    <FieldDescription>
+                      Position Y of the sample on the card slot. Must be within
+                      a circle of radius {cardSlotRadius}mm.
+                    </FieldDescription>
+                  </InfoTooltip>
+                </FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    type="number"
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                    }}
+                  />
+                  <InputGroupAddon align={"inline-end"}>mm</InputGroupAddon>
+                  {fieldState.invalid && (
+                    <InputGroupAddon align={"inline-end"}>
+                      <InfoTooltip variant={"destructive"}>
+                        {fieldState.error?.message}
+                      </InfoTooltip>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              </Field>
+            )}
+          />
+        </FieldGroup>
+      </FieldSet>
+      <Button
+        type="submit"
+        disabled={form.formState.isSubmitting}
+        className="mt-4 w-full"
       >
-        <FormField
-          control={form.control}
-          name="x"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>X Coordinate</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                  value={field.value}
-                  name={field.name}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="y"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Y Coordinate</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  onChange={(e) => field.onChange(Number(e.target.value))}
-                  value={field.value}
-                  name={field.name}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="w-full"
-        >
-          Submit
-        </Button>
-      </form>
-    </Form>
+        Submit
+      </Button>
+    </form>
   );
 }
