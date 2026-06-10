@@ -31,34 +31,32 @@ export const schema = z.object({
   posX: z.coerce.number().default(0),
 });
 
+const defaultValues = {
+  proposal: "12345678",
+  sampleTag: "",
+  minY: 0,
+  maxY: 0,
+  yStepSize: 1,
+  posX: 0,
+} as z.infer<typeof schema>;
+
 export function Setup2FindSampleVerticalScanForm({
   className,
   onSubmitSuccess,
-  sampleTag,
-  minY,
-  maxY,
-  stepY,
-  posX,
+  params,
 }: {
   className?: string;
   onSubmitSuccess?: () => void;
-  sampleTag?: string;
-  minY?: number;
-  maxY?: number;
-  stepY?: number;
-  posX?: number;
+  params?: Partial<z.infer<typeof schema>>;
 }) {
   const { add } = useQueue();
   const { data: userData } = api.auth.getUser.useQuery();
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      proposal: userData?.proposal ?? "",
-      sampleTag: sampleTag ?? "",
-      minY: minY ?? 0,
-      maxY: maxY ?? 0,
-      stepY: stepY ?? 1,
-      posX: posX ?? 0,
+      ...defaultValues,
+      ...params,
+      proposal: userData?.proposal ?? defaultValues.proposal,
     },
   });
 
@@ -162,7 +160,7 @@ export function Setup2FindSampleVerticalScanForm({
           )}
         />
         <Controller
-          name="stepY"
+          name="yStepSize"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field
