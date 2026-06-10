@@ -514,8 +514,10 @@ function FindSampleVerticalMenuItem({
         </DialogHeader>
         <Setup2FindSampleVerticalScanForm
           onSubmitSuccess={handleSubmitSuccess}
-          sampleTag={sample.sampleTag}
-          posX={sample.samplePositionX}
+          params={{
+            sampleTag: sample.sampleTag,
+            posX: sample.samplePositionX,
+          }}
         />
       </DialogContent>
     </Dialog>
@@ -557,8 +559,10 @@ function FindSampleHorizontalMenuItem({
         </DialogHeader>
         <Setup2FindSampleHorizontalScanForm
           onSubmitSuccess={handleSubmitSuccess}
-          sampleTag={sample.sampleTag}
-          posY={sample.samplePositionY}
+          params={{
+            sampleTag: sample.sampleTag,
+            posY: sample.samplePositionY,
+          }}
         />
       </DialogContent>
     </Dialog>
