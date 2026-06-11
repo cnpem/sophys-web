@@ -1,5 +1,11 @@
 # @sophys-web/api
 
+## 0.1.3
+
+### Patch Changes
+
+- e9bfaf0: Fixed sorting devices names.
+
 ## 0.1.2
 
 ### Patch Changes

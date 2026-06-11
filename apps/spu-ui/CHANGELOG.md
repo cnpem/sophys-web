@@ -1,5 +1,18 @@
 # @sophys-web/spu-ui
 
+## 0.3.1
+
+### Patch Changes
+
+- 541b089: Fix build error by updating Dockerfile to avoid using turbo as a global install in the container.
+- bc9e450: Added ci for deploying pr versions with a set basePath for deployment to the same hostname with added "/pr<pr-number>" to the path for testing purposes.
+- Updated dependencies [c6fb430]
+- Updated dependencies [e9bfaf0]
+- Updated dependencies [829966b]
+  - @sophys-web/widgets@0.5.0
+  - @sophys-web/api@0.1.3
+  - @sophys-web/api-client@0.2.2
+
 ## 0.3.0
 
 ### Minor Changes
