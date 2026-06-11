@@ -1,5 +1,24 @@
 # @sophys-web/widgets
 
+## 0.5.0
+
+### Minor Changes
+
+- c6fb430: Fixed parsing literals for AnyForm component and createSchema helper function. Accounting for the cases:
+
+  - "typing.Optional[typing.Literal['option1', 'option2']]"
+  - "typing.Literal['option1', 'option2']"
+  - "Optional[Literal['option1', 'option2']]"
+  - "typing.Optional[list[typing.Literal['option1', 'option2']]]"
+
+- 829966b: Export defaultColumnsMap as a helper for building custom columns based on the default.
+
+### Patch Changes
+
+- Updated dependencies [e9bfaf0]
+  - @sophys-web/api@0.1.3
+  - @sophys-web/api-client@0.2.2
+
 ## 0.4.1
 
 ### Patch Changes
