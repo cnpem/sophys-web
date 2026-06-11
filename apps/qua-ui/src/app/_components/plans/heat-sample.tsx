@@ -729,8 +729,11 @@ export function MainForm({
               <FormControl>
                 <Textarea
                   {...field}
-                  className="h-12 font-mono"
-                  placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  rows={2}
+                  className="font-mono"
+                  placeholder={
+                    'Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  }
                 />
               </FormControl>
               <ErrorMessageTooltip />
@@ -793,21 +796,22 @@ const editKwargsSchema = z
   );
 
 interface EditHeatFormProps extends Pick<QueueItemProps, "itemUid" | "kwargs"> {
-  proposal?: string;
   onSubmitSuccess?: () => void;
   className?: string;
 }
 
 export function EditHeatForm(props: EditHeatFormProps) {
+  const { data: userData } = api.auth.getUser.useQuery();
+  const userProposal = userData?.proposal;
   const initialValues = editKwargsSchema.safeParse({
     ...props.kwargs,
-    proposal: props.proposal ?? undefined,
+    proposal: userProposal,
   });
   if (!initialValues.success) {
     console.error("Failed to parse kwargs for heat plan", initialValues.error);
     return <div>Error parsing plan data</div>;
   }
-  if (!props.proposal) {
+  if (!userProposal) {
     return <div>Cannot edit plan without a proposal ID</div>;
   }
   return (
@@ -816,7 +820,7 @@ export function EditHeatForm(props: EditHeatFormProps) {
         itemUid: props.itemUid,
         kwargs: initialValues.data,
       }}
-      proposal={props.proposal}
+      proposal={userProposal}
       onSubmitSuccess={props.onSubmitSuccess}
       className={props.className}
     />

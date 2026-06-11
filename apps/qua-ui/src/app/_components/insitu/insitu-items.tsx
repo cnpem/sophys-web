@@ -35,7 +35,7 @@ export function InSituSelector() {
     <>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen} modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm">
+          <Button variant="outline" className="rounded-full" size="sm">
             <FlaskConicalIcon />
             Sample environment
           </Button>

@@ -57,7 +57,15 @@ export const baseFormSchema = z.object({
   crystal: z.enum(CRYSTAL_OPTIONS),
   acquireThermocouple: z.boolean(),
   potentiostat: z.boolean(),
-  fileName: z.string().optional(),
+  fileName: z
+    .string()
+    .min(1)
+    .max(30)
+    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]$/, {
+      message:
+        "File name must start with a letter or number and can only contain letters, numbers, underscores, and hyphens.",
+    })
+    .optional(),
   deltaEnergy: z.coerce.number({}),
   filterOrder: z.coerce.number({}),
   filterCutoff: z.coerce.number({}),
@@ -563,15 +571,16 @@ const editKwargsSchema = z.object({
 
 interface EditFlyScanFormProps
   extends Pick<QueueItemProps, "itemUid" | "kwargs"> {
-  proposal?: string;
   onSubmitSuccess?: () => void;
   className?: string;
 }
 
 export function EditFlyScanForm(props: EditFlyScanFormProps) {
+  const { data: userData } = api.auth.getUser.useQuery();
+  const userProposal = userData?.proposal;
   const initialValues = editKwargsSchema.safeParse({
     ...props.kwargs,
-    proposal: props.proposal ?? undefined,
+    proposal: userProposal,
   });
   if (!initialValues.success) {
     console.error(
@@ -580,7 +589,7 @@ export function EditFlyScanForm(props: EditFlyScanFormProps) {
     );
     return <div>Error parsing plan data</div>;
   }
-  if (!props.proposal) {
+  if (!userProposal) {
     return <div>Cannot edit plan without a proposal ID</div>;
   }
   return (
@@ -589,7 +598,7 @@ export function EditFlyScanForm(props: EditFlyScanFormProps) {
         itemUid: props.itemUid,
         kwargs: initialValues.data,
       }}
-      proposal={props.proposal}
+      proposal={userProposal}
       onSubmitSuccess={props.onSubmitSuccess}
       className={props.className}
     />

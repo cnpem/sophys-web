@@ -98,7 +98,15 @@ export const baseFormSchema = z.object({
   acquireThermocouple: z.boolean(),
   upAndDown: z.boolean(),
   saveFlyData: z.boolean(),
-  fileName: z.string().optional(),
+  fileName: z
+    .string()
+    .min(1)
+    .max(30)
+    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]$/, {
+      message:
+        "File name must start with a letter or number and can only contain letters, numbers, underscores, and hyphens.",
+    })
+    .optional(),
   metadata: z.string().optional(),
   repeats: z.coerce
     .number({
@@ -791,8 +799,11 @@ export function MainForm({
               <FormControl>
                 <Textarea
                   {...field}
-                  className="h-32 font-mono"
-                  placeholder='Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  rows={2}
+                  className="font-mono"
+                  placeholder={
+                    'Additional text metadata e.g. "Trying new setup. Sample looks good."'
+                  }
                 />
               </FormControl>
               <ErrorMessageTooltip />
@@ -860,15 +871,16 @@ const editKwargsSchema = z
 
 interface EditRegionEnergyScanFormProps
   extends Pick<QueueItemProps, "itemUid" | "kwargs"> {
-  proposal?: string;
   onSubmitSuccess?: () => void;
   className?: string;
 }
 
 export function EditRegionEnergyScanForm(props: EditRegionEnergyScanFormProps) {
+  const { data: userData } = api.auth.getUser.useQuery();
+  const userProposal = userData?.proposal;
   const initialValues = editKwargsSchema.safeParse({
     ...props.kwargs,
-    proposal: props.proposal ?? undefined,
+    proposal: userProposal,
   });
   if (!initialValues.success) {
     console.error(
@@ -877,7 +889,7 @@ export function EditRegionEnergyScanForm(props: EditRegionEnergyScanFormProps) {
     );
     return <div>Error parsing plan data</div>;
   }
-  if (!props.proposal) {
+  if (!userProposal) {
     return <div>Cannot edit plan without a proposal ID</div>;
   }
   return (
@@ -886,7 +898,7 @@ export function EditRegionEnergyScanForm(props: EditRegionEnergyScanFormProps) {
         itemUid: props.itemUid,
         kwargs: initialValues.data,
       }}
-      proposal={props.proposal}
+      proposal={userProposal}
       onSubmitSuccess={props.onSubmitSuccess}
       className={props.className}
     />
