@@ -73,7 +73,10 @@ function AccordionContent({
     >
       <div
         className={cn(
-          "[&_a]:hover:text-foreground h-(--radix-accordion-content-height) pt-0 pb-2.5 [&_a]:underline [&_a]:underline-offset-3 [&_p:not(:last-child)]:mb-4",
+          // FIX:
+          // The  AccordionContent height increasingly grows on successive status changes (open/closed).
+          // This is fixed by removing h-(--radix-accordion-content-height) class, to allow the div to grow to the height of its content.
+          "[&_a]:hover:text-foreground pt-0 pb-2.5 [&_a]:underline [&_a]:underline-offset-3 [&_p:not(:last-child)]:mb-4",
           className,
         )}
       >
