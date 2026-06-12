@@ -1,8 +1,8 @@
 import { format, fromUnixTime } from "date-fns";
 import { nanoid } from "nanoid";
 import { z } from "zod";
-import { env } from "../../env";
-import { protectedProcedure } from "../trpc";
+import { env } from "../../../env";
+import { protectedProcedure } from "../../trpc";
 
 export const consoleOutputRouter = {
   stream: protectedProcedure.query(async function* ({ ctx }) {

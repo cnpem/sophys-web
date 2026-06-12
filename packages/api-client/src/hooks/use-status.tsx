@@ -8,33 +8,33 @@ export const useStatus = () => {
   const prevQueueUid = useRef<string | undefined>(undefined);
   const prevHistoryUid = useRef<string | undefined>(undefined);
 
-  const status = api.status.get.useQuery(undefined, {
+  const status = api.httpserver.status.get.useQuery(undefined, {
     refetchInterval: 2 * 1000,
     refetchOnWindowFocus: "always",
     refetchOnMount: "always",
   });
 
-  const envUpdate = api.environment.update.useMutation({
+  const envUpdate = api.httpserver.environment.update.useMutation({
     onSuccess: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
-  const envOpen = api.environment.open.useMutation({
+  const envOpen = api.httpserver.environment.open.useMutation({
     onSuccess: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
-  const envClose = api.environment.close.useMutation({
+  const envClose = api.httpserver.environment.close.useMutation({
     onSuccess: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
-  const envDestroy = api.environment.destroy.useMutation({
+  const envDestroy = api.httpserver.environment.destroy.useMutation({
     onSuccess: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 
@@ -44,15 +44,15 @@ export const useStatus = () => {
 
       if (planQueueUid !== prevQueueUid.current) {
         prevQueueUid.current = planQueueUid;
-        void utils.queue.get.invalidate();
+        void utils.httpserver.queue.get.invalidate();
       }
 
       if (planHistoryUid !== prevHistoryUid.current) {
         prevHistoryUid.current = planHistoryUid;
-        void utils.history.get.invalidate();
+        void utils.httpserver.history.get.invalidate();
       }
     }
-  }, [status.data, utils.history.get, utils.queue.get]);
+  }, [status.data, utils.httpserver.history.get, utils.httpserver.queue.get]);
 
   return { status, envUpdate, envOpen, envClose, envDestroy };
 };

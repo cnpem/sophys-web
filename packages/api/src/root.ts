@@ -1,26 +1,29 @@
 import { authRouter } from "./router/auth";
-import { consoleOutputRouter } from "./router/console-output";
-import { devicesRouter } from "./router/devices";
-import { environmentRouter } from "./router/environment";
-import { historyRouter } from "./router/history";
-import { plansRouter } from "./router/plans";
-import { postRouter } from "./router/post";
-import { queueRouter } from "./router/queue";
-import { runEngineRouter } from "./router/run-engine";
-import { statusRouter } from "./router/status";
+import { consoleOutputRouter } from "./router/httpserver/console-output";
+import { devicesRouter } from "./router/httpserver/devices";
+import { environmentRouter } from "./router/httpserver/environment";
+import { historyRouter } from "./router/httpserver/history";
+import { plansRouter } from "./router/httpserver/plans";
+import { queueRouter } from "./router/httpserver/queue";
+import { runEngineRouter } from "./router/httpserver/run-engine";
+import { statusRouter } from "./router/httpserver/status";
+import { redisHashStore } from "./router/redisHashStore";
 import { createTRPCRouter } from "./trpc";
 
 export const appRouter = createTRPCRouter({
-  post: postRouter,
-  plans: plansRouter,
-  devices: devicesRouter,
-  queue: queueRouter,
-  environment: environmentRouter,
-  status: statusRouter,
-  consoleOutput: consoleOutputRouter,
-  history: historyRouter,
-  runEngine: runEngineRouter,
+  httpserver: {
+    queue: queueRouter,
+    history: historyRouter,
+    runEngine: runEngineRouter,
+    status: statusRouter,
+    environment: environmentRouter,
+    devices: devicesRouter,
+    plans: plansRouter,
+    consoleOutput: consoleOutputRouter,
+    auth: authRouter,
+  } as const,
   auth: authRouter,
+  store: redisHashStore,
 });
 
 // export type definition of API

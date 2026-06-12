@@ -27,7 +27,7 @@ export function FinishedItemAlertDialog() {
     isLoading,
     isError,
     error,
-  } = api.history.get.useQuery(
+  } = api.httpserver.history.get.useQuery(
     // get only the first element of the history (most recent)
     undefined,
     {

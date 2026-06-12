@@ -39,9 +39,9 @@ function PauseImmediateButton({
 }) {
   const { status } = useStatus();
   const utils = api.useUtils();
-  const pause = api.runEngine.pause.useMutation({
+  const pause = api.httpserver.runEngine.pause.useMutation({
     onSettled: async () => {
-      await utils.status.get.invalidate();
+      await utils.httpserver.status.get.invalidate();
     },
   });
 

@@ -36,11 +36,11 @@ export default async function Page() {
   }
   const [samples] = await Promise.allSettled([
     getSamples(),
-    api.queue.get.prefetch(),
-    api.history.get.prefetch(),
-    api.status.get.prefetch(),
-    api.devices.allowedNames.prefetch(),
-    api.plans.allowed.prefetch(),
+    api.httpserver.queue.get.prefetch(),
+    api.httpserver.history.get.prefetch(),
+    api.httpserver.status.get.prefetch(),
+    api.httpserver.devices.allowedNames.prefetch(),
+    api.httpserver.plans.allowed.prefetch(),
   ]);
 
   if (samples.status === "rejected") {

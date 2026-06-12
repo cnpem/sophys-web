@@ -11,6 +11,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 import type { Session } from "@sophys-web/auth";
 import { auth } from "@sophys-web/auth";
+import { getRedisClient } from "./lib/redis";
 
 /**
  * 1. CONTEXT
@@ -33,8 +34,11 @@ export const createTRPCContext = async (opts: {
   const source = opts.headers.get("x-trpc-source") ?? "unknown";
   console.log(">>> tRPC Request from", source, "by", session?.user.name);
 
+  const redisClient = await getRedisClient();
+
   return {
     session,
+    redisClient,
   };
 };
 
@@ -99,6 +103,32 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     ctx: {
       // infers the `session` as non-nullable
       session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
+/**
+ * Redis context procedure
+ *
+ * If you want a query or mutation to have access to the Redis client, use this. It verifies that the Redis client is available and guarantees `ctx.redisClient` is not null.
+ * It also ensures that the user is authenticated, as Redis operations should be protected.
+ *
+ * @see https://trpc.io/docs/procedures
+ */
+export const redisContextProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  if (!ctx.redisClient) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Redis client is not available",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      redisClient: ctx.redisClient,
     },
   });
 });
