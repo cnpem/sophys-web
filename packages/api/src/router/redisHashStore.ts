@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { nanoid } from "nanoid";
 import { ConnectionTimeoutError, ErrorReply } from "redis";
 import { z } from "zod";
-import { protectedProcedure } from "../trpc";
+import { redisContextProcedure } from "../trpc";
 
 const getAppStoreRedisKey = (storeInstanceName: string) => {
   return `sophys-web-store:${storeInstanceName}`;
@@ -59,7 +59,7 @@ function handleRedisError(e: unknown, contextMessage?: string): never {
  */
 export const redisHashStore = {
   /**  getStore retrieves the complete store object from an instance */
-  getStore: protectedProcedure
+  getStore: redisContextProcedure
     .input(
       z.object({
         storeInstanceName: z.string(),
@@ -96,7 +96,7 @@ export const redisHashStore = {
    * getStoreField gets a specific field in the HASH store instance
    * Returns the field value and the current ETag of the store for versioning purposes
    */
-  getStoreField: protectedProcedure
+  getStoreField: redisContextProcedure
     .input(
       z.object({
         storeInstanceName: z.string(),
@@ -130,7 +130,7 @@ export const redisHashStore = {
       }
     }),
   /** setStoreField sets a specific field in the HASH store instance */
-  setStoreField: protectedProcedure
+  setStoreField: redisContextProcedure
     .input(
       z.object({
         storeInstanceName: z.string(),
@@ -159,7 +159,7 @@ export const redisHashStore = {
       }
     }),
   /** setStoreFields sets multiple fields in the HASH store instance */
-  setStoreFields: protectedProcedure
+  setStoreFields: redisContextProcedure
     .input(
       z.object({
         storeInstanceName: z.string(),
@@ -200,7 +200,7 @@ export const redisHashStore = {
       }
     }),
   /** deleteStoreField deletes a specific field from the HASH store instance */
-  deleteStoreField: protectedProcedure
+  deleteStoreField: redisContextProcedure
     .input(
       z.object({
         storeInstanceName: z.string(),
@@ -228,7 +228,7 @@ export const redisHashStore = {
       }
     }),
   /** deleteStoreInstance deletes the entire HASH store instance */
-  deleteStoreInstance: protectedProcedure
+  deleteStoreInstance: redisContextProcedure
     .input(
       z.object({
         storeInstanceName: z.string(),

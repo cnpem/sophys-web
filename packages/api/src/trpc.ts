@@ -106,3 +106,29 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     },
   });
 });
+
+/**
+ * Redis context procedure
+ *
+ * If you want a query or mutation to have access to the Redis client, use this. It verifies that the Redis client is available and guarantees `ctx.redisClient` is not null.
+ * It also ensures that the user is authenticated, as Redis operations should be protected.
+ *
+ * @see https://trpc.io/docs/procedures
+ */
+export const redisContextProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  if (!ctx.redisClient) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Redis client is not available",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      redisClient: ctx.redisClient,
+    },
+  });
+});

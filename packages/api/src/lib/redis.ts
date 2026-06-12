@@ -2,11 +2,12 @@ import type { RedisClientType } from "redis";
 import { createClient } from "redis";
 import { env } from "../../env";
 
-const redisClientFactory = async (): Promise<RedisClientType> => {
+const redisClientFactory = async (): Promise<RedisClientType | null> => {
   const redisUrl = env.REDIS_URL;
 
   if (!redisUrl) {
-    throw new Error("REDIS_URL is not defined in environment variables");
+    console.warn("REDIS_URL is not defined. Redis client will not be created.");
+    return null;
   }
 
   const client = createClient({
@@ -20,9 +21,9 @@ const redisClientFactory = async (): Promise<RedisClientType> => {
   return client;
 };
 
-let redisClientPromise: Promise<RedisClientType> | null = null;
+let redisClientPromise: Promise<RedisClientType | null> | null = null;
 
-const getRedisClient = async (): Promise<RedisClientType> => {
+const getRedisClient = async (): Promise<RedisClientType | null> => {
   redisClientPromise ??= redisClientFactory();
   return redisClientPromise;
 };
