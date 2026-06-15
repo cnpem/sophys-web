@@ -187,14 +187,6 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
           onSubmitCallback={() => setOpen(false)}
         />
         <DropdownMenuSeparator />
-        {/* <CompleteAcquisitionMenuItem
-          sample={sample}
-          onSubmitCallback={() => setOpen(false)}
-        /> */}
-        <AcquisitionMenuItem
-          sample={sample}
-          onSubmitCallback={() => setOpen(false)}
-        />
         <MoveToSampleMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
@@ -208,6 +200,10 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
           onSubmitCallback={() => setOpen(false)}
         />
         <FindSampleHorizontalMenuItem
+          sample={sample}
+          onSubmitCallback={() => setOpen(false)}
+        />
+        <AcquisitionMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
         />
