@@ -28,7 +28,17 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
+import { Label } from "@sophys-web/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@sophys-web/ui/select";
+import { Switch } from "@sophys-web/ui/switch";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import { picoloChannels } from "~/app/_components/store/setup1/constants";
 import { proposalSchema } from "./schemas/common";
 
 export const name = "setup2_acquisition";
@@ -66,6 +76,9 @@ export function Setup2AquisitionForm({
       detReadout: params?.detReadout ?? 0.001,
       proposal: userData?.proposal ?? "",
       sampleTag: params?.sampleTag ?? "",
+      usePimega: params?.usePimega ?? true,
+      usePicolo: params?.usePicolo ?? true,
+      picoloChannel: params?.picoloChannel ?? "channel2",
     },
   });
 
@@ -237,6 +250,76 @@ export function Setup2AquisitionForm({
                   </InputGroupAddon>
                 )}
               </InputGroup>
+            </Field>
+          )}
+        />
+        <Controller
+          name="usePimega"
+          control={form.control}
+          render={({ field }) => (
+            <Field>
+              <FieldLabel htmlFor={field.name}>Use Pimega</FieldLabel>
+              <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                <Label className="text-slate-500">
+                  {field.value ? "Yes" : "No"}
+                </Label>
+                <Switch
+                  checked={field.value ?? false}
+                  className="ml-auto"
+                  onCheckedChange={field.onChange}
+                />
+              </div>
+            </Field>
+          )}
+        />
+        <Controller
+          name="usePicolo"
+          control={form.control}
+          render={({ field }) => (
+            <Field>
+              <FieldLabel htmlFor={field.name}>Use Picolo</FieldLabel>
+              <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                <Label className="text-slate-500">
+                  {field.value ? "Yes" : "No"}
+                </Label>
+                <Switch
+                  checked={field.value ?? false}
+                  className="ml-auto"
+                  onCheckedChange={field.onChange}
+                />
+              </div>
+            </Field>
+          )}
+        />
+        <Controller
+          name="picoloChannel"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>Picolo Channel</FieldLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+                name={field.name}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  {picoloChannels.map((option) => {
+                    return (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              {fieldState.invalid && (
+                <InfoTooltip variant={"destructive"}>
+                  {fieldState.error?.message}
+                </InfoTooltip>
+              )}
             </Field>
           )}
         />
