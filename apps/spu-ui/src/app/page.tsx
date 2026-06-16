@@ -7,7 +7,6 @@ import { auth } from "@sophys-web/auth";
 import { PVWSConnectionHandler } from "@sophys-web/pvws-store";
 import { buttonVariants } from "@sophys-web/ui/button";
 import { Dashboard } from "./_components/dashboard/dashboard";
-import { getSamples } from "./actions/samples";
 
 export default async function Page() {
   // read pvwsURL from the server runtime environment
@@ -34,8 +33,8 @@ export default async function Page() {
   if (session.error) {
     redirect("/auth/signin");
   }
-  const [samples] = await Promise.allSettled([
-    getSamples(),
+  await Promise.allSettled([
+    api.auth.getUser.prefetch(),
     api.httpserver.queue.get.prefetch(),
     api.httpserver.history.get.prefetch(),
     api.httpserver.status.get.prefetch(),
@@ -43,15 +42,11 @@ export default async function Page() {
     api.httpserver.plans.allowed.prefetch(),
   ]);
 
-  if (samples.status === "rejected") {
-    return <div>{samples.reason}</div>;
-  }
-
   return (
     <HydrateClient>
       <Suspense fallback={<div>Loading...</div>}>
         <PVWSConnectionHandler url={pvwsUrl} />
-        <Dashboard initialData={samples.value} />
+        <Dashboard />
       </Suspense>
     </HydrateClient>
   );

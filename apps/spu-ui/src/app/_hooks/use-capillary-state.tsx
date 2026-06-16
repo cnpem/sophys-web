@@ -5,15 +5,15 @@ import type {
   trayColumns,
   trayOptions,
   trayRows,
-} from "../../lib/constants";
-import { name as cleanAndCheckPlan } from "../../lib/schemas/plans/clean-and-acquire";
-import { name as completeAcquisitionWithCleaningPlan } from "../../lib/schemas/plans/complete-acquisition";
+} from "../_components/store/setup1/constants";
+import { planName as cleanAndCheckPlan } from "../_components/plans/setup1-capillary-form";
+import { planName as completeAcquisitionWithCleaningPlan } from "../_components/plans/setup1-complete-acquisition-form";
+import { planName as setup1CustomCleaningProcedure } from "../_components/plans/setup1-custom-cleaning";
+import { planName as setup1StandardCleaningProcedure } from "../_components/plans/setup1-standard-cleaning";
 import {
-  schema as loadSampleKwargs,
-  name as loadSamplePlan,
-} from "../../lib/schemas/plans/load";
-import { name as setup1CustomCleaningProcedure } from "../../lib/schemas/plans/setup1-custom-cleaning-procedure";
-import { name as setup1StandardCleaningProcedure } from "../../lib/schemas/plans/setup1-standard-cleaning-procedure";
+  planSchema as loadSampleKwargs,
+  planName as loadSamplePlan,
+} from "../_components/store/setup1/load-sample-form";
 
 const STALE_TIME_IN_SECONDS = 15 * 60; // 15 minutes
 
