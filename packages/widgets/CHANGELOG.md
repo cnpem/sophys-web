@@ -1,5 +1,21 @@
 # @sophys-web/widgets
 
+## 0.5.1
+
+### Patch Changes
+
+- 27db97d: Refactor api routes to organize httpserver related routes under the httpserver namespace.
+- Updated dependencies [f00f1f7]
+- Updated dependencies [0697820]
+- Updated dependencies [323687c]
+- Updated dependencies [1c14816]
+- Updated dependencies [27db97d]
+- Updated dependencies [6526721]
+- Updated dependencies [5c4d645]
+  - @sophys-web/api@0.2.0
+  - @sophys-web/ui@0.4.0
+  - @sophys-web/api-client@0.3.0
+
 ## 0.5.0
 
 ### Minor Changes

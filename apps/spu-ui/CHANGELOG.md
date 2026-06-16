@@ -1,5 +1,37 @@
 # @sophys-web/spu-ui
 
+## 0.4.0
+
+### Minor Changes
+
+- Overview:
+
+  - Refactor sample store with new store router client.
+  - Created a dedicated section for sample management and setup dependent plans and controls in the UI with the ability to switch between different setups.
+  - Refactor source file structure to support multiple setups and their respective plans and controls.
+  - Refactor running item controls with more intuitive actions.
+  - Setup1:
+    - Added sample volume management.
+    - Fix complete acquisition form with missing parameters.
+    - Added the custom cleaning plan to the on demand plans section in the sample store.
+  - Setup2:
+    - Introduced sample store and base plans for sample positioning and acquisition.
+
+### Patch Changes
+
+- 27db97d: Refactor api routes to organize httpserver related routes under the httpserver namespace.
+- Updated dependencies [f00f1f7]
+- Updated dependencies [0697820]
+- Updated dependencies [323687c]
+- Updated dependencies [1c14816]
+- Updated dependencies [27db97d]
+- Updated dependencies [6526721]
+- Updated dependencies [5c4d645]
+  - @sophys-web/api@0.2.0
+  - @sophys-web/ui@0.4.0
+  - @sophys-web/api-client@0.3.0
+  - @sophys-web/widgets@0.5.1
+
 ## 0.3.1
 
 ### Patch Changes

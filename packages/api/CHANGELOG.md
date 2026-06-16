@@ -1,5 +1,16 @@
 # @sophys-web/api
 
+## 0.2.0
+
+### Minor Changes
+
+- f00f1f7: Added base procedure for routes that use the redis connected client via context.
+
+  - If REDIS_URL is set in the environment, the backend tries to connect and the valid client is shared in the context for the routes that use this procedure. If there is no REDIS_URL, routes that use this procedure will have an error state, while the other routes will not, so apps that don't use redis routes won't have errors.
+
+- 0697820: Added store router for a implementation of a hash store with redis.
+- 27db97d: Refactor api routes to organize httpserver related routes under the httpserver namespace.
+
 ## 0.1.3
 
 ### Patch Changes
