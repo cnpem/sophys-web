@@ -1,3 +1,4 @@
+import type { z } from "zod";
 import {
   ArrayBlockApiV1ArrayBlockPathGetResponse,
   FullArrayApiV1ArrayFullPathGetResponse,
@@ -15,7 +16,7 @@ function generateFullUrl(
   queryParams?: Record<string, string>,
 ) {
   const url = new URL(
-    `${baseUrl}/api/${API_VERSION}${actionUrl}${path ? `/${path}` : ""}`,
+    `${baseUrl}/api/${API_VERSION}${actionUrl}${path ? `${path}` : ""}`,
   );
   if (queryParams) {
     Object.entries(queryParams).forEach(([key, value]) =>
@@ -25,7 +26,66 @@ function generateFullUrl(
   return url.toString();
 }
 
-class TiledClient {
+export interface ITiledClient {
+  /**
+   * Fetch metadata for a given path.
+   * @param params - An object containing the path for which to fetch metadata.
+   * @returns A promise that resolves to the metadata of the specified path, or null if an error occurs.
+   * @example
+   * const metadata = await client.getMetadata({ path: "/some/valid/path" });
+   */
+  getMetadata(params: {
+    path: string;
+  }): Promise<z.infer<typeof MetadataApiV1MetadataPathGetResponse> | null>;
+  /**
+   * Fetch the full container metadata and data for a given path.
+   * @param params - An object containing the path for which to fetch the container data.
+   * @returns A promise that resolves to the full container metadata and data of the specified path, or null if an error occurs.
+   * @example
+   * const containerData = await client.getContainer({ path: "/some/valid/container/path" });
+   */
+  getContainer(params: {
+    path: string;
+  }): Promise<z.infer<
+    typeof FullContainerMetadataAndDataApiV1ContainerFullPathGetResponse
+  > | null>;
+  /**
+   * Fetch the full table data for a given path.
+   * @param params - An object containing the path for which to fetch the table data.
+   * @returns A promise that resolves to the full table data of the specified path, or null if an error occurs.
+   * @example
+   * const tableData = await client.getTable({ path: "/some/valid/table/path" });
+   */
+  getTable(params: {
+    path: string;
+  }): Promise<z.infer<
+    typeof FullTableDataApiV1TableFullPathGetResponse
+  > | null>;
+  /**
+   * Fetch the full array data for a given path.
+   * @param params - An object containing the path for which to fetch the array data.
+   * @returns A promise that resolves to the full array data of the specified path, or null if an error occurs.
+   * @example
+   * const arrayData = await client.getArray({ path: "/some/valid/array/path" });
+   */
+  getArray(params: {
+    path: string;
+  }): Promise<z.infer<typeof FullArrayApiV1ArrayFullPathGetResponse> | null>;
+  /**
+   * Fetch a block of array data for a given path.
+   * @param params - An object containing the path for which to fetch the array block data.
+   * @returns A promise that resolves to the array block data of the specified path, or null if an error occurs.
+   * @example
+   * const arrayBlockData = await client.getArrayBlock({ path: "/some/valid/array/block/path" });
+   */
+  getArrayBlock(params: {
+    path: string;
+  }): Promise<z.infer<typeof ArrayBlockApiV1ArrayBlockPathGetResponse> | null>;
+}
+
+export type TiledClientType = ITiledClient;
+
+class TiledClient implements ITiledClient {
   constructor({ baseUrl, apiKey }: { baseUrl: string; apiKey: string }) {
     this.baseUrl = baseUrl;
     this.apiKey = apiKey;
