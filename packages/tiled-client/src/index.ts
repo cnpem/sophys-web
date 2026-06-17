@@ -53,9 +53,9 @@ class TiledClient {
     return parsed.data;
   }
 
-  async getContainer() {
+  async getContainer({ path }: { path: string }) {
     const actionUrl = "/container/full";
-    const fullUrl = generateFullUrl(this.baseUrl, actionUrl);
+    const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
     const response = await fetch(fullUrl, {
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
@@ -75,9 +75,9 @@ class TiledClient {
     return parsed.data;
   }
 
-  async getTable() {
+  async getTable({ path }: { path: string }) {
     const actionUrl = "/table/full";
-    const fullUrl = generateFullUrl(this.baseUrl, actionUrl);
+    const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
     const response = await fetch(fullUrl, {
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
@@ -95,9 +95,9 @@ class TiledClient {
     return parsed.data;
   }
 
-  async getArray() {
+  async getArray({ path }: { path: string }) {
     const actionUrl = "/array/full";
-    const fullUrl = generateFullUrl(this.baseUrl, actionUrl);
+    const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
     const response = await fetch(fullUrl, {
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
@@ -115,9 +115,9 @@ class TiledClient {
     return parsed.data;
   }
 
-  async getArrayBlock() {
+  async getArrayBlock({ path }: { path: string }) {
     const actionUrl = "/array/block";
-    const fullUrl = generateFullUrl(this.baseUrl, actionUrl);
+    const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
     const response = await fetch(fullUrl, {
       headers: {
         Authorization: `Bearer ${this.apiKey}`,
