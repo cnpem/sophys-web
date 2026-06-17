@@ -12,6 +12,7 @@ import { ZodError } from "zod";
 import type { Session } from "@sophys-web/auth";
 import { auth } from "@sophys-web/auth";
 import { getRedisClient } from "./lib/redis";
+import { getTiledClient } from "./lib/tiled";
 
 /**
  * 1. CONTEXT
@@ -35,10 +36,12 @@ export const createTRPCContext = async (opts: {
   console.log(">>> tRPC Request from", source, "by", session?.user.name);
 
   const redisClient = await getRedisClient();
+  const tiledClient = await getTiledClient();
 
   return {
     session,
     redisClient,
+    tiledClient,
   };
 };
 
@@ -107,14 +110,7 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   });
 });
 
-/**
- * Redis context procedure
- *
- * If you want a query or mutation to have access to the Redis client, use this. It verifies that the Redis client is available and guarantees `ctx.redisClient` is not null.
- * It also ensures that the user is authenticated, as Redis operations should be protected.
- *
- * @see https://trpc.io/docs/procedures
- */
+// TODO: append to the protectedProcedure instead of writing it again
 export const redisContextProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -129,6 +125,21 @@ export const redisContextProcedure = t.procedure.use(({ ctx, next }) => {
     ctx: {
       ...ctx,
       redisClient: ctx.redisClient,
+    },
+  });
+});
+
+export const tiledContextProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!ctx.tiledClient) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Tiled client is not available",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      tiledClient: ctx.tiledClient,
     },
   });
 });

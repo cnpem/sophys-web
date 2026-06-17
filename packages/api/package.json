@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@sophys-web/auth": "workspace:*",
+    "@sophys-web/tiled-client": "workspace:*",
     "@t3-oss/env-nextjs": "^0.10.1",
     "@trpc/server": "catalog:",
     "camelcase-keys": "^9.1.3",
