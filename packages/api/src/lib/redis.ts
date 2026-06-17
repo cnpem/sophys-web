@@ -1,8 +1,9 @@
 import type { RedisClientType } from "redis";
 import { createClient } from "redis";
 import { env } from "../../env";
+import { createAsyncClientFactory } from "./singleton-factory";
 
-const redisClientFactory = async (): Promise<RedisClientType | null> => {
+const redisFactory = async (): Promise<RedisClientType | null> => {
   const redisUrl = env.REDIS_URL;
 
   if (!redisUrl) {
@@ -10,22 +11,11 @@ const redisClientFactory = async (): Promise<RedisClientType | null> => {
     return null;
   }
 
-  const client = createClient({
-    url: redisUrl,
-  }) as RedisClientType;
-
+  const client = createClient({ url: redisUrl }) as RedisClientType;
   client.on("error", (err) => console.error("Redis Client Error", err));
-
   await client.connect();
 
   return client;
 };
 
-let redisClientPromise: Promise<RedisClientType | null> | null = null;
-
-const getRedisClient = async (): Promise<RedisClientType | null> => {
-  redisClientPromise ??= redisClientFactory();
-  return redisClientPromise;
-};
-
-export { getRedisClient };
+export const getRedisClient = createAsyncClientFactory(redisFactory, "Redis");
