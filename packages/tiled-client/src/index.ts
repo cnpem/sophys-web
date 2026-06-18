@@ -1,12 +1,9 @@
 import type { z } from "zod";
-import { fetchWithAuth } from "./lib/fetch-with-auth";
-import {
-  ArrayBlockApiV1ArrayBlockPathGetResponse,
-  FullArrayApiV1ArrayFullPathGetResponse,
-  FullContainerMetadataAndDataApiV1ContainerFullPathGetResponse,
-  FullTableDataApiV1TableFullPathGetResponse,
-  MetadataApiV1MetadataPathGetResponse,
-} from "./lib/schemas/zod-schema";
+import { fetchAndParseJson } from "./lib/fetch-with-auth";
+import { arrayGetResponse } from "./lib/schemas/array-get";
+import { containerGetResponse } from "./lib/schemas/container-get";
+import { metadataGetResponse } from "./lib/schemas/metadata-get";
+import { tableGetResponse } from "./lib/schemas/table-get";
 
 const API_VERSION = "v1";
 
@@ -37,7 +34,7 @@ export interface ITiledClient {
    */
   getMetadata(params: {
     path: string;
-  }): Promise<z.infer<typeof MetadataApiV1MetadataPathGetResponse> | null>;
+  }): Promise<z.infer<typeof metadataGetResponse> | null>;
   /**
    * Fetch the full container metadata and data for a given path.
    * @param params - An object containing the path for which to fetch the container data.
@@ -47,9 +44,7 @@ export interface ITiledClient {
    */
   getContainer(params: {
     path: string;
-  }): Promise<z.infer<
-    typeof FullContainerMetadataAndDataApiV1ContainerFullPathGetResponse
-  > | null>;
+  }): Promise<z.infer<typeof containerGetResponse> | null>;
   /**
    * Fetch the full table data for a given path.
    * @param params - An object containing the path for which to fetch the table data.
@@ -59,9 +54,7 @@ export interface ITiledClient {
    */
   getTable(params: {
     path: string;
-  }): Promise<z.infer<
-    typeof FullTableDataApiV1TableFullPathGetResponse
-  > | null>;
+  }): Promise<z.infer<typeof tableGetResponse> | null>;
   /**
    * Fetch the full array data for a given path.
    * @param params - An object containing the path for which to fetch the array data.
@@ -71,17 +64,7 @@ export interface ITiledClient {
    */
   getArray(params: {
     path: string;
-  }): Promise<z.infer<typeof FullArrayApiV1ArrayFullPathGetResponse> | null>;
-  /**
-   * Fetch a block of array data for a given path.
-   * @param params - An object containing the path for which to fetch the array block data.
-   * @returns A promise that resolves to the array block data of the specified path, or null if an error occurs.
-   * @example
-   * const arrayBlockData = await client.getArrayBlock({ path: "/some/valid/array/block/path" });
-   */
-  getArrayBlock(params: {
-    path: string;
-  }): Promise<z.infer<typeof ArrayBlockApiV1ArrayBlockPathGetResponse> | null>;
+  }): Promise<z.infer<typeof arrayGetResponse> | null>;
 }
 
 export type TiledClientType = ITiledClient;
@@ -98,82 +81,55 @@ class TiledClient implements ITiledClient {
   async getMetadata({ path }: { path: string }) {
     const actionUrl = "/metadata";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetchWithAuth(fullUrl, this.apiKey);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch metadata: ${response.statusText}`);
+    try {
+      return await fetchAndParseJson({
+        url: fullUrl,
+        apiKey: this.apiKey,
+        schema: metadataGetResponse,
+      });
+    } catch (error) {
+      console.error(`Error fetching metadata for path ${path}:`, error);
+      return null;
     }
-    const jsonResponse: unknown = await response.json();
-    const parsed = MetadataApiV1MetadataPathGetResponse.safeParse(jsonResponse);
-    if (!parsed.success) {
-      throw new Error(`Invalid response format: ${parsed.error.message}`);
-    }
-    return parsed.data;
   }
 
   async getContainer({ path }: { path: string }) {
     const actionUrl = "/container/full";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetchWithAuth(fullUrl, this.apiKey);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch container: ${response.statusText}`);
-    }
-    const jsonResponse: unknown = await response.json();
-    const parsed =
-      FullContainerMetadataAndDataApiV1ContainerFullPathGetResponse.safeParse(
-        jsonResponse,
-      );
-    if (!parsed.success) {
-      throw new Error(`Invalid response format: ${parsed.error.message}`);
-    }
-    return parsed.data;
+    return await fetchAndParseJson({
+      url: fullUrl,
+      apiKey: this.apiKey,
+      schema: containerGetResponse,
+    }).catch((error) => {
+      console.error(`Error fetching container data for path ${path}:`, error);
+      return null;
+    });
   }
 
   async getTable({ path }: { path: string }) {
     const actionUrl = "/table/full";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetchWithAuth(fullUrl, this.apiKey);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch table: ${response.statusText}`);
-    }
-    const jsonResponse: unknown = await response.json();
-    const parsed =
-      FullTableDataApiV1TableFullPathGetResponse.safeParse(jsonResponse);
-    if (!parsed.success) {
-      throw new Error(`Invalid response format: ${parsed.error.message}`);
-    }
-    return parsed.data;
+    return await fetchAndParseJson({
+      url: fullUrl,
+      apiKey: this.apiKey,
+      schema: tableGetResponse,
+    }).catch((error) => {
+      console.error(`Error fetching table data for path ${path}:`, error);
+      return null;
+    });
   }
 
   async getArray({ path }: { path: string }) {
     const actionUrl = "/array/full";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetchWithAuth(fullUrl, this.apiKey);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch array: ${response.statusText}`);
-    }
-    const jsonResponse: unknown = await response.json();
-    const parsed =
-      FullArrayApiV1ArrayFullPathGetResponse.safeParse(jsonResponse);
-    if (!parsed.success) {
-      throw new Error(`Invalid response format: ${parsed.error.message}`);
-    }
-    return parsed.data;
-  }
-
-  async getArrayBlock({ path }: { path: string }) {
-    const actionUrl = "/array/block";
-    const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetchWithAuth(fullUrl, this.apiKey);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch array block: ${response.statusText}`);
-    }
-    const jsonResponse: unknown = await response.json();
-    const parsed =
-      ArrayBlockApiV1ArrayBlockPathGetResponse.safeParse(jsonResponse);
-    if (!parsed.success) {
-      throw new Error(`Invalid response format: ${parsed.error.message}`);
-    }
-    return parsed.data;
+    return await fetchAndParseJson({
+      url: fullUrl,
+      apiKey: this.apiKey,
+      schema: arrayGetResponse,
+    }).catch((error) => {
+      console.error(`Error fetching array data for path ${path}:`, error);
+      return null;
+    });
   }
 }
 
