@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import { fetchWithAuth } from "./lib/fetch-with-auth";
 import {
   ArrayBlockApiV1ArrayBlockPathGetResponse,
   FullArrayApiV1ArrayFullPathGetResponse,
@@ -97,11 +98,7 @@ class TiledClient implements ITiledClient {
   async getMetadata({ path }: { path: string }) {
     const actionUrl = "/metadata";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetch(fullUrl, {
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-    });
+    const response = await fetchWithAuth(fullUrl, this.apiKey);
     if (!response.ok) {
       throw new Error(`Failed to fetch metadata: ${response.statusText}`);
     }
@@ -116,11 +113,7 @@ class TiledClient implements ITiledClient {
   async getContainer({ path }: { path: string }) {
     const actionUrl = "/container/full";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetch(fullUrl, {
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-    });
+    const response = await fetchWithAuth(fullUrl, this.apiKey);
     if (!response.ok) {
       throw new Error(`Failed to fetch container: ${response.statusText}`);
     }
@@ -138,11 +131,7 @@ class TiledClient implements ITiledClient {
   async getTable({ path }: { path: string }) {
     const actionUrl = "/table/full";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetch(fullUrl, {
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-    });
+    const response = await fetchWithAuth(fullUrl, this.apiKey);
     if (!response.ok) {
       throw new Error(`Failed to fetch table: ${response.statusText}`);
     }
@@ -158,11 +147,7 @@ class TiledClient implements ITiledClient {
   async getArray({ path }: { path: string }) {
     const actionUrl = "/array/full";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetch(fullUrl, {
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-    });
+    const response = await fetchWithAuth(fullUrl, this.apiKey);
     if (!response.ok) {
       throw new Error(`Failed to fetch array: ${response.statusText}`);
     }
@@ -178,11 +163,7 @@ class TiledClient implements ITiledClient {
   async getArrayBlock({ path }: { path: string }) {
     const actionUrl = "/array/block";
     const fullUrl = generateFullUrl(this.baseUrl, actionUrl, path);
-    const response = await fetch(fullUrl, {
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-    });
+    const response = await fetchWithAuth(fullUrl, this.apiKey);
     if (!response.ok) {
       throw new Error(`Failed to fetch array block: ${response.statusText}`);
     }
