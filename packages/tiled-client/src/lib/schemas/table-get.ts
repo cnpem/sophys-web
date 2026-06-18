@@ -14,22 +14,25 @@ const FullTableDataApiV1TableFullPathGetQueryParams = z.object({
   filename: z.union([z.string(), z.null()]).optional(),
 });
 
-const FullTableDataApiV1TableFullPathGetResponse = z.object({
-  data: z.union([z.unknown(), z.null()]),
-  error: z
-    .union([
-      z.object({
-        code: z.number(),
-        message: z.string(),
-      }),
-      z.null(),
-    ])
-    .optional(),
-  links: z.union([z.unknown(), z.null()]).optional(),
-  meta: z.union([z.unknown(), z.null()]).optional(),
-});
+// const FullTableDataApiV1TableFullPathGetResponse = z.object({
+//   data: z.union([z.unknown(), z.null()]),
+//   error: z
+//     .union([
+//       z.object({
+//         code: z.number(),
+//         message: z.string(),
+//       }),
+//       z.null(),
+//     ])
+//     .optional(),
+//   links: z.union([z.unknown(), z.null()]).optional(),
+//   meta: z.union([z.unknown(), z.null()]).optional(),
+// });
 
-export const tableGetResponse = FullTableDataApiV1TableFullPathGetResponse;
+// export const tableGetResponse = FullTableDataApiV1TableFullPathGetResponse;
 export const tableGetParams = FullTableDataApiV1TableFullPathGetParams;
 export const tableGetQueryParams =
   FullTableDataApiV1TableFullPathGetQueryParams;
+// Why the data format is not defined in the schema?
+// Maybe we need to expect array of strings and booleans too.
+export const tableGetResponse = z.record(z.string(), z.array(z.number()));
