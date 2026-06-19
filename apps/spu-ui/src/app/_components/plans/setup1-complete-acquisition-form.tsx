@@ -735,6 +735,32 @@ export function CompleteAcquisitionForm({
             </Field>
           )}
         />
+        <Controller
+          control={form.control}
+          name="proposal"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>
+                Proposal
+                <InfoTooltip>
+                  <FieldDescription>
+                    The proposal associated with the sample acquisition.
+                  </FieldDescription>
+                </InfoTooltip>
+              </FieldLabel>
+              <InputGroup>
+                <InputGroupInput {...field} />
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
       </FieldGroup>
       <Button
         type="submit"
