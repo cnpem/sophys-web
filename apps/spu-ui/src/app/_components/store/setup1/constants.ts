@@ -31,4 +31,3 @@ export const standardCleaningOptions = ["light", "normal", "heavy"] as const;
 export const cleaningAgents = ["Air", "Water", "Agent1", "Agent2"] as const;
 export const loadVolumeOptions = ["80", "100"] as const;
 export const initialVolume = 100;
-export const picoloChannels = ["channel1", "channel2"] as const;
