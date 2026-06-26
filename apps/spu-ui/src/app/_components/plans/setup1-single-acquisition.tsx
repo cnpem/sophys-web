@@ -35,10 +35,7 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
-import {
-  picoloChannels,
-  sampleTypeOptions,
-} from "~/app/_components/store/setup1/constants";
+import { sampleTypeOptions } from "~/app/_components/store/setup1/constants";
 import { proposalSchema } from "./schemas/common";
 
 const planName = "setup1_acquisition";
@@ -59,7 +56,6 @@ const planSchema = z.object({
   isRef: z.boolean().optional(),
   usePimega: z.boolean().optional(),
   usePicolo: z.boolean().optional(),
-  picoloChannel: z.enum(picoloChannels).optional(), // this should only be required if usePicolo is true (or better, only one kwarg that is either picolo ch1, ch2, or none)
   metadata: z.record(z.string()).optional(),
 });
 
@@ -124,7 +120,6 @@ const defaultValues: z.infer<typeof planSchema> = {
   setTemperature: false,
   usePicolo: true,
   usePimega: true,
-  picoloChannel: "channel2",
   metadata: {},
 };
 
@@ -360,36 +355,6 @@ function SingleAcquisitionForm({
                     />
                   </div>
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="picoloChannel"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Picolo Channel</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={!form.watch("usePicolo")}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {picoloChannels.map((option) => {
-                      return (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
                 <FormMessage />
               </FormItem>
             )}
