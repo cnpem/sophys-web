@@ -1,5 +1,11 @@
 # @sophys-web/spu-ui
 
+## 0.4.1
+
+### Patch Changes
+
+- 49a682c: Add missing proposal field to setup1 complete acquisition form.
+
 ## 0.4.0
 
 ### Minor Changes
