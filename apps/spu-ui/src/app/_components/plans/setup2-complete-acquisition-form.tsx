@@ -63,12 +63,16 @@ const schema = z
       .number()
       .int()
       .min(1, "Number of exposures must be at least 1"),
-    col: z.enum(cardColumns, {
-      message: `Column must be one of the following options ${cardColumns.join(", ")}`,
-    }),
-    row: z.enum(cardRows, {
-      message: `Row must be one of the following options ${cardRows.join(", ")}`,
-    }),
+    col: z
+      .enum(cardColumns, {
+        message: `Column must be one of the following options ${cardColumns.join(", ")}`,
+      })
+      .optional(),
+    row: z
+      .enum(cardRows, {
+        message: `Row must be one of the following options ${cardRows.join(", ")}`,
+      })
+      .optional(),
     cardIndex: z
       .enum(cardIndexOptions, {
         message: `Card index must be one of the following options ${cardIndexOptions.join(", ")}`,
@@ -112,11 +116,20 @@ const name = "setup2_complete_standard_acquisition";
 
 export function CompleteAcquisitionForm({
   sampleParams,
+  cardPosition,
+  cardIndex,
   cardName,
   className,
   onSubmitSuccess,
 }: {
   sampleParams: Sample | undefined;
+  cardPosition:
+    | {
+        row: (typeof cardRows)[number];
+        column: (typeof cardColumns)[number];
+      }
+    | undefined;
+  cardIndex: (typeof cardIndexOptions)[number] | undefined;
   cardName?: string | undefined;
   className?: string;
   onSubmitSuccess: () => void;
@@ -131,16 +144,17 @@ export function CompleteAcquisitionForm({
       sampleTag: sampleParams?.sampleTag ?? "",
       acquireTime: 0.1,
       numExposures: 1,
-      col: sampleParams?.column ?? "A",
-      row: sampleParams?.row ?? "1",
-      cardIndex: sampleParams?.cardIndex,
+      cardIndex: cardIndex,
       cardName: cardName ?? "",
       retrieveCard: true,
       usePimega: true,
       usePicolo: false,
       picoloChannel: undefined,
-      samplePosX: sampleParams?.samplePositionX,
-      samplePosY: sampleParams?.samplePositionY,
+      samplePosX: sampleParams?.position?.x,
+      samplePosY: sampleParams?.position?.y,
+      ...(cardPosition
+        ? { col: cardPosition.column, row: cardPosition.row }
+        : {}),
     },
   });
 

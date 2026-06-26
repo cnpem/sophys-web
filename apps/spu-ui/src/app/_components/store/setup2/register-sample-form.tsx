@@ -16,70 +16,28 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import type { cardColumns, cardIndexOptions, cardRows } from "./constants";
 import type { Sample } from "./use-sample-store";
-import { cardSlotRadius, isValidCardPosition } from "./constants";
-import {
-  sampleIdFromPosition,
-  sampleSchema,
-  useSampleStore,
-} from "./use-sample-store";
+import { cardSlotRadius } from "./constants";
+import { sampleSchema, useSampleStore } from "./use-sample-store";
 
-const registerSchema = sampleSchema
-  .omit({
-    id: true,
-  })
-  .refine(
-    (data) =>
-      isValidCardPosition({ x: data.samplePositionX, y: data.samplePositionY }),
-    (data) => ({
-      message: `Sample position must be within a circle of radius ${cardSlotRadius}. 
-      Position for (${data.samplePositionX},${data.samplePositionY}): ${Math.sqrt(data.samplePositionX ** 2 + data.samplePositionY ** 2).toFixed(2)}`,
-      path: ["samplePositionX"],
-    }),
-  );
-
-export function RegisterSampleForm({
-  cardIndex,
-  row,
-  column,
-  sampleTag,
-  samplePositionX = 0,
-  samplePositionY = 0,
-  meta = "",
+export function EditSampleForm({
+  sample,
   onSubmitCallback,
 }: {
-  cardIndex: (typeof cardIndexOptions)[number];
-  row: (typeof cardRows)[number];
-  column: (typeof cardColumns)[number];
-  sampleTag?: string;
-  samplePositionX?: number;
-  samplePositionY?: number;
-  meta?: string;
+  sample: Sample;
   onSubmitCallback?: () => void;
 }) {
   const { setSample } = useSampleStore();
   const form = useForm({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(sampleSchema),
     defaultValues: {
-      sampleTag: sampleTag ?? "",
-      row,
-      column,
-      cardIndex,
-      samplePositionX,
-      samplePositionY,
-      meta,
+      ...sample,
     },
   });
 
-  async function onSubmit(data: z.infer<typeof registerSchema>) {
+  async function onSubmit(data: z.infer<typeof sampleSchema>) {
     toast.info("Registering sample...");
-    const sampleId = sampleIdFromPosition({ cardIndex, row, column });
-    const sample = {
-      id: sampleId,
-      ...data,
-    } satisfies Sample;
-    await setSample(sampleId, sample).then(() => {
+    await setSample(data.id, data).then(() => {
       toast.success("Sample registered!");
       form.reset();
       onSubmitCallback?.();
@@ -120,7 +78,7 @@ export function RegisterSampleForm({
           <FieldLabel>Sample Position in the Slot</FieldLabel>
           <FieldGroup className="grid grid-cols-2 gap-4">
             <Controller
-              name="samplePositionX"
+              name="position.x"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
@@ -154,7 +112,7 @@ export function RegisterSampleForm({
               )}
             />
             <Controller
-              name="samplePositionY"
+              name="position.y"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
@@ -190,15 +148,15 @@ export function RegisterSampleForm({
           </FieldGroup>
         </FieldSet>
         <Controller
-          name="meta"
+          name="notes"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field>
-              <FieldLabel htmlFor="meta">
-                Metadata
+              <FieldLabel htmlFor="notes">
+                Notes
                 <InfoTooltip>
                   <FieldDescription>
-                    Additional metadata for this sample.
+                    Additional notes for this sample.
                   </FieldDescription>
                 </InfoTooltip>
               </FieldLabel>
@@ -224,49 +182,33 @@ export function RegisterSampleForm({
 }
 
 export function RegisterNewSampleForm({
-  cardIndex,
-  row,
-  column,
-  sampleTag,
-  meta = "",
+  sampleId,
   onSubmitCallback,
 }: {
-  cardIndex: (typeof cardIndexOptions)[number];
-  row: (typeof cardRows)[number];
-  column: (typeof cardColumns)[number];
-  sampleTag?: string;
-  samplePositionX?: number;
-  samplePositionY?: number;
-  meta?: string;
+  sampleId: string;
   onSubmitCallback?: () => void;
 }) {
   const { setSample } = useSampleStore();
   const form = useForm({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(sampleSchema),
     defaultValues: {
-      sampleTag: sampleTag ?? "",
-      row,
-      column,
-      cardIndex,
-      samplePositionX: 0,
-      samplePositionY: 0,
-      meta,
+      id: sampleId,
+      sampleTag: "",
+      position: undefined,
+      notes: "",
     },
   });
 
-  async function onSubmit(data: z.infer<typeof registerSchema>) {
+  async function onSubmit(data: z.infer<typeof sampleSchema>) {
     toast.info("Registering sample...");
-    const sampleId = sampleIdFromPosition({ cardIndex, row, column });
-    const sample = {
-      id: sampleId,
-      ...data,
-    } satisfies Sample;
-    await setSample(sampleId, sample).then(() => {
+    await setSample(sampleId, data).then(() => {
       toast.success("Sample registered!");
       form.reset();
       onSubmitCallback?.();
     });
   }
+
+  const errors = form.formState.errors;
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -298,15 +240,15 @@ export function RegisterNewSampleForm({
           )}
         />
         <Controller
-          name="meta"
+          name="notes"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field>
-              <FieldLabel htmlFor="meta">
-                Metadata
+              <FieldLabel htmlFor="notes">
+                Notes
                 <InfoTooltip>
                   <FieldDescription>
-                    Additional metadata for this sample.
+                    Additional notes for this sample.
                   </FieldDescription>
                 </InfoTooltip>
               </FieldLabel>
@@ -324,6 +266,17 @@ export function RegisterNewSampleForm({
           )}
         />
       </FieldGroup>
+      {/* render other form validation errors */}
+      {Object.keys(errors).length > 0 && (
+        <div className="error-banner">
+          <h4>Please fix the following errors:</h4>
+          <ul>
+            {Object.values(errors).map((error, index) => (
+              <li key={index}>{error.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <Button type="submit" className="w-full">
         Submit
       </Button>

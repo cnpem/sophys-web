@@ -18,7 +18,8 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import { cardSlotRadius, isValidCardPosition } from "../store/setup2/constants";
+import { cardSlotRadius } from "../store/setup2/constants";
+import { isValidCardCoordinates } from "../store/setup2/use-sample-store";
 
 const name = "setup2_move_inside_sample";
 
@@ -28,7 +29,7 @@ const schema = z.object({
 });
 
 const schemaRefined = schema.refine(
-  (data) => isValidCardPosition({ x: data.x, y: data.y }),
+  (data) => isValidCardCoordinates({ x: data.x, y: data.y }),
   (data) => ({
     message: `Coordinates must be within a circle of radius ${cardSlotRadius}mm. 
     Radius for (${data.x},${data.y}): ${Math.sqrt(data.x ** 2 + data.y ** 2).toFixed(2)}`,
