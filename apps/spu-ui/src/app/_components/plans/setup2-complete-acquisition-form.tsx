@@ -1,6 +1,5 @@
-import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
@@ -26,7 +25,6 @@ import {
 } from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { Sample } from "../store/setup2/use-sample-store";
-import { picoloChannels } from "~/app/_components/store/setup1/constants";
 import {
   cardColumns,
   cardIndexOptions,
@@ -78,11 +76,6 @@ const schema = z
     retrieveCard: z.boolean().optional(),
     usePimega: z.boolean().optional(),
     usePicolo: z.boolean().optional(),
-    picoloChannel: z
-      .enum(["channel1", "channel2"], {
-        message: `Picolo channel must be either 'channel1' or 'channel2'`,
-      })
-      .optional(),
     samplePosX: z.coerce.number().optional(),
     samplePosY: z.coerce.number().optional(),
   })
@@ -92,19 +85,6 @@ const schema = z
     },
     {
       message: "Either card index or card name must be provided",
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.usePicolo) {
-        return data.picoloChannel !== undefined;
-      } else {
-        return data.picoloChannel === undefined;
-      }
-    },
-    {
-      message:
-        "Picolo channel must be provided if usePicolo is true, and must be undefined if usePicolo is false",
     },
   );
 
@@ -138,22 +118,10 @@ export function CompleteAcquisitionForm({
       retrieveCard: true,
       usePimega: true,
       usePicolo: false,
-      picoloChannel: undefined,
       samplePosX: sampleParams?.samplePositionX,
       samplePosY: sampleParams?.samplePositionY,
     },
   });
-
-  const watchUsePicolo = useWatch({
-    control: form.control,
-    name: "usePicolo",
-  });
-
-  useEffect(() => {
-    if (!watchUsePicolo) {
-      form.setValue("picoloChannel", undefined);
-    }
-  }, [watchUsePicolo, form]);
 
   function onSubmit(data: z.infer<typeof schema>) {
     toast.info("Submitting complete aquisition...");
@@ -425,37 +393,6 @@ export function CompleteAcquisitionForm({
                     />
                   </div>
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="picoloChannel"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Picolo Channel</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  disabled={!watchUsePicolo}
-                  value={watchUsePicolo ? (field.value ?? "") : ""}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {picoloChannels.map((option) => {
-                      return (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
                 <FormMessage />
               </FormItem>
             )}

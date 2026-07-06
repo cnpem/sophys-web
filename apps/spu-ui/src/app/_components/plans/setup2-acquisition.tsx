@@ -29,16 +29,8 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { Label } from "@sophys-web/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import { picoloChannels } from "~/app/_components/store/setup1/constants";
 import { proposalSchema } from "./schemas/common";
 
 export const name = "setup2_acquisition";
@@ -50,10 +42,6 @@ export const schema = z.object({
   sampleTag: z.string().min(1),
   usePimega: z.boolean().optional().default(true),
   usePicolo: z.boolean().optional().default(true),
-  picoloChannel: z
-    .enum(["channel1", "channel2"])
-    .optional()
-    .default("channel2"),
   detReadout: z.coerce.number().positive().optional().default(0.001),
 });
 
@@ -78,7 +66,6 @@ export function Setup2AquisitionForm({
       sampleTag: params?.sampleTag ?? "",
       usePimega: params?.usePimega ?? true,
       usePicolo: params?.usePicolo ?? true,
-      picoloChannel: params?.picoloChannel ?? "channel2",
     },
   });
 
@@ -288,38 +275,6 @@ export function Setup2AquisitionForm({
                   onCheckedChange={field.onChange}
                 />
               </div>
-            </Field>
-          )}
-        />
-        <Controller
-          name="picoloChannel"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Picolo Channel</FieldLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value}
-                name={field.name}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                  {picoloChannels.map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-              {fieldState.invalid && (
-                <InfoTooltip variant={"destructive"}>
-                  {fieldState.error?.message}
-                </InfoTooltip>
-              )}
             </Field>
           )}
         />

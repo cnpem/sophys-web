@@ -31,7 +31,6 @@ import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 import type { Sample } from "../store/setup1/use-sample-store";
 import {
   cleaningOptions,
-  picoloChannels,
   sampleTypeOptions,
   trayColumns,
   trayOptions,
@@ -90,14 +89,6 @@ export const planSchema = z.object({
   standardOption: z.enum(cleaningOptions).optional(),
   agentsList: z.array(z.string()).optional(),
   agentsDuration: z.array(z.coerce.number().positive()).optional(),
-  picoloChannel: z
-    .string()
-    .transform((val) => val.trimStart().trimEnd())
-    .pipe(
-      z.enum(picoloChannels, {
-        message: `Picolo channel must be one of the following options ${picoloChannels.join(", ")}`,
-      }),
-    ),
   motionSpeed: z.coerce.number().nonnegative().optional(),
 });
 
@@ -126,7 +117,6 @@ export function CompleteAcquisitionForm({
       measureUvNumber: 0,
       temperature: 25,
       setTemperature: false,
-      picoloChannel: "channel2",
       standardOption: "normal",
       motionSpeed: 0,
       ...(sampleParams && {
@@ -281,41 +271,6 @@ export function CompleteAcquisitionForm({
                   </InputGroupAddon>
                 )}
               </InputGroup>
-            </Field>
-          )}
-        />
-        <Controller
-          name="picoloChannel"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Picolo Channel
-                <InfoTooltip>
-                  <FieldDescription>
-                    The picolo channel to use for the acquisition.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger className="w-full" size="sm">
-                  <SelectValue placeholder="Select picolo channel" />
-                  {fieldState.invalid && (
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  )}
-                </SelectTrigger>
-                <SelectContent>
-                  {picoloChannels.map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
             </Field>
           )}
         />
