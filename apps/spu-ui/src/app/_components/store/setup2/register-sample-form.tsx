@@ -16,20 +16,29 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import type { cardModes } from "./constants";
 import type { Sample } from "./use-sample-store";
 import { cardSlotRadius } from "./constants";
-import { sampleSchema, useSampleStore } from "./use-sample-store";
+import {
+  sampleSchema,
+  sampleSchemaValidPosition,
+  useSampleStore,
+} from "./use-sample-store";
 
 export function EditSampleForm({
   sample,
   onSubmitCallback,
+  cardType = "standard",
 }: {
   sample: Sample;
   onSubmitCallback?: () => void;
+  cardType?: (typeof cardModes)[number];
 }) {
+  const schema =
+    cardType === "standard" ? sampleSchemaValidPosition : sampleSchema;
   const { setSample } = useSampleStore();
   const form = useForm({
-    resolver: zodResolver(sampleSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       position: {
         x: 0,
@@ -39,7 +48,7 @@ export function EditSampleForm({
     },
   });
 
-  async function onSubmit(data: z.infer<typeof sampleSchema>) {
+  async function onSubmit(data: z.infer<typeof schema>) {
     toast.info("Registering sample...");
     await setSample(data.id, data).then(() => {
       toast.success("Sample registered!");
@@ -91,7 +100,8 @@ export function EditSampleForm({
                     <InfoTooltip>
                       <FieldDescription>
                         Position X of the sample on the card slot. Must be
-                        within a circle of radius {cardSlotRadius}mm.
+                        within a circle of radius {cardSlotRadius}mm for samples
+                        in the standard (grid) card type.
                       </FieldDescription>
                     </InfoTooltip>
                   </FieldLabel>

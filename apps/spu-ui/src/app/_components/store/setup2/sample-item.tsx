@@ -200,6 +200,7 @@ function SampleDropdownMenu({
         <EditSampleMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
+          cardType={cardType}
         />
         <DeleteSampleMenuItem
           sample={sample}
@@ -240,9 +241,11 @@ function SampleDropdownMenu({
 function EditSampleMenuItem({
   sample,
   onSubmitCallback,
+  cardType = "standard",
 }: {
   sample: Sample;
   onSubmitCallback?: () => void;
+  cardType?: (typeof cardModes)[number];
 }) {
   const [open, setOpen] = useState(false);
   const handleOpen = (e: Event) => {
@@ -271,6 +274,7 @@ function EditSampleMenuItem({
         <EditSampleForm
           sample={sample}
           onSubmitCallback={handleSubmitSuccess}
+          cardType={cardType}
         />
       </DialogContent>
     </Dialog>
