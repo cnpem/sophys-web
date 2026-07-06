@@ -18,7 +18,9 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import { cardSlotRadius, isValidCardPosition } from "../store/setup2/constants";
+import type { cardModes } from "../store/setup2/constants";
+import { cardSlotRadius } from "../store/setup2/constants";
+import { isValidCardCoordinates } from "../store/setup2/use-sample-store";
 
 const name = "setup2_move_inside_sample";
 
@@ -27,8 +29,8 @@ const schema = z.object({
   y: z.coerce.number(),
 });
 
-const schemaRefined = schema.refine(
-  (data) => isValidCardPosition({ x: data.x, y: data.y }),
+const schemaRadius = schema.refine(
+  (data) => isValidCardCoordinates({ x: data.x, y: data.y }),
   (data) => ({
     message: `Coordinates must be within a circle of radius ${cardSlotRadius}mm. 
     Radius for (${data.x},${data.y}): ${Math.sqrt(data.x ** 2 + data.y ** 2).toFixed(2)}`,
@@ -43,24 +45,27 @@ export function MoveInsideSampleForm({
   onSubmitSuccess,
   x,
   y,
+  cardType = "standard",
 }: {
   className?: string;
   onSubmitSuccess?: () => void;
   x?: z.infer<typeof schema.shape.x>;
   y?: z.infer<typeof schema.shape.y>;
+  cardType: (typeof cardModes)[number];
 }) {
+  const cardSchema = cardType === "standard" ? schemaRadius : schema;
   const { add } = useQueue();
   const form = useForm({
-    resolver: zodResolver(schemaRefined),
+    resolver: zodResolver(cardSchema),
     defaultValues: {
       x: x ?? 0,
       y: y ?? 0,
     },
   });
 
-  function onSubmit(data: z.infer<typeof schemaRefined>) {
+  function onSubmit(data: z.infer<typeof cardSchema>) {
     toast.info("Submitting sample...");
-    const kwargs = schemaRefined.parse(data);
+    const kwargs = cardSchema.parse(data);
     add.mutate(
       {
         item: {
