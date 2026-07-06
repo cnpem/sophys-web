@@ -1,5 +1,11 @@
 # @sophys-web/spu-ui
 
+## 0.4.2
+
+### Patch Changes
+
+- ee87156: Remove "picolo channel" parameter from plans and schemas.
+
 ## 0.4.1
 
 ### Patch Changes
