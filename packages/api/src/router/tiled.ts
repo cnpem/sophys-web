@@ -48,4 +48,22 @@ export const tiledRouter = {
         });
       }
     }),
+  getContainerContentKeys: tiledContextProcedure
+    .input(z.object({ path: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const client = ctx.tiledClient;
+      try {
+        const data = await client.getContainer({ path: input.path });
+        const containerContentKeys = data?.contents
+          ? Object.keys(data.contents)
+          : [];
+        return containerContentKeys;
+      } catch (error) {
+        console.error("Error fetching container data:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch container data",
+        });
+      }
+    }),
 } as const;
