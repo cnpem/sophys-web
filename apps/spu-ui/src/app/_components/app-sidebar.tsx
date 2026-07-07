@@ -2,12 +2,7 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  ChartSplineIcon,
-  HistoryIcon,
-  LogOutIcon,
-  TableIcon,
-} from "lucide-react";
+import { ChartSplineIcon, LogOutIcon, TableIcon } from "lucide-react";
 import { auth, signOut } from "@sophys-web/auth";
 import { Button } from "@sophys-web/ui/button";
 import {
