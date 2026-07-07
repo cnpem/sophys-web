@@ -7,9 +7,20 @@ interface HeatmapViewerProps {
   z: number[];
   x: number[];
   y: number[];
+  colorscale?: Plotly.ColorScale;
+  layout: Partial<Plotly.Layout>;
 }
 
-function HeatmapViewer({ z, x, y }: HeatmapViewerProps): React.JSX.Element {
+function HeatmapViewer({
+  z,
+  x,
+  y,
+  colorscale = "Viridis",
+  layout = {
+    width: 600,
+    height: 600,
+  },
+}: HeatmapViewerProps): React.JSX.Element {
   return (
     <div className="flex w-fit flex-col items-start gap-2">
       <Plot
@@ -19,13 +30,10 @@ function HeatmapViewer({ z, x, y }: HeatmapViewerProps): React.JSX.Element {
             x,
             y,
             type: "heatmap",
-            colorscale: "Viridis",
+            colorscale,
           },
         ]}
-        layout={{
-          width: 600,
-          height: 600,
-        }}
+        layout={layout}
       />
     </div>
   );
