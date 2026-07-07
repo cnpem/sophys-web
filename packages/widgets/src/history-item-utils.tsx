@@ -23,7 +23,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@sophys-web/ui/tooltip";
-import { HistoryItemTiledViewer } from "./history-item-tiled";
 
 type HistoryResponse = z.infer<typeof schemas.history.getResponseSchema>;
 export type HistoryItemProps = HistoryResponse["items"][number];
@@ -206,9 +205,6 @@ export function HistoryItemContent({
           {item.result.msg && (
             <p className="max-w-full whitespace-pre-wrap">{item.result.msg}</p>
           )}
-        </li>
-        <li>
-          <HistoryItemTiledViewer item={item} />
         </li>
       </ul>
     </ScrollArea>
