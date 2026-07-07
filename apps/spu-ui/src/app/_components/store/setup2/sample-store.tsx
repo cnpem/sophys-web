@@ -266,7 +266,8 @@ function SampleCardAccordionItem({ ...props }: SampleCardAccordionItemProps) {
             </SelectContent>
           </Select>
           <PickCardButtonForm
-            cardMode={cardType}
+            key={`pick-card-${cardIndex}-${sampleCardType}`} // force re-render when sampleCardType changes to reset the form default values
+            cardMode={sampleCardType}
             index={cardIndex}
             variant={"outline"}
             disabled={cardStatus === "CardNotFound"}
