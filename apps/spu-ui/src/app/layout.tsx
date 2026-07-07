@@ -4,6 +4,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { GeistMono } from "geist/font/mono";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { TRPCReactProvider } from "@sophys-web/api-client/react";
 import { SidebarInset, SidebarProvider } from "@sophys-web/ui/sidebar";
 import { Toaster } from "@sophys-web/ui/sonner";
@@ -24,13 +25,15 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={GeistMono.className}>
-        <Toaster richColors theme="light" />
-        <TRPCReactProvider>
-          <SidebarProvider defaultOpen={defaultOpen}>
-            <AppSidebar variant="sidebar" collapsible="icon" />
-            <SidebarInset>{children}</SidebarInset>
-          </SidebarProvider>
-        </TRPCReactProvider>
+        <NuqsAdapter>
+          <Toaster richColors theme="light" />
+          <TRPCReactProvider>
+            <SidebarProvider defaultOpen={defaultOpen}>
+              <AppSidebar variant="sidebar" collapsible="icon" />
+              <SidebarInset>{children}</SidebarInset>
+            </SidebarProvider>
+          </TRPCReactProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );
