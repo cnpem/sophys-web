@@ -161,14 +161,20 @@ export type SampleStore = ReturnType<typeof useSampleStore>["storeData"];
 
 // Helper functions for generating sample IDs based on their position and type
 
-export function isValidCardCoordinates({ x, y }: { x: number; y: number }) {
+export function isValidCardCoordinatesGridSlot({
+  x,
+  y,
+}: {
+  x: number;
+  y: number;
+}) {
   return Math.sqrt(x ** 2 + y ** 2) <= cardSlotRadius;
 }
 
 export const sampleSchemaValidPosition = sampleSchema.refine(
   (data) =>
     data.position &&
-    isValidCardCoordinates({ x: data.position.x, y: data.position.y }),
+    isValidCardCoordinatesGridSlot({ x: data.position.x, y: data.position.y }),
   {
     message: `Sample position must be within a circle of radius ${cardSlotRadius}.`,
     path: ["position", "x"],

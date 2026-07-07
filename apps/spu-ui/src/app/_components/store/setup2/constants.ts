@@ -29,3 +29,7 @@ export const cardModes = ["standard", "capillary"] as const;
 export const cardTypesGrid = cardModes[0];
 export const cardTypesCapillary = cardModes[1];
 export const cardSlotRadius = 2;
+export const capillaryCardSlotLimitsMilimeters = {
+  x: { min: 0, max: 35 },
+  y: { min: 0, max: 50 },
+};

@@ -30,8 +30,10 @@ import { Setup2AquisitionForm } from "../../plans/setup2-acquisition";
 import { CompleteAcquisitionForm } from "../../plans/setup2-complete-acquisition-form";
 import { Setup2FindSampleHorizontalScanForm } from "../../plans/setup2-find-sample-horizontal-scan";
 import { Setup2FindSampleVerticalScanForm } from "../../plans/setup2-find-sample-vertical-scan";
+import { MoveInsideCardForm } from "../../plans/setup2-move-inside-card-form";
 import { MoveInsideSampleForm } from "../../plans/setup2-move-inside-sample-form";
 import { MoveToSampleForm } from "../../plans/setup2-move-to-sample-form";
+import { capillaryCardSlotLimitsMilimeters } from "./constants";
 import { DeleteSampleForm } from "./delete-sample-form";
 import { EditSampleForm, RegisterNewSampleForm } from "./register-sample-form";
 import { sampleIdDecoder, useSampleStore } from "./use-sample-store";
@@ -207,15 +209,24 @@ function SampleDropdownMenu({
           onSubmitCallback={() => setOpen(false)}
         />
         <DropdownMenuSeparator />
-        <MoveToSampleMenuItem
-          sample={sample}
-          onSubmitCallback={() => setOpen(false)}
-        />
-        <MoveInsideSampleMenuItem
-          sample={sample}
-          onSubmitCallback={() => setOpen(false)}
-          cardType={cardType}
-        />
+        {cardType === "standard" && (
+          <MoveToSampleMenuItem
+            sample={sample}
+            onSubmitCallback={() => setOpen(false)}
+          />
+        )}
+        {cardType === "standard" && (
+          <MoveInsideSampleMenuItem
+            sample={sample}
+            onSubmitCallback={() => setOpen(false)}
+          />
+        )}
+        {cardType === "capillary" && (
+          <MoveInsideCardMenuItem
+            sample={sample}
+            onSubmitCallback={() => setOpen(false)}
+          />
+        )}
         <FindSampleVerticalMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
@@ -487,11 +498,9 @@ function MoveToSampleMenuItem({
 function MoveInsideSampleMenuItem({
   sample,
   onSubmitCallback,
-  cardType = "standard",
 }: {
   sample: Sample;
   onSubmitCallback?: () => void;
-  cardType: (typeof cardModes)[number];
 }) {
   const [open, setOpen] = useState(false);
   const handleOpen = (e: Event) => {
@@ -522,7 +531,52 @@ function MoveInsideSampleMenuItem({
           x={sample.position?.x}
           y={sample.position?.y}
           onSubmitSuccess={handleSubmitSuccess}
-          cardType={cardType}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MoveInsideCardMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <CircleDotIcon className="mr-2 size-4" />
+          Move Inside Card
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Move Inside Card</DialogTitle>
+          <DialogDescription className="flex flex-col items-center">
+            Move inside the capillary card window within the constraints for x:{" "}
+            {`[${capillaryCardSlotLimitsMilimeters.x.min}, ${capillaryCardSlotLimitsMilimeters.x.max}]`}{" "}
+            and y:{" "}
+            {`[${capillaryCardSlotLimitsMilimeters.y.min}, ${capillaryCardSlotLimitsMilimeters.y.max}]`}
+            .
+          </DialogDescription>
+        </DialogHeader>
+        <MoveInsideCardForm
+          x={sample.position?.x}
+          y={sample.position?.y}
+          onSubmitSuccess={handleSubmitSuccess}
         />
       </DialogContent>
     </Dialog>
