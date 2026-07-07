@@ -36,7 +36,7 @@ export const createTRPCContext = async (opts: {
   console.log(">>> tRPC Request from", source, "by", session?.user.name);
 
   const redisClient = await getRedisClient();
-  const tiledClient = await getTiledClient();
+  const tiledClient = getTiledClient();
 
   return {
     session,

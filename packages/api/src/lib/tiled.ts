@@ -1,9 +1,9 @@
 import type { TiledClientType } from "@sophys-web/tiled-client";
 import { createTiledClient } from "@sophys-web/tiled-client";
 import { env } from "../../env";
-import { createAsyncClientFactory } from "./singleton-factory";
+import { createSyncClientFactory } from "./singleton-factory";
 
-const tiledFactory = async (): Promise<TiledClientType | null> => {
+const tiledFactory = (): TiledClientType | null => {
   const tiledUrl = env.TILED_URL;
   const tiledApiKey = env.TILED_API_KEY;
 
@@ -25,4 +25,4 @@ const tiledFactory = async (): Promise<TiledClientType | null> => {
   return client;
 };
 
-export const getTiledClient = createAsyncClientFactory(tiledFactory, "Tiled");
+export const getTiledClient = createSyncClientFactory(tiledFactory, "Tiled");
