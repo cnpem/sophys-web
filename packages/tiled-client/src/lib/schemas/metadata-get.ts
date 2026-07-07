@@ -8,17 +8,6 @@ const MetadataApiV1MetadataPathGetParams = z.object({
   path: z.string(),
 });
 
-const metadataApiV1MetadataPathGetQueryFieldsDefault = [
-  `metadata`,
-  `structure_family`,
-  `structure`,
-  `count`,
-  `sorting`,
-  `specs`,
-  `data_sources`,
-  ``,
-  `access_blob`,
-];
 const metadataApiV1MetadataPathGetQueryMaxDepthOneMin = 0;
 const metadataApiV1MetadataPathGetQueryMaxDepthOneMax = 5;
 
@@ -145,23 +134,19 @@ const MetadataApiV1MetadataPathGetResponse = z.object({
                     .describe(
                       "An enum of endian values: big, little, not_applicable.",
                     ),
-                  kind: z
-                    .enum([
-                      "t",
-                      "b",
-                      "i",
-                      "u",
-                      "f",
-                      "c",
-                      "m",
-                      "M",
-                      "S",
-                      "U",
-                      "V",
-                    ])
-                    .describe(
-                      'See https:\/\/numpy.org\/devdocs\/reference\/arrays.interface.html#object.__array_interface__\n\nThe term \"kind\" comes from the numpy API as well.\n\nNote: At import time, the environment variable ``TILED_ALLOW_OBJECT_ARRAYS``\nis checked. If it is set to anything other than ``\"0\"``, then this\nEnum gets an additional member::\n\n    object = \"O\"\n\nto support numpy \'object\'-type arrays which hold generic Python objects.\nNumpy \'object\'-type arrays are not enabled by default because their binary\nrepresentation is not interpretable by clients other than Python.  It is\nrecommended to convert your data to a non-object type if possible so that it\ncan be read by non-Python clients.',
-                    ),
+                  kind: z.enum([
+                    "t",
+                    "b",
+                    "i",
+                    "u",
+                    "f",
+                    "c",
+                    "m",
+                    "M",
+                    "S",
+                    "U",
+                    "V",
+                  ]),
                   itemsize: z.number(),
                   dt_units: z.union([z.string(), z.null()]).optional(),
                 }),
@@ -177,23 +162,19 @@ const MetadataApiV1MetadataPathGetResponse = z.object({
                             .describe(
                               "An enum of endian values: big, little, not_applicable.",
                             ),
-                          kind: z
-                            .enum([
-                              "t",
-                              "b",
-                              "i",
-                              "u",
-                              "f",
-                              "c",
-                              "m",
-                              "M",
-                              "S",
-                              "U",
-                              "V",
-                            ])
-                            .describe(
-                              'See https:\/\/numpy.org\/devdocs\/reference\/arrays.interface.html#object.__array_interface__\n\nThe term \"kind\" comes from the numpy API as well.\n\nNote: At import time, the environment variable ``TILED_ALLOW_OBJECT_ARRAYS``\nis checked. If it is set to anything other than ``\"0\"``, then this\nEnum gets an additional member::\n\n    object = \"O\"\n\nto support numpy \'object\'-type arrays which hold generic Python objects.\nNumpy \'object\'-type arrays are not enabled by default because their binary\nrepresentation is not interpretable by clients other than Python.  It is\nrecommended to convert your data to a non-object type if possible so that it\ncan be read by non-Python clients.',
-                            ),
+                          kind: z.enum([
+                            "t",
+                            "b",
+                            "i",
+                            "u",
+                            "f",
+                            "c",
+                            "m",
+                            "M",
+                            "S",
+                            "U",
+                            "V",
+                          ]),
                           itemsize: z.number(),
                           dt_units: z.union([z.string(), z.null()]).optional(),
                         }),
@@ -217,89 +198,75 @@ const MetadataApiV1MetadataPathGetResponse = z.object({
               length: z.number(),
               form: z.record(z.string(), z.unknown()),
             }),
-            z
-              .object({
-                data_type: z.union([
-                  z.object({
-                    endianness: z
-                      .enum(["big", "little", "not_applicable"])
-                      .describe(
-                        "An enum of endian values: big, little, not_applicable.",
-                      ),
-                    kind: z
-                      .enum([
-                        "t",
-                        "b",
-                        "i",
-                        "u",
-                        "f",
-                        "c",
-                        "m",
-                        "M",
-                        "S",
-                        "U",
-                        "V",
-                      ])
-                      .describe(
-                        'See https:\/\/numpy.org\/devdocs\/reference\/arrays.interface.html#object.__array_interface__\n\nThe term \"kind\" comes from the numpy API as well.\n\nNote: At import time, the environment variable ``TILED_ALLOW_OBJECT_ARRAYS``\nis checked. If it is set to anything other than ``\"0\"``, then this\nEnum gets an additional member::\n\n    object = \"O\"\n\nto support numpy \'object\'-type arrays which hold generic Python objects.\nNumpy \'object\'-type arrays are not enabled by default because their binary\nrepresentation is not interpretable by clients other than Python.  It is\nrecommended to convert your data to a non-object type if possible so that it\ncan be read by non-Python clients.',
-                      ),
-                    itemsize: z.number(),
-                    dt_units: z.union([z.string(), z.null()]).optional(),
-                  }),
-                  z.object({
-                    itemsize: z.number(),
-                    fields: z.array(
-                      z.object({
-                        name: z.string(),
-                        dtype: z.union([
-                          z.object({
-                            endianness: z
-                              .enum(["big", "little", "not_applicable"])
-                              .describe(
-                                "An enum of endian values: big, little, not_applicable.",
-                              ),
-                            kind: z
-                              .enum([
-                                "t",
-                                "b",
-                                "i",
-                                "u",
-                                "f",
-                                "c",
-                                "m",
-                                "M",
-                                "S",
-                                "U",
-                                "V",
-                              ])
-                              .describe(
-                                'See https:\/\/numpy.org\/devdocs\/reference\/arrays.interface.html#object.__array_interface__\n\nThe term \"kind\" comes from the numpy API as well.\n\nNote: At import time, the environment variable ``TILED_ALLOW_OBJECT_ARRAYS``\nis checked. If it is set to anything other than ``\"0\"``, then this\nEnum gets an additional member::\n\n    object = \"O\"\n\nto support numpy \'object\'-type arrays which hold generic Python objects.\nNumpy \'object\'-type arrays are not enabled by default because their binary\nrepresentation is not interpretable by clients other than Python.  It is\nrecommended to convert your data to a non-object type if possible so that it\ncan be read by non-Python clients.',
-                              ),
-                            itemsize: z.number(),
-                            dt_units: z
-                              .union([z.string(), z.null()])
-                              .optional(),
-                          }),
-                          z.unknown(),
-                        ]),
-                        shape: z.union([z.array(z.number()), z.null()]),
-                      }),
+            z.object({
+              data_type: z.union([
+                z.object({
+                  endianness: z
+                    .enum(["big", "little", "not_applicable"])
+                    .describe(
+                      "An enum of endian values: big, little, not_applicable.",
                     ),
-                  }),
-                ]),
-                shape: z.array(z.union([z.number(), z.null()])),
-                size: z.number(),
-                chunks: z.array(z.union([z.array(z.number()), z.null()])),
-                dims: z.union([z.array(z.string()), z.null()]).optional(),
-                resizable: z
-                  .union([z.boolean(), z.array(z.boolean())])
-                  .default(
-                    metadataApiV1MetadataPathGetResponseDataOneAttributesStructureThreeResizableDefault,
+                  kind: z.enum([
+                    "t",
+                    "b",
+                    "i",
+                    "u",
+                    "f",
+                    "c",
+                    "m",
+                    "M",
+                    "S",
+                    "U",
+                    "V",
+                  ]),
+                  itemsize: z.number(),
+                  dt_units: z.union([z.string(), z.null()]).optional(),
+                }),
+                z.object({
+                  itemsize: z.number(),
+                  fields: z.array(
+                    z.object({
+                      name: z.string(),
+                      dtype: z.union([
+                        z.object({
+                          endianness: z
+                            .enum(["big", "little", "not_applicable"])
+                            .describe(
+                              "An enum of endian values: big, little, not_applicable.",
+                            ),
+                          kind: z.enum([
+                            "t",
+                            "b",
+                            "i",
+                            "u",
+                            "f",
+                            "c",
+                            "m",
+                            "M",
+                            "S",
+                            "U",
+                            "V",
+                          ]),
+                          itemsize: z.number(),
+                          dt_units: z.union([z.string(), z.null()]).optional(),
+                        }),
+                        z.unknown(),
+                      ]),
+                      shape: z.union([z.array(z.number()), z.null()]),
+                    }),
                   ),
-              })
-              .describe(
-                'A structure representing a ragged array\n\nRagged arrays are arrays with variable-length trailing dimensions (rows). The first\ndimension is always a known integer, while any variable dimensions are represented\nby None in its shape.\n\nParameters\n----------\ndata_type : BuiltinDtype | StructDtype\n    Serializable representation of the array\'s data type.\nshape : tuple[int | None, ...]\n    The shape of the array, where the first dimension is always a known integer,\n    and any variable dimensions are represented by None.\nsize : int\n    The total number of elements in the array.\nchunks : tuple[tuple[int, ...] | None, ...]\n    The dask-like chunks of the array, where the first dimension is always\n    partitioned into known integer chunks, and any variable dimensions are null.\n    From the storage perspective, each chunk represents a row in the underlying table,\n    which may contain information about multiple rows of the ragged array.\ndims : tuple[str, ...] | None, optional\n    Optional tuple of dimension names, e.g. (\"time\", \"x\"), or None for unnamed dimensions.\nresizable : bool | tuple[bool, ...], optional\n    Whether the array is resizable along any dimension.',
-              ),
+                }),
+              ]),
+              shape: z.array(z.union([z.number(), z.null()])),
+              size: z.number(),
+              chunks: z.array(z.union([z.array(z.number()), z.null()])),
+              dims: z.union([z.array(z.string()), z.null()]).optional(),
+              resizable: z
+                .union([z.boolean(), z.array(z.boolean())])
+                .default(
+                  metadataApiV1MetadataPathGetResponseDataOneAttributesStructureThreeResizableDefault,
+                ),
+            }),
             z.object({
               chunks: z.array(z.array(z.number())),
               shape: z.array(z.number()),
@@ -311,23 +278,19 @@ const MetadataApiV1MetadataPathGetResponse = z.object({
                       .describe(
                         "An enum of endian values: big, little, not_applicable.",
                       ),
-                    kind: z
-                      .enum([
-                        "t",
-                        "b",
-                        "i",
-                        "u",
-                        "f",
-                        "c",
-                        "m",
-                        "M",
-                        "S",
-                        "U",
-                        "V",
-                      ])
-                      .describe(
-                        'See https:\/\/numpy.org\/devdocs\/reference\/arrays.interface.html#object.__array_interface__\n\nThe term \"kind\" comes from the numpy API as well.\n\nNote: At import time, the environment variable ``TILED_ALLOW_OBJECT_ARRAYS``\nis checked. If it is set to anything other than ``\"0\"``, then this\nEnum gets an additional member::\n\n    object = \"O\"\n\nto support numpy \'object\'-type arrays which hold generic Python objects.\nNumpy \'object\'-type arrays are not enabled by default because their binary\nrepresentation is not interpretable by clients other than Python.  It is\nrecommended to convert your data to a non-object type if possible so that it\ncan be read by non-Python clients.',
-                      ),
+                    kind: z.enum([
+                      "t",
+                      "b",
+                      "i",
+                      "u",
+                      "f",
+                      "c",
+                      "m",
+                      "M",
+                      "S",
+                      "U",
+                      "V",
+                    ]),
                     itemsize: z.number(),
                     dt_units: z.union([z.string(), z.null()]).optional(),
                   }),
@@ -343,23 +306,19 @@ const MetadataApiV1MetadataPathGetResponse = z.object({
                               .describe(
                                 "An enum of endian values: big, little, not_applicable.",
                               ),
-                            kind: z
-                              .enum([
-                                "t",
-                                "b",
-                                "i",
-                                "u",
-                                "f",
-                                "c",
-                                "m",
-                                "M",
-                                "S",
-                                "U",
-                                "V",
-                              ])
-                              .describe(
-                                'See https:\/\/numpy.org\/devdocs\/reference\/arrays.interface.html#object.__array_interface__\n\nThe term \"kind\" comes from the numpy API as well.\n\nNote: At import time, the environment variable ``TILED_ALLOW_OBJECT_ARRAYS``\nis checked. If it is set to anything other than ``\"0\"``, then this\nEnum gets an additional member::\n\n    object = \"O\"\n\nto support numpy \'object\'-type arrays which hold generic Python objects.\nNumpy \'object\'-type arrays are not enabled by default because their binary\nrepresentation is not interpretable by clients other than Python.  It is\nrecommended to convert your data to a non-object type if possible so that it\ncan be read by non-Python clients.',
-                              ),
+                            kind: z.enum([
+                              "t",
+                              "b",
+                              "i",
+                              "u",
+                              "f",
+                              "c",
+                              "m",
+                              "M",
+                              "S",
+                              "U",
+                              "V",
+                            ]),
                             itemsize: z.number(),
                             dt_units: z
                               .union([z.string(), z.null()])
@@ -382,23 +341,19 @@ const MetadataApiV1MetadataPathGetResponse = z.object({
                       .describe(
                         "An enum of endian values: big, little, not_applicable.",
                       ),
-                    kind: z
-                      .enum([
-                        "t",
-                        "b",
-                        "i",
-                        "u",
-                        "f",
-                        "c",
-                        "m",
-                        "M",
-                        "S",
-                        "U",
-                        "V",
-                      ])
-                      .describe(
-                        'See https:\/\/numpy.org\/devdocs\/reference\/arrays.interface.html#object.__array_interface__\n\nThe term \"kind\" comes from the numpy API as well.\n\nNote: At import time, the environment variable ``TILED_ALLOW_OBJECT_ARRAYS``\nis checked. If it is set to anything other than ``\"0\"``, then this\nEnum gets an additional member::\n\n    object = \"O\"\n\nto support numpy \'object\'-type arrays which hold generic Python objects.\nNumpy \'object\'-type arrays are not enabled by default because their binary\nrepresentation is not interpretable by clients other than Python.  It is\nrecommended to convert your data to a non-object type if possible so that it\ncan be read by non-Python clients.',
-                      ),
+                    kind: z.enum([
+                      "t",
+                      "b",
+                      "i",
+                      "u",
+                      "f",
+                      "c",
+                      "m",
+                      "M",
+                      "S",
+                      "U",
+                      "V",
+                    ]),
                     itemsize: z.number(),
                     dt_units: z.union([z.string(), z.null()]).optional(),
                   }),
