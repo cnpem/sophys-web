@@ -10,10 +10,12 @@ const FullArrayApiV1ArrayFullPathGetParams = z.object({
 
 const fullArrayApiV1ArrayFullPathGetQuerySliceDefault = ``;
 const fullArrayApiV1ArrayFullPathGetQuerySliceRegExp = new RegExp(
+  // eslint-disable-next-line no-useless-escape
   "^(?:(?:-?\\d+)?:){0,2}(?:-?\\d+)?(?:,(?:(?:-?\\d+)?:){0,2}(?:-?\\d+)?)\*$",
 );
 
 const fullArrayApiV1ArrayFullPathGetQueryExpectedShapeOneRegExp = new RegExp(
+  // eslint-disable-next-line no-useless-escape
   "^[0-9]+(,[0-9]+)\*$|^scalar$",
 );
 
