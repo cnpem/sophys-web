@@ -1,8 +1,10 @@
 import type { z } from "zod";
+import type { searchGetQueryParams } from "./lib/schemas/search-get";
 import { fetchAndParseJson } from "./lib/fetch-with-auth";
 import { arrayGetResponse } from "./lib/schemas/array-get";
 import { containerGetResponse } from "./lib/schemas/container-get";
 import { metadataGetResponse } from "./lib/schemas/metadata-get";
+import { searchGetResponse } from "./lib/schemas/search-get";
 import { tableGetResponse } from "./lib/schemas/table-get";
 
 const API_VERSION = "v1";
@@ -22,6 +24,24 @@ function generateFullUrl(
     );
   }
   return url.toString();
+}
+
+function toQueryStringValue(value: unknown): string {
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean" ||
+    typeof value === "bigint"
+  ) {
+    return String(value);
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  // Explicit (non-default) serialization for objects/arrays
+  return JSON.stringify(value);
 }
 
 export interface ITiledClient {
@@ -65,6 +85,11 @@ export interface ITiledClient {
   getArray(params: {
     path: string;
   }): Promise<z.infer<typeof arrayGetResponse> | null>;
+
+  getSearch(params: {
+    path: string;
+    queryParams?: z.infer<typeof searchGetQueryParams>;
+  }): Promise<z.infer<typeof searchGetResponse> | null>;
 }
 
 export type TiledClientType = ITiledClient;
@@ -129,6 +154,33 @@ class TiledClient implements ITiledClient {
     }).catch((error) => {
       console.error(`Error fetching array data for path ${path}:`, error);
       return null;
+    });
+  }
+
+  async getSearch({
+    path,
+    queryParams,
+  }: {
+    path: string;
+    queryParams?: z.infer<typeof searchGetQueryParams>;
+  }) {
+    const actionUrl = "/search";
+    const url = new URL(
+      `${this.baseUrl}/api/${API_VERSION}${actionUrl}${path ? `${path}` : ""}`,
+    );
+    if (queryParams) {
+      Object.entries(queryParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          url.searchParams.append(key, toQueryStringValue(value));
+        }
+      });
+    }
+    const fullUrl = url.toString();
+
+    return await fetchAndParseJson({
+      url: fullUrl,
+      apiKey: this.apiKey,
+      schema: searchGetResponse,
     });
   }
 }
