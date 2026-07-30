@@ -8,6 +8,7 @@ on:
     tags:
       - "qua-ui__pr*"
       - "spu-ui__pr*"
+      - "ipe-ui__pr*"
     branches:
       - main
 
