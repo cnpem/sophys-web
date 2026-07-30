@@ -42,7 +42,10 @@ export async function signIn(data: FormData): Promise<SignInState> {
         case "AccessDenied":
           return { success: false, message: "Access denied" };
         default:
-          return { success: false, message: "An error occurred" };
+          return {
+            success: false,
+            message: `An error occurred: ${error.cause?.err ?? "unknown"}`,
+          };
       }
     }
     return { success: false, message: "An error occurred" };
