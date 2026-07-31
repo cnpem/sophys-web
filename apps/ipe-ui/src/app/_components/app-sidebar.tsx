@@ -19,6 +19,7 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from "@sophys-web/ui/sidebar";
+import { appendBasePath } from "~/lib/appendBasePath";
 import { NavUser } from "./nav-user";
 
 export async function AppSidebar({
@@ -33,7 +34,12 @@ export async function AppSidebar({
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center justify-between">
             <SidebarMenuButton tooltip="Sophys Ipê">
-              <Image src="/logo.png" alt="Logo" width={20} height={20} />
+              <Image
+                src={appendBasePath("/logo.png")}
+                alt="Logo"
+                width={20}
+                height={20}
+              />
               Sophys Ipê
             </SidebarMenuButton>
             <SidebarTrigger className="group-data-[collapsible=icon]:sr-only" />

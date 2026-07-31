@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { api, HydrateClient } from "@sophys-web/api-client/server";
 import { auth } from "@sophys-web/auth";
 import { buttonVariants } from "@sophys-web/ui/button";
+import { appendBasePath } from "~/lib/appendBasePath";
 import { Dashboard } from "./_components/dashboard/dashboard";
 
 export default async function Page() {
@@ -12,7 +13,12 @@ export default async function Page() {
   if (!session) {
     return (
       <main className="flex flex-col items-center gap-4 p-24">
-        <Image src="/logo.png" alt="Logo" width={200} height={200} />
+        <Image
+          src={appendBasePath("/logo.png")}
+          alt="Logo"
+          width={200}
+          height={200}
+        />
         <h1 className="text-primary text-4xl font-bold">Sophys Ipê</h1>
         <p className="text-lg">
           The UI for experiments conducted at the Ipê beamline.
