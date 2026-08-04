@@ -1,5 +1,12 @@
 # @sophys-web/spu-ui
 
+## 0.4.3
+
+### Patch Changes
+
+- 8567202: Refactor setup2 store to support two types of samples: "capillary" and "standard" (grid).
+- 0c9d481: Setup2: Add support for move_inside_card plan for capillary card.
+
 ## 0.4.2
 
 ### Patch Changes
