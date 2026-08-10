@@ -1,5 +1,22 @@
 # @sophys-web/qua-ui
 
+## 0.6.0
+
+### Minor Changes
+
+- 6510198: Add prefect variable router for GET route
+- 141734b: Add form for \_scan_with_delay plan using combobox ui components for searching and selecting multiple values for a single form field.
+
+### Patch Changes
+
+- 681d57f: Fix regex of energy scan plans to have 1 to 30 chars match, instead of only 2
+- Updated dependencies [6510198]
+- Updated dependencies [4b04831]
+  - @sophys-web/api@0.3.0
+  - @sophys-web/ui@0.5.0
+  - @sophys-web/api-client@0.3.1
+  - @sophys-web/widgets@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes
