@@ -33,10 +33,11 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
+import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { Skeleton } from "@sophys-web/ui/skeleton";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 
-export const name = "_scan_with_delay";
+export const name = "web_scan_with_delay";
 
 export const schemaStatic = z.object({
   detectors: z.array(z.string()),
@@ -180,52 +181,13 @@ export function ScanWithDelayForm({
             </Field>
           )}
         />
-        <Controller
-          name="num"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Num
-                <InfoTooltip>
-                  <FieldDescription>
-                    The number of samples to acquire??.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  {...field}
-                  id={field.name}
-                  value={field.value ?? ""}
-                  type={"number"}
-                  aria-invalid={fieldState.invalid}
-                />
-                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
+
         <Controller
           name="delay"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Delay
-                <InfoTooltip>
-                  <FieldDescription>
-                    The delay between samples??
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabel htmlFor={field.name}>Delay</FieldLabel>
               <InputGroup>
                 <InputGroupInput
                   {...field}
@@ -246,134 +208,162 @@ export function ScanWithDelayForm({
             </Field>
           )}
         />
-        <FieldSet>
-          <FieldLegend variant="label">Axes</FieldLegend>
-          <FieldDescription>
-            Add axes by specifying the device, start position, and end position
-            for each axis.
-          </FieldDescription>
-          <FieldGroup className="gap-2">
-            {/* column headers */}
-            <div className="grid grid-cols-[4fr_4fr_4fr_1fr] items-center gap-2">
-              <FieldLabel>Device</FieldLabel>
-              <FieldLabel>Start</FieldLabel>
-              <FieldLabel>End</FieldLabel>
-              <div></div>
-            </div>
-            {!fields.length && (
+        <FieldSet className="border-border flex flex-col rounded-md border border-dashed p-4">
+          <ScrollArea className="h-60 w-full">
+            <FieldLegend variant="label">Axes</FieldLegend>
+            <FieldDescription>
+              Add axes by specifying the device, start position, and end
+              position for each axis.
+            </FieldDescription>
+            <FieldGroup className="gap-2">
+              {/* column headers */}
               <div className="grid grid-cols-[4fr_4fr_4fr_1fr] items-center gap-2">
-                <Skeleton className="h-10 w-full animate-pulse rounded" />
-                <Skeleton className="h-10 w-full animate-pulse rounded" />
-                <Skeleton className="h-10 w-full animate-pulse rounded" />
+                <FieldLabel>Device</FieldLabel>
+                <FieldLabel>Start</FieldLabel>
+                <FieldLabel>End</FieldLabel>
                 <div></div>
               </div>
-            )}
-            {fields.map((arrayItemField, arrayIndex) => (
-              <Field
-                key={arrayItemField.id}
-                className="grid grid-cols-[4fr_4fr_4fr_1fr] items-center gap-2"
-              >
-                <Controller
-                  name={`axes.${arrayIndex}.0`}
-                  control={form.control}
-                  render={({ field: controlledField, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <Combobox
-                        items={movableNames}
-                        value={controlledField.value}
-                        onValueChange={controlledField.onChange}
-                      >
-                        <ComboboxInput placeholder="Select axis" />
-                        <ComboboxContent
-                          // restoring pointer events and wheel propagation as a temporary fix for selecting items with the mouse
-                          // see https://github.com/shadcn-ui/ui/issues/9770#issuecomment-4214505872
-                          onWheel={(e) => e.stopPropagation()}
-                          className="pointer-events-auto"
-                        >
-                          <ComboboxEmpty />
-                          <ComboboxList>
-                            {(item: string) => (
-                              <ComboboxItem key={item} value={item}>
-                                {item}
-                              </ComboboxItem>
-                            )}
-                          </ComboboxList>
-                        </ComboboxContent>
-                      </Combobox>
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name={`axes.${arrayIndex}.1`}
-                  control={form.control}
-                  render={({ field: controlledField, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <InputGroup>
-                        <InputGroupInput
-                          type="number"
-                          {...controlledField}
-                          onChange={(e) => {
-                            controlledField.onChange(e.target.value);
-                          }}
-                        />
-                        {fieldState.invalid && (
-                          <InputGroupAddon align={"inline-end"}>
-                            <InfoTooltip variant={"destructive"}>
-                              {fieldState.error?.message}
-                            </InfoTooltip>
-                          </InputGroupAddon>
-                        )}
-                      </InputGroup>
-                    </Field>
-                  )}
-                />
-                <Controller
-                  name={`axes.${arrayIndex}.2`}
-                  control={form.control}
-                  render={({ field: controlledField, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <InputGroup>
-                        <InputGroupInput
-                          type="number"
-                          {...controlledField}
-                          onChange={(e) => {
-                            controlledField.onChange(e.target.value);
-                          }}
-                        />
-                        {fieldState.invalid && (
-                          <InputGroupAddon align={"inline-end"}>
-                            <InfoTooltip variant={"destructive"}>
-                              {fieldState.error?.message}
-                            </InfoTooltip>
-                          </InputGroupAddon>
-                        )}
-                      </InputGroup>
-                    </Field>
-                  )}
-                />
-                <Button
-                  variant="ghost"
-                  onClick={() => remove(arrayIndex)}
-                  size={"icon"}
-                  className="text-destructive align-middle"
+              {!fields.length && (
+                <div className="grid grid-cols-[4fr_4fr_4fr_1fr] items-center gap-2">
+                  <Skeleton className="h-10 w-full animate-pulse rounded" />
+                  <Skeleton className="h-10 w-full animate-pulse rounded" />
+                  <Skeleton className="h-10 w-full animate-pulse rounded" />
+                  <div></div>
+                </div>
+              )}
+              {fields.map((arrayItemField, arrayIndex) => (
+                <Field
+                  key={arrayItemField.id}
+                  className="grid grid-cols-[4fr_4fr_4fr_1fr] items-center gap-2"
                 >
-                  <Trash2Icon className="size-4" />
-                </Button>
-              </Field>
-            ))}
-          </FieldGroup>
+                  <Controller
+                    name={`axes.${arrayIndex}.0`}
+                    control={form.control}
+                    render={({ field: controlledField, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <Combobox
+                          items={movableNames}
+                          value={controlledField.value}
+                          onValueChange={controlledField.onChange}
+                        >
+                          <ComboboxInput placeholder="Select axis" />
+                          <ComboboxContent
+                            // restoring pointer events and wheel propagation as a temporary fix for selecting items with the mouse
+                            // see https://github.com/shadcn-ui/ui/issues/9770#issuecomment-4214505872
+                            onWheel={(e) => e.stopPropagation()}
+                            className="pointer-events-auto"
+                          >
+                            <ComboboxEmpty />
+                            <ComboboxList>
+                              {(item: string) => (
+                                <ComboboxItem key={item} value={item}>
+                                  {item}
+                                </ComboboxItem>
+                              )}
+                            </ComboboxList>
+                          </ComboboxContent>
+                        </Combobox>
+                        {fieldState.invalid && (
+                          <FieldError errors={[fieldState.error]} />
+                        )}
+                      </Field>
+                    )}
+                  />
+                  <Controller
+                    name={`axes.${arrayIndex}.1`}
+                    control={form.control}
+                    render={({ field: controlledField, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <InputGroup>
+                          <InputGroupInput
+                            type="number"
+                            {...controlledField}
+                            onChange={(e) => {
+                              controlledField.onChange(e.target.value);
+                            }}
+                          />
+                          {fieldState.invalid && (
+                            <InputGroupAddon align={"inline-end"}>
+                              <InfoTooltip variant={"destructive"}>
+                                {fieldState.error?.message}
+                              </InfoTooltip>
+                            </InputGroupAddon>
+                          )}
+                        </InputGroup>
+                      </Field>
+                    )}
+                  />
+                  <Controller
+                    name={`axes.${arrayIndex}.2`}
+                    control={form.control}
+                    render={({ field: controlledField, fieldState }) => (
+                      <Field data-invalid={fieldState.invalid}>
+                        <InputGroup>
+                          <InputGroupInput
+                            type="number"
+                            {...controlledField}
+                            onChange={(e) => {
+                              controlledField.onChange(e.target.value);
+                            }}
+                          />
+                          {fieldState.invalid && (
+                            <InputGroupAddon align={"inline-end"}>
+                              <InfoTooltip variant={"destructive"}>
+                                {fieldState.error?.message}
+                              </InfoTooltip>
+                            </InputGroupAddon>
+                          )}
+                        </InputGroup>
+                      </Field>
+                    )}
+                  />
+                  <Button
+                    variant="ghost"
+                    onClick={() => remove(arrayIndex)}
+                    size={"icon"}
+                    className="text-destructive align-middle"
+                  >
+                    <Trash2Icon className="size-4" />
+                  </Button>
+                </Field>
+              ))}
+            </FieldGroup>
+          </ScrollArea>
+          <Button
+            type="button"
+            variant={"secondary"}
+            onClick={() => append([["", 0, 0]])}
+            className="w-full"
+          >
+            Add Axis
+          </Button>
         </FieldSet>
-        <Button
-          type="button"
-          variant={"outline"}
-          onClick={() => append([["", 0, 0]])}
-          className="w-full"
-        >
-          Add Axis
-        </Button>
+        <Controller
+          name="num"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>Number of points</FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  value={field.value ?? ""}
+                  type={"number"}
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
       </FieldGroup>
       <Button
         type="submit"

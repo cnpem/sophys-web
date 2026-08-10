@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  CameraIcon,
   FlameIcon,
   FlaskConicalIcon,
   SnowflakeIcon,
@@ -24,10 +25,12 @@ import {
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
 import { AddHeat } from "../plans/heat-sample";
+import { ScanWithDelayForm } from "../plans/scan-with-delay";
 
 export function InSituSelector() {
   const { data: userData } = api.auth.getUser.useQuery();
   const [openDialogHeat, setopenDialogHeat] = useState(false);
+  const [openDialogScanWithDelay, setOpenDialogScanWithDelay] = useState(false);
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -43,6 +46,17 @@ export function InSituSelector() {
         <DropdownMenuContent align="start" className="w-auto">
           <DropdownMenuLabel>On demand</DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-start"
+              disabled={!userData?.proposal}
+              onClick={() => setOpenDialogScanWithDelay(true)}
+            >
+              <CameraIcon className="mr-2 h-4 w-4" />
+              Scan with Delay
+            </Button>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Button
               variant="ghost"
@@ -90,6 +104,26 @@ export function InSituSelector() {
             onSubmitSuccess={() => {
               setMenuOpen(false);
               setopenDialogHeat(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={openDialogScanWithDelay}
+        onOpenChange={setOpenDialogScanWithDelay}
+      >
+        <DialogContent className="w-fit max-w-full flex-col">
+          <DialogHeader>
+            <DialogTitle>Scan with Delay</DialogTitle>
+            <DialogDescription className="flex flex-col gap-2">
+              Please fill in the details below to submit the plan.
+            </DialogDescription>
+          </DialogHeader>
+          <ScanWithDelayForm
+            className="w-2xl"
+            onSubmitSuccess={() => {
+              setMenuOpen(false);
+              setOpenDialogScanWithDelay(false);
             }}
           />
         </DialogContent>
