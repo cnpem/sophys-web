@@ -25,7 +25,6 @@ type RetrieveCardButtonFormProps = Omit<ButtonProps, "type"> & {
 export function RetrieveCardButtonForm({
   variant,
   size,
-  asChild,
   className,
   onSubmitSuccess,
   ...props
@@ -91,7 +90,6 @@ export function RetrieveCardButtonForm({
               className={className}
               variant={variant}
               size={size}
-              asChild={asChild}
               {...props}
             >
               <SquareArrowDownIcon className="size-4" /> Retrieve Card
