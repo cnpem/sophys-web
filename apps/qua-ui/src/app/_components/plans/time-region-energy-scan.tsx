@@ -100,7 +100,7 @@ export const baseFormSchema = z.object({
     .string()
     .min(1)
     .max(30)
-    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]$/, {
+    .regex(/^[A-Za-z0-9][A-Za-z0-9_-]+$/, {
       message:
         "File name must start with a letter or number and can only contain letters, numbers, underscores, and hyphens.",
     })
