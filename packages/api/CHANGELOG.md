@@ -1,5 +1,11 @@
 # @sophys-web/api
 
+## 0.3.0
+
+### Minor Changes
+
+- 6510198: Add prefect variable router for GET route
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @sophys-web/ui
 
+## 0.5.0
+
+### Minor Changes
+
+- 4b04831: Update button component to new base-ui version and add Combobox component.
+
 ## 0.4.0
 
 ### Minor Changes

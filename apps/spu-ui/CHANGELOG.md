@@ -1,5 +1,17 @@
 # @sophys-web/spu-ui
 
+## 0.4.4
+
+### Patch Changes
+
+- 9fe611f: Update button components for compatibility with new base-ui shadcn button.
+- Updated dependencies [6510198]
+- Updated dependencies [4b04831]
+  - @sophys-web/api@0.3.0
+  - @sophys-web/ui@0.5.0
+  - @sophys-web/api-client@0.3.1
+  - @sophys-web/widgets@0.5.2
+
 ## 0.4.3
 
 ### Patch Changes

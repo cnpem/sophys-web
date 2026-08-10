@@ -1,5 +1,15 @@
 # @sophys-web/widgets
 
+## 0.5.2
+
+### Patch Changes
+
+- Updated dependencies [6510198]
+- Updated dependencies [4b04831]
+  - @sophys-web/api@0.3.0
+  - @sophys-web/ui@0.5.0
+  - @sophys-web/api-client@0.3.1
+
 ## 0.5.1
 
 ### Patch Changes
