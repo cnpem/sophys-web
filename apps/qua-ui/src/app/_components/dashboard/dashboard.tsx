@@ -24,6 +24,7 @@ import { CustomRunningItem } from "../queue/custom-running-item";
 import { OnDemandQueueItems } from "../queue/on-demand-queue-items";
 import { ScanSelector } from "../scans/scans-items";
 import { BeamlineStates } from "./beamline-states";
+import { ExperimentState } from "./experiment";
 
 export function Dashboard() {
   return (
@@ -69,6 +70,7 @@ export function Dashboard() {
         </ScrollArea>
         <div className="flex flex-col gap-2 lg:w-1/3">
           <BeamlineStates />
+          <ExperimentState />
           <Console />
         </div>
       </div>

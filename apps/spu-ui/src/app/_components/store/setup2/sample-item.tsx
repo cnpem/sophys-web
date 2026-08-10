@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { cva } from "class-variance-authority";
 import {
   CameraIcon,
   CircleArrowRightIcon,
@@ -8,7 +9,6 @@ import {
   PlusIcon,
 } from "lucide-react";
 import { cn } from "@sophys-web/ui";
-import { Button } from "@sophys-web/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -24,94 +24,102 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@sophys-web/ui/dropdown-menu";
+import type { cardModes } from "./constants";
 import type { Sample } from "./use-sample-store";
 import { Setup2AquisitionForm } from "../../plans/setup2-acquisition";
 import { CompleteAcquisitionForm } from "../../plans/setup2-complete-acquisition-form";
 import { Setup2FindSampleHorizontalScanForm } from "../../plans/setup2-find-sample-horizontal-scan";
 import { Setup2FindSampleVerticalScanForm } from "../../plans/setup2-find-sample-vertical-scan";
+import { MoveInsideCardForm } from "../../plans/setup2-move-inside-card-form";
 import { MoveInsideSampleForm } from "../../plans/setup2-move-inside-sample-form";
 import { MoveToSampleForm } from "../../plans/setup2-move-to-sample-form";
-import { cardColumns, cardIndexOptions, cardRows } from "./constants";
+import { capillaryCardSlotLimitsMilimeters } from "./constants";
 import { DeleteSampleForm } from "./delete-sample-form";
-// import { LoadSampleForm } from "./load-sample-form";
-import {
-  RegisterNewSampleForm,
-  RegisterSampleForm,
-} from "./register-sample-form";
-import { useSampleCardName } from "./sample-store";
-import { positionFromSampleId, useSampleStore } from "./use-sample-store";
+import { EditSampleForm, RegisterNewSampleForm } from "./register-sample-form";
+import { sampleIdDecoder, useSampleStore } from "./use-sample-store";
+
+const sampleTypeVariants = cva(
+  "flex items-center justify-around border text-sm",
+  {
+    variants: {
+      cardType: {
+        standard: "size-10 rounded-full",
+        capillary: "h-32 w-6 rounded-md",
+      },
+      registerState: {
+        unregistered:
+          "bg-muted cursor-cell text-gray-800 hover:bg-gray-100 hover:ring hover:ring-gray-400",
+
+        registered:
+          "hover:ring-primary/50 cursor-context-menu border-orange-800/10 bg-orange-300 text-gray-800 hover:bg-orange-300/90 hover:ring",
+      },
+    },
+    defaultVariants: {
+      cardType: "standard",
+      registerState: "unregistered",
+    },
+  },
+);
 
 /**
  * Sample item component representing an empty slot or a registered sample.
- * @param sample - The sample data or undefined if the slot is empty.
  * @param sampleId - The unique identifier for the sample slot.
  *
  * @example
- * <SampleItem sample={sample} sampleId="Tray1-A1" />
+ * <SampleItem sampleId="Tray1-A1" />
  */
 export function SampleItem({
-  sample,
   sampleId,
+  cardType,
 }: {
-  sample: Sample | undefined;
   sampleId: string;
+  cardType: (typeof cardModes)[number];
 }) {
+  const { storeData } = useSampleStore();
+  const sample = storeData?.[sampleId];
   // if sample is undefined, render empty slot
   if (!sample) {
-    return <EmptySampleSlotDialog sampleId={sampleId} />;
+    return <EmptySampleSlotDialog sampleId={sampleId} cardType={cardType} />;
   }
 
   // if sample is defined, render registered sample
-  return <SampleDropdownMenu sample={sample} />;
+  return <SampleDropdownMenu sample={sample} cardType={cardType} />;
 }
 
 function EmptySampleSlotDialog({
   sampleId,
-  trigger,
+  cardType,
 }: {
   sampleId: string;
-  trigger?: React.ReactNode;
+  cardType: (typeof cardModes)[number];
 }) {
   const [open, setOpen] = useState(false);
-  const { cardIndex, row, column } = positionFromSampleId(sampleId);
   const { error } = useSampleStore();
 
-  // check if tray, row and col are valid values, if not return null
-  if (
-    !cardIndexOptions.includes(
-      cardIndex as (typeof cardIndexOptions)[number],
-    ) ||
-    !cardRows.includes(row as (typeof cardRows)[number]) ||
-    !cardColumns.includes(column as (typeof cardColumns)[number])
-  ) {
-    return null;
-  }
   return (
     <Dialog onOpenChange={setOpen} open={open}>
-      {!trigger && (
-        <DialogTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            className="cursor-cell rounded-full bg-zinc-100 text-sm opacity-50 select-none hover:scale-105 hover:ring hover:ring-slate-400"
-            disabled={!!error}
-          >
-            <PlusIcon className="size-4" />
-          </Button>
-        </DialogTrigger>
-      )}
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogTrigger asChild>
+        <button
+          className={cn(
+            sampleTypeVariants({
+              cardType: cardType,
+              registerState: "unregistered",
+            }),
+          )}
+          disabled={!!error}
+        >
+          <PlusIcon className="size-4" />
+        </button>
+      </DialogTrigger>
       <DialogContent className="flex w-fit flex-col items-center">
         <DialogHeader>
           <DialogTitle>Register new sample</DialogTitle>
           <DialogDescription className="flex flex-col items-start">
-            <span>{`position: ${cardIndex}-${row}${column}`}</span>
+            <span>{`position: ${sampleId}`}</span>
           </DialogDescription>
         </DialogHeader>
         <RegisterNewSampleForm
-          cardIndex={cardIndex as (typeof cardIndexOptions)[number]}
-          row={row as (typeof cardRows)[number]}
-          column={column as (typeof cardColumns)[number]}
+          sampleId={sampleId}
           onSubmitCallback={() => setOpen(false)}
         />
       </DialogContent>
@@ -129,19 +137,19 @@ function SampleInfo({
   return (
     <div className={cn("flex w-40 flex-col items-start gap-1", className)}>
       <p>
-        <span className="font-bold">Index:</span>{" "}
-        {`${sample.cardIndex}-${sample.row}${sample.column}`}
+        <span className="font-bold">Index:</span>
+        {sample.id}
       </p>
       <p>
         <span className="font-bold">Name:</span> {sample.sampleTag}
       </p>
       <p>
-        <span className="font-bold">Position:</span> ({sample.samplePositionX},{" "}
-        {sample.samplePositionY})
+        <span className="font-bold">Position:</span> ({sample.position?.x},{" "}
+        {sample.position?.y})
       </p>
-      {sample.meta && (
+      {sample.notes && (
         <p className="overflow-wrap">
-          <span className="font-bold">Meta:</span> {sample.meta}
+          <span className="font-bold">Notes:</span> {sample.notes}
         </p>
       )}
     </div>
@@ -152,23 +160,36 @@ export const defaultSampleStyle =
   "border border-gray-300 bg-orange-300 text-gray-800 hover:bg-gray-100";
 
 function SampleDropdownTrigger({ sample }: { sample: Sample }) {
+  const decoded = sampleIdDecoder.safeParse(sample.id);
+  if (!decoded.success) {
+    console.error("Failed to decode sample ID:", decoded.error);
+    return <div className={cn("text-destructive")}>?</div>;
+  }
+  const { position, type } = decoded.data;
   return (
     <DropdownMenuTrigger asChild>
-      <Button
-        variant="outline"
-        size="icon"
+      <button
         className={cn(
-          "cursor-context-menu rounded-full text-sm select-none hover:scale-105 hover:ring",
-          defaultSampleStyle,
+          sampleTypeVariants({
+            cardType: type,
+            registerState: "registered",
+          }),
         )}
       >
-        {`${sample.row}${sample.column}`}
-      </Button>
+        {type === "capillary" && "s"}
+        {type === "standard" && `${position.column}${position.row}`}
+      </button>
     </DropdownMenuTrigger>
   );
 }
 
-function SampleDropdownMenu({ sample }: { sample: Sample }) {
+function SampleDropdownMenu({
+  sample,
+  cardType,
+}: {
+  sample: Sample;
+  cardType: (typeof cardModes)[number];
+}) {
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu modal={false} open={open} onOpenChange={setOpen}>
@@ -181,20 +202,31 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
         <EditSampleMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
+          cardType={cardType}
         />
         <DeleteSampleMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
         />
         <DropdownMenuSeparator />
-        <MoveToSampleMenuItem
-          sample={sample}
-          onSubmitCallback={() => setOpen(false)}
-        />
-        <MoveInsideSampleMenuItem
-          sample={sample}
-          onSubmitCallback={() => setOpen(false)}
-        />
+        {cardType === "standard" && (
+          <MoveToSampleMenuItem
+            sample={sample}
+            onSubmitCallback={() => setOpen(false)}
+          />
+        )}
+        {cardType === "standard" && (
+          <MoveInsideSampleMenuItem
+            sample={sample}
+            onSubmitCallback={() => setOpen(false)}
+          />
+        )}
+        {cardType === "capillary" && (
+          <MoveInsideCardMenuItem
+            sample={sample}
+            onSubmitCallback={() => setOpen(false)}
+          />
+        )}
         <FindSampleVerticalMenuItem
           sample={sample}
           onSubmitCallback={() => setOpen(false)}
@@ -220,9 +252,11 @@ function SampleDropdownMenu({ sample }: { sample: Sample }) {
 function EditSampleMenuItem({
   sample,
   onSubmitCallback,
+  cardType = "standard",
 }: {
   sample: Sample;
   onSubmitCallback?: () => void;
+  cardType?: (typeof cardModes)[number];
 }) {
   const [open, setOpen] = useState(false);
   const handleOpen = (e: Event) => {
@@ -245,18 +279,13 @@ function EditSampleMenuItem({
         <DialogHeader>
           <DialogTitle>Register sample</DialogTitle>
           <DialogDescription className="flex flex-col items-start">
-            <span>{`position: ${sample.cardIndex}-${sample.row}${sample.column}`}</span>
+            <span>{`id: ${sample.id}`}</span>
           </DialogDescription>
         </DialogHeader>
-        <RegisterSampleForm
-          cardIndex={sample.cardIndex}
-          row={sample.row}
-          column={sample.column}
-          sampleTag={sample.sampleTag}
-          samplePositionX={sample.samplePositionX}
-          samplePositionY={sample.samplePositionY}
-          meta={sample.meta}
+        <EditSampleForm
+          sample={sample}
           onSubmitCallback={handleSubmitSuccess}
+          cardType={cardType}
         />
       </DialogContent>
     </Dialog>
@@ -290,7 +319,9 @@ function DeleteSampleMenuItem({
       <DialogContent className="flex w-fit flex-col items-center">
         <DialogHeader>
           <DialogTitle>Deleting sample</DialogTitle>
-          <DialogDescription className="flex flex-col items-start"></DialogDescription>
+          <DialogDescription className="flex flex-col items-start">
+            {`id: ${sample.id}`}
+          </DialogDescription>
         </DialogHeader>
         <SampleInfo sample={sample} />
         <DeleteSampleForm
@@ -318,7 +349,27 @@ function CompleteAcquisitionMenuItem({
     setOpen(false);
     onSubmitCallback?.();
   };
-  const { cardName } = useSampleCardName(sample.cardIndex);
+
+  const decoded = sampleIdDecoder.safeParse(sample.id);
+  if (!decoded.success) {
+    console.error("Failed to decode sample ID:", decoded.error);
+    return (
+      <DropdownMenuItem disabled>
+        <CameraIcon className="mr-2 h-4 w-4" />
+        Complete Acquisition
+      </DropdownMenuItem>
+    );
+  }
+  const { card, position, type } = decoded.data;
+
+  if (type === "capillary") {
+    return (
+      <DropdownMenuItem disabled>
+        <CameraIcon className="mr-2 h-4 w-4" />
+        Complete Acquisition
+      </DropdownMenuItem>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -333,12 +384,13 @@ function CompleteAcquisitionMenuItem({
           <DialogTitle>Complete Acquisition</DialogTitle>
           <DialogDescription className="flex flex-col items-center">
             Complete acquisition for sample {sample.sampleTag} at position{" "}
-            {`${sample.cardIndex}-${sample.row}${sample.column}`}
+            {`${position.column}${position.row}`} on card {card}.
           </DialogDescription>
         </DialogHeader>
         <CompleteAcquisitionForm
           sampleParams={sample}
-          cardName={cardName ?? undefined}
+          cardPosition={position}
+          cardIndex={card}
           onSubmitSuccess={handleSubmitSuccess}
         />
       </DialogContent>
@@ -405,6 +457,18 @@ function MoveToSampleMenuItem({
     setOpen(false);
     onSubmitCallback?.();
   };
+  const decoded = sampleIdDecoder.safeParse(sample.id);
+
+  if (!decoded.success || decoded.data.type === "capillary") {
+    if (!decoded.success)
+      console.error("Failed to decode sample ID:", decoded.error);
+    return (
+      <DropdownMenuItem disabled>
+        <CircleArrowRightIcon className="mr-2 size-4" />
+        Move to Sample
+      </DropdownMenuItem>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -418,13 +482,12 @@ function MoveToSampleMenuItem({
         <DialogHeader>
           <DialogTitle>Move to Sample</DialogTitle>
           <DialogDescription className="flex flex-col items-center">
-            Move to sample {sample.sampleTag} at position{" "}
-            {`${sample.cardIndex}-${sample.row}${sample.column}`}
+            Move to sample {sample.sampleTag} at {sample.id}
           </DialogDescription>
         </DialogHeader>
         <MoveToSampleForm
-          row={sample.row}
-          col={sample.column}
+          row={decoded.data.position.row}
+          col={decoded.data.position.column}
           onSubmitSuccess={handleSubmitSuccess}
         />
       </DialogContent>
@@ -461,13 +524,58 @@ function MoveInsideSampleMenuItem({
         <DialogHeader>
           <DialogTitle>Move Inside Sample</DialogTitle>
           <DialogDescription className="flex flex-col items-center">
-            Move inside sample {sample.sampleTag} at position{" "}
-            {`${sample.cardIndex}-${sample.row}${sample.column}`}
+            Move inside sample
           </DialogDescription>
         </DialogHeader>
         <MoveInsideSampleForm
-          x={sample.samplePositionX}
-          y={sample.samplePositionY}
+          x={sample.position?.x}
+          y={sample.position?.y}
+          onSubmitSuccess={handleSubmitSuccess}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function MoveInsideCardMenuItem({
+  sample,
+  onSubmitCallback,
+}: {
+  sample: Sample;
+  onSubmitCallback?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const handleOpen = (e: Event) => {
+    e.preventDefault();
+    setOpen(true);
+  };
+  const handleSubmitSuccess = () => {
+    setOpen(false);
+    onSubmitCallback?.();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <DropdownMenuItem onSelect={handleOpen}>
+          <CircleDotIcon className="mr-2 size-4" />
+          Move Inside Card
+        </DropdownMenuItem>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Move Inside Card</DialogTitle>
+          <DialogDescription className="flex flex-col items-center">
+            Move inside the capillary card window within the constraints for x:{" "}
+            {`[${capillaryCardSlotLimitsMilimeters.x.min}, ${capillaryCardSlotLimitsMilimeters.x.max}]`}{" "}
+            and y:{" "}
+            {`[${capillaryCardSlotLimitsMilimeters.y.min}, ${capillaryCardSlotLimitsMilimeters.y.max}]`}
+            .
+          </DialogDescription>
+        </DialogHeader>
+        <MoveInsideCardForm
+          x={sample.position?.x}
+          y={sample.position?.y}
           onSubmitSuccess={handleSubmitSuccess}
         />
       </DialogContent>
@@ -512,7 +620,7 @@ function FindSampleVerticalMenuItem({
           onSubmitSuccess={handleSubmitSuccess}
           params={{
             sampleTag: sample.sampleTag,
-            posX: sample.samplePositionX,
+            posX: sample.position?.x,
           }}
         />
       </DialogContent>
@@ -557,7 +665,7 @@ function FindSampleHorizontalMenuItem({
           onSubmitSuccess={handleSubmitSuccess}
           params={{
             sampleTag: sample.sampleTag,
-            posY: sample.samplePositionY,
+            posY: sample.position?.y,
           }}
         />
       </DialogContent>
