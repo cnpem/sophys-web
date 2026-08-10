@@ -19,7 +19,6 @@ type DetectSampleCardsButtonFormProps = Omit<ButtonProps, "type"> & {
 export function DetectSampleCardsButtonForm({
   variant,
   size,
-  asChild,
   className,
   onSubmitSuccess,
   ...props
@@ -66,7 +65,6 @@ export function DetectSampleCardsButtonForm({
           className={className}
           variant={variant}
           size={size}
-          asChild={asChild}
           {...props}
         >
           <SearchIcon className="size-4" /> Detect Cards
