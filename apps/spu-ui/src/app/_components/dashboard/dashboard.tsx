@@ -10,6 +10,7 @@ import {
   QueueControls,
 } from "@sophys-web/widgets/control-bar/control-bar";
 import { OnDemandSelector } from "../plans/on-demand-queue-items";
+import { CustomHistoryTable } from "./custom-history";
 import { CustomRunningItem } from "./custom-running-item";
 import { ExperimentalEnvironment } from "./experimental-environment";
 
@@ -28,7 +29,10 @@ export function Dashboard() {
       <div className="flex gap-2 p-2 pt-16 sm:flex-col lg:flex-row">
         <ScrollArea className="w-full lg:h-svh lg:min-w-2/3">
           <div className="flex flex-col gap-2">
-            <CompactQueue runningItem={<CustomRunningItem />} />
+            <CompactQueue
+              runningItem={<CustomRunningItem />}
+              historyTable={<CustomHistoryTable />}
+            />
             <Console />
           </div>
         </ScrollArea>

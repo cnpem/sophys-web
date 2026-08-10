@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  ColumnDef,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
@@ -24,9 +25,14 @@ import {
   TableRow,
 } from "@sophys-web/ui/table";
 import { DataTablePagination } from "@sophys-web/widgets/data-table/table-pagination";
-import { columns } from "./columns";
+import type { HistoryItemProps } from "../history-item-utils";
+import { columns as defaultColumns } from "./columns";
 
-export function DataTable() {
+export function DataTable({
+  columns = defaultColumns,
+}: {
+  columns?: ColumnDef<HistoryItemProps>[];
+}) {
   const { data, isPending } = api.httpserver.history.get.useQuery();
 
   const tableColumns = useMemo(
@@ -39,7 +45,7 @@ export function DataTable() {
             ),
           }))
         : columns,
-    [isPending],
+    [columns, isPending],
   );
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
