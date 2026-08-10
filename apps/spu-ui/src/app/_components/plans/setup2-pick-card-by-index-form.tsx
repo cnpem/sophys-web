@@ -172,7 +172,6 @@ type PickCardButtonFormProps = Omit<ButtonProps, "type"> & {
 export function PickCardButtonForm({
   variant,
   size,
-  asChild,
   className,
   onSubmitSuccess,
   index,
@@ -224,7 +223,6 @@ export function PickCardButtonForm({
         className={className}
         variant={variant}
         size={size}
-        asChild={asChild}
         {...props}
       >
         <SquareMousePointerIcon className="size-4" /> Pick card {index}

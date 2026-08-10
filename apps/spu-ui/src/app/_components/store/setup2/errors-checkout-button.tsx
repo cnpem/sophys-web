@@ -19,7 +19,6 @@ type ErrorsCheckoutButtonFormProps = Omit<ButtonProps, "type"> & {
 export function ErrorsCheckoutButtonForm({
   variant,
   size,
-  asChild,
   className,
   onSubmitSuccess,
   ...props
@@ -66,7 +65,6 @@ export function ErrorsCheckoutButtonForm({
           className={className}
           variant={variant}
           size={size}
-          asChild={asChild}
           {...props}
         >
           <ListCheckIcon className="size-4" /> Errors Checkout
