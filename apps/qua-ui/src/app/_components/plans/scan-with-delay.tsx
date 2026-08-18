@@ -42,7 +42,7 @@ export const PLAN_NAME_SCAN_W_DELAY = "web_scan_with_delay" as const;
 
 export const schemaStatic = z.object({
   detectors: z.array(z.string()),
-  num: z.coerce.number().int().nullable(),
+  num: z.coerce.number().int().min(2),
   delay: z.coerce.number().default(0),
   axes: z.array(z.tuple([z.string(), z.coerce.number(), z.coerce.number()])),
 });
@@ -96,7 +96,7 @@ export function ScanWithDelayForm({
     resolver: zodResolver(dynamicSchema),
     defaultValues: editItemParams?.kwargs ?? {
       detectors: params?.detectors ?? [],
-      num: params?.num ?? null,
+      num: params?.num,
       delay: params?.delay ?? 0,
       axes: params?.axes ?? [["", 0, 0]],
     },
@@ -379,7 +379,7 @@ export function ScanWithDelayForm({
                 <InputGroupInput
                   {...field}
                   id={field.name}
-                  value={field.value ?? ""}
+                  value={field.value}
                   type={"number"}
                   aria-invalid={fieldState.invalid}
                 />
@@ -420,7 +420,7 @@ export function EditScanWithDelayForm(props: EditScanWithDelayFormProps) {
   console.log(initialValues.data);
   const config = initialValues.data ?? {
     detectors: [],
-    num: null,
+    num: 2,
     delay: 0,
     axes: [],
   };
