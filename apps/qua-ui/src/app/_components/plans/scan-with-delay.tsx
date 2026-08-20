@@ -41,7 +41,7 @@ export const name = "web_scan_with_delay";
 
 export const schemaStatic = z.object({
   detectors: z.array(z.string()),
-  num: z.coerce.number().int().nullable(),
+  num: z.coerce.number().int().min(2),
   delay: z.coerce.number().default(0),
   axes: z.array(z.tuple([z.string(), z.coerce.number(), z.coerce.number()])),
 });
