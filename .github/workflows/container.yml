@@ -6,6 +6,7 @@ on:
     tags:
       - "qua-ui__v*"
       - "spu-ui__v*"
+      - "ipe-ui__v*"
 
 jobs:
   build-and-push:

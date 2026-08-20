@@ -48,6 +48,6 @@ export async function signIn(data: FormData): Promise<SignInState> {
           };
       }
     }
-    return { success: false, message: "An error occurred" };
+    return { success: false, message: "An unknownerror occurred" };
   }
 }

@@ -1,0 +1,58 @@
+FROM node:22-alpine AS base
+RUN corepack enable
+ENV PNPM_HOME="/root/.local/share/pnpm"
+ENV PATH="$PNPM_HOME/bin:$PATH"
+RUN apk add --no-cache libc6-compat
+
+FROM base AS builder
+RUN apk update
+RUN apk add --no-cache libc6-compat
+# Set working directory
+WORKDIR /app
+RUN pnpm add -D turbo 
+COPY . .
+
+# Generate a partial monorepo with a pruned lockfile for a target workspace.
+RUN pnpm exec turbo prune @sophys-web/ipe-ui --docker
+
+# Add lockfile and package.json's of isolated subworkspace
+FROM base AS installer
+RUN apk update
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# First install the dependencies (as they change less often)
+COPY --from=builder /app/out/json/ .
+RUN pnpm install --frozen-lockfile
+
+# Set ipe-ui environment variables
+ARG NEXT_PUBLIC_BASE_PATH
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
+
+# Set environment variables used in internal packages
+ARG AUTH_SECRET 
+ARG AUTH_TRUST_HOST
+ENV AUTH_TRUST_HOST=$AUTH_TRUST_HOST
+ARG BLUESKY_HTTPSERVER_URL
+ARG REDIS_URL
+
+# Build the project
+COPY --from=builder /app/out/full/ .
+RUN CI=1 pnpm exec turbo run build
+
+FROM base AS runner
+WORKDIR /app
+
+# Don't run production as root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+USER nextjs
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=installer --chown=nextjs:nodejs /app/apps/ipe-ui/.next/standalone ./
+COPY --from=installer --chown=nextjs:nodejs /app/apps/ipe-ui/.next/static ./apps/ipe-ui/.next/static
+COPY --from=installer --chown=nextjs:nodejs /app/apps/ipe-ui/public ./apps/ipe-ui/public
+
+EXPOSE 3000
+CMD node apps/ipe-ui/server.js
