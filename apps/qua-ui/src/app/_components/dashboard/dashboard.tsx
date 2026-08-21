@@ -16,6 +16,7 @@ import {
   QueueControls,
 } from "@sophys-web/widgets/control-bar/control-bar";
 import { DataTable as History } from "@sophys-web/widgets/history-table/data-table";
+import { LoopModeSwitch } from "@sophys-web/widgets/loop-mode-switch";
 import { FinishedItemAlertDialog } from "../history/finished-item-alert-dialog";
 import { InSituSelector } from "../insitu/insitu-items";
 import { CustomQueueTable } from "../queue/custom-queue";
@@ -34,6 +35,9 @@ export function Dashboard() {
         <ButtonGroup>
           <EnvironmentControls />
           <QueueControls />
+        </ButtonGroup>
+        <ButtonGroup>
+          <LoopModeSwitch />
         </ButtonGroup>
         <ButtonGroup>
           <ScanSelector />
