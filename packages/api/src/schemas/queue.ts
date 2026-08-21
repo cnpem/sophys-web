@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+const modeSetRequestBodySchema = z.object({
+  loop: z.boolean().optional(),
+  ignoreFailures: z.boolean().optional(),
+});
+
 const runningItemObjectSchema = z.object({
   name: z.string(),
   args: z.array(z.any()).optional().nullable(),
@@ -68,4 +73,4 @@ const getResponseSchema = z.object({
   planQueueUid: z.string().uuid(),
 });
 
-export default { getResponseSchema };
+export default { getResponseSchema, modeSetRequestBodySchema };
