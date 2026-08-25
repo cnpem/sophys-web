@@ -10,7 +10,6 @@ import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
 import { Button, buttonVariants } from "@sophys-web/ui/button";
-import { Checkbox } from "@sophys-web/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -32,14 +31,9 @@ import { Input } from "@sophys-web/ui/input";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import type { cleaningKwargsSchema } from "../../plans/setup1-acquisition-cleaning-form";
 import type { acquisitionTableSchema } from "../../plans/setup1-acquisition-table-form";
-import type { planSchema as cleanCapillaryKwargsSchema } from "../../plans/setup1-capillary-form";
 import type { Sample } from "./use-sample-store";
 import { AcquisitionCleaningForm } from "../../plans/setup1-acquisition-cleaning-form";
 import { AcquisitionTableForm } from "../../plans/setup1-acquisition-table-form";
-import {
-  CleanCapillaryForm,
-  planName as cleanCapillaryPlanName,
-} from "../../plans/setup1-capillary-form";
 import { planName as acquisitionPlanName } from "../../plans/setup1-complete-acquisition-form";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
@@ -197,13 +191,7 @@ function StepButton({
   );
 }
 
-const stepsMap = [
-  "proposal",
-  "capillary",
-  "cleaning",
-  "acquisition",
-  "check",
-] as const;
+const stepsMap = ["proposal", "cleaning", "acquisition", "check"] as const;
 
 function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
   const { data: user } = api.auth.getUser.useQuery();
@@ -215,29 +203,15 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
     useState<z.infer<typeof cleaningKwargsSchema>>();
   const [acquisitionParams, setAcquisitionParams] =
     useState<z.infer<typeof acquisitionTableSchema>[]>();
-  const [capillaryParams, setCapillaryParams] =
-    useState<z.infer<typeof cleanCapillaryKwargsSchema>>();
   const [formProposal, setFormProposal] = useState<string | undefined>();
-  const [useCapillary, setUseCapillary] = useState(false);
 
   const { step, currentStepIdx, next, goTo } = useStepForm([
     <ProposalForm
       key="proposal"
       initialValues={{
         proposal: formProposal ?? user?.proposal ?? "",
-        useCapillary,
       }}
       onSubmit={onSubmitProposal}
-    />,
-    <CleanCapillaryForm
-      key="capillary"
-      initialValues={{
-        proposal: formProposal,
-        ...capillaryParams,
-        sampleType: "buffer",
-        isRef: true,
-      }}
-      onSubmit={onSubmitCapillary}
     />,
     <AcquisitionCleaningForm
       key="cleaning"
@@ -253,10 +227,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
           viewOnly
           data={{
             Proposal: formProposal,
-            Capillary: {
-              useCapillary,
-              ...capillaryParams,
-            },
             Cleaning: cleaningParams,
             Acquisition: acquisitionParams,
           }}
@@ -289,17 +259,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
 
   function onSubmitProposal(data: z.infer<typeof proposalSchema>) {
     setFormProposal(data.proposal);
-    setUseCapillary(data.useCapillary);
-    if (data.useCapillary) {
-      next();
-    } else {
-      goTo(stepsMap.indexOf("cleaning"));
-    }
-  }
-
-  function onSubmitCapillary(data: z.infer<typeof cleanCapillaryKwargsSchema>) {
-    setCapillaryParams(data);
-    next();
+    goTo(stepsMap.indexOf("cleaning"));
   }
 
   function onSubmitCleaning(data: z.infer<typeof cleaningKwargsSchema>) {
@@ -328,22 +288,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
       },
       itemType: "plan",
     }));
-    const batch = [
-      ...(useCapillary
-        ? [
-            {
-              name: cleanCapillaryPlanName,
-              args: [],
-              kwargs: {
-                ...capillaryParams,
-                proposal: formProposal,
-              },
-              itemType: "plan",
-            },
-          ]
-        : []),
-      ...items,
-    ];
+    const batch = items;
     toast.info("Submitting batch to the queue");
     addBatch.mutate(
       {
@@ -389,11 +334,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
             onClick: () => goTo(0),
           },
           {
-            label: "Capillary",
-            onClick: () => goTo(1),
-            isDisabled: !useCapillary || !formProposal || currentStepIdx < 1,
-          },
-          {
             label: "Cleaning",
             onClick: () => goTo(2),
             isDisabled: !formProposal || currentStepIdx < 2,
@@ -419,7 +359,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
 
 const proposalSchema = z.object({
   proposal: z.string().length(8, "Proposal ID must be 8 characters"),
-  useCapillary: z.boolean(),
 });
 
 function ProposalForm({
@@ -453,27 +392,6 @@ function ProposalForm({
                 This is your proposal ID, e.g. 20250001.
               </FormDescription>
               <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="useCapillary"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-y-0 space-x-3 rounded-md border p-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Make empty capillary acquisition</FormLabel>
-                <FormDescription>
-                  This will add an empty capillary acquisition plan in the
-                  queue, which can be used as a reference measure.
-                </FormDescription>
-              </div>
             </FormItem>
           )}
         />
