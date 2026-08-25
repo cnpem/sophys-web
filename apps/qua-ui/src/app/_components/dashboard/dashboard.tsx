@@ -1,5 +1,7 @@
 "use client";
 
+import { useQueue } from "@sophys-web/api-client/hooks";
+import { cn } from "@sophys-web/ui";
 import { ButtonGroup } from "@sophys-web/ui/button-group";
 import {
   Card,
@@ -28,6 +30,7 @@ import { BeamlineStates } from "./beamline-states";
 import { ExperimentState } from "./experiment";
 
 export function Dashboard() {
+  const { loopMode } = useQueue();
   return (
     <div className="flex h-screen flex-col">
       <FinishedItemAlertDialog />
@@ -49,7 +52,10 @@ export function Dashboard() {
       <div className="flex gap-2 px-8 pt-8 pb-2 sm:flex-col lg:flex-row">
         <ScrollArea className="lg:h-[calc(100vh-3rem)] lg:w-2/3">
           <div className="flex flex-col gap-2">
-            <Card id="queue">
+            <Card
+              id="queue"
+              className={cn(loopMode === true && "border-busy animate-pulse")}
+            >
               <CardHeader>
                 <CardTitle>Experimental Procedures</CardTitle>
                 <CardDescription>Current tasks in the queue</CardDescription>
