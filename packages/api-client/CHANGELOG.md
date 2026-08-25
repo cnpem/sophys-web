@@ -1,5 +1,16 @@
 # @sophys-web/api-client
 
+## 0.4.0
+
+### Minor Changes
+
+- fdade43: Move queue loop state and state setter to the api-client's useQueue hook so the state can be used by multiple components.
+
+### Patch Changes
+
+- Updated dependencies [d3d6296]
+  - @sophys-web/api@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes

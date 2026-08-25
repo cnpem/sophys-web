@@ -1,5 +1,11 @@
 # @sophys-web/api
 
+## 0.4.0
+
+### Minor Changes
+
+- d3d6296: Add api router for setting the queue mode.
+
 ## 0.3.0
 
 ### Minor Changes
