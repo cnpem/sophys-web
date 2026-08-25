@@ -4,6 +4,7 @@ import type { z } from "zod";
 import { nanoid } from "nanoid";
 import type { schemas } from "@sophys-web/api";
 import { api } from "../react";
+import { useStatus } from "./use-status";
 
 type QueueResponse = z.infer<typeof schemas.queue.getResponseSchema>;
 type QueueItemProps =
@@ -12,6 +13,8 @@ type QueueItemProps =
 
 export const useQueue = () => {
   const utils = api.useUtils();
+  const { status } = useStatus();
+  const loopMode = status.data?.planQueueMode.loop;
 
   const onSettled = async () => {
     await utils.httpserver.queue.get.invalidate();
@@ -20,6 +23,7 @@ export const useQueue = () => {
   const queue = api.httpserver.queue.get.useQuery();
 
   const add = api.httpserver.queue.item.add.useMutation({
+    /** handling optimistic updates */
     onMutate: async (plan) => {
       // cancel any outgoing fetches
       await utils.httpserver.queue.get.cancel();
@@ -78,6 +82,37 @@ export const useQueue = () => {
     onSettled,
   });
 
+  const setLoopMode = api.httpserver.queue.mode.set.useMutation({
+    /** handling optimistic updates */
+    onMutate: async ({
+      loop = false,
+      ignoreFailures = false,
+    }: {
+      loop?: boolean;
+      ignoreFailures?: boolean;
+    }) => {
+      await utils.httpserver.status.get.cancel();
+      const previousValue = utils.httpserver.status.get.getData();
+      utils.httpserver.status.get.setData(undefined, (current) => {
+        if (!current) return current;
+
+        return {
+          ...current,
+          planQueueMode: {
+            ...current.planQueueMode,
+            ignoreFailures,
+            loop,
+          },
+        };
+      });
+      return { previousValue };
+    },
+    onError: (error, _variables, context) => {
+      // rollback to the previous value
+      utils.httpserver.status.get.setData(undefined, context?.previousValue);
+    },
+  });
+
   return {
     queue,
     add,
@@ -89,5 +124,7 @@ export const useQueue = () => {
     clear,
     start,
     stop,
+    setLoopMode,
+    loopMode,
   };
 };
