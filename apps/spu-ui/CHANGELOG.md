@@ -1,5 +1,11 @@
 # @sophys-web/spu-ui
 
+## 0.5.0
+
+### Minor Changes
+
+- 0d859eb: Remove capillary acquisition step from the upload csv form.
+
 ## 0.4.4
 
 ### Patch Changes
