@@ -6,7 +6,6 @@ import type {
   trayOptions,
   trayRows,
 } from "../_components/store/setup1/constants";
-import { planName as cleanAndCheckPlan } from "../_components/plans/setup1-capillary-form";
 import { planName as completeAcquisitionWithCleaningPlan } from "../_components/plans/setup1-complete-acquisition-form";
 import { planName as setup1CustomCleaningProcedure } from "../_components/plans/setup1-custom-cleaning";
 import { planName as setup1StandardCleaningProcedure } from "../_components/plans/setup1-standard-cleaning";
@@ -28,7 +27,6 @@ const knownErrorExitStatuses = [
 
 const cleaningPlans = [
   completeAcquisitionWithCleaningPlan,
-  cleanAndCheckPlan,
   setup1StandardCleaningProcedure,
   setup1CustomCleaningProcedure,
 ];
