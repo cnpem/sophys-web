@@ -3,6 +3,7 @@ import { Trash2Icon } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import type { QueueItemProps } from "@sophys-web/widgets/lib/types";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
 import { cn } from "@sophys-web/ui";
@@ -37,7 +38,7 @@ import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { Skeleton } from "@sophys-web/ui/skeleton";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 
-export const name = "web_scan_with_delay";
+export const PLAN_NAME_SCAN_W_DELAY = "web_scan_with_delay" as const;
 
 export const schemaStatic = z.object({
   detectors: z.array(z.string()),
@@ -48,14 +49,19 @@ export const schemaStatic = z.object({
 
 export function ScanWithDelayForm({
   className,
+  editItemParams,
   onSubmitSuccess,
   params,
 }: {
   className?: string;
+  editItemParams?: {
+    kwargs: z.infer<typeof schemaStatic>;
+    itemUid: string;
+  };
   onSubmitSuccess?: () => void;
   params?: Partial<z.infer<typeof schemaStatic>>;
 }) {
-  const { add } = useQueue();
+  const { add, update: editPlan } = useQueue();
 
   const { data: devices } = api.httpserver.devices.allowedNames.useQuery();
 
@@ -88,7 +94,7 @@ export function ScanWithDelayForm({
 
   const form = useForm({
     resolver: zodResolver(dynamicSchema),
-    defaultValues: {
+    defaultValues: editItemParams?.kwargs ?? {
       detectors: params?.detectors ?? [],
       num: params?.num ?? null,
       delay: params?.delay ?? 0,
@@ -107,28 +113,53 @@ export function ScanWithDelayForm({
     // and the first item of the axes field based on the movableNames
 
     const kwargs = dynamicSchema.parse(data);
-    add.mutate(
-      {
-        item: {
-          name: name,
-          itemType: "plan",
-          args: [],
-          kwargs,
+    if (editItemParams) {
+      editPlan.mutate(
+        {
+          item: {
+            name: PLAN_NAME_SCAN_W_DELAY,
+            itemType: "plan",
+            args: [],
+            kwargs: data,
+            itemUid: editItemParams.itemUid,
+          },
         },
-      },
-      {
-        onSuccess: () => {
-          toast.success("Plan added to the queue");
-          onSubmitSuccess?.();
+        {
+          onSuccess: () => {
+            if (onSubmitSuccess) onSubmitSuccess();
+          },
+          onError: (error) => {
+            toast.error("Failed to edit plan", {
+              description: error.message,
+              closeButton: true,
+            });
+          },
         },
-        onError: (error) => {
-          toast.error("Failed to add plan to the queue", {
-            description: error.message,
-            closeButton: true,
-          });
+      );
+    } else {
+      add.mutate(
+        {
+          item: {
+            name: PLAN_NAME_SCAN_W_DELAY,
+            itemType: "plan",
+            args: [],
+            kwargs,
+          },
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            toast.success("Plan added to the queue");
+            onSubmitSuccess?.();
+          },
+          onError: (error) => {
+            toast.error("Failed to add plan to the queue", {
+              description: error.message,
+              closeButton: true,
+            });
+          },
+        },
+      );
+    }
   }
 
   return (
@@ -373,5 +404,34 @@ export function ScanWithDelayForm({
         Submit
       </Button>
     </form>
+  );
+}
+
+interface EditScanWithDelayFormProps
+  extends Pick<QueueItemProps, "kwargs" | "itemUid"> {
+  onSubmitSuccess?: () => void;
+  className?: string;
+}
+
+export function EditScanWithDelayForm(props: EditScanWithDelayFormProps) {
+  const initialValues = schemaStatic.safeParse({
+    ...props.kwargs,
+  });
+  console.log(initialValues.data);
+  const config = initialValues.data ?? {
+    detectors: [],
+    num: null,
+    delay: 0,
+    axes: [],
+  };
+  return (
+    <ScanWithDelayForm
+      editItemParams={{
+        itemUid: props.itemUid,
+        kwargs: config,
+      }}
+      onSubmitSuccess={props.onSubmitSuccess}
+      className={props.className}
+    />
   );
 }
