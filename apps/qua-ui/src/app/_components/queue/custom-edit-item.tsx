@@ -18,6 +18,10 @@ import {
   PLAN_NAME,
 } from "../plans/region-energy-scan";
 import {
+  EditScanWithDelayForm,
+  PLAN_NAME_SCAN_W_DELAY,
+} from "../plans/scan-with-delay";
+import {
   EditTimedRegionEnergyScanForm,
   PLAN_NAME_TIMED,
 } from "../plans/time-region-energy-scan";
@@ -69,6 +73,16 @@ function EditItemForm({
   if (item.name === PLAN_NAME_HEAT) {
     return (
       <EditHeatForm
+        itemUid={item.itemUid}
+        kwargs={item.kwargs}
+        onSubmitSuccess={onSubmitSuccess}
+        className="w-2xl"
+      />
+    );
+  }
+  if (item.name === PLAN_NAME_SCAN_W_DELAY) {
+    return (
+      <EditScanWithDelayForm
         itemUid={item.itemUid}
         kwargs={item.kwargs}
         onSubmitSuccess={onSubmitSuccess}
