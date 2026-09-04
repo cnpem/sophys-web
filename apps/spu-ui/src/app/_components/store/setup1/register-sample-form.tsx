@@ -22,12 +22,13 @@ import {
 } from "@sophys-web/ui/select";
 import type { trayColumns, trayOptions, trayRows } from "./constants";
 import type { Sample } from "./use-sample-store";
+import { sampleTagSchema } from "../../plans/schemas/common";
 import { initialVolume } from "./constants";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
 const sampleSchema = z.object({
   sampleType: z.enum(["sample", "buffer"]),
-  sampleTag: z.string().min(2, { message: "Sample tag is required" }),
+  sampleTag: sampleTagSchema,
   volume: z.coerce.number().min(0),
 });
 

@@ -36,20 +36,22 @@ import {
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import { sampleTypeOptions } from "~/app/_components/store/setup1/constants";
-import { proposalSchema } from "./schemas/common";
+import {
+  acquireTimeSchema,
+  proposalSchema,
+  sampleTagSchema,
+} from "./schemas/common";
 
 const planName = "setup1_acquisition";
 const planSchema = z.object({
-  acquireTime: z.coerce
-    .number()
-    .min(0.1, "Acquire time (in seconds) must be at least 0.1"),
+  acquireTime: acquireTimeSchema,
   numExposures: z.coerce
     .number()
     .min(1, "Number of exposures must be at least 1"),
   motionSpeed: z.coerce.number().positive().optional(),
   proposal: proposalSchema,
   sampleType: z.enum(sampleTypeOptions),
-  sampleTag: z.string(),
+  sampleTag: sampleTagSchema,
   temperature: z.coerce.number().positive().optional(),
   setTemperature: z.boolean().optional(),
   usePimega: z.boolean().optional(),

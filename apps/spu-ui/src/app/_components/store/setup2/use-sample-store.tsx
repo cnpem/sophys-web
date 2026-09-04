@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { z } from "zod";
 import { useStore } from "@sophys-web/api-client/hooks";
 import { usePvData } from "@sophys-web/pvws-store";
+import { sampleTagSchema } from "../../plans/schemas/common";
 import {
   cardCapillaryColumns,
   cardColumns,
@@ -134,7 +135,7 @@ export const sampleIdEncoder = z
  */
 export const sampleSchema = z.object({
   id: z.string(),
-  sampleTag: z.string(),
+  sampleTag: sampleTagSchema,
   position: z
     .object({
       x: z.coerce.number(),
