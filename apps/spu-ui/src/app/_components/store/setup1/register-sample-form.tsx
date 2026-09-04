@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -27,29 +26,16 @@ import { initialVolume } from "./constants";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
 
 const sampleSchema = z.object({
-  sampleType: z.literal("sample"),
+  sampleType: z.enum(["sample", "buffer"]),
   sampleTag: z.string().min(2, { message: "Sample tag is required" }),
-  bufferTag: z.string().optional(),
   volume: z.coerce.number().min(0),
 });
-const bufferSchema = z.object({
-  sampleType: z.literal("buffer"),
-  sampleTag: z.string().min(2, { message: "Sample tag is required" }),
-  bufferTag: z.string().optional(),
-  volume: z.coerce.number().min(0),
-});
-
-const registerSchema = z.discriminatedUnion("sampleType", [
-  sampleSchema,
-  bufferSchema,
-]);
 
 export function RegisterSampleForm({
   tray,
   row,
   column,
   sampleTag,
-  bufferTag,
   sampleType,
   volume = initialVolume,
   onSubmitCallback,
@@ -58,23 +44,21 @@ export function RegisterSampleForm({
   row: (typeof trayRows)[number];
   column: (typeof trayColumns)[number];
   sampleTag?: string;
-  bufferTag?: string;
   sampleType?: "sample" | "buffer";
   volume?: number;
   onSubmitCallback?: () => void;
 }) {
   const { setSample } = useSampleStore();
   const form = useForm({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(sampleSchema),
     defaultValues: {
       sampleType: sampleType ?? "sample",
       sampleTag: sampleTag ?? "",
-      bufferTag: bufferTag ?? "",
       volume: volume,
     },
   });
 
-  async function onSubmit(data: z.infer<typeof registerSchema>) {
+  async function onSubmit(data: z.infer<typeof sampleSchema>) {
     toast.info("Registering sample...");
     const sampleId = sampleIdFromPosition(tray, row, column);
     const sample = {
@@ -84,7 +68,6 @@ export function RegisterSampleForm({
       row,
       col: column,
       ...data,
-      bufferTag: data.bufferTag ?? "",
     } satisfies Sample;
     await setSample(sampleId, sample).then(() => {
       toast.success("Sample registered!");
@@ -92,17 +75,6 @@ export function RegisterSampleForm({
       onSubmitCallback?.();
     });
   }
-
-  const onChangeSampleType = useCallback(
-    (value: string) => {
-      if (value === "buffer") {
-        form.setValue("bufferTag", "");
-      }
-    },
-    [form],
-  );
-
-  const watchSampleType = form.watch("sampleType");
 
   return (
     <Form {...form}>
@@ -119,7 +91,6 @@ export function RegisterSampleForm({
               <Select
                 onValueChange={(value) => {
                   field.onChange(value);
-                  onChangeSampleType(value);
                 }}
                 defaultValue={field.value}
               >
@@ -148,26 +119,6 @@ export function RegisterSampleForm({
               </FormDescription>
               <FormControl>
                 <Input placeholder="Sample tag" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="bufferTag"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Buffer Tag</FormLabel>
-              <FormDescription>
-                Please enter the buffer tag for this sample.
-              </FormDescription>
-              <FormControl>
-                <Input
-                  placeholder="Buffer tag"
-                  {...field}
-                  disabled={watchSampleType === "buffer"}
-                />
               </FormControl>
               <FormMessage />
             </FormItem>

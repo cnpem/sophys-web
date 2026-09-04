@@ -85,7 +85,6 @@ export const planSchema = z.object({
   measureUvNumber: z.coerce.number().int().min(0).optional(),
   temperature: z.coerce.number().positive().optional(),
   setTemperature: z.boolean().optional(),
-  bufferTag: z.string().optional(),
   standardOption: z.enum(cleaningOptions).optional(),
   agentsList: z.array(z.string()).optional(),
   agentsDuration: z.array(z.coerce.number().positive()).optional(),
@@ -125,7 +124,6 @@ export function CompleteAcquisitionForm({
         col: sampleParams.col,
         sampleType: sampleParams.sampleType,
         sampleTag: sampleParams.sampleTag,
-        bufferTag: sampleParams.bufferTag,
       }),
     },
   });
@@ -361,32 +359,6 @@ export function CompleteAcquisitionForm({
                 <InfoTooltip>
                   <FieldDescription>
                     The name or other form of identification for the sample.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <InputGroup>
-                <InputGroupInput {...field} />
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="bufferTag"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>
-                Buffer Tag
-                <InfoTooltip>
-                  <FieldDescription>
-                    The name or other form of identification for the buffer.
                   </FieldDescription>
                 </InfoTooltip>
               </FieldLabel>
@@ -646,7 +618,72 @@ export function CompleteAcquisitionForm({
         />
       </FieldGroup>
       <Separator />
-      <FieldGroup
+      <Controller
+        name="standardOption"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor={field.name}>
+              Cleaning Option
+              <InfoTooltip>
+                <FieldDescription>
+                  The cleaning preset after acquisition.
+                </FieldDescription>
+              </InfoTooltip>
+            </FieldLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <SelectTrigger className="w-full" size="sm">
+                <SelectValue placeholder="Select cleaning option" />
+                {fieldState.invalid && (
+                  <InfoTooltip variant={"destructive"}>
+                    {fieldState.error?.message}
+                  </InfoTooltip>
+                )}
+              </SelectTrigger>
+              <SelectContent>
+                {cleaningOptions
+                  .filter((option) => option !== "custom")
+                  .map((option) => {
+                    return (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    );
+                  })}
+              </SelectContent>
+            </Select>
+          </Field>
+        )}
+      />
+      <Separator />
+      <Controller
+        control={form.control}
+        name="proposal"
+        render={({ field, fieldState }) => (
+          <Field>
+            <FieldLabel>
+              Proposal
+              <InfoTooltip>
+                <FieldDescription>
+                  The proposal associated with the sample acquisition.
+                </FieldDescription>
+              </InfoTooltip>
+            </FieldLabel>
+            <InputGroup>
+              <InputGroupInput {...field} />
+              {fieldState.invalid && (
+                <InputGroupAddon align={"inline-end"}>
+                  <InfoTooltip variant={"destructive"}>
+                    {fieldState.error?.message}
+                  </InfoTooltip>
+                </InputGroupAddon>
+              )}
+            </InputGroup>
+          </Field>
+        )}
+      />
+
+      {/* <FieldGroup
         id="cleaning-parameters"
         className={cn("grid w-full grid-flow-row grid-cols-3 gap-2", className)}
       >
@@ -716,7 +753,7 @@ export function CompleteAcquisitionForm({
             </Field>
           )}
         />
-      </FieldGroup>
+      </FieldGroup> */}
       <Button
         type="submit"
         disabled={form.formState.isSubmitting}

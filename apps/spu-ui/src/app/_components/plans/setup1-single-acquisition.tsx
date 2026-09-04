@@ -50,10 +50,8 @@ const planSchema = z.object({
   proposal: proposalSchema,
   sampleType: z.enum(sampleTypeOptions),
   sampleTag: z.string(),
-  bufferTag: z.string().optional(),
   temperature: z.coerce.number().positive().optional(),
   setTemperature: z.boolean().optional(),
-  isRef: z.boolean().optional(),
   usePimega: z.boolean().optional(),
   usePicolo: z.boolean().optional(),
   metadata: z.record(z.string()).optional(),
@@ -113,7 +111,6 @@ const defaultValues: z.infer<typeof planSchema> = {
   proposal: "",
   sampleType: "sample",
   sampleTag: "",
-  bufferTag: undefined,
   acquireTime: 0.1,
   numExposures: 1,
   temperature: 25,
@@ -147,7 +144,6 @@ function SingleAcquisitionForm({
         col: lastSampleParams.col,
         sampleType: lastSampleParams.sampleType,
         sampleTag: lastSampleParams.sampleTag,
-        bufferTag: undefined,
         metadata: {
           row: lastSampleParams.row,
           col: lastSampleParams.col,
@@ -228,19 +224,6 @@ function SingleAcquisitionForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sample Tag</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="bufferTag"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Buffer Tag</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
