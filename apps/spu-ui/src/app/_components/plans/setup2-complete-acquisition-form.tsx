@@ -30,33 +30,17 @@ import {
   cardIndexOptions,
   cardRows,
 } from "../store/setup2/constants";
-import { proposalSchema, regexPatterns } from "./schemas/common";
-
-const sampleTagSchema = z
-  .string()
-  .min(1)
-  .max(
-    100,
-    "Sample name or other form of identification must be at most 100 characters long",
-  )
-  .regex(regexPatterns.invalidChars, {
-    message:
-      "Sample tag can only contain letters, numbers, dashes, and underscores",
-  })
-  .regex(regexPatterns.noEmptySpaces, {
-    message: "Sample tag must not contain empty spaces",
-  })
-  .regex(regexPatterns.noDots, {
-    message: "Sample tag must not contain dots",
-  });
+import {
+  acquireTimeSchema,
+  proposalSchema,
+  sampleTagSchema,
+} from "./schemas/common";
 
 const schema = z
   .object({
     proposal: proposalSchema,
     sampleTag: sampleTagSchema,
-    acquireTime: z.coerce
-      .number()
-      .min(0.1, "Acquire time (in seconds) must be at least 0.1"),
+    acquireTime: acquireTimeSchema,
     numExposures: z.coerce
       .number()
       .int()

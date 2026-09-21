@@ -31,15 +31,19 @@ import {
 import { Label } from "@sophys-web/ui/label";
 import { Switch } from "@sophys-web/ui/switch";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import { proposalSchema } from "./schemas/common";
+import {
+  acquireTimeSchema,
+  proposalSchema,
+  sampleTagSchema,
+} from "./schemas/common";
 
 export const name = "setup2_acquisition";
 
 export const schema = z.object({
-  acquireTime: z.coerce.number().positive(),
+  acquireTime: acquireTimeSchema,
   numExposures: z.coerce.number().int().positive(),
   proposal: proposalSchema,
-  sampleTag: z.string().min(1),
+  sampleTag: sampleTagSchema,
   usePimega: z.boolean().optional().default(true),
   usePicolo: z.boolean().optional().default(true),
   detReadout: z.coerce.number().positive().optional().default(0.001),

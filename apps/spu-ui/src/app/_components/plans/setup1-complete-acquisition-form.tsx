@@ -37,12 +37,16 @@ import {
   trayRows,
 } from "~/app/_components/store/setup1/constants";
 import { useSampleStore } from "../store/setup1/use-sample-store";
-import { proposalSchema } from "./schemas/common";
+import {
+  acquireTimeSchema,
+  proposalSchema,
+  sampleTagSchema,
+} from "./schemas/common";
 
 export const planName = "setup1_complete_standard_acquisition";
 
 export const planSchema = z.object({
-  acquireTime: z.coerce.number().positive(),
+  acquireTime: acquireTimeSchema,
   numExposures: z.coerce.number().int().positive(),
   row: z
     .string()
@@ -70,9 +74,7 @@ export const planSchema = z.object({
     ),
   volume: z.coerce.number().positive(),
   proposal: proposalSchema,
-  sampleTag: z
-    .string()
-    .min(1, "Sample name or other form of identification is required"),
+  sampleTag: sampleTagSchema,
   sampleType: z
     .string()
     .transform((val) => val.trimStart().trimEnd())
