@@ -8,16 +8,17 @@ import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
 import {
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldLegend,
+  FieldSet,
 } from "@sophys-web/ui/field";
+import { Input } from "@sophys-web/ui/input";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
-import { Label } from "@sophys-web/ui/label";
 import {
   Select,
   SelectContent,
@@ -27,7 +28,10 @@ import {
 } from "@sophys-web/ui/select";
 import { Separator } from "@sophys-web/ui/separator";
 import { Switch } from "@sophys-web/ui/switch";
-import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import {
+  FieldLabelWithTooltip,
+  InfoTooltip,
+} from "@sophys-web/widgets/form-components/info-tooltip";
 import type { Sample } from "../store/setup1/use-sample-store";
 import {
   cleaningOptions,
@@ -91,6 +95,7 @@ export const planSchema = z.object({
   agentsList: z.array(z.string()).optional(),
   agentsDuration: z.array(z.coerce.number().positive()).optional(),
   motionSpeed: z.coerce.number().nonnegative().optional(),
+  tecanAspireVolume: z.coerce.number().positive().optional(),
 });
 
 export function CompleteAcquisitionForm({
@@ -120,6 +125,7 @@ export function CompleteAcquisitionForm({
       setTemperature: false,
       standardOption: "normal",
       motionSpeed: 0,
+      tecanAspireVolume: 65,
       ...(sampleParams && {
         tray: sampleParams.tray,
         row: sampleParams.row,
@@ -169,25 +175,38 @@ export function CompleteAcquisitionForm({
   return (
     <form
       onSubmit={form.handleSubmit(onSubmit)}
-      className={cn("flex flex-col gap-2", className)}
+      className={cn("flex w-full flex-col gap-2", className)}
     >
-      <FieldGroup
-        className={cn("grid w-full grid-flow-row grid-cols-3 gap-2", className)}
-      >
+      <FieldGroup className="grid grid-cols-3 gap-2">
+        {/* uneditable fields for sample tag, position (combined) and type */}
+        <Field>
+          <FieldLabel>Sample Tag</FieldLabel>
+          <Input value={sampleParams?.sampleTag} disabled className="h-8" />
+        </Field>
+        <Field>
+          <FieldLabel>Position</FieldLabel>
+          <Input
+            value={`${sampleParams?.tray}-${sampleParams?.row}${sampleParams?.col}`}
+            disabled
+            className="h-8"
+          />
+        </Field>
+        <Field>
+          <FieldLabel>Sample Type</FieldLabel>
+          <Input value={sampleParams?.sampleType} disabled className="h-8" />
+        </Field>
+      </FieldGroup>
+      <Separator />
+      <FieldGroup className={cn("grid grid-cols-3 gap-2", className)}>
         <Controller
           name="acquireTime"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Acquire Time
-                <InfoTooltip>
-                  <FieldDescription>
-                    The time for the acquisition of one sample in seconds in
-                    both pimega with the detector readout.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabelWithTooltip
+                labelName="Acquire Time"
+                labelDescription="The time for the acquisition of one sample in seconds in both pimega with the detector readout."
+              />
               <InputGroup>
                 <InputGroupInput
                   {...field}
@@ -215,14 +234,11 @@ export function CompleteAcquisitionForm({
               data-invalid={fieldState.invalid}
               className="whitespace-nowrap"
             >
-              <FieldLabel htmlFor={field.name}>
-                Exposures
-                <InfoTooltip>
-                  <FieldDescription>
-                    Number of acquisitions to be made.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabelWithTooltip
+                labelName="Exposures"
+                labelDescription="The number of acquisitions to be made."
+              />
+
               <InputGroup>
                 <InputGroupInput
                   {...field}
@@ -242,25 +258,81 @@ export function CompleteAcquisitionForm({
             </Field>
           )}
         />
+        <FieldSet className="w-full min-w-0">
+          <FieldLegend>
+            <FieldLabelWithTooltip
+              labelName="Set Temperature"
+              labelDescription="Whether to set the temperature during acquisition."
+            />
+          </FieldLegend>
+          <FieldGroup className="flex w-full flex-row items-center gap-1">
+            <Controller
+              name="setTemperature"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field
+                  data-invalid={fieldState.invalid}
+                  className="w-auto shrink-0"
+                >
+                  <FieldLabel className="sr-only">Set Temperature</FieldLabel>
+                  <Switch
+                    id={field.name}
+                    className="mr-1 w-8"
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                </Field>
+              )}
+            />
+            <Controller
+              name="temperature"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field
+                  data-invalid={fieldState.invalid}
+                  className="min-w-0 flex-1 gap-0"
+                >
+                  <FieldLabel className="sr-only">Temperature</FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      disabled={!form.watch("setTemperature")}
+                      {...field}
+                      id={field.name}
+                      type={"number"}
+                      step="any"
+                      value={!form.watch("setTemperature") ? "" : field.value}
+                      aria-invalid={fieldState.invalid}
+                    />
+                    <InputGroupAddon align={"inline-end"}>°C</InputGroupAddon>
+                    {fieldState.invalid && (
+                      <InputGroupAddon align={"inline-end"}>
+                        <InfoTooltip variant={"destructive"}>
+                          {fieldState.error?.message}
+                        </InfoTooltip>
+                      </InputGroupAddon>
+                    )}
+                  </InputGroup>
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </FieldSet>
         <Controller
           name="motionSpeed"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Motion Speed
-                <InfoTooltip>
-                  <FieldDescription>
-                    The speed of the acquisition motion in uL/s
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabelWithTooltip
+                labelName="Motion Speed"
+                labelDescription="The speed of the acquisition motion in uL/s. If 0, the sample doesn't move."
+              />
               <InputGroup>
                 <InputGroupInput
                   {...field}
                   id={field.name}
                   type={"number"}
-                  step="any"
+                  step={0.001}
+                  aria-invalid={fieldState.invalid}
                 />
                 <InputGroupAddon align={"inline-end"}>uL/s</InputGroupAddon>
                 {fieldState.invalid && (
@@ -275,261 +347,14 @@ export function CompleteAcquisitionForm({
           )}
         />
         <Controller
-          name="setTemperature"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name} className="whitespace-nowrap">
-                Set Temperature
-                <InfoTooltip>
-                  <FieldDescription>
-                    Whether to set the temperature during acquisition.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <div className="flex h-8 items-center space-y-0 rounded-md border px-2 align-middle">
-                <Switch
-                  id={field.name}
-                  className="mr-auto"
-                  checked={field.value ?? false}
-                  onCheckedChange={field.onChange}
-                />
-                <Label className="text-slate-500">
-                  {field.value ? "Yes" : "No"}
-                </Label>
-                {fieldState.invalid && (
-                  <InfoTooltip variant={"destructive"}>
-                    {fieldState.error?.message}
-                  </InfoTooltip>
-                )}
-              </div>
-            </Field>
-          )}
-        />
-        <Controller
-          name="temperature"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Temperature
-                <InfoTooltip>
-                  <FieldDescription>
-                    The temperature to set during acquisition in degrees
-                    Celsius.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  disabled={!form.watch("setTemperature")}
-                  {...field}
-                  id={field.name}
-                  type={"number"}
-                  step="any"
-                  value={!form.watch("setTemperature") ? "" : field.value}
-                  aria-invalid={fieldState.invalid}
-                />
-                <InputGroupAddon align={"inline-end"}>°C</InputGroupAddon>
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
-      </FieldGroup>
-      <Separator />
-      <FieldGroup
-        id="load-parameters"
-        className={cn("grid w-full grid-flow-row grid-cols-3 gap-2", className)}
-      >
-        <Label htmlFor="load-parameters" className="col-span-full mb-2">
-          Load Parameters
-        </Label>
-        <Controller
-          control={form.control}
-          name="sampleTag"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>
-                Sample Tag
-                <InfoTooltip>
-                  <FieldDescription>
-                    The name or other form of identification for the sample.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <InputGroup>
-                <InputGroupInput {...field} />
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="sampleType"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>
-                Sample Type
-                <InfoTooltip>
-                  <FieldDescription>
-                    The type of the sample, either "sample" or "buffer".
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger className="w-full" size="sm">
-                  <SelectValue placeholder="Select sample type" />
-                  {fieldState.invalid && (
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  )}
-                </SelectTrigger>
-                <SelectContent>
-                  {sampleTypeOptions.map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </Field>
-          )}
-        />
-        <Controller
-          name="tray"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Tray
-                <InfoTooltip>
-                  <FieldDescription>
-                    The tray where the sample is located.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger className="w-full" size="sm">
-                  <SelectValue placeholder="Select tray" />
-                  {fieldState.invalid && (
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  )}
-                </SelectTrigger>
-                <SelectContent>
-                  {trayOptions.map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </Field>
-          )}
-        />
-        <Controller
-          name="row"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Row
-                <InfoTooltip>
-                  <FieldDescription>
-                    The row of the tray where the sample is located.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger className="w-full" size="sm">
-                  <SelectValue placeholder="Select row" />
-                  {fieldState.invalid && (
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  )}
-                </SelectTrigger>
-                <SelectContent>
-                  {trayRows.map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </Field>
-          )}
-        />
-        <Controller
-          name="col"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Column
-                <InfoTooltip>
-                  <FieldDescription>
-                    The column of the tray where the sample is located.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger className="w-full" size="sm">
-                  <SelectValue placeholder="Select column" />
-                  {fieldState.invalid && (
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  )}
-                </SelectTrigger>
-                <SelectContent>
-                  {trayColumns.map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </Field>
-          )}
-        />
-        <Controller
           name="volume"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Volume
-                <InfoTooltip>
-                  <FieldDescription>
-                    The volume of the sample to acquire in microliters (µL).
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabelWithTooltip
+                labelName="Volume"
+                labelDescription="The volume of the sample to acquire in microliters (µL)."
+              />
               <InputGroup>
                 <InputGroupInput
                   {...field}
@@ -551,19 +376,43 @@ export function CompleteAcquisitionForm({
           )}
         />
         <Controller
+          name="tecanAspireVolume"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabelWithTooltip
+                labelName="Aspirate Volume"
+                labelDescription="The volume to be aspirated into the sample positioning stage (Tecan Pump)."
+              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  type={"number"}
+                  step={0.001}
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align={"inline-end"}>uL</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
+        <Controller
           name="expUvTime"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                UV Exposure
-                <InfoTooltip>
-                  <FieldDescription>
-                    The duration of UV exposure for the cleaning step in
-                    seconds.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabelWithTooltip
+                labelName="UV Exposure"
+                labelDescription="The duration of UV exposure for the cleaning step in seconds."
+              />
               <InputGroup>
                 <InputGroupInput
                   {...field}
@@ -589,15 +438,10 @@ export function CompleteAcquisitionForm({
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name} className="whitespace-nowrap">
-                UV Measurements
-                <InfoTooltip>
-                  <FieldDescription>
-                    The number of measurements to take during the UV exposure
-                    cleaning step.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabelWithTooltip
+                labelName="UV Measurements"
+                labelDescription="The number of measurements to take during the UV exposure cleaning step."
+              />
               <InputGroup>
                 <InputGroupInput
                   {...field}
@@ -618,93 +462,15 @@ export function CompleteAcquisitionForm({
             </Field>
           )}
         />
-      </FieldGroup>
-      <Separator />
-      <Controller
-        name="standardOption"
-        control={form.control}
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid}>
-            <FieldLabel htmlFor={field.name}>
-              Cleaning Option
-              <InfoTooltip>
-                <FieldDescription>
-                  The cleaning preset after acquisition.
-                </FieldDescription>
-              </InfoTooltip>
-            </FieldLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
-              <SelectTrigger className="w-full" size="sm">
-                <SelectValue placeholder="Select cleaning option" />
-                {fieldState.invalid && (
-                  <InfoTooltip variant={"destructive"}>
-                    {fieldState.error?.message}
-                  </InfoTooltip>
-                )}
-              </SelectTrigger>
-              <SelectContent>
-                {cleaningOptions
-                  .filter((option) => option !== "custom")
-                  .map((option) => {
-                    return (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    );
-                  })}
-              </SelectContent>
-            </Select>
-          </Field>
-        )}
-      />
-      <Separator />
-      <Controller
-        control={form.control}
-        name="proposal"
-        render={({ field, fieldState }) => (
-          <Field>
-            <FieldLabel>
-              Proposal
-              <InfoTooltip>
-                <FieldDescription>
-                  The proposal associated with the sample acquisition.
-                </FieldDescription>
-              </InfoTooltip>
-            </FieldLabel>
-            <InputGroup>
-              <InputGroupInput {...field} />
-              {fieldState.invalid && (
-                <InputGroupAddon align={"inline-end"}>
-                  <InfoTooltip variant={"destructive"}>
-                    {fieldState.error?.message}
-                  </InfoTooltip>
-                </InputGroupAddon>
-              )}
-            </InputGroup>
-          </Field>
-        )}
-      />
-
-      {/* <FieldGroup
-        id="cleaning-parameters"
-        className={cn("grid w-full grid-flow-row grid-cols-3 gap-2", className)}
-      >
-        <Label htmlFor="cleaning-parameters" className="col-span-full mb-2">
-          Cleaning Parameters
-        </Label>
         <Controller
           name="standardOption"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>
-                Cleaning Option
-                <InfoTooltip>
-                  <FieldDescription>
-                    The cleaning preset after acquisition.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabelWithTooltip
+                labelName="Cleaning"
+                labelDescription="The cleaning preset after acquisition."
+              />
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <SelectTrigger className="w-full" size="sm">
                   <SelectValue placeholder="Select cleaning option" />
@@ -734,14 +500,10 @@ export function CompleteAcquisitionForm({
           name="proposal"
           render={({ field, fieldState }) => (
             <Field>
-              <FieldLabel>
-                Proposal
-                <InfoTooltip>
-                  <FieldDescription>
-                    The proposal associated with the sample acquisition.
-                  </FieldDescription>
-                </InfoTooltip>
-              </FieldLabel>
+              <FieldLabelWithTooltip
+                labelName="Proposal"
+                labelDescription="The proposal associated with the sample acquisition."
+              />
               <InputGroup>
                 <InputGroupInput {...field} />
                 {fieldState.invalid && (
@@ -755,7 +517,7 @@ export function CompleteAcquisitionForm({
             </Field>
           )}
         />
-      </FieldGroup> */}
+      </FieldGroup>
       <Button
         type="submit"
         disabled={form.formState.isSubmitting}

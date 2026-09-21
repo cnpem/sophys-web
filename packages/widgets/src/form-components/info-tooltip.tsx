@@ -2,6 +2,7 @@ import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import { InfoIcon } from "lucide-react";
 import { cn } from "@sophys-web/ui";
+import { FieldLabel } from "@sophys-web/ui/field";
 import { useFormField } from "@sophys-web/ui/form";
 import {
   Tooltip,
@@ -67,4 +68,30 @@ function ErrorMessageTooltip({
   );
 }
 
-export { InfoTooltip, ErrorMessageTooltip };
+/**
+ * Creates a FieldLabel component with a tooltip for additional information.
+ * The tooltip is triggered by hovering over the ⓘ symbol next to the label name and it's non clickable for preventing focus on the tooltip trigger.
+ */
+function FieldLabelWithTooltip({
+  labelName,
+  labelDescription,
+}: {
+  labelName: string;
+  labelDescription: string;
+}) {
+  return (
+    <FieldLabel>
+      <span className="whitespace-nowrap">{labelName}</span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span tabIndex={-1} className="text-muted-foreground">
+            ⓘ
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>{labelDescription}</TooltipContent>
+      </Tooltip>
+    </FieldLabel>
+  );
+}
+
+export { InfoTooltip, ErrorMessageTooltip, FieldLabelWithTooltip };
