@@ -24,7 +24,11 @@ import {
   trayOptions,
   trayRows,
 } from "../../store/setup1/constants";
-import { proposalSchema, sampleTagSchema } from "./../../plans/schemas/common";
+import {
+  proposalSchema,
+  sampleTagSchema,
+  tecanAspireVolumeSchema,
+} from "./../../plans/schemas/common";
 import { useSampleStore } from "./use-sample-store";
 
 export const planName = "setup1_load_procedure";
@@ -43,7 +47,7 @@ export const planSchema = z.object({
   expUvTime: z.coerce.number().nonnegative().optional(),
   measureUvNumber: z.coerce.number().int().nonnegative().optional(),
   motionSpeed: z.coerce.number().positive().optional(),
-  tecanAspireVolume: z.coerce.number().positive().optional(),
+  tecanAspireVolume: tecanAspireVolumeSchema.optional(),
 });
 
 export function LoadSampleForm({
@@ -65,7 +69,7 @@ export function LoadSampleForm({
       row: sample.row,
       col: sample.col,
       volume: 60, // default load volume to 60 µL
-      tecanAspireVolume: 65, // default to 65 µL
+      tecanAspireVolume: 75, // default to 75 µL
       motionSpeed: 0.0, // default to 0.5 uL/s
       measureUvNumber: 0, // default to 0 measurements
       expUvTime: 0, // default to 0 seconds

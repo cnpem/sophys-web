@@ -40,6 +40,7 @@ import {
   trayOptions,
   trayRows,
 } from "~/app/_components/store/setup1/constants";
+import { tecanAspireVolumeSchema } from "../plans/schemas/common";
 import { useSampleStore } from "../store/setup1/use-sample-store";
 import {
   acquireTimeSchema,
@@ -95,7 +96,7 @@ export const planSchema = z.object({
   agentsList: z.array(z.string()).optional(),
   agentsDuration: z.array(z.coerce.number().positive()).optional(),
   motionSpeed: z.coerce.number().nonnegative().optional(),
-  tecanAspireVolume: z.coerce.number().positive().optional(),
+  tecanAspireVolume: tecanAspireVolumeSchema.optional(),
 });
 
 export function CompleteAcquisitionForm({
@@ -125,7 +126,7 @@ export function CompleteAcquisitionForm({
       setTemperature: false,
       standardOption: "normal",
       motionSpeed: 0,
-      tecanAspireVolume: 65,
+      tecanAspireVolume: 75,
       ...(sampleParams && {
         tray: sampleParams.tray,
         row: sampleParams.row,
@@ -381,7 +382,7 @@ export function CompleteAcquisitionForm({
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabelWithTooltip
-                labelName="Aspirate Volume"
+                labelName="Aspire Volume"
                 labelDescription="The volume to be aspirated into the sample positioning stage (Tecan Pump)."
               />
               <InputGroup>

@@ -37,3 +37,11 @@ export const sampleTagSchema = z
     regexPatterns.invalidChars,
     'Sample tag must not contain any of the following characters: \\ / : * ? " < > |',
   );
+
+/**
+ * tecanAspireVolumeSchema is a common field used for sample positioning in plans that perform sample load operations.
+ */
+export const tecanAspireVolumeSchema = z.union([
+  z.literal(0),
+  z.number().min(2.4, "Tecan pump cannot aspirate less than 2.4 µL"),
+]);
