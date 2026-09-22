@@ -121,7 +121,6 @@ function SampleInfo({
       <p>{`${sample.tray}-${sample.row}${sample.col}`}</p>
       <p>{`type: ${sample.sampleType}`}</p>
       <p>{`name: ${sample.sampleTag}`}</p>
-      {sample.bufferTag && <p>{`buffer: ${sample.bufferTag}`}</p>}
       <Field className="w-full max-w-sm gap-2">
         <FieldLabel htmlFor="sample-volume">
           <span>volume:</span>
@@ -249,7 +248,6 @@ function EditSampleMenuItem({
           column={sample.col}
           sampleType={sample.sampleType}
           sampleTag={sample.sampleTag}
-          bufferTag={sample.bufferTag}
           volume={sample.volume}
           onSubmitCallback={handleSubmitSuccess}
         />
@@ -328,7 +326,6 @@ function LoadSampleMenuItem({
             <span>{`position: ${sample.tray}-${sample.row}${sample.col}`}</span>
             <span>{`type: ${sample.sampleType}`}</span>
             <span>{`name: ${sample.sampleTag}`}</span>
-            {sample.bufferTag && <span>{`buffer: ${sample.bufferTag}`}</span>}
           </DialogDescription>
         </DialogHeader>
         <LoadSampleForm

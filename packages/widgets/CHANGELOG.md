@@ -1,5 +1,19 @@
 # @sophys-web/widgets
 
+## 0.6.0
+
+### Minor Changes
+
+- 583d6b4: Add LoopModeSwitch component for changing the queue mode.
+- fdade43: Move queue loop state and state setter to the api-client's useQueue hook so the state can be used by multiple components.
+
+### Patch Changes
+
+- Updated dependencies [d3d6296]
+- Updated dependencies [fdade43]
+  - @sophys-web/api@0.4.0
+  - @sophys-web/api-client@0.4.0
+
 ## 0.5.2
 
 ### Patch Changes

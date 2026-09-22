@@ -18,13 +18,13 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import { proposalSchema } from "./schemas/common";
+import { proposalSchema, sampleTagSchema } from "./schemas/common";
 
 export const name = "setup2_find_sample_vertical_scan";
 
 export const schema = z.object({
   proposal: proposalSchema,
-  sampleTag: z.string().min(1),
+  sampleTag: sampleTagSchema,
   minY: z.coerce.number(),
   maxY: z.coerce.number(),
   yStepSize: z.coerce.number().positive().default(1),

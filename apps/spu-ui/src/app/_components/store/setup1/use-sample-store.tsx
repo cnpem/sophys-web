@@ -13,7 +13,6 @@ export const sampleSchema = z.object({
   id: z.string(),
   relativePosition: z.string(),
   sampleTag: z.string(),
-  bufferTag: z.string(),
   sampleType: z.enum(sampleTypeOptions),
   row: z.enum(trayRows),
   col: z.enum(trayColumns),

@@ -1,5 +1,20 @@
 # @sophys-web/qua-ui
 
+## 0.7.0
+
+### Minor Changes
+
+- fc2d62d: Add switch for enabling the queue loop mode in the control bar.
+
+### Patch Changes
+
+- Updated dependencies [d3d6296]
+- Updated dependencies [583d6b4]
+- Updated dependencies [fdade43]
+  - @sophys-web/api@0.4.0
+  - @sophys-web/widgets@0.6.0
+  - @sophys-web/api-client@0.4.0
+
 ## 0.6.0
 
 ### Minor Changes

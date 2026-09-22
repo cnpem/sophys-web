@@ -148,7 +148,33 @@ const itemRouter = {
     }),
 } as const;
 
+const modeRouter = {
+  set: protectedProcedure
+    .input(queue.modeSetRequestBodySchema)
+    .mutation(async ({ ctx, input }) => {
+      const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/mode/set`;
+      try {
+        const res = await zodSnakeFetcher(commonSchemas.response, {
+          url: fetchURL,
+          method: "POST",
+          body: input,
+          authorization: `Bearer ${ctx.session.user.blueskyAccessToken}`,
+        });
+        if (!res.success) {
+          throw new Error(res.msg);
+        }
+        return res;
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new Error(e.message);
+        }
+        throw new Error("Unknown error");
+      }
+    }),
+} as const;
+
 export const queueRouter = {
+  mode: modeRouter,
   item: itemRouter,
   get: protectedProcedure.query(async ({ ctx }) => {
     const fetchURL = `${env.BLUESKY_HTTPSERVER_URL}/api/queue/get`;

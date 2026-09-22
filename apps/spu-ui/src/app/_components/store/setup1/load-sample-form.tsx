@@ -21,7 +21,7 @@ import {
   trayOptions,
   trayRows,
 } from "../../store/setup1/constants";
-import { proposalSchema } from "./../../plans/schemas/common";
+import { proposalSchema, sampleTagSchema } from "./../../plans/schemas/common";
 import { useSampleStore } from "./use-sample-store";
 
 export const planName = "setup1_load_procedure";
@@ -35,7 +35,7 @@ export const planSchema = z.object({
     .positive()
     .max(100, "Volume must be between 0 and 100 µL"),
   proposal: proposalSchema,
-  sampleTag: z.string(),
+  sampleTag: sampleTagSchema,
   sampleType: z.enum(sampleTypeOptions),
   expUvTime: z.coerce.number().nonnegative().optional(),
   measureUvNumber: z.coerce.number().int().nonnegative().optional(),

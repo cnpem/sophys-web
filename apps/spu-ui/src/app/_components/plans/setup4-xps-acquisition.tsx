@@ -28,16 +28,20 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import { proposalSchema } from "./schemas/common";
+import {
+  acquireTimeSchema,
+  proposalSchema,
+  sampleTagSchema,
+} from "./schemas/common";
 
 export const name = "setup4_xpcs_acquisition";
 
 export const schema = z.object({
-  acquirePeriod: z.coerce.number().positive(),
+  acquirePeriod: acquireTimeSchema,
   numExposures: z.coerce.number().int().positive(),
   detReadout: z.coerce.number().min(0.001).positive().optional(),
   proposal: proposalSchema,
-  sampleTag: z.string().min(1),
+  sampleTag: sampleTagSchema,
 });
 
 export function Setup4XpcsAquisitionForm({

@@ -36,24 +36,24 @@ import {
 import { Switch } from "@sophys-web/ui/switch";
 import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import { sampleTypeOptions } from "~/app/_components/store/setup1/constants";
-import { proposalSchema } from "./schemas/common";
+import {
+  acquireTimeSchema,
+  proposalSchema,
+  sampleTagSchema,
+} from "./schemas/common";
 
 const planName = "setup1_acquisition";
 const planSchema = z.object({
-  acquireTime: z.coerce
-    .number()
-    .min(0.1, "Acquire time (in seconds) must be at least 0.1"),
+  acquireTime: acquireTimeSchema,
   numExposures: z.coerce
     .number()
     .min(1, "Number of exposures must be at least 1"),
   motionSpeed: z.coerce.number().positive().optional(),
   proposal: proposalSchema,
   sampleType: z.enum(sampleTypeOptions),
-  sampleTag: z.string(),
-  bufferTag: z.string().optional(),
+  sampleTag: sampleTagSchema,
   temperature: z.coerce.number().positive().optional(),
   setTemperature: z.boolean().optional(),
-  isRef: z.boolean().optional(),
   usePimega: z.boolean().optional(),
   usePicolo: z.boolean().optional(),
   metadata: z.record(z.string()).optional(),
@@ -113,7 +113,6 @@ const defaultValues: z.infer<typeof planSchema> = {
   proposal: "",
   sampleType: "sample",
   sampleTag: "",
-  bufferTag: undefined,
   acquireTime: 0.1,
   numExposures: 1,
   temperature: 25,
@@ -147,7 +146,6 @@ function SingleAcquisitionForm({
         col: lastSampleParams.col,
         sampleType: lastSampleParams.sampleType,
         sampleTag: lastSampleParams.sampleTag,
-        bufferTag: undefined,
         metadata: {
           row: lastSampleParams.row,
           col: lastSampleParams.col,
@@ -228,19 +226,6 @@ function SingleAcquisitionForm({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sample Tag</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="bufferTag"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Buffer Tag</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
