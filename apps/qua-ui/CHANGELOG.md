@@ -1,5 +1,17 @@
 # @sophys-web/qua-ui
 
+## 0.8.0
+
+### Minor Changes
+
+- 63926c0: Change scan with delay schema to have no nullable num args, since this is just a pythonic way to deal with \*args and unpack
+- 38e5984: Add a scan with delay edit forms, following the same pattern defined for other custom plans of QUA UI
+
+### Patch Changes
+
+- Updated dependencies [91b0137]
+  - @sophys-web/widgets@0.7.0
+
 ## 0.7.0
 
 ### Minor Changes

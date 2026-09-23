@@ -1,5 +1,11 @@
 # @sophys-web/widgets
 
+## 0.7.0
+
+### Minor Changes
+
+- 91b0137: Add FieldLabelWithTooltip component for generating a FieldLabel with a tooltip for additional information.
+
 ## 0.6.0
 
 ### Minor Changes
