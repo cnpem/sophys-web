@@ -319,13 +319,12 @@ function LoadSampleMenuItem({
           Load
         </DropdownMenuItem>
       </DialogTrigger>
-      <DialogContent className="flex w-fit flex-col items-center">
+      <DialogContent className="flex w-1/3 flex-col items-center">
         <DialogHeader>
           <DialogTitle>Load sample</DialogTitle>
           <DialogDescription className="flex flex-col items-start">
-            <span>{`position: ${sample.tray}-${sample.row}${sample.col}`}</span>
-            <span>{`type: ${sample.sampleType}`}</span>
-            <span>{`name: ${sample.sampleTag}`}</span>
+            Collect the sample from the specified position in the tray and load
+            into the biocube, positioning it for the next acquisition step.
           </DialogDescription>
         </DialogHeader>
         <LoadSampleForm
@@ -362,7 +361,7 @@ function CompleteAcquisitionMenuItem({
           Complete Acquisition
         </DropdownMenuItem>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="flex w-1/3 max-w-full flex-col items-center">
         <DialogHeader>
           <DialogTitle>Complete Acquisition</DialogTitle>
           <DialogDescription className="flex flex-col items-center">

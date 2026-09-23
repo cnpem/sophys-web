@@ -1,19 +1,22 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useQueue } from "@sophys-web/api-client/hooks";
 import { api } from "@sophys-web/api-client/react";
+import { cn } from "@sophys-web/ui";
 import { Button } from "@sophys-web/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@sophys-web/ui/form";
+import { Field, FieldGroup, FieldLabel } from "@sophys-web/ui/field";
 import { Input } from "@sophys-web/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@sophys-web/ui/input-group";
+import {
+  FieldLabelWithTooltip,
+  InfoTooltip,
+} from "@sophys-web/widgets/form-components/info-tooltip";
 import type { Sample } from "./use-sample-store";
 import {
   sampleTypeOptions,
@@ -21,7 +24,11 @@ import {
   trayOptions,
   trayRows,
 } from "../../store/setup1/constants";
-import { proposalSchema, sampleTagSchema } from "./../../plans/schemas/common";
+import {
+  proposalSchema,
+  sampleTagSchema,
+  tecanAspireVolumeSchema,
+} from "./../../plans/schemas/common";
 import { useSampleStore } from "./use-sample-store";
 
 export const planName = "setup1_load_procedure";
@@ -40,14 +47,17 @@ export const planSchema = z.object({
   expUvTime: z.coerce.number().nonnegative().optional(),
   measureUvNumber: z.coerce.number().int().nonnegative().optional(),
   motionSpeed: z.coerce.number().positive().optional(),
+  tecanAspireVolume: tecanAspireVolumeSchema.optional(),
 });
 
 export function LoadSampleForm({
   sample,
   onSubmitCallback,
+  className,
 }: {
   sample: Sample;
   onSubmitCallback?: () => void;
+  className?: string;
 }) {
   const { data: userData } = api.auth.getUser.useQuery();
   const { add } = useQueue();
@@ -59,6 +69,10 @@ export function LoadSampleForm({
       row: sample.row,
       col: sample.col,
       volume: 60, // default load volume to 60 µL
+      tecanAspireVolume: 75, // default to 75 µL
+      motionSpeed: 0.0, // default to 0.5 uL/s
+      measureUvNumber: 0, // default to 0 measurements
+      expUvTime: 0, // default to 0 seconds
       sampleTag: sample.sampleTag,
       sampleType: sample.sampleType,
       proposal: userData?.proposal ?? "", // default proposal to user's current proposal
@@ -107,80 +121,202 @@ export function LoadSampleForm({
   }
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="grid grid-cols-2 gap-4"
-      >
-        <FormField
-          control={form.control}
+    <form
+      onSubmit={form.handleSubmit(onSubmit)}
+      className={cn("flex w-full flex-col gap-4", className)}
+    >
+      <FieldGroup className="grid grid-cols-3 gap-2">
+        {/* uneditable fields for sample tag, position (combined) and type */}
+        <Field>
+          <FieldLabel>Sample Tag</FieldLabel>
+          <Input value={sample.sampleTag} disabled className="h-8" />
+        </Field>
+        <Field>
+          <FieldLabel>Position</FieldLabel>
+          <Input
+            value={`${sample.tray}-${sample.row}${sample.col}`}
+            disabled
+            className="h-8"
+          />
+        </Field>
+        <Field>
+          <FieldLabel>Sample Type</FieldLabel>
+          <Input value={sample.sampleType} disabled className="h-8" />
+        </Field>
+      </FieldGroup>
+      <FieldGroup className="grid w-full grid-cols-3 gap-4">
+        <Controller
           name="volume"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Volume (µL)</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabelWithTooltip
+                labelName="Volume"
+                labelDescription="The volume of the sample to acquire in microliters (µL)."
+              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  type={"number"}
+                  step="any"
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align={"inline-end"}>µL</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
           )}
         />
-        <FormField
+        <Controller
+          name="tecanAspireVolume"
           control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabelWithTooltip
+                labelName="Aspire Volume"
+                labelDescription="The volume to be aspirated into the sample positioning stage (Tecan Pump)."
+              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  type={"number"}
+                  step={0.001}
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align={"inline-end"}>uL</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
+        <Controller
+          name="motionSpeed"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabelWithTooltip
+                labelName="Motion Speed"
+                labelDescription="The speed of the acquisition motion in uL/s. If 0, the sample doesn't move."
+              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  type={"number"}
+                  step={0.001}
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align={"inline-end"}>uL/s</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
+        <Controller
           name="expUvTime"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>UV Exposure Time (s)</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  placeholder="Optional"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
           control={form.control}
-          name="measureUvNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Number of UV Measurements</FormLabel>
-              <FormControl>
-                <Input
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabelWithTooltip
+                labelName="UV Exposure"
+                labelDescription="The duration of UV exposure for the cleaning step in seconds."
+              />
+              <InputGroup>
+                <InputGroupInput
                   {...field}
-                  value={field.value ?? ""}
-                  placeholder="Optional"
+                  id={field.name}
+                  type={"number"}
+                  step={0.001}
+                  aria-invalid={fieldState.invalid}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+                <InputGroupAddon align={"inline-end"}>seconds</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
           )}
         />
-        {/* proposal */}
-        <FormField
+        <Controller
+          name="measureUvNumber"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabelWithTooltip
+                labelName="UV Measurements"
+                labelDescription="The number of measurements to take during the UV exposure cleaning step."
+              />
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  type={"number"}
+                  step={1}
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
+
+        <Controller
           control={form.control}
           name="proposal"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Proposal</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabelWithTooltip
+                labelName="Proposal"
+                labelDescription="The proposal associated with this sample."
+              />
+              <InputGroup>
+                <InputGroupInput {...field} />
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
           )}
         />
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="col-span-2"
-        >
-          Submit
-        </Button>
-      </form>
-    </Form>
+      </FieldGroup>
+      <Button type="submit" disabled={form.formState.isSubmitting}>
+        Submit
+      </Button>
+    </form>
   );
 }
