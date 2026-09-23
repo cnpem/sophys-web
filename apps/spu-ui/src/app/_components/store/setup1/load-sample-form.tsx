@@ -25,6 +25,7 @@ import {
   trayRows,
 } from "../../store/setup1/constants";
 import {
+  motionSpeedSchema,
   proposalSchema,
   sampleTagSchema,
   tecanAspireVolumeSchema,
@@ -46,7 +47,7 @@ export const planSchema = z.object({
   sampleType: z.enum(sampleTypeOptions),
   expUvTime: z.coerce.number().nonnegative().optional(),
   measureUvNumber: z.coerce.number().int().nonnegative().optional(),
-  motionSpeed: z.coerce.number().positive().optional(),
+  motionSpeed: motionSpeedSchema.optional(),
   tecanAspireVolume: tecanAspireVolumeSchema.optional(),
 });
 
@@ -70,7 +71,7 @@ export function LoadSampleForm({
       col: sample.col,
       volume: 60, // default load volume to 60 µL
       tecanAspireVolume: 75, // default to 75 µL
-      motionSpeed: 0.0, // default to 0.5 uL/s
+      motionSpeed: 0,
       measureUvNumber: 0, // default to 0 measurements
       expUvTime: 0, // default to 0 seconds
       sampleTag: sample.sampleTag,

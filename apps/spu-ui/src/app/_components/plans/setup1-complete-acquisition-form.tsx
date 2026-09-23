@@ -40,7 +40,10 @@ import {
   trayOptions,
   trayRows,
 } from "~/app/_components/store/setup1/constants";
-import { tecanAspireVolumeSchema } from "../plans/schemas/common";
+import {
+  motionSpeedSchema,
+  tecanAspireVolumeSchema,
+} from "../plans/schemas/common";
 import { useSampleStore } from "../store/setup1/use-sample-store";
 import {
   acquireTimeSchema,
@@ -95,7 +98,7 @@ export const planSchema = z.object({
   standardOption: z.enum(cleaningOptions).optional(),
   agentsList: z.array(z.string()).optional(),
   agentsDuration: z.array(z.coerce.number().positive()).optional(),
-  motionSpeed: z.coerce.number().nonnegative().optional(),
+  motionSpeed: motionSpeedSchema.optional(),
   tecanAspireVolume: tecanAspireVolumeSchema.optional(),
 });
 
