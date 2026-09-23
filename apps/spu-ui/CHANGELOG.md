@@ -1,5 +1,18 @@
 # @sophys-web/spu-ui
 
+## 0.6.0
+
+### Minor Changes
+
+- 91b0137: Add aspire volume parameter to load sample form and complete acquisition form for setup1. This parameter is used to determine the volume of liquid to be aspirated in the biocube during the sample loading and positioning process.
+- 9954563: Remove bufferTag parameter from setup1 store and plan schemas.
+
+### Patch Changes
+
+- 1748c7a: Update common schemas for better handling sampleTag fields (adding support for being used in unix filenames) and acquireTime fields (removing minimum value restriction of 0.1 seconds supporting positive numbers).
+- Updated dependencies [91b0137]
+  - @sophys-web/widgets@0.7.0
+
 ## 0.5.1
 
 ### Patch Changes
