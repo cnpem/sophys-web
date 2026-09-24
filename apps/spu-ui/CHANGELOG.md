@@ -1,5 +1,12 @@
 # @sophys-web/spu-ui
 
+## 0.6.1
+
+### Patch Changes
+
+- 24aba3b: Fix schema validation for motion speed and aspire volume fields on setup1 plan forms.
+- 6c39b6a: Setup1: Remove motion speed field from load sample form.
+
 ## 0.6.0
 
 ### Minor Changes
