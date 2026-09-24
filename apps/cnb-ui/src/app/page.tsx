@@ -1,0 +1,43 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { api, HydrateClient } from "@sophys-web/api-client/server";
+import { auth } from "@sophys-web/auth";
+import { buttonVariants } from "@sophys-web/ui/button";
+import { Dashboard } from "./_components/dashboard/dashboard";
+
+export default async function Page() {
+  const session = await auth();
+
+  if (!session) {
+    return (
+      <main className="flex flex-col items-center gap-4 p-24">
+        <h1 className="text-primary text-4xl font-bold">cnb-ui</h1>
+        <p className="text-lg">
+          This is the UI for experiments conducted at the cnb-ui beamline.
+        </p>
+        <Link
+          className={buttonVariants({ variant: "link" })}
+          href="/auth/signin"
+        >
+          Sign in
+        </Link>
+      </main>
+    );
+  }
+
+  if (session.error) {
+    redirect("/auth/signin");
+  }
+
+  await Promise.allSettled([
+    api.httpserver.queue.get.prefetch(),
+    api.httpserver.history.get.prefetch(),
+    api.httpserver.status.get.prefetch(),
+  ]);
+
+  return (
+    <HydrateClient>
+      <Dashboard />
+    </HydrateClient>
+  );
+}
