@@ -38,6 +38,7 @@ import type { LastSampleParams } from "~/app/_hooks/use-capillary-state";
 import { sampleTypeOptions } from "~/app/_components/store/setup1/constants";
 import {
   acquireTimeSchema,
+  motionSpeedSchema,
   proposalSchema,
   sampleTagSchema,
 } from "./schemas/common";
@@ -48,7 +49,7 @@ const planSchema = z.object({
   numExposures: z.coerce
     .number()
     .min(1, "Number of exposures must be at least 1"),
-  motionSpeed: z.coerce.number().positive().optional(),
+  motionSpeed: motionSpeedSchema.optional(),
   proposal: proposalSchema,
   sampleType: z.enum(sampleTypeOptions),
   sampleTag: sampleTagSchema,

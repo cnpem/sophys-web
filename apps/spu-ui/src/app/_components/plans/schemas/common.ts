@@ -41,7 +41,10 @@ export const sampleTagSchema = z
 /**
  * tecanAspireVolumeSchema is a common field used for sample positioning in plans that perform sample load operations.
  */
-export const tecanAspireVolumeSchema = z.union([
-  z.literal(0),
-  z.number().min(2.4, "Tecan pump cannot aspirate less than 2.4 µL"),
-]);
+export const tecanAspireVolumeSchema = z.coerce.number().positive();
+
+export const motionSpeedSchema = z.coerce
+  .number()
+  .refine((value) => value === 0 || value >= 2.4, {
+    message: "Motion speed must be 0 or at least 2.4",
+  });

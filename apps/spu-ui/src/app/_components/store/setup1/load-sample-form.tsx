@@ -46,7 +46,6 @@ export const planSchema = z.object({
   sampleType: z.enum(sampleTypeOptions),
   expUvTime: z.coerce.number().nonnegative().optional(),
   measureUvNumber: z.coerce.number().int().nonnegative().optional(),
-  motionSpeed: z.coerce.number().positive().optional(),
   tecanAspireVolume: tecanAspireVolumeSchema.optional(),
 });
 
@@ -70,7 +69,6 @@ export function LoadSampleForm({
       col: sample.col,
       volume: 60, // default load volume to 60 µL
       tecanAspireVolume: 75, // default to 75 µL
-      motionSpeed: 0.0, // default to 0.5 uL/s
       measureUvNumber: 0, // default to 0 measurements
       expUvTime: 0, // default to 0 seconds
       sampleTag: sample.sampleTag,
@@ -192,35 +190,6 @@ export function LoadSampleForm({
                   aria-invalid={fieldState.invalid}
                 />
                 <InputGroupAddon align={"inline-end"}>uL</InputGroupAddon>
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
-        <Controller
-          name="motionSpeed"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabelWithTooltip
-                labelName="Motion Speed"
-                labelDescription="The speed of the acquisition motion in uL/s. If 0, the sample doesn't move."
-              />
-              <InputGroup>
-                <InputGroupInput
-                  {...field}
-                  id={field.name}
-                  type={"number"}
-                  step={0.001}
-                  aria-invalid={fieldState.invalid}
-                />
-                <InputGroupAddon align={"inline-end"}>uL/s</InputGroupAddon>
                 {fieldState.invalid && (
                   <InputGroupAddon align={"inline-end"}>
                     <InfoTooltip variant={"destructive"}>
