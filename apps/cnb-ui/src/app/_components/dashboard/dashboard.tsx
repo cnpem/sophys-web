@@ -11,7 +11,7 @@ import {
 import { ItemGroup } from "@sophys-web/ui/item";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { CompactQueue } from "@sophys-web/widgets/compact-queue";
-import { Console } from "@sophys-web/widgets/console";
+import { Console } from "../console";
 import {
   ControlBar,
   EnvironmentControls,
@@ -35,9 +35,11 @@ export function Dashboard() {
         </ButtonGroup>
       </ControlBar>
       <div className="flex gap-3 p-8 pt-10 pb-10 sm:flex-col lg:min-h-screen lg:flex-row">
-        <ScrollArea className="h-full w-full lg:min-w-2/3">
-          <CompactQueue />
-        </ScrollArea>
+        <div className="h-full w-full">
+          <ScrollArea className="h-full w-full lg:min-w-2/3">
+            <CompactQueue />
+          </ScrollArea>
+        </div>
 
         <div className="flex h-full flex-col gap-2 lg:w-1/2">
           <Card className="gap-2 pb-2">
@@ -46,16 +48,14 @@ export function Dashboard() {
               <CardDescription>Current beamline conditions</CardDescription>
             </CardHeader>
             <CardContent>
-              <ItemGroup className="grid grid-cols-2 items-center">
+              <ItemGroup className="grid grid-cols-3 items-center">
                 <Monochromator4CMEnergy />
-                <MachineInfo />
                 <VPU />
+                <MachineInfo />
               </ItemGroup>
             </CardContent>
           </Card>
-          <div className="flex h-62">
-            <Console />
-          </div>
+          <Console />
         </div>
       </div>
     </>

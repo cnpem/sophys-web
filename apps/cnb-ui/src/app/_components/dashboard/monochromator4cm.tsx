@@ -21,7 +21,7 @@ export function Monochromator4CMEnergy() {
     if (value === undefined || value === "NaN") {
       return "--";
     }
-    return value.toFixed(1);
+    return value.toFixed(2);
   }
 
   return (
