@@ -118,7 +118,7 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
   if (
     deviceOptionsNames.some((name) => param.annotation?.type.includes(name))
   ) {
-    if (type.includes("typing.Sequence")) {
+    if (type.includes("typing.Sequence") || type.includes("list")) {
       return (
         <MultiSelectField listOptions={devices} param={param} form={form} />
       );
