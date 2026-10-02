@@ -57,7 +57,6 @@ export const createSchema = (parameters: Parameter[]) => {
       }
       return;
     }
-
     if (
       type.includes("Literal") &&
       (type.includes("list") || type.includes("Sequence"))
@@ -69,6 +68,9 @@ export const createSchema = (parameters: Parameter[]) => {
       case "typing.Sequence[__READABLE__]":
       case "typing.Sequence[__FLYABLE__]":
       case "typing.Sequence[__MOVABLE__]":
+      case "list[__READABLE__]":
+      case "list[__FLYABLE__]":
+      case "list[__MOVABLE__]":
         schemaFields[camelName] = z.array(z.string()).nonempty();
         break;
       case "__MOVABLE__":
