@@ -43,14 +43,6 @@ This project depends on having an external server running the [bluesky http-serv
 
 Some packages may require additional external services to be running, such as a PVWS server for real-time data updates via WebSockets or a redis instance. These dependencies will be documented in the README files of the respective apps or packages that require them.
 
-### Running the development server
-
-To run the development server, use the following command:
-
-```bash
-pnpm dev
-```
-
 This will start the `spu-ui` app on `http://localhost:3000`.
 
 ### Local CI
@@ -143,7 +135,7 @@ pnpm add --filter @sophys-web/test-ui nanoid
 Generally speaking, to add any dependencies to an app or an internal package in this project, the command should be:
 
 ```bash
-pnpm add --filter @sophys-web/<app-name> <package-name>
+pnpm add --filter @sophys-web/test-ui <package-name>
 ```
 
 You can read more about the options for managing dependencies on this monorepo in the [turborepo docs on managing dependencies](https://turborepo.com/docs/crafting-your-repository/managing-dependencies).
@@ -153,14 +145,14 @@ You can read more about the options for managing dependencies on this monorepo i
 ### With Docker
 
 To deploy the app with Docker, you can use the provided `Dockerfile` in the app's directory. The `Dockerfile` is set up to build the app and run it in a production environment.
-To build the Docker image, run the following command in the root directory of the monorepo:
+To build the Docker image, run the following command in the root directory of the monorepo for an app located in `apps/<app-name>`:
 
 ```bash
-docker build -t sophys-web-qua-ui -f apps/qua-ui/Dockerfile .
+docker build -t <image-tag> -f apps/<app-name>/Dockerfile .
 ```
 
 To run the Docker container, use the following command:
 
 ```bash
-docker run -d -p 3000:3000 sophys-web-qua-ui
+docker run -d -p 3000:3000 <image-tag>
 ```
