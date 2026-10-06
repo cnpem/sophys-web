@@ -99,7 +99,7 @@ export function ScanWithDelayForm({
     resolver: zodResolver(dynamicSchema),
     defaultValues: editItemParams?.kwargs ?? {
       detectors: params?.detectors ?? [],
-      num: params?.num,
+      num: params?.num ?? 2,
       delay: params?.delay ?? 0,
       axes: params?.axes ?? [["", 0, 0]],
       relativePositions: params?.relativePositions ?? false
@@ -213,33 +213,6 @@ export function ScanWithDelayForm({
                 </ComboboxContent>
               </Combobox>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
-
-        <Controller
-          name="delay"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Delay</FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  {...field}
-                  id={field.name}
-                  value={field.value ?? ""}
-                  type={"number"}
-                  aria-invalid={fieldState.invalid}
-                />
-                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
             </Field>
           )}
         />
@@ -392,6 +365,33 @@ export function ScanWithDelayForm({
             Add Axis
           </Button>
         </FieldSet>
+        <FieldGroup className="grid grid-cols-2">
+        <Controller
+          name="delay"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>Delay</FieldLabel>
+              <InputGroup>
+                <InputGroupInput
+                  {...field}
+                  id={field.name}
+                  value={field.value ?? ""}
+                  type={"number"}
+                  aria-invalid={fieldState.invalid}
+                />
+                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
+                {fieldState.invalid && (
+                  <InputGroupAddon align={"inline-end"}>
+                    <InfoTooltip variant={"destructive"}>
+                      {fieldState.error?.message}
+                    </InfoTooltip>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
+          )}
+        />
         <Controller
           name="num"
           control={form.control}
@@ -418,6 +418,7 @@ export function ScanWithDelayForm({
             </Field>
           )}
         />
+      </FieldGroup>
       </FieldGroup>
       <Button
         type="submit"
