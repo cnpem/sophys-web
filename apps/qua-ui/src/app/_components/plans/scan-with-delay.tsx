@@ -45,6 +45,7 @@ export const schemaStatic = z.object({
   num: z.coerce.number().int().min(2),
   delay: z.coerce.number().default(0),
   axes: z.array(z.tuple([z.string(), z.coerce.number(), z.coerce.number()])),
+  relativePositions: z.boolean()
 });
 
 export function ScanWithDelayForm({
@@ -99,6 +100,7 @@ export function ScanWithDelayForm({
       num: params?.num,
       delay: params?.delay ?? 0,
       axes: params?.axes ?? [["", 0, 0]],
+      relativePositions: params?.relativePositions ?? false
     },
   });
 
