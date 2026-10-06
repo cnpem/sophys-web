@@ -34,11 +34,11 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
+import { Label } from "@sophys-web/ui/label";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { Skeleton } from "@sophys-web/ui/skeleton";
-import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 import { Switch } from "@sophys-web/ui/switch";
-import { Label } from "@sophys-web/ui/label";
+import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 
 export const PLAN_NAME_SCAN_W_DELAY = "web_scan_with_delay" as const;
 
@@ -47,7 +47,7 @@ export const schemaStatic = z.object({
   num: z.coerce.number().int().min(2),
   delay: z.coerce.number().default(0),
   axes: z.array(z.tuple([z.string(), z.coerce.number(), z.coerce.number()])),
-  relativePositions: z.boolean()
+  relativePositions: z.boolean(),
 });
 
 export function ScanWithDelayForm({
@@ -102,7 +102,7 @@ export function ScanWithDelayForm({
       num: params?.num ?? 2,
       delay: params?.delay ?? 0,
       axes: params?.axes ?? [["", 0, 0]],
-      relativePositions: params?.relativePositions ?? false
+      relativePositions: params?.relativePositions ?? false,
     },
   });
 
@@ -221,7 +221,9 @@ export function ScanWithDelayForm({
           control={form.control}
           render={({ field }) => (
             <Field>
-              <FieldLabel htmlFor={field.name}>Use Relative Positions</FieldLabel>
+              <FieldLabel htmlFor={field.name}>
+                Use Relative Positions
+              </FieldLabel>
               <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
                 <Label className="text-slate-500">
                   {field.value ? "Yes" : "No"}
@@ -366,59 +368,59 @@ export function ScanWithDelayForm({
           </Button>
         </FieldSet>
         <FieldGroup className="grid grid-cols-2">
-        <Controller
-          name="delay"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Delay</FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  {...field}
-                  id={field.name}
-                  value={field.value ?? ""}
-                  type={"number"}
-                  aria-invalid={fieldState.invalid}
-                />
-                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
-        <Controller
-          name="num"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Number of points</FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  {...field}
-                  id={field.name}
-                  value={field.value}
-                  type={"number"}
-                  aria-invalid={fieldState.invalid}
-                />
-                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
-      </FieldGroup>
+          <Controller
+            name="delay"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Delay</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    {...field}
+                    id={field.name}
+                    value={field.value ?? ""}
+                    type={"number"}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
+                  {fieldState.invalid && (
+                    <InputGroupAddon align={"inline-end"}>
+                      <InfoTooltip variant={"destructive"}>
+                        {fieldState.error?.message}
+                      </InfoTooltip>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              </Field>
+            )}
+          />
+          <Controller
+            name="num"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Number of points</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    {...field}
+                    id={field.name}
+                    value={field.value}
+                    type={"number"}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
+                  {fieldState.invalid && (
+                    <InputGroupAddon align={"inline-end"}>
+                      <InfoTooltip variant={"destructive"}>
+                        {fieldState.error?.message}
+                      </InfoTooltip>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              </Field>
+            )}
+          />
+        </FieldGroup>
       </FieldGroup>
       <Button
         type="submit"
