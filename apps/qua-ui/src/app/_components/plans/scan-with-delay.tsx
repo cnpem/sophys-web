@@ -37,6 +37,8 @@ import {
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { Skeleton } from "@sophys-web/ui/skeleton";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import { Switch } from "@sophys-web/ui/switch";
+import { Label } from "@sophys-web/ui/label";
 
 export const PLAN_NAME_SCAN_W_DELAY = "web_scan_with_delay" as const;
 
@@ -238,6 +240,25 @@ export function ScanWithDelayForm({
                   </InputGroupAddon>
                 )}
               </InputGroup>
+            </Field>
+          )}
+        />
+        <Controller
+          name="relativePositions"
+          control={form.control}
+          render={({ field }) => (
+            <Field>
+              <FieldLabel htmlFor={field.name}>Use Relative Positions</FieldLabel>
+              <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                <Label className="text-slate-500">
+                  {field.value ? "Yes" : "No"}
+                </Label>
+                <Switch
+                  checked={field.value ?? false}
+                  className="ml-auto"
+                  onCheckedChange={field.onChange}
+                />
+              </div>
             </Field>
           )}
         />
