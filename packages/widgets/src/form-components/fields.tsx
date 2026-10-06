@@ -3,6 +3,19 @@ import type { z } from "zod";
 import camelCase from "camelcase";
 import { JsonEditor, monoLightTheme } from "json-edit-react";
 import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+  useComboboxAnchor,
+} from "@sophys-web/ui/combobox";
+import {
   FormControl,
   FormField,
   FormItem,
@@ -11,18 +24,10 @@ import {
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
 import { Label } from "@sophys-web/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import type { AnySchema, Parameter } from "../lib/create-schema";
 import { parseLiteralList } from "../lib/create-schema";
 import { InfoTooltip } from "./info-tooltip";
-import { MultiSelectDialog } from "./multi-select";
 
 const deviceOptionsNames = ["__READABLE__", "__MOVABLE__", "__FLYABLE__"];
 
@@ -91,13 +96,42 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
     type.includes("Literal") &&
     !(type.includes("list") || type.includes("Sequence"))
   ) {
-    return <LiteralField param={param} form={form} type={type} />;
+    const options = parseLiteralList(type);
+    if (options.length === 0) {
+      return (
+        <div className="flex flex-col text-red-500" key={camelCase(param.name)}>
+          <p>
+            Failed to parse options for parameter {camelCase(param.name)} with
+            type {type}
+          </p>
+        </div>
+      );
+    }
+    return (
+      <ComboboxField
+        multiple={false}
+        options={options}
+        param={param}
+        form={form}
+      />
+    );
   }
   if (
     (type.includes("list") || type.includes("Sequence")) &&
     type.includes("Literal")
   ) {
-    return <MultiLiteralField param={param} form={form} type={type} />;
+    const options = parseLiteralList(type);
+    if (options.length === 0) {
+      return (
+        <div className="flex flex-col text-red-500" key={camelCase(param.name)}>
+          <p>
+            Failed to parse options for parameter {camelCase(param.name)} with
+            type {type}
+          </p>
+        </div>
+      );
+    }
+    return <ComboboxField options={options} param={param} form={form} />;
   }
   if (
     !type.includes("list") &&
@@ -118,12 +152,33 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
   if (
     deviceOptionsNames.some((name) => param.annotation?.type.includes(name))
   ) {
-    if (type.includes("typing.Sequence")) {
-      return (
-        <MultiSelectField listOptions={devices} param={param} form={form} />
-      );
+    const type = param.annotation?.type ?? "";
+    if (!type) {
+      return null;
     }
-    return <SelectListField listOptions={devices} param={param} form={form} />;
+    const options: string[] = (() => {
+      if (type.includes("__READABLE__")) {
+        return devices.readables;
+      }
+      if (type.includes("__MOVABLE__")) {
+        return devices.movables;
+      }
+      if (type.includes("__FLYABLE__")) {
+        return devices.flyables;
+      }
+      return [];
+    })();
+    if (type.includes("typing.Sequence") || type.includes("list")) {
+      return <ComboboxField options={options} param={param} form={form} />;
+    }
+    return (
+      <ComboboxField
+        multiple={false}
+        options={options}
+        param={param}
+        form={form}
+      />
+    );
   }
 
   return (
@@ -175,72 +230,6 @@ function CallableField({ param, form }: TypedFieldProps) {
           <FormControl>
             <Input {...field} disabled placeholder="Callable" type="text" />
           </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function LiteralField({ param, type, form }: TypedFieldProps) {
-  const options = parseLiteralList(type);
-  return (
-    <FormField
-      control={form.control}
-      name={camelCase(param.name)}
-      render={({ field }) => (
-        <FormItem>
-          <div className="inline-flex gap-1">
-            <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
-            <InfoTooltip>{param.description}</InfoTooltip>
-          </div>
-          <FormControl>
-            <Select
-              defaultValue={field.value as string}
-              onValueChange={field.onChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select an option" />
-              </SelectTrigger>
-              <SelectContent>
-                {options.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
-}
-
-function MultiLiteralField({ param, type, form }: TypedFieldProps) {
-  const options = parseLiteralList(type);
-  if (options.length === 0) {
-    console.warn(`MultiLiteralField: There is no options for type "${type}"`);
-  }
-  return (
-    <FormField
-      control={form.control}
-      name={camelCase(param.name)}
-      render={({ field }) => (
-        <FormItem>
-          <div className="inline-flex gap-1">
-            <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
-            <InfoTooltip>{param.description}</InfoTooltip>
-          </div>
-          <MultiSelectDialog
-            defaultValue={[]}
-            value={field.value as unknown}
-            onChange={field.onChange}
-            options={options}
-            placeholder="Select options"
-            selectAll
-          />
           <FormMessage />
         </FormItem>
       )}
@@ -339,99 +328,38 @@ function ListField({ param, type, form }: TypedFieldProps) {
   );
 }
 
-function SelectListField({
-  param,
-  listOptions,
-  form,
-}: {
-  param: Parameter;
-  listOptions: Devices;
-  form: UseFormReturn<z.infer<AnySchema>>;
-}) {
-  const type = param.annotation?.type ?? "";
-  if (!type) {
-    return null;
-  }
-  const typeOptions: string[] = (() => {
-    if (type.includes("__READABLE__")) {
-      return listOptions.readables;
-    }
-    if (type.includes("__MOVABLE__")) {
-      return listOptions.movables;
-    }
-    if (type.includes("__FLYABLE__")) {
-      return listOptions.flyables;
-    }
-    return [];
-  })();
-
-  if (typeOptions.length === 0) {
-    return null;
-  }
-
+/**
+ * Helper function for type narrowing to check if a value is an array of strings.
+ */
+function isStringArray(value: unknown): value is string[] {
   return (
-    <FormField
-      control={form.control}
-      name={camelCase(param.name)}
-      render={({ field }) => (
-        <FormItem>
-          <div className="inline-flex gap-1">
-            <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
-            <InfoTooltip>{param.description}</InfoTooltip>
-          </div>
-          <Select
-            defaultValue={field.value as string}
-            onValueChange={field.onChange}
-          >
-            <FormControl>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select an option" />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {typeOptions.map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    Array.isArray(value) &&
+    value.every((item): item is string => typeof item === "string")
   );
 }
 
-function MultiSelectField({
+/**
+ * Helper function to define the value for the Combobox component based on whether it accepts multiple selections or not.
+ */
+function defineValue(value: unknown, multiple: boolean): string | string[] {
+  if (multiple) {
+    return isStringArray(value) ? value : [];
+  }
+  return typeof value === "string" ? value : "";
+}
+
+function ComboboxField({
+  multiple = true,
   param,
-  listOptions,
+  options,
   form,
 }: {
+  multiple?: boolean;
   param: Parameter;
-  listOptions: Devices;
+  options: string[];
   form: UseFormReturn<z.infer<AnySchema>>;
 }) {
-  const type = param.annotation?.type ?? "";
-  if (!type) {
-    return null;
-  }
-  const typeOptions: string[] = (() => {
-    if (type.includes("__READABLE__")) {
-      return listOptions.readables;
-    }
-    if (type.includes("__MOVABLE__")) {
-      return listOptions.movables;
-    }
-    if (type.includes("__FLYABLE__")) {
-      return listOptions.flyables;
-    }
-    return [];
-  })();
-
-  if (typeOptions.length === 0) {
-    return null;
-  }
+  const anchor = useComboboxAnchor();
 
   return (
     <FormField
@@ -443,14 +371,43 @@ function MultiSelectField({
             <FormLabel>{snakeToTitleCase(param.name)}</FormLabel>
             <InfoTooltip>{param.description}</InfoTooltip>
           </div>
-          <MultiSelectDialog
-            defaultValue={[]}
-            value={field.value as unknown}
-            onChange={field.onChange}
-            options={typeOptions}
-            placeholder="Select options"
-            selectAll
-          />
+          <Combobox
+            multiple={multiple}
+            items={options}
+            value={defineValue(field.value, multiple)}
+            onValueChange={field.onChange}
+          >
+            {multiple && (
+              <ComboboxChips ref={anchor}>
+                <ComboboxValue>
+                  {(values: string[]) =>
+                    values.map((item) => (
+                      <ComboboxChip key={item}>{item}</ComboboxChip>
+                    ))
+                  }
+                </ComboboxValue>
+                <ComboboxChipsInput placeholder="Add item" />
+              </ComboboxChips>
+            )}
+            {!multiple && <ComboboxInput placeholder="Select an option" />}
+            <ComboboxContent
+              // restoring pointer events and wheel propagation as a temporary fix for selecting items with the mouse
+              // see https://github.com/shadcn-ui/ui/issues/9770#issuecomment-4214505872
+              onWheel={(e) => e.stopPropagation()}
+              className="pointer-events-auto"
+              align="end"
+              anchor={anchor}
+            >
+              <ComboboxEmpty />
+              <ComboboxList>
+                {(item: string) => (
+                  <ComboboxItem key={item} value={item}>
+                    {item}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
           <FormMessage />
         </FormItem>
       )}
