@@ -227,7 +227,7 @@ export function ScanWithDelayForm({
                   {field.value ? "Yes" : "No"}
                 </Label>
                 <Switch
-                  checked={field.value ?? false}
+                  checked={field.value}
                   className="ml-auto"
                   onCheckedChange={field.onChange}
                 />
