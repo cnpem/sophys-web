@@ -447,6 +447,7 @@ export function EditScanWithDelayForm(props: EditScanWithDelayFormProps) {
     num: 2,
     delay: 0,
     axes: [],
+    relativePositions: false,
   };
   return (
     <ScanWithDelayForm
