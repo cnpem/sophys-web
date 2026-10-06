@@ -98,7 +98,14 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
   ) {
     const options = parseLiteralList(type);
     if (options.length === 0) {
-      console.warn(`LiteralField: There is no options for type "${type}"`);
+      return (
+        <div className="flex flex-col text-red-500" key={camelCase(param.name)}>
+          <p>
+            Failed to parse options for parameter {camelCase(param.name)} with
+            type {type}
+          </p>
+        </div>
+      );
     }
     return (
       <ComboboxField
@@ -115,7 +122,14 @@ function AnyField({ devices, param, form }: AnyFieldProps) {
   ) {
     const options = parseLiteralList(type);
     if (options.length === 0) {
-      console.warn(`MultiLiteralField: There is no options for type "${type}"`);
+      return (
+        <div className="flex flex-col text-red-500" key={camelCase(param.name)}>
+          <p>
+            Failed to parse options for parameter {camelCase(param.name)} with
+            type {type}
+          </p>
+        </div>
+      );
     }
     return <ComboboxField options={options} param={param} form={form} />;
   }
