@@ -217,36 +217,37 @@ export function ScanWithDelayForm({
           )}
         />
         <FieldSet className="border-border flex flex-col rounded-md border border-dashed p-4">
-          <ScrollArea className="h-60 w-full">
+          <Controller
+            name="relativePositions"
+            control={form.control}
+            render={({ field }) => (
+              <Field>
+                <FieldLegend variant="label">Relative Positions</FieldLegend>
+                <FieldDescription>
+                  Absolute values define the target position in the motor
+                  coordinate system, while relative values define an offset from
+                  current position. Default is absolute positions.
+                </FieldDescription>
+                <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                  <Label className="text-slate-500">
+                    {field.value ? "Yes" : "No"}
+                  </Label>
+                  <Switch
+                    checked={field.value}
+                    className="ml-auto"
+                    onCheckedChange={field.onChange}
+                  />
+                </div>
+              </Field>
+            )}
+          />
+          <ScrollArea className="h-45 w-full">
             <FieldLegend variant="label">Axes</FieldLegend>
             <FieldDescription>
               Add axes by specifying the device, start position, and end
               position for each axis.
             </FieldDescription>
-            <Controller
-              name="relativePositions"
-              control={form.control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLegend variant="label">Relative Positions</FieldLegend>
-                  <FieldDescription>
-                    Absolute values define the target position in the motor
-                    coordinate system, while relative values define an offset
-                    from current position.
-                  </FieldDescription>
-                  <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
-                    <Label className="text-slate-500">
-                      {field.value ? "Yes" : "No"}
-                    </Label>
-                    <Switch
-                      checked={field.value}
-                      className="ml-auto"
-                      onCheckedChange={field.onChange}
-                    />
-                  </div>
-                </Field>
-              )}
-            />
+
             <FieldGroup className="gap-2">
               {/* column headers */}
               <div className="grid grid-cols-[4fr_4fr_4fr_1fr] items-center gap-2">
@@ -361,6 +362,7 @@ export function ScanWithDelayForm({
               ))}
             </FieldGroup>
           </ScrollArea>
+
           <Button
             type="button"
             variant={"secondary"}
