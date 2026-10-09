@@ -34,8 +34,10 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
+import { Label } from "@sophys-web/ui/label";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
 import { Skeleton } from "@sophys-web/ui/skeleton";
+import { Switch } from "@sophys-web/ui/switch";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 
 export const PLAN_NAME_SCAN_W_DELAY = "web_scan_with_delay" as const;
@@ -45,6 +47,7 @@ export const schemaStatic = z.object({
   num: z.coerce.number().int().min(2),
   delay: z.coerce.number().default(0),
   axes: z.array(z.tuple([z.string(), z.coerce.number(), z.coerce.number()])),
+  relativePositions: z.boolean(),
 });
 
 export function ScanWithDelayForm({
@@ -96,9 +99,10 @@ export function ScanWithDelayForm({
     resolver: zodResolver(dynamicSchema),
     defaultValues: editItemParams?.kwargs ?? {
       detectors: params?.detectors ?? [],
-      num: params?.num,
+      num: params?.num ?? 2,
       delay: params?.delay ?? 0,
       axes: params?.axes ?? [["", 0, 0]],
+      relativePositions: params?.relativePositions ?? false,
     },
   });
 
@@ -212,40 +216,38 @@ export function ScanWithDelayForm({
             </Field>
           )}
         />
-
-        <Controller
-          name="delay"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Delay</FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  {...field}
-                  id={field.name}
-                  value={field.value ?? ""}
-                  type={"number"}
-                  aria-invalid={fieldState.invalid}
-                />
-                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
-                {fieldState.invalid && (
-                  <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
-                  </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
         <FieldSet className="border-border flex flex-col rounded-md border border-dashed p-4">
-          <ScrollArea className="h-60 w-full">
+          <Controller
+            name="relativePositions"
+            control={form.control}
+            render={({ field }) => (
+              <Field>
+                <FieldLegend variant="label">Relative Positions</FieldLegend>
+                <FieldDescription>
+                  Absolute values define the target position in the motor
+                  coordinate system, while relative values define an offset from
+                  current position. Default is absolute positions.
+                </FieldDescription>
+                <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
+                  <Label className="text-slate-500">
+                    {field.value ? "Yes" : "No"}
+                  </Label>
+                  <Switch
+                    checked={field.value}
+                    className="ml-auto"
+                    onCheckedChange={field.onChange}
+                  />
+                </div>
+              </Field>
+            )}
+          />
+          <ScrollArea className="h-45 w-full">
             <FieldLegend variant="label">Axes</FieldLegend>
             <FieldDescription>
               Add axes by specifying the device, start position, and end
               position for each axis.
             </FieldDescription>
+
             <FieldGroup className="gap-2">
               {/* column headers */}
               <div className="grid grid-cols-[4fr_4fr_4fr_1fr] items-center gap-2">
@@ -360,6 +362,7 @@ export function ScanWithDelayForm({
               ))}
             </FieldGroup>
           </ScrollArea>
+
           <Button
             type="button"
             variant={"secondary"}
@@ -369,32 +372,62 @@ export function ScanWithDelayForm({
             Add Axis
           </Button>
         </FieldSet>
-        <Controller
-          name="num"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Number of points</FieldLabel>
-              <InputGroup>
-                <InputGroupInput
-                  {...field}
-                  id={field.name}
-                  value={field.value}
-                  type={"number"}
-                  aria-invalid={fieldState.invalid}
-                />
-                <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
-                {fieldState.invalid && (
+        <FieldGroup className="grid grid-cols-2">
+          <Controller
+            name="delay"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Delay</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    {...field}
+                    id={field.name}
+                    value={field.value ?? ""}
+                    type={"number"}
+                    aria-invalid={fieldState.invalid}
+                  />
                   <InputGroupAddon align={"inline-end"}>
-                    <InfoTooltip variant={"destructive"}>
-                      {fieldState.error?.message}
-                    </InfoTooltip>
+                    seconds
                   </InputGroupAddon>
-                )}
-              </InputGroup>
-            </Field>
-          )}
-        />
+                  {fieldState.invalid && (
+                    <InputGroupAddon align={"inline-end"}>
+                      <InfoTooltip variant={"destructive"}>
+                        {fieldState.error?.message}
+                      </InfoTooltip>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              </Field>
+            )}
+          />
+          <Controller
+            name="num"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor={field.name}>Number of points</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    {...field}
+                    id={field.name}
+                    value={field.value}
+                    type={"number"}
+                    aria-invalid={fieldState.invalid}
+                  />
+                  <InputGroupAddon align={"inline-end"}>#</InputGroupAddon>
+                  {fieldState.invalid && (
+                    <InputGroupAddon align={"inline-end"}>
+                      <InfoTooltip variant={"destructive"}>
+                        {fieldState.error?.message}
+                      </InfoTooltip>
+                    </InputGroupAddon>
+                  )}
+                </InputGroup>
+              </Field>
+            )}
+          />
+        </FieldGroup>
       </FieldGroup>
       <Button
         type="submit"
@@ -423,6 +456,7 @@ export function EditScanWithDelayForm(props: EditScanWithDelayFormProps) {
     num: 2,
     delay: 0,
     axes: [],
+    relativePositions: false,
   };
   return (
     <ScanWithDelayForm
