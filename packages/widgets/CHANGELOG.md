@@ -1,5 +1,15 @@
 # @sophys-web/widgets
 
+## 0.8.0
+
+### Minor Changes
+
+- c7f87ec: Refactor the AnyField widget for better multi-select functionality using shadcn's Combobox components. It also replace Select based components with Combobox for better experiece filtering large enum-like lists.
+
+### Patch Changes
+
+- 90ba8ce: Fix: Include "list" type in the conditional for rendering the MultiSelectField in the AnyField widget component.
+
 ## 0.7.0
 
 ### Minor Changes
