@@ -221,23 +221,22 @@ export function ScanWithDelayForm({
             name="relativePositions"
             control={form.control}
             render={({ field }) => (
-              <Field>
-                <FieldLegend variant="label">Relative Positions</FieldLegend>
-                <FieldDescription>
+              <Field className="grid grid-cols-2 items-center gap-2">
+                <FieldLabel>Set Relative Positions</FieldLabel>
+                <div className="flex flex-row items-center justify-end gap-2 p-2">
+                  <Label className="text-slate-500">
+                    {field.value ? "enabled" : "disabled"}
+                  </Label>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </div>
+                <FieldDescription className="col-span-2">
                   Absolute values define the target position in the motor
                   coordinate system, while relative values define an offset from
                   current position. Default is absolute positions.
                 </FieldDescription>
-                <div className="flex items-center space-y-0 rounded-lg border p-2 align-middle">
-                  <Label className="text-slate-500">
-                    {field.value ? "Yes" : "No"}
-                  </Label>
-                  <Switch
-                    checked={field.value}
-                    className="ml-auto"
-                    onCheckedChange={field.onChange}
-                  />
-                </div>
               </Field>
             )}
           />
