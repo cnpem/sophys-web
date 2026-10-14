@@ -1,5 +1,13 @@
 # @sophys-web/spu-ui
 
+## 0.6.2
+
+### Patch Changes
+
+- Updated dependencies [c7f87ec]
+- Updated dependencies [90ba8ce]
+  - @sophys-web/widgets@0.8.0
+
 ## 0.6.1
 
 ### Patch Changes

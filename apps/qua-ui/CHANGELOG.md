@@ -1,5 +1,17 @@
 # @sophys-web/qua-ui
 
+## 0.9.0
+
+### Minor Changes
+
+- 5ca7f8a: Adds relative positions option to scan with delay
+
+### Patch Changes
+
+- Updated dependencies [c7f87ec]
+- Updated dependencies [90ba8ce]
+  - @sophys-web/widgets@0.8.0
+
 ## 0.8.0
 
 ### Minor Changes
