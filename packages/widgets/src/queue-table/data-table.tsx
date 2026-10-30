@@ -232,7 +232,7 @@ export function DataTable({
           </Table>
         </DndContext>
       </div>
-      <DataTablePagination table={table} />
+      <DataTablePagination table={table} tableType="queue" />
     </div>
   );
 }
