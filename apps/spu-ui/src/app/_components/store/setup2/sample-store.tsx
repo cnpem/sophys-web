@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { cn } from "@sophys-web/ui";
 import {
   Accordion,
@@ -6,20 +6,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@sophys-web/ui/accordion";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@sophys-web/ui/select";
-import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import type { cardModes } from "./constants";
 import { PickCardButtonForm } from "../../plans/setup2-pick-card-by-index-form";
 import {
   cardCapillaryColumns,
   cardColumns,
   cardIndexOptions,
-  cardModes,
   cardRows,
 } from "./constants";
 import { DeleteSamplesDialog } from "./delete-samples";
@@ -218,23 +210,14 @@ function SampleCardItems({
 // all sampleIds should contain
 function SampleCardAccordionItem({ ...props }: SampleCardAccordionItemProps) {
   const cardIndex = props.value;
-  // const { cardName, status } = useSampleCardName(cardIndex);
-  const [sampleCardType, setSampleCardType] =
-    useState<SampleCardType>("standard");
 
   const { cardType, cardName, cardStatus } = useSampleStoreCard(cardIndex);
-
-  useEffect(() => {
-    if (cardType) {
-      setSampleCardType(cardType);
-    }
-  }, [cardType]);
 
   return (
     <AccordionItem className="border-b" {...props}>
       <AccordionTrigger
         className={cn(
-          "truncate",
+          "space-x-2 truncate",
           cardStatus === "CardNotFound" && "text-muted-foreground",
         )}
       >
@@ -247,50 +230,16 @@ function SampleCardAccordionItem({ ...props }: SampleCardAccordionItemProps) {
       </AccordionTrigger>
       <AccordionContent className="my-2 flex w-full flex-col space-y-2">
         <div className="flex flex-row items-center gap-1">
-          <Select
-            disabled={cardType !== undefined}
-            value={sampleCardType}
-            onValueChange={(value) =>
-              setSampleCardType(value as SampleCardType)
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select card type" />
-            </SelectTrigger>
-            <SelectContent>
-              {cardModes.map((mode) => (
-                <SelectItem key={mode} value={mode}>
-                  {mode}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <PickCardButtonForm
-            key={`pick-card-${cardIndex}-${sampleCardType}`} // force re-render when sampleCardType changes to reset the form default values
-            cardMode={sampleCardType}
+            key={`pick-card-${cardIndex}-${cardType}`} // force re-render when cardType changes
+            cardMode={cardType}
             index={cardIndex}
             variant={"outline"}
             disabled={cardStatus === "CardNotFound"}
           />
         </div>
-        {cardStatus === "CardNotFound" && (
-          <InfoTooltip variant={"destructive"}>
-            <p className="w-40 text-sm">
-              Card not found. Please run 'Detect Cards' to update the card hotel
-              information.
-            </p>
-          </InfoTooltip>
-        )}
-        {cardStatus === "NameNotFound" && (
-          <InfoTooltip variant={"subtle"}>
-            <p className="w-40 text-sm">
-              Card detected but not identified. Please check if the card is
-              properly placed in the hotel and if the qr code is not damaged.
-            </p>
-          </InfoTooltip>
-        )}
 
-        <SampleCardItems cardIndex={cardIndex} type={sampleCardType} />
+        <SampleCardItems cardIndex={cardIndex} type={cardType ?? "standard"} />
       </AccordionContent>
     </AccordionItem>
   );

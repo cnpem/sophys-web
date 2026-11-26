@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
 import { z } from "zod";
 import { useStore } from "@sophys-web/api-client/hooks";
 import { usePvData } from "@sophys-web/pvws-store";
@@ -212,10 +213,20 @@ type SampleRecord = Record<
 
 interface UseSampleStoreCard {
   cardName: string | undefined;
-  cardStatus: "CardNotFound" | "NameNotFound" | "Identified";
+  cardStatus: "CardNotFound" | "NameNotFound" | "Identified" | "StoreMismatch";
   samples: SampleRecord;
   cardType: z.infer<typeof validCardType> | undefined;
-  inconsistentSampleIds: string[];
+}
+
+function parseCardTypeFromCardName(
+  cardName: string | undefined,
+): z.infer<typeof validCardType> | undefined {
+  if (!cardName) return undefined;
+  const [typeCode, _unusedNumber] = cardName.split("_");
+  if (typeCode === "STD") return "standard";
+  if (typeCode === "CAP") return "capillary";
+  // Default return for unreconized typeCode
+  return undefined;
 }
 
 export const useSampleStoreCard = (
@@ -223,76 +234,84 @@ export const useSampleStoreCard = (
 ): UseSampleStoreCard => {
   const pvName = `SPU:B:YASKAWA01:Card${cardIndex}_RBV`;
   const pvData = usePvData(pvName);
+
+  const pendingDeleteSamples = useRef(new Set<string>());
+
   const cardName = pvData?.text ?? undefined;
   const status = getCardNameStatus(cardName);
+  const cardType = parseCardTypeFromCardName(cardName);
 
-  const { storeData } = useSampleStore();
+  const { storeData, deleteSample } = useSampleStore();
 
-  const derived = useMemo<
-    Omit<UseSampleStoreCard, "cardName" | "cardStatus" | "clearCardSamples">
-  >(() => {
-    if (!storeData) {
-      return {
-        samples: {},
-        cardType: undefined,
-        inconsistentSampleIds: [],
-      };
-    }
-
+  // Memoized computation of samples and mismatched IDs
+  // 1. Parse the sample IDs in the store
+  // 2. Filter out samples that do not belong to the current card
+  // 3. Check if the sample type matches the card type and collect mismatched IDs for deletion
+  // 4. Return the valid samples and the list of mismatched IDs
+  const { samples, mismatchedIds } = useMemo<{
+    samples: SampleRecord;
+    mismatchedIds: string[];
+  }>(() => {
     const samples: SampleRecord = {};
+    const mismatchedIds: string[] = [];
 
-    Object.keys(storeData).forEach((id) => {
+    for (const [id, sample] of Object.entries(storeData ?? {})) {
       const parsed = sampleIdDecoder.safeParse(id);
-      const sample = storeData[id];
 
-      if (!parsed.success || parsed.data.card !== cardIndex || !sample) {
-        return;
+      if (!parsed.success) {
+        toast.error("Unrecognized sample ID.", {
+          description: `Sample ID ${id} will be removed from store.`,
+        });
+        mismatchedIds.push(id);
+        continue;
       }
 
-      samples[id] = {
-        decodedId: parsed.data,
-        data: sample,
-      };
+      // The store may contain samples for other cards.
+      if (parsed.data.card !== cardIndex) continue;
+
+      if (cardType && parsed.data.type !== cardType) {
+        toast.error("Invalid sample ID.", {
+          description: `Sample ID ${id} has type ${parsed.data.type}, which does not match the card type ${cardType}. Sample will be removed from store.`,
+        });
+        mismatchedIds.push(id);
+        continue;
+      }
+
+      samples[id] = { decodedId: parsed.data, data: sample };
+    }
+
+    return { samples, mismatchedIds };
+  }, [storeData, cardIndex, cardType]);
+
+  // Effect to delete mismatched samples from the store
+  useEffect(() => {
+    const currentMismatches = new Set(mismatchedIds);
+
+    for (const id of pendingDeleteSamples.current) {
+      if (!currentMismatches.has(id)) pendingDeleteSamples.current.delete(id);
+    }
+
+    for (const id of mismatchedIds) {
+      if (pendingDeleteSamples.current.has(id)) continue;
+      pendingDeleteSamples.current.add(id);
+
+      void deleteSample(id).catch((cause: unknown) => {
+        pendingDeleteSamples.current.delete(id);
+        console.error(`Failed to delete mismatched sample ${id}:`, cause);
+        toast.error(`Failed to remove mismatched sample ${id}.`);
+      });
+    }
+  }, [deleteSample, mismatchedIds]);
+
+  if (status === "Identified" && !cardType) {
+    toast.error("Unrecognized card type", {
+      description: `Card ${cardIndex} has an unrecognized type in its name: ${cardName}, please check the card and the store.`,
     });
-
-    if (Object.keys(samples).length === 0) {
-      return {
-        samples: {},
-        cardType: undefined,
-        inconsistentSampleIds: [],
-      };
-    }
-
-    const types = new Set(Object.values(samples).map((s) => s.decodedId.type));
-    const firstType = types.values().next().value;
-    if (types.size > 1) {
-      const inconsistentSampleIds = Object.values(samples)
-        .filter((s) => s.decodedId.type !== firstType)
-        .map((s) => sampleIdEncoder.parse(s.decodedId));
-      return {
-        samples,
-        cardType: undefined,
-        inconsistentSampleIds,
-      };
-    }
-
-    if (firstType !== "standard" && firstType !== "capillary") {
-      return {
-        samples,
-        cardType: undefined,
-        inconsistentSampleIds: [],
-      };
-    }
-
-    return {
-      samples,
-      cardType: firstType,
-      inconsistentSampleIds: [],
-    };
-  }, [storeData, cardIndex]);
+  }
 
   return {
-    ...derived,
+    samples,
+    cardType,
     cardName: status === "Identified" ? cardName : undefined,
     cardStatus: status,
   };
