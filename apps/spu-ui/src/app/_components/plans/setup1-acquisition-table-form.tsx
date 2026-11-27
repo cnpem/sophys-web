@@ -21,7 +21,6 @@ import { planSchema } from "./setup1-complete-acquisition-form";
 export const acquisitionTableSchema = planSchema.omit({
   agentsDuration: true,
   agentsList: true,
-  standardOption: true,
   proposal: true,
 });
 
