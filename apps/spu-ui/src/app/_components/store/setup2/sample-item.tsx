@@ -436,6 +436,7 @@ function AcquisitionMenuItem({
         <Setup2AquisitionForm
           params={{
             sampleTag: sample.sampleTag,
+            sampleType: sample.sampleType,
           }}
           onSubmitSuccess={handleSubmitSuccess}
         />

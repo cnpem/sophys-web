@@ -29,8 +29,16 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { Label } from "@sophys-web/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@sophys-web/ui/select";
 import { Switch } from "@sophys-web/ui/switch";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
+import { sampleTypeOptions } from "../store/setup2/constants";
 import {
   acquireTimeSchema,
   proposalSchema,
@@ -44,6 +52,7 @@ export const schema = z.object({
   numExposures: z.coerce.number().int().positive(),
   proposal: proposalSchema,
   sampleTag: sampleTagSchema,
+  sampleType: z.enum(sampleTypeOptions),
   usePimega: z.boolean().optional().default(true),
   usePicolo: z.boolean().optional().default(true),
   detReadout: z.coerce.number().positive().optional().default(0.001),
@@ -68,6 +77,7 @@ export function Setup2AquisitionForm({
       detReadout: params?.detReadout ?? 0.001,
       proposal: userData?.proposal ?? "",
       sampleTag: params?.sampleTag ?? "",
+      sampleType: params?.sampleType ?? "sample",
       usePimega: params?.usePimega ?? true,
       usePicolo: params?.usePicolo ?? true,
     },
@@ -136,6 +146,44 @@ export function Setup2AquisitionForm({
                   </InputGroupAddon>
                 )}
               </InputGroup>
+            </Field>
+          )}
+        />
+        <Controller
+          name="sampleType"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel htmlFor="sampleType">
+                Sample Type
+                <InfoTooltip>
+                  <FieldDescription>Type of the sample.</FieldDescription>
+                </InfoTooltip>
+              </FieldLabel>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                }}
+                defaultValue={field.value}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a sample type" />
+                  {fieldState.invalid && (
+                    <InputGroupAddon align={"inline-end"}>
+                      <InfoTooltip variant={"destructive"}>
+                        {fieldState.error?.message}
+                      </InfoTooltip>
+                    </InputGroupAddon>
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  {sampleTypeOptions.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
           )}
         />
