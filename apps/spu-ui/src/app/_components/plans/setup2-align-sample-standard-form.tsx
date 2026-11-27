@@ -18,24 +18,28 @@ import {
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
-import { capillaryCardSlotLimitsMilimeters } from "../store/setup2/constants";
+import { cardSlotRadius } from "../store/setup2/constants";
+import { isValidCardCoordinatesGridSlot } from "../store/setup2/use-sample-store";
 
 const name = "setup2_move_inside_card";
 
 const schema = z.object({
-  x: z.coerce
-    .number()
-    .min(capillaryCardSlotLimitsMilimeters.x.min)
-    .max(capillaryCardSlotLimitsMilimeters.x.max),
-  y: z.coerce
-    .number()
-    .min(capillaryCardSlotLimitsMilimeters.y.min)
-    .max(capillaryCardSlotLimitsMilimeters.y.max),
+  x: z.coerce.number(),
+  y: z.coerce.number(),
 });
+
+const schemaRadius = schema.refine(
+  (data) => isValidCardCoordinatesGridSlot({ x: data.x, y: data.y }),
+  (data) => ({
+    message: `Coordinates must be within a circle of radius ${cardSlotRadius}mm. 
+    Radius for (${data.x},${data.y}): ${Math.sqrt(data.x ** 2 + data.y ** 2).toFixed(2)}`,
+    path: ["x"],
+  }),
+);
 
 export { name, schema };
 
-export function MoveInsideCardForm({
+export function AlignSampleStandardForm({
   className,
   onSubmitSuccess,
   x,
@@ -48,16 +52,16 @@ export function MoveInsideCardForm({
 }) {
   const { add } = useQueue();
   const form = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schemaRadius),
     defaultValues: {
       x: x ?? 0,
       y: y ?? 0,
     },
   });
 
-  function onSubmit(data: z.infer<typeof schema>) {
+  function onSubmit(data: z.infer<typeof schemaRadius>) {
     toast.info("Submitting sample...");
-    const kwargs = schema.parse(data);
+    const kwargs = schemaRadius.parse(data);
     add.mutate(
       {
         item: {
@@ -99,7 +103,8 @@ export function MoveInsideCardForm({
                   Sample X
                   <InfoTooltip>
                     <FieldDescription>
-                      Position X of the sample on the card slot.
+                      Position X of the sample on the card slot. Must be within
+                      a circle of radius {cardSlotRadius}mm.
                     </FieldDescription>
                   </InfoTooltip>
                 </FieldLabel>
@@ -132,7 +137,8 @@ export function MoveInsideCardForm({
                   Sample Y
                   <InfoTooltip>
                     <FieldDescription>
-                      Position Y of the sample on the card slot.
+                      Position Y of the sample on the card slot. Must be within
+                      a circle of radius {cardSlotRadius}mm.
                     </FieldDescription>
                   </InfoTooltip>
                 </FieldLabel>

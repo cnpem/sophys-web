@@ -27,13 +27,13 @@ import {
 import type { cardModes } from "./constants";
 import type { Sample } from "./use-sample-store";
 import { Setup2AquisitionForm } from "../../plans/setup2-acquisition";
+import { AlignSampleCapillaryForm } from "../../plans/setup2-align-sample-capillary-form";
+import { AlignSampleStandardForm } from "../../plans/setup2-align-sample-standard-form";
 import { CompleteAcquisitionForm } from "../../plans/setup2-complete-acquisition-form";
 import { Setup2FindSampleHorizontalScanForm } from "../../plans/setup2-find-sample-horizontal-scan";
 import { Setup2FindSampleVerticalScanForm } from "../../plans/setup2-find-sample-vertical-scan";
-import { MoveInsideCardForm } from "../../plans/setup2-move-inside-card-form";
-import { MoveInsideSampleForm } from "../../plans/setup2-move-inside-sample-form";
 import { MoveToSampleForm } from "../../plans/setup2-move-to-sample-form";
-import { capillaryCardSlotLimitsMilimeters } from "./constants";
+import { capillaryCardSlotLimitsMilimeters, cardSlotRadius } from "./constants";
 import { DeleteSampleForm } from "./delete-sample-form";
 import { EditSampleForm, RegisterNewSampleForm } from "./register-sample-form";
 import { sampleIdDecoder, useSampleStore } from "./use-sample-store";
@@ -216,13 +216,13 @@ function SampleDropdownMenu({
           />
         )}
         {cardType === "standard" && (
-          <MoveInsideSampleMenuItem
+          <AlignSampleStandardMenuItem
             sample={sample}
             onSubmitCallback={() => setOpen(false)}
           />
         )}
         {cardType === "capillary" && (
-          <MoveInsideCardMenuItem
+          <AlignSampleCapillaryMenuItem
             sample={sample}
             onSubmitCallback={() => setOpen(false)}
           />
@@ -495,7 +495,7 @@ function MoveToSampleMenuItem({
   );
 }
 
-function MoveInsideSampleMenuItem({
+function AlignSampleStandardMenuItem({
   sample,
   onSubmitCallback,
 }: {
@@ -517,17 +517,18 @@ function MoveInsideSampleMenuItem({
       <DialogTrigger asChild>
         <DropdownMenuItem onSelect={handleOpen}>
           <CircleDotIcon className="mr-2 size-4" />
-          Move Inside Sample
+          Align Sample
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Move Inside Sample</DialogTitle>
+          <DialogTitle>Align Sample</DialogTitle>
           <DialogDescription className="flex flex-col items-center">
-            Move inside sample
+            Align sample in the slot for the standard card with coordinates
+            within a circle of radius {cardSlotRadius}mm.
           </DialogDescription>
         </DialogHeader>
-        <MoveInsideSampleForm
+        <AlignSampleStandardForm
           x={sample.position?.x}
           y={sample.position?.y}
           onSubmitSuccess={handleSubmitSuccess}
@@ -537,7 +538,7 @@ function MoveInsideSampleMenuItem({
   );
 }
 
-function MoveInsideCardMenuItem({
+function AlignSampleCapillaryMenuItem({
   sample,
   onSubmitCallback,
 }: {
@@ -559,21 +560,22 @@ function MoveInsideCardMenuItem({
       <DialogTrigger asChild>
         <DropdownMenuItem onSelect={handleOpen}>
           <CircleDotIcon className="mr-2 size-4" />
-          Move Inside Card
+          Align Sample
         </DropdownMenuItem>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Move Inside Card</DialogTitle>
+          <DialogTitle>Align Sample</DialogTitle>
           <DialogDescription className="flex flex-col items-center">
-            Move inside the capillary card window within the constraints for x:{" "}
+            Align sample in the capillary card window within the constraints for
+            x:{" "}
             {`[${capillaryCardSlotLimitsMilimeters.x.min}, ${capillaryCardSlotLimitsMilimeters.x.max}]`}{" "}
             and y:{" "}
             {`[${capillaryCardSlotLimitsMilimeters.y.min}, ${capillaryCardSlotLimitsMilimeters.y.max}]`}
             .
           </DialogDescription>
         </DialogHeader>
-        <MoveInsideCardForm
+        <AlignSampleCapillaryForm
           x={sample.position?.x}
           y={sample.position?.y}
           onSubmitSuccess={handleSubmitSuccess}
