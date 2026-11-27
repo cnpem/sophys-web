@@ -29,10 +29,8 @@ import {
 } from "@sophys-web/ui/form";
 import { Input } from "@sophys-web/ui/input";
 import { ScrollArea } from "@sophys-web/ui/scroll-area";
-import type { cleaningKwargsSchema } from "../../plans/setup1-acquisition-cleaning-form";
 import type { acquisitionTableSchema } from "../../plans/setup1-acquisition-table-form";
 import type { Sample } from "./use-sample-store";
-import { AcquisitionCleaningForm } from "../../plans/setup1-acquisition-cleaning-form";
 import { AcquisitionTableForm } from "../../plans/setup1-acquisition-table-form";
 import { planName as acquisitionPlanName } from "../../plans/setup1-complete-acquisition-form";
 import { sampleIdFromPosition, useSampleStore } from "./use-sample-store";
@@ -191,7 +189,7 @@ function StepButton({
   );
 }
 
-const stepsMap = ["proposal", "cleaning", "acquisition", "check"] as const;
+const stepsMap = ["proposal", "acquisition", "check"] as const;
 
 function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
   const { data: user } = api.auth.getUser.useQuery();
@@ -199,8 +197,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
 
   const { addBatch } = useQueue();
 
-  const [cleaningParams, setCleaningParams] =
-    useState<z.infer<typeof cleaningKwargsSchema>>();
   const [acquisitionParams, setAcquisitionParams] =
     useState<z.infer<typeof acquisitionTableSchema>[]>();
   const [formProposal, setFormProposal] = useState<string | undefined>();
@@ -213,13 +209,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
       }}
       onSubmit={onSubmitProposal}
     />,
-    <AcquisitionCleaningForm
-      key="cleaning"
-      initialValues={{
-        ...cleaningParams,
-      }}
-      onSubmit={onSubmitCleaning}
-    />,
     <AcquisitionTableForm key="acquisition" onSubmit={onSubmitAcquisition} />,
     <>
       <ScrollArea className="h-72">
@@ -227,7 +216,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
           viewOnly
           data={{
             Proposal: formProposal,
-            Cleaning: cleaningParams,
             Acquisition: acquisitionParams,
           }}
           rootName={"Check"}
@@ -259,12 +247,7 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
 
   function onSubmitProposal(data: z.infer<typeof proposalSchema>) {
     setFormProposal(data.proposal);
-    goTo(stepsMap.indexOf("cleaning"));
-  }
-
-  function onSubmitCleaning(data: z.infer<typeof cleaningKwargsSchema>) {
-    setCleaningParams(data);
-    next();
+    goTo(stepsMap.indexOf("acquisition"));
   }
 
   function onSubmitAcquisition(data: z.infer<typeof acquisitionTableSchema>[]) {
@@ -284,7 +267,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
       kwargs: {
         ...params,
         proposal: formProposal,
-        ...cleaningParams,
       },
       itemType: "plan",
     }));
@@ -332,11 +314,6 @@ function StepByStepForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
           {
             label: "Proposal",
             onClick: () => goTo(0),
-          },
-          {
-            label: "Cleaning",
-            onClick: () => goTo(2),
-            isDisabled: !formProposal || currentStepIdx < 2,
           },
           {
             label: "Acquisition",
