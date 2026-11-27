@@ -15,10 +15,17 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@sophys-web/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@sophys-web/ui/select";
 import { InfoTooltip } from "@sophys-web/widgets/form-components/info-tooltip";
 import type { cardModes } from "./constants";
 import type { Sample } from "./use-sample-store";
-import { cardSlotRadius } from "./constants";
+import { cardSlotRadius, sampleTypeOptions } from "./constants";
 import {
   sampleSchema,
   sampleSchemaValidPosition,
@@ -208,6 +215,7 @@ export function RegisterNewSampleForm({
     defaultValues: {
       id: sampleId,
       sampleTag: "",
+      sampleType: sampleTypeOptions[0],
       position: undefined,
       notes: "",
     },
@@ -250,6 +258,44 @@ export function RegisterNewSampleForm({
                   </InputGroupAddon>
                 )}
               </InputGroup>
+            </Field>
+          )}
+        />
+        <Controller
+          name="sampleType"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel htmlFor="sampleType">
+                Sample Type
+                <InfoTooltip>
+                  <FieldDescription>Type of the sample.</FieldDescription>
+                </InfoTooltip>
+              </FieldLabel>
+              <Select
+                onValueChange={(value) => {
+                  field.onChange(value);
+                }}
+                defaultValue={field.value}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a sample type" />
+                  {fieldState.invalid && (
+                    <InputGroupAddon align={"inline-end"}>
+                      <InfoTooltip variant={"destructive"}>
+                        {fieldState.error?.message}
+                      </InfoTooltip>
+                    </InputGroupAddon>
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  {sampleTypeOptions.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
           )}
         />

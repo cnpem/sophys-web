@@ -33,3 +33,4 @@ export const capillaryCardSlotLimitsMilimeters = {
   x: { min: 0, max: 35 },
   y: { min: 0, max: 50 },
 };
+export const sampleTypeOptions = ["sample", "buffer"] as const;

@@ -25,7 +25,7 @@ import {
 import { DeleteSamplesDialog } from "./delete-samples";
 import { OnDemandActions } from "./on-demand-actions-dropdown";
 import { SampleCardState } from "./sample-card-state";
-import { SampleItem } from "./sample-item";
+import { SampleItem, sampleTypeVariants } from "./sample-item";
 import {
   sampleIdEncoder,
   useSampleStore,
@@ -215,10 +215,41 @@ function SampleCardItems({
   return <SampleCardGrid cardIndex={cardIndex} />;
 }
 
-// all sampleIds should contain
+function SampleTypeLegend() {
+  return (
+    <div className="mt-2 flex flex-row items-center justify-end gap-2 text-xs">
+      <span
+        className={cn(
+          "flex items-center justify-center rounded-full border",
+          sampleTypeVariants({
+            sampleType: "sample",
+            registerState: "registered",
+          }),
+          "size-5 text-xs",
+        )}
+      >
+        s
+      </span>
+      <span>sample</span>
+      <span
+        className={cn(
+          "flex items-center justify-center rounded-full border",
+          sampleTypeVariants({
+            sampleType: "buffer",
+            registerState: "registered",
+          }),
+          "size-5 text-xs",
+        )}
+      >
+        b
+      </span>
+      <span>buffer</span>
+    </div>
+  );
+}
+
 function SampleCardAccordionItem({ ...props }: SampleCardAccordionItemProps) {
   const cardIndex = props.value;
-  // const { cardName, status } = useSampleCardName(cardIndex);
   const [sampleCardType, setSampleCardType] =
     useState<SampleCardType>("standard");
 
@@ -291,6 +322,7 @@ function SampleCardAccordionItem({ ...props }: SampleCardAccordionItemProps) {
         )}
 
         <SampleCardItems cardIndex={cardIndex} type={sampleCardType} />
+        <SampleTypeLegend />
       </AccordionContent>
     </AccordionItem>
   );
