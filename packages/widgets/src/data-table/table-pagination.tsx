@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@sophys-web/ui/select";
+import { ClearQueue } from "../queue-table/clear-queue";
 import { DataTableViewOptions } from "./column-toggle";
 
 interface DataTablePaginationProps<TData> {
@@ -22,7 +23,8 @@ interface DataTablePaginationProps<TData> {
 
 export function DataTablePagination<TData>({
   table,
-}: DataTablePaginationProps<TData>) {
+  tableType,
+}: DataTablePaginationProps<TData> & { tableType?: "queue" }) {
   const rows = table.getFilteredRowModel().rows.length;
   return (
     <div className="mt-auto flex items-center justify-between gap-2">
@@ -103,6 +105,7 @@ export function DataTablePagination<TData>({
             <span className="sr-only">Go to last page</span>
             <ChevronsRightIcon />
           </Button>
+          {tableType == "queue" && <ClearQueue />}
         </div>
       </div>
     </div>
