@@ -11,6 +11,7 @@ import {
   cardSlotRadius,
   cardTypesCapillary,
   cardTypesGrid,
+  sampleTypeOptions,
 } from "./constants";
 
 const STORE_INSTANCE_NAME = "sampleStoreSetup2";
@@ -136,6 +137,7 @@ export const sampleIdEncoder = z
 export const sampleSchema = z.object({
   id: z.string(),
   sampleTag: sampleTagSchema,
+  sampleType: z.enum(sampleTypeOptions),
   position: z
     .object({
       x: z.coerce.number(),

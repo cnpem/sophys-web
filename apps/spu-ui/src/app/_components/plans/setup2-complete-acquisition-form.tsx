@@ -29,6 +29,7 @@ import {
   cardColumns,
   cardIndexOptions,
   cardRows,
+  sampleTypeOptions,
 } from "../store/setup2/constants";
 import {
   acquireTimeSchema,
@@ -40,6 +41,7 @@ const schema = z
   .object({
     proposal: proposalSchema,
     sampleTag: sampleTagSchema,
+    sampleType: z.enum(sampleTypeOptions),
     acquireTime: acquireTimeSchema,
     numExposures: z.coerce
       .number()
@@ -106,6 +108,7 @@ export function CompleteAcquisitionForm({
     defaultValues: {
       proposal: userData?.proposal ?? "",
       sampleTag: sampleParams?.sampleTag ?? "",
+      sampleType: sampleParams?.sampleType ?? "sample",
       acquireTime: 0.1,
       numExposures: 1,
       cardIndex: cardIndex,
@@ -113,8 +116,8 @@ export function CompleteAcquisitionForm({
       retrieveCard: true,
       usePimega: true,
       usePicolo: false,
-      samplePosX: sampleParams?.position?.x,
-      samplePosY: sampleParams?.position?.y,
+      samplePosX: sampleParams?.position?.x ?? 0,
+      samplePosY: sampleParams?.position?.y ?? 0,
       ...(cardPosition
         ? { col: cardPosition.column, row: cardPosition.row }
         : {}),
@@ -166,6 +169,35 @@ export function CompleteAcquisitionForm({
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="sampleType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sample Type</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {sampleTypeOptions.map((option) => {
+                      return (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

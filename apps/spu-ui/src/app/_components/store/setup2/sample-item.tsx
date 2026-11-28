@@ -38,10 +38,15 @@ import { DeleteSampleForm } from "./delete-sample-form";
 import { EditSampleForm, RegisterNewSampleForm } from "./register-sample-form";
 import { sampleIdDecoder, useSampleStore } from "./use-sample-store";
 
-const sampleTypeVariants = cva(
+export const sampleTypeVariants = cva(
   "flex items-center justify-around border text-sm",
   {
     variants: {
+      sampleType: {
+        sample: "border-cyan-400 bg-cyan-300 text-cyan-800 hover:bg-cyan-300",
+        buffer:
+          "border-cyan-300 bg-cyan-200/60 text-cyan-600 hover:bg-cyan-200",
+      },
       cardType: {
         standard: "size-10 rounded-full",
         capillary: "h-32 w-6 rounded-md",
@@ -50,8 +55,7 @@ const sampleTypeVariants = cva(
         unregistered:
           "bg-muted cursor-cell text-gray-800 hover:bg-gray-100 hover:ring hover:ring-gray-400",
 
-        registered:
-          "hover:ring-primary/50 cursor-context-menu border-orange-800/10 bg-orange-300 text-gray-800 hover:bg-orange-300/90 hover:ring",
+        registered: "cursor-context-menu hover:ring",
       },
     },
     defaultVariants: {
@@ -165,19 +169,18 @@ function SampleDropdownTrigger({ sample }: { sample: Sample }) {
     console.error("Failed to decode sample ID:", decoded.error);
     return <div className={cn("text-destructive")}>?</div>;
   }
-  const { position, type } = decoded.data;
   return (
     <DropdownMenuTrigger asChild>
       <button
         className={cn(
           sampleTypeVariants({
-            cardType: type,
+            cardType: decoded.data.type,
             registerState: "registered",
+            sampleType: sample.sampleType,
           }),
         )}
       >
-        {type === "capillary" && "s"}
-        {type === "standard" && `${position.column}${position.row}`}
+        {sample.sampleType.charAt(0)}
       </button>
     </DropdownMenuTrigger>
   );
@@ -433,6 +436,7 @@ function AcquisitionMenuItem({
         <Setup2AquisitionForm
           params={{
             sampleTag: sample.sampleTag,
+            sampleType: sample.sampleType,
           }}
           onSubmitSuccess={handleSubmitSuccess}
         />
